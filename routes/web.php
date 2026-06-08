@@ -290,6 +290,12 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/registrar/grade-lock/unlock-requests/{unlockRequest}/approve', [App\Http\Controllers\Admin\GradeLockController::class, 'approveUnlock'])->name('registrar.grade-lock.approve');
         Route::post('/registrar/grade-lock/unlock-requests/{unlockRequest}/deny',    [App\Http\Controllers\Admin\GradeLockController::class, 'denyUnlock'])   ->name('registrar.grade-lock.deny');
 
+        // Assessment & Finalization
+        Route::get( '/registrar/assessment',                  [App\Http\Controllers\Dashboard\AssessmentController::class, 'index'])           ->name('registrar.assessment');
+        Route::post('/registrar/assessment/finalize-section', [App\Http\Controllers\Dashboard\AssessmentController::class, 'finalizeSection']) ->name('registrar.assessment.finalize-section');
+        Route::post('/registrar/assessment/lock-section',     [App\Http\Controllers\Dashboard\AssessmentController::class, 'lockSection'])     ->name('registrar.assessment.lock-section');
+        Route::post('/registrar/assessment/finalize-quarter', [App\Http\Controllers\Dashboard\AssessmentController::class, 'finalizeQuarter']) ->name('registrar.assessment.finalize-quarter');
+
         // Student Promotion and Advancement
         Route::get( '/registrar/promotion', [App\Http\Controllers\Dashboard\PromotionController::class, 'index'])   ->name('registrar.promotion');
         Route::post('/registrar/promotion', [App\Http\Controllers\Dashboard\PromotionController::class, 'promote']) ->name('registrar.promotion.promote');
