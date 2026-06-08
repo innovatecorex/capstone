@@ -1,0 +1,20 @@
+LOGIN PASSWORD TOGGLE FIX
+=========================
+
+PROBLEM
+  The password <input> tag was never closed (missing the ">"), so the browser
+  mis-rendered the field. That caused the plaintext flicker on focus/refocus,
+  and the show/hide eye was unreliable.
+
+FIX
+  - Properly close the password input ( ... autocomplete="current-password" /> ).
+  - Password now stays HIDDEN by default; click the eye to show/hide.
+  - The eye icon now switches between "eye" (hidden) and "eye-off" (showing).
+  - Hide Edge's built-in reveal icon so there's only one control.
+
+STEPS (PowerShell):
+  cd D:\xampp\htdocs\capstone
+  Expand-Archive -Path "$HOME\Downloads\login-fix.zip" -DestinationPath . -Force
+  php artisan view:clear
+
+  Then hard-refresh the login page (Ctrl+Shift+R).
