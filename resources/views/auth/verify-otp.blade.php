@@ -198,20 +198,14 @@
       <div class="status-msg">{{ session('status') }}</div>
     @endif
 
-    @if(session('dev_otp'))
-    <div style="background:#fff8e1;border:1.5px solid #f59e0b;border-radius:10px;padding:10px 14px;margin-bottom:16px;text-align:center;">
-      <div style="font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#92400e;margin-bottom:3px;">
-        Email delivery unavailable — use this code
+    <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:11px 14px;margin-bottom:16px;display:flex;align-items:flex-start;gap:10px;">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="#2563eb" style="width:18px;height:18px;flex-shrink:0;margin-top:1px;">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/>
+      </svg>
+      <div style="font-size:.78rem;color:#1e40af;line-height:1.5;">
+        <strong>Check your email.</strong> A 6-digit OTP has been sent to your registered email address. If you don't see it, check your spam or junk folder.
       </div>
-      <div id="dev-otp-code"
-           style="font-size:1.55rem;font-weight:900;font-family:monospace;letter-spacing:.3em;color:#1e293b;cursor:pointer;padding:3px 0;user-select:none;transition:color .2s;"
-           title="Click to auto-fill &amp; copy"
-           onclick="fillAndCopy('{{ session('dev_otp') }}')">
-        {{ session('dev_otp') }}
-      </div>
-      <div id="dev-otp-hint" style="font-size:.62rem;color:#a16207;margin-top:2px;">Tap to auto-fill &amp; copy</div>
     </div>
-    @endif
 
     <form method="POST" action="{{ route('password.verify-otp.submit') }}" id="otp-form">
       @csrf
@@ -277,19 +271,6 @@
     const clean = String(code).replace(/[^0-9]/g, '').slice(0, 6);
     clean.split('').forEach((char, i) => { if (digits[i]) digits[i].value = char; });
     digits[Math.min(clean.length - 1, digits.length - 1)].focus();
-  }
-
-  function fillAndCopy(code) {
-    fillDigits(code);
-    navigator.clipboard.writeText(code).catch(() => {});
-    const el   = document.getElementById('dev-otp-code');
-    const hint = document.getElementById('dev-otp-hint');
-    el.style.color    = '#059669';
-    hint.textContent  = 'Filled & copied!';
-    setTimeout(() => {
-      el.style.color   = '#1e293b';
-      hint.textContent = 'Tap to auto-fill & copy';
-    }, 2000);
   }
 
   digits.forEach((input, index) => {
