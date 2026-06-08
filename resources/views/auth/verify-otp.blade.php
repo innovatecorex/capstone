@@ -199,19 +199,17 @@
     @endif
 
     @if(session('dev_otp'))
-    <div style="background:#fff8e1;border:1.5px solid #f59e0b;border-radius:12px;padding:16px 18px;margin-bottom:20px;text-align:center;">
-      <div style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#92400e;margin-bottom:4px;">
+    <div style="background:#fff8e1;border:1.5px solid #f59e0b;border-radius:10px;padding:10px 14px;margin-bottom:16px;text-align:center;">
+      <div style="font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#92400e;margin-bottom:3px;">
         Email delivery unavailable — use this code
       </div>
-      <div style="font-size:.74rem;color:#78350f;margin-bottom:10px;">
-        Copy this OTP and enter it below to continue.
-      </div>
-      <div style="font-size:2.2rem;font-weight:900;font-family:monospace;letter-spacing:.35em;color:#1e293b;cursor:pointer;"
-           title="Click to copy"
-           onclick="navigator.clipboard.writeText('{{ session('dev_otp') }}').then(()=>this.style.color='#059669')">
+      <div id="dev-otp-code"
+           style="font-size:1.55rem;font-weight:900;font-family:monospace;letter-spacing:.3em;color:#1e293b;cursor:pointer;padding:3px 0;user-select:none;transition:color .2s;"
+           title="Click to auto-fill &amp; copy"
+           onclick="fillAndCopy('{{ session('dev_otp') }}')">
         {{ session('dev_otp') }}
       </div>
-      <div style="font-size:.7rem;color:#a16207;margin-top:6px;">Tap the code to copy</div>
+      <div id="dev-otp-hint" style="font-size:.62rem;color:#a16207;margin-top:2px;">Tap to auto-fill &amp; copy</div>
     </div>
     @endif
 
@@ -275,31 +273,38 @@
   // ── Auto-advance between digit boxes ───────────────────────────────────
   const digits = document.querySelectorAll('.otp-digit');
 
+  function fillDigits(code) {
+    const clean = String(code).replace(/[^0-9]/g, '').slice(0, 6);
+    clean.split('').forEach((char, i) => { if (digits[i]) digits[i].value = char; });
+    digits[Math.min(clean.length - 1, digits.length - 1)].focus();
+  }
+
+  function fillAndCopy(code) {
+    fillDigits(code);
+    navigator.clipboard.writeText(code).catch(() => {});
+    const el   = document.getElementById('dev-otp-code');
+    const hint = document.getElementById('dev-otp-hint');
+    el.style.color    = '#059669';
+    hint.textContent  = 'Filled & copied!';
+    setTimeout(() => {
+      el.style.color   = '#1e293b';
+      hint.textContent = 'Tap to auto-fill & copy';
+    }, 2000);
+  }
+
   digits.forEach((input, index) => {
-    input.addEventListener('input', (e) => {
-      // Allow only numbers
+    input.addEventListener('input', () => {
       input.value = input.value.replace(/[^0-9]/g, '');
-      if (input.value && index < digits.length - 1) {
-        digits[index + 1].focus();
-      }
+      if (input.value && index < digits.length - 1) digits[index + 1].focus();
     });
 
     input.addEventListener('keydown', (e) => {
-      if (e.key === 'Backspace' && !input.value && index > 0) {
-        digits[index - 1].focus();
-      }
+      if (e.key === 'Backspace' && !input.value && index > 0) digits[index - 1].focus();
     });
 
-    // Handle paste — spread digits across boxes
     input.addEventListener('paste', (e) => {
       e.preventDefault();
-      const pasted = (e.clipboardData || window.clipboardData)
-        .getData('text').replace(/[^0-9]/g, '').slice(0, 6);
-      pasted.split('').forEach((char, i) => {
-        if (digits[i]) digits[i].value = char;
-      });
-      const next = Math.min(pasted.length, digits.length - 1);
-      digits[next].focus();
+      fillDigits((e.clipboardData || window.clipboardData).getData('text'));
     });
   });
 
