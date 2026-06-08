@@ -47,9 +47,11 @@ class DocumentRequestController extends Controller
             ->paginate(20)->withQueryString();
 
         $counts = [
+            'total'      => DocumentRequest::count(),
             'pending'    => DocumentRequest::where('status','pending')->count(),
             'processing' => DocumentRequest::where('status','processing')->count(),
             'ready'      => DocumentRequest::where('status','ready')->count(),
+            'released'   => DocumentRequest::where('status','released')->count(),
         ];
 
         return view('documents.registrar-index', compact('requests','counts','status','search'));

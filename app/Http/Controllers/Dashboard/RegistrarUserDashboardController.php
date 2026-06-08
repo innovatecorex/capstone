@@ -243,7 +243,37 @@ class RegistrarUserDashboardController extends Controller
 
     public function requests(Request $request)
     {
-        return view('dashboard.registrar-requests');
+        $status = $request->get('status');
+        $search = $request->get('search');
+
+        $query = \App\Models\DocumentRequest::with([
+            'student:id,first_name,last_name,lrn',
+            'processor:id,first_name,last_name',
+        ])->latest();
+
+        if ($status) {
+            $query->where('status', $status);
+        }
+
+        if ($search) {
+            $query->whereHas('student', function ($q) use ($search) {
+                $q->where('first_name', 'like', "%{$search}%")
+                  ->orWhere('last_name',  'like', "%{$search}%")
+                  ->orWhere('lrn',        'like', "%{$search}%");
+            });
+        }
+
+        $requests = $query->paginate(20)->withQueryString();
+
+        $counts = [
+            'total'      => \App\Models\DocumentRequest::count(),
+            'pending'    => \App\Models\DocumentRequest::where('status', 'pending')->count(),
+            'processing' => \App\Models\DocumentRequest::where('status', 'processing')->count(),
+            'ready'      => \App\Models\DocumentRequest::where('status', 'ready')->count(),
+            'released'   => \App\Models\DocumentRequest::where('status', 'released')->count(),
+        ];
+
+        return view('dashboard.registrar-requests', compact('requests', 'counts', 'status', 'search'));
     }
 
     public function reportCards(Request $request)
