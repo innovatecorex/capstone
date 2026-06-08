@@ -454,11 +454,19 @@
     background: radial-gradient(circle, rgba(10,31,68,.04) 0%, transparent 70%);
     pointer-events: none;
   }
-  /* 4px gradient top border */
+  /* 4px animated gradient top border */
   .sd-hero__accent {
     position: absolute; top: 0; left: 0; right: 0; height: 4px;
-    background: linear-gradient(90deg, #0a1f44 0%, #d97706 35%, #fbbf24 55%, #7c3aed 100%);
+    background: linear-gradient(90deg,
+      #0a1f44 0%, #1e40af 10%, #d97706 25%, #fbbf24 40%,
+      #7c3aed 55%, #ec4899 68%, #fbbf24 80%, #d97706 90%, #0a1f44 100%);
+    background-size: 250% 100%;
     border-radius: 16px 16px 0 0;
+    animation: accentFlow 5s linear infinite;
+  }
+  @keyframes accentFlow {
+    0%   { background-position: 0% center; }
+    100% { background-position: -250% center; }
   }
   .sd-hero__left { position: relative; z-index: 1; display: flex; align-items: center; gap: 16px; }
   .sd-hero__avatar {
