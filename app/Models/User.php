@@ -90,7 +90,12 @@ class User extends Authenticatable
         try {
             return Crypt::decryptString($value);
         } catch (\Exception $e) {
-            return $value;
+            // Legacy plaintext email (not encrypted)
+            if (filter_var($value, FILTER_VALIDATE_EMAIL)) {
+                return $value;
+            }
+            // Cipher from a different APP_KEY — cannot display
+            return '';
         }
     }
 

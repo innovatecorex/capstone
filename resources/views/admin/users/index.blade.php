@@ -207,7 +207,9 @@
                 <div style="font-weight:600;color:var(--navy);font-size:.82rem;">
                   {{ $user->first_name }} {{ $user->last_name }}
                 </div>
-                <div style="font-size:.7rem;color:var(--gray-400);">{{ $user->email }}</div>
+                <div style="font-size:.7rem;color:var(--gray-400);">
+                  {{ $user->email ?: '—' }}
+                </div>
               </td>
 
               {{-- Username --}}
