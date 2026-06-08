@@ -136,12 +136,13 @@ class UserManagementController extends Controller
             \Log::error('Welcome credentials email failed: ' . $e->getMessage());
         }
 
-        $mailNote = $mailSent
-            ? ' Credentials were emailed to the user.'
-            : ' (Email delivery failed — share these credentials manually.)';
+        if ($mailSent) {
+            return redirect()->route('admin.users.index')
+                ->with('success', "Account created. {$identifierLabel}: <strong>{$assignedIdentifier}</strong> — Username: <strong>{$username}</strong>. Credentials were emailed to <strong>{$validated['email']}</strong>.");
+        }
 
         return redirect()->route('admin.users.index')
-            ->with('success', "Account created. {$identifierLabel}: <strong>{$assignedIdentifier}</strong> — Email: <strong>{$validated['email']}</strong> — Username: <strong>{$username}</strong> — Temp password: <strong>{$tempPassword}</strong>.{$mailNote}");
+            ->with('warning', "Account created but email delivery failed. Share these credentials manually — {$identifierLabel}: <strong>{$assignedIdentifier}</strong> — Email: <strong>{$validated['email']}</strong> — Username: <strong>{$username}</strong> — Temp password: <strong>{$tempPassword}</strong>.");
     }
 
     // ── Show edit form ─────────────────────────────────────────────────────
