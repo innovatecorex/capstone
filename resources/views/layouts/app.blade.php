@@ -21,8 +21,8 @@
   ═══════════════════════════════════════════════════════════ */
 
   .enc-sidebar {
-    background: #1b2b3e;
-    border-right: 1px solid rgba(255,255,255,.06);
+    background: #0f1c32;
+    border-right: 1px solid rgba(255,255,255,.05);
   }
 
   /* ── Brand ────────────────────────────────────────────── */
@@ -215,12 +215,112 @@
   .stu-logout-btn svg { width: 13px; height: 13px; color: rgba(255,255,255,.4); }
   .stu-logout-btn:hover svg { color: #fca5a5; }
 
-  /* ── Glassmorphic top header for students ─────────────── */
+  /* ── Glassmorphic top header ──────────────────────────── */
   .enc-header {
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     background: rgba(255,255,255,.92) !important;
   }
+
+  /* ══════════════════════════════════════════════════════
+     PROFESSIONAL SIDEBAR REFINEMENTS — global polish
+  ══════════════════════════════════════════════════════ */
+
+  /* Richer, deeper sidebar with subtle gradient */
+  .enc-sidebar {
+    background: linear-gradient(180deg, #0c1628 0%, #0f1c32 60%, #101e35 100%);
+    border-right: 1px solid rgba(255,255,255,.04);
+  }
+
+  /* Brand area */
+  .stu-brand {
+    padding: 18px 20px 14px;
+    border-bottom: 1px solid rgba(255,255,255,.05);
+  }
+
+  /* School identity */
+  .stu-school {
+    padding: 11px 18px 12px;
+    background: rgba(0,0,0,.15);
+    border-bottom: 1px solid rgba(255,255,255,.04);
+  }
+  .stu-school__name { color: rgba(255,255,255,.82); font-size: .73rem; }
+  .stu-school__sub  {
+    color: #f59e0b;
+    font-size: .6rem;
+    letter-spacing: .07em;
+    font-weight: 700;
+    margin-top: 2px;
+  }
+
+  /* Section dividers */
+  .stu-section { padding: 18px 8px 4px; }
+  .stu-section__text {
+    font-size: .58rem;
+    font-weight: 700;
+    letter-spacing: .13em;
+    color: rgba(255,255,255,.22);
+  }
+  .stu-section__line { background: rgba(255,255,255,.05); }
+
+  /* Nav items */
+  .stu-nav-item {
+    color: rgba(255,255,255,.52);
+    font-size: .84rem;
+    font-weight: 500;
+    padding: 8px 10px;
+    border-radius: 9px;
+    margin-bottom: 1px;
+    border-left: 2px solid transparent;
+    transition: background .14s, color .14s, border-color .14s;
+  }
+  .stu-nav-item:hover {
+    background: rgba(255,255,255,.055);
+    color: rgba(255,255,255,.86);
+  }
+  /* Remove the old left-border shift hack */
+  .stu-nav-item.active {
+    background: rgba(99,102,241,.16);
+    color: #e0e7ff;
+    font-weight: 600;
+    border-left: 2px solid #6366f1;
+    padding-left: 10px;
+  }
+  .stu-nav-item.active::after { display: none; }
+
+  /* ALL icon bubbles → unified soft monochrome by default */
+  .stu-icon,
+  .si-rose,.si-amber,.si-emerald,.si-sky,
+  .si-violet,.si-yellow,.si-teal,.si-orange {
+    background: rgba(255,255,255,.07) !important;
+    color: rgba(255,255,255,.32) !important;
+    transition: background .14s, color .14s;
+  }
+  .stu-nav-item:hover .stu-icon {
+    background: rgba(255,255,255,.1) !important;
+    color: rgba(255,255,255,.62) !important;
+  }
+  /* Active item gets a clear indigo accent on the icon */
+  .stu-nav-item.active .stu-icon {
+    background: rgba(99,102,241,.28) !important;
+    color: #a5b4fc !important;
+  }
+
+  /* User footer */
+  .stu-footer { border-top: 1px solid rgba(255,255,255,.05); padding: 8px 10px 10px; }
+  .stu-user-card {
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.06);
+  }
+  .stu-user-card:hover { background: rgba(255,255,255,.08); }
+  .stu-avatar {
+    background: linear-gradient(135deg, #3730a3 0%, #4f46e5 100%);
+    border-radius: 9px;
+  }
+  .stu-user-name  { color: rgba(255,255,255,.82); }
+  .stu-user-role  { color: rgba(255,255,255,.28); letter-spacing: .05em; }
+  .stu-logout-btn { border-color: rgba(255,255,255,.07); }
+  .stu-logout-btn:hover { background: rgba(239,68,68,.12); border-color: rgba(239,68,68,.2); }
   </style>
   @endif
 
