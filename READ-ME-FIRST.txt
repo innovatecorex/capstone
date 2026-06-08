@@ -1,20 +1,28 @@
-LOGIN PASSWORD TOGGLE FIX
-=========================
+PERSONAL EMAIL + EMAILED CREDENTIALS
+====================================
 
-PROBLEM
-  The password <input> tag was never closed (missing the ">"), so the browser
-  mis-rendered the field. That caused the plaintext flicker on focus/refocus,
-  and the show/hide eye was unreliable.
+WHAT THIS DOES
+  - Replaces the fake auto-generated @pas.edu.ph email with a REQUIRED
+    "Personal Email" field on the create-user form (a real inbox).
+  - On account creation, emails the username + temp password to that
+    email via SendGrid.
+  - Password reset (forgot-password) now works because the stored email
+    is a real address. (No change needed to the recovery controller.)
 
-FIX
-  - Properly close the password input ( ... autocomplete="current-password" /> ).
-  - Password now stays HIDDEN by default; click the eye to show/hide.
-  - The eye icon now switches between "eye" (hidden) and "eye-off" (showing).
-  - Hide Edge's built-in reveal icon so there's only one control.
+FILES INCLUDED
+  - resources/views/admin/users/create.blade.php   (real email field)
+  - app/Http/Controllers/Admin/UserManagementController.php  (validate + send)
+  - app/Mail/WelcomeCredentialsMail.php             (new mailable)
+  - resources/views/emails/welcome-credentials.blade.php  (new email template)
 
-STEPS (PowerShell):
+STEPS (PowerShell) — stop the server (Ctrl+C) first, then:
   cd D:\xampp\htdocs\capstone
-  Expand-Archive -Path "$HOME\Downloads\login-fix.zip" -DestinationPath . -Force
-  php artisan view:clear
+  Expand-Archive -Path "$HOME\Downloads\email-fix.zip" -DestinationPath . -Force
+  php artisan optimize:clear
+  php artisan serve
 
-  Then hard-refresh the login page (Ctrl+Shift+R).
+TEST
+  1. Go to http://127.0.0.1:8000/admin/users/create
+  2. Create a user with YOUR real email as the Personal Email.
+  3. Check that inbox — the username + temp password should arrive.
+  4. Then test http://127.0.0.1:8000/forgot-password with that same email.

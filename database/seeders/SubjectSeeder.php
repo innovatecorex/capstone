@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Subject;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 /**
  * Seeds a realistic set of subjects per grade level (Grade 7 – Grade 12).
@@ -78,6 +79,7 @@ class SubjectSeeder extends Seeder
         $subject = Subject::firstOrCreate(
             ['subject_code' => $code],
             [
+                'subject_id'   => 'SUBJ-' . strtoupper(Str::random(9)),
                 'subject_name' => $name,
                 'year_level'   => $grade,
                 'description'  => "DepEd K-12 — {$name} ({$grade})",

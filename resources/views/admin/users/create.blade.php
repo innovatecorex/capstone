@@ -208,13 +208,17 @@
 
         {{-- Email --}}
         <div class="cf-group">
-          <label class="cf-label">Institutional Email</label>
-          <div class="cf-email-display">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;color:#c4cdd6;flex-shrink:0">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/>
-            </svg>
-            Auto-generated &nbsp;·&nbsp; <span class="cf-email-preview">[initials]@pas.edu.ph</span>
-          </div>
+          <label class="cf-label" for="email">Personal Email <span class="cf-required">*</span></label>
+          <input type="email" id="email" name="email"
+                 class="cf-input {{ $errors->has('email') ? 'is-error' : '' }}"
+                 placeholder="e.g. juan.delacruz@gmail.com"
+                 value="{{ old('email') }}">
+          @error('email')
+            <div class="cf-error">{{ $message }}</div>
+          @enderror
+          <p style="margin-top:6px;font-size:.8rem;color:#64748b;">
+            A real email the user can access. Login credentials and password resets are sent here.
+          </p>
         </div>
 
         {{-- Gender --}}
@@ -237,7 +241,7 @@
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/>
           </svg>
-          <p>The system will auto-generate a <strong>9-digit ID</strong>, <strong>institutional email</strong>, and a <strong>temporary password</strong>. The user must change their password on first login.</p>
+          <p>The system will auto-generate a <strong>9-digit ID</strong>, a <strong>username</strong>, and a <strong>temporary password</strong>, then email the login credentials to the user's personal email. The user must change their password on first login.</p>
         </div>
 
         <div class="cf-actions">

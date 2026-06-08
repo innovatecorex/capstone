@@ -67,19 +67,20 @@ class UserManagementController extends Controller
         $validated = $request->validate([
             'first_name'      => ['required', 'string', 'max:100'],
             'last_name'       => ['required', 'string', 'max:100'],
+            'email'           => ['required', 'email', 'max:200'],
             'gender'          => ['required', 'in:male,female'],
             'role_id'         => ['required', 'in:01,02,03,04'],
             'lrn'             => ['nullable', 'string', 'digits:9', 'unique:users,lrn'],
             'employee_number' => ['nullable', 'string', 'digits:9', 'unique:users,employee_number'],
         ]);
 
-        // ── Generate institutional email ────────────────────────────────────
-        $validated['email'] = $this->generateInstitutionalEmail($validated['first_name'], $validated['last_name']);
+        // ── Normalize the entered email ─────────────────────────────────────
+        $validated['email'] = strtolower(trim($validated['email']));
 
         // ── Validate email uniqueness via hash (encrypted email can't use unique rule directly) ──
         $emailHash = hash('sha256', strtolower(trim($validated['email'])));
         if (User::where('email_hash', $emailHash)->exists()) {
-            return back()->withInput()->withErrors(['email' => 'Generated email address is already registered. Please adjust names or contact support.']);
+            return back()->withInput()->withErrors(['email' => 'This email address is already registered.']);
         }
 
         // ── Generate role-based identifier if not provided ────────────────
@@ -122,11 +123,25 @@ class UserManagementController extends Controller
         $assignedIdentifier = $user->lrn ?? $user->employee_number;
         $identifierLabel = $user->lrn ? 'Student Number' : 'Employee Number';
 
-        // ── TODO: email the temp password to the user ──────────────────────
-        // Mail::to($user->email)->send(new WelcomeCredentialsMail($user, $tempPassword));
+        // ── Email the login credentials to the user's personal email ───────
+        $mailSent = false;
+        try {
+            \Mail::to($validated['email'])->send(new \App\Mail\WelcomeCredentialsMail(
+                $validated['first_name'],
+                $username,
+                $tempPassword
+            ));
+            $mailSent = true;
+        } catch (\Exception $e) {
+            \Log::error('Welcome credentials email failed: ' . $e->getMessage());
+        }
+
+        $mailNote = $mailSent
+            ? ' Credentials were emailed to the user.'
+            : ' (Email delivery failed — share these credentials manually.)';
 
         return redirect()->route('admin.users.index')
-            ->with('success', "Account created. {$identifierLabel}: <strong>{$assignedIdentifier}</strong> — Email: <strong>{$validated['email']}</strong> — Username: <strong>{$username}</strong> — Temp password: <strong>{$tempPassword}</strong>. Share these credentials securely.");
+            ->with('success', "Account created. {$identifierLabel}: <strong>{$assignedIdentifier}</strong> — Email: <strong>{$validated['email']}</strong> — Username: <strong>{$username}</strong> — Temp password: <strong>{$tempPassword}</strong>.{$mailNote}");
     }
 
     // ── Show edit form ─────────────────────────────────────────────────────
