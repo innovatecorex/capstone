@@ -334,23 +334,57 @@
 
   /* ── Hero ──────────────────────────────────────────────────── */
   .sd-hero {
-    background: linear-gradient(135deg, #1e3a8a 0%, #312e81 50%, #1e1b4b 100%);
-    border-radius: 20px; padding: 28px 32px;
+    background: linear-gradient(135deg, #0d1f3c 0%, #0a1a38 45%, #050d1e 100%);
+    border-radius: 20px; padding: 26px 32px;
     display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap;
     margin-bottom: 20px; position: relative; overflow: hidden;
-    box-shadow: 0 8px 40px rgba(30,58,138,.25);
+    box-shadow: 0 8px 40px rgba(5,13,30,.45), 0 0 0 1px rgba(255,255,255,.06);
   }
-  .sd-hero::before { content: ''; position: absolute; top: -60px; right: -60px; width: 220px; height: 220px; border-radius: 50%; background: rgba(255,255,255,.05); }
-  .sd-hero::after  { content: ''; position: absolute; bottom: -80px; right: 120px; width: 180px; height: 180px; border-radius: 50%; background: rgba(255,255,255,.04); }
-  .sd-hero__left h1 { font-size: 1.55rem; font-weight: 800; color: #fff; margin: 0 0 4px; }
-  .sd-hero__left p  { font-size: .88rem; color: rgba(255,255,255,.6); margin: 0; }
-  .sd-hero__pills   { display: flex; gap: 10px; flex-wrap: wrap; position: relative; z-index: 1; }
+  /* Subtle amber grid mesh */
+  .sd-hero::before {
+    content: ''; position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(251,191,36,.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(251,191,36,.04) 1px, transparent 1px);
+    background-size: 36px 36px; pointer-events: none;
+  }
+  /* Amber radial glow bottom-right */
+  .sd-hero::after {
+    content: ''; position: absolute; bottom: -50px; right: -30px;
+    width: 260px; height: 260px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(251,191,36,.1) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  /* Top amber accent stripe */
+  .sd-hero__accent {
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, #d97706 0%, #facc15 40%, transparent 100%);
+  }
+  .sd-hero__left { position: relative; z-index: 1; display: flex; align-items: center; gap: 16px; }
+  .sd-hero__avatar {
+    width: 50px; height: 50px; border-radius: 14px; flex-shrink: 0;
+    background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.05rem; font-weight: 800; color: #0a1f44; letter-spacing: -.02em;
+    box-shadow: 0 4px 16px rgba(251,191,36,.3);
+  }
+  .sd-hero__text h1 { font-size: 1.6rem; font-weight: 800; color: #fff; margin: 0 0 4px; letter-spacing: -.025em; line-height: 1.15; }
+  .sd-hero__text p  { font-size: .82rem; color: rgba(255,255,255,.48); margin: 0; display: flex; align-items: center; gap: 6px; }
+  .sd-hero__text p span.sep { opacity: .3; }
+  .sd-hero__pills { display: flex; gap: 8px; flex-wrap: wrap; position: relative; z-index: 1; align-items: center; }
   .sd-hero__pill {
-    background: rgba(255,255,255,.22); border: 1px solid rgba(255,255,255,.30); border-radius: 999px;
-    padding: .4rem 1rem; font-size: .8rem; font-weight: 700; color: #fff;
-    display: flex; align-items: center; gap: 6px; backdrop-filter: blur(8px);
+    background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.13);
+    border-radius: 10px; padding: .35rem .9rem;
+    font-size: .76rem; font-weight: 600; color: rgba(255,255,255,.78);
+    display: flex; align-items: center; gap: 6px;
+    backdrop-filter: blur(8px); transition: background .15s, border-color .15s; letter-spacing: .005em;
   }
-  .sd-hero__pill svg { width: 14px; height: 14px; opacity: .85; }
+  .sd-hero__pill:hover { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.22); }
+  .sd-hero__pill svg { width: 13px; height: 13px; opacity: .65; }
+  .sd-hero__pill--active { background: rgba(251,191,36,.13); border-color: rgba(251,191,36,.32); color: #fbbf24; }
+  .sd-hero__pill--active svg { opacity: .9; }
+  .sd-hero__pill--warn { background: rgba(239,68,68,.12); border-color: rgba(239,68,68,.28); color: #fca5a5; }
+  .sd-hero__pill--warn svg { opacity: .9; }
 
   /* ── Stat Strip ─────────────────────────────────────────────── */
   .sd-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-bottom: 20px; }

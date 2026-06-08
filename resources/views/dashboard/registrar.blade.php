@@ -70,16 +70,28 @@
      2. HERO — Welcome + quick pills
 ════════════════════════════════════════════════════ --}}
 <div class="sd-hero">
-  <div class="sd-hero__left" style="position:relative;z-index:1;">
-    <h1>Welcome back, {{ $user->first_name }} 👋</h1>
-    <p>{{ now()->format('l, F d, Y') }} &nbsp;·&nbsp; Registrar's Office Portal</p>
+  <div class="sd-hero__accent"></div>
+
+  <div class="sd-hero__left">
+    <div class="sd-hero__avatar">
+      {{ strtoupper(substr($user->first_name ?? 'R', 0, 1)) }}{{ strtoupper(substr($user->last_name ?? '', 0, 1)) }}
+    </div>
+    <div class="sd-hero__text">
+      <h1>Welcome back, {{ $user->first_name }}</h1>
+      <p>
+        <span>{{ now()->format('l, F d, Y') }}</span>
+        <span class="sep">·</span>
+        <span>Registrar's Office Portal</span>
+      </p>
+    </div>
   </div>
+
   <div class="sd-hero__pills">
     <div class="sd-hero__pill">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0"/></svg>
       Registrar Staff
     </div>
-    <div class="sd-hero__pill">
+    <div class="sd-hero__pill sd-hero__pill--active">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
       {{ ucfirst($user->status ?? 'Active') }}
     </div>
@@ -89,7 +101,7 @@
       {{ $stats['active_academic_year']->year_label }}
     </div>
     @endif
-    <div class="sd-hero__pill">
+    <div class="sd-hero__pill {{ $stats['pending_requests'] > 0 ? 'sd-hero__pill--warn' : '' }}">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-3-3v6m2 7H7a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v11a2 2 0 01-2 2z"/></svg>
       {{ $stats['pending_requests'] }} Pending
     </div>
