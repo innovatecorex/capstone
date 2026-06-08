@@ -55,9 +55,19 @@
      2. HERO — Welcome + quick pills
 ════════════════════════════════════════════════════ --}}
 <div class="sd-hero">
-  <div class="sd-hero__left" style="position:relative;z-index:1;">
-    <h1>Welcome back, {{ $user->first_name }} 👋</h1>
-    <p>{{ now()->format('l, F d, Y') }} &nbsp;·&nbsp; Faculty Portal</p>
+  <div class="sd-hero__accent"></div>
+  <div class="sd-hero__left">
+    <div class="sd-hero__avatar">
+      {{ strtoupper(substr($user->first_name ?? 'F', 0, 1)) }}{{ strtoupper(substr($user->last_name ?? '', 0, 1)) }}
+    </div>
+    <div class="sd-hero__text">
+      <h1>Welcome back, {{ $user->first_name }}</h1>
+      <p>
+        <span>{{ now()->format('l, F d, Y') }}</span>
+        <span class="sep">·</span>
+        <span>Faculty Portal</span>
+      </p>
+    </div>
   </div>
   <div class="sd-hero__pills">
     <div class="sd-hero__pill">

@@ -111,27 +111,45 @@
 @section('content')
 
 {{-- ── Page header ──────────────────────────────────────────────────── --}}
-<div class="enc-page__header">
-  <div class="enc-page__title-row">
-    <div>
-      <h1 class="enc-page__title">Welcome back, {{ auth()->user()->first_name }}</h1>
-      <p class="enc-page__subtitle">Phil. Academy of Sakya — Admin Portal — {{ now()->format('F d, Y') }}</p>
+<div class="sd-hero">
+  <div class="sd-hero__accent"></div>
+  <div class="sd-hero__left">
+    <div class="sd-hero__avatar">
+      {{ strtoupper(substr(auth()->user()->first_name ?? 'A', 0, 1)) }}{{ strtoupper(substr(auth()->user()->last_name ?? '', 0, 1)) }}
     </div>
-    <div class="enc-page__actions">
-      <a href="{{ route('admin.announcements.index') }}" class="enc-btn enc-btn--secondary" style="margin-right:8px;">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/>
-        </svg>
-        Post Announcement
-      </a>
-      <a href="{{ route('admin.users.create') }}" class="enc-btn enc-btn--primary">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z"/>
-        </svg>
-        New User
-      </a>
+    <div class="sd-hero__text">
+      <h1>Welcome back, {{ auth()->user()->first_name }}</h1>
+      <p>
+        <span>{{ now()->format('l, F d, Y') }}</span>
+        <span class="sep">·</span>
+        <span>Admin Portal</span>
+      </p>
     </div>
   </div>
+  <div class="sd-hero__pills">
+    <div class="sd-hero__pill">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0"/></svg>
+      System Admin
+    </div>
+    <div class="sd-hero__pill sd-hero__pill--active">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      {{ ucfirst(auth()->user()->status ?? 'Active') }}
+    </div>
+  </div>
+</div>
+<div class="enc-page__actions" style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:1.25rem;">
+  <a href="{{ route('admin.announcements.index') }}" class="enc-btn enc-btn--secondary">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/>
+    </svg>
+    Post Announcement
+  </a>
+  <a href="{{ route('admin.users.create') }}" class="enc-btn enc-btn--primary">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z"/>
+    </svg>
+    New User
+  </a>
 </div>
 
 {{-- ── Stat strip ───────────────────────────────────────────────────── --}}
