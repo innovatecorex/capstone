@@ -334,57 +334,65 @@
 
   /* ── Hero ──────────────────────────────────────────────────── */
   .sd-hero {
-    background: linear-gradient(135deg, #0d1f3c 0%, #0a1a38 45%, #050d1e 100%);
-    border-radius: 20px; padding: 26px 32px;
-    display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap;
+    background: #ffffff;
+    border-radius: 16px; padding: 22px 28px;
+    display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap;
     margin-bottom: 20px; position: relative; overflow: hidden;
-    box-shadow: 0 8px 40px rgba(5,13,30,.45), 0 0 0 1px rgba(255,255,255,.06);
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 1px 4px rgba(10,31,68,.04), 0 6px 24px rgba(10,31,68,.07);
   }
-  /* Subtle amber grid mesh */
+  /* Subtle warm tint on the right side */
   .sd-hero::before {
-    content: ''; position: absolute; inset: 0;
-    background-image:
-      linear-gradient(rgba(251,191,36,.04) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(251,191,36,.04) 1px, transparent 1px);
-    background-size: 36px 36px; pointer-events: none;
-  }
-  /* Amber radial glow bottom-right */
-  .sd-hero::after {
-    content: ''; position: absolute; bottom: -50px; right: -30px;
-    width: 260px; height: 260px; border-radius: 50%;
-    background: radial-gradient(circle, rgba(251,191,36,.1) 0%, transparent 65%);
+    content: ''; position: absolute; top: 0; right: 0; bottom: 0; width: 40%;
+    background: linear-gradient(270deg, #fefce8 0%, transparent 100%);
     pointer-events: none;
   }
-  /* Top amber accent stripe */
+  /* Soft navy radial on the left */
+  .sd-hero::after {
+    content: ''; position: absolute; top: -40px; left: -40px;
+    width: 200px; height: 200px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(10,31,68,.04) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  /* 4px gradient top border */
   .sd-hero__accent {
-    position: absolute; top: 0; left: 0; right: 0; height: 2px;
-    background: linear-gradient(90deg, #d97706 0%, #facc15 40%, transparent 100%);
+    position: absolute; top: 0; left: 0; right: 0; height: 4px;
+    background: linear-gradient(90deg, #0a1f44 0%, #d97706 35%, #fbbf24 55%, #7c3aed 100%);
+    border-radius: 16px 16px 0 0;
   }
   .sd-hero__left { position: relative; z-index: 1; display: flex; align-items: center; gap: 16px; }
   .sd-hero__avatar {
-    width: 50px; height: 50px; border-radius: 14px; flex-shrink: 0;
-    background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+    width: 52px; height: 52px; border-radius: 14px; flex-shrink: 0;
+    background: linear-gradient(135deg, #0a1f44 0%, #1c3a6e 100%);
     display: flex; align-items: center; justify-content: center;
-    font-size: 1.05rem; font-weight: 800; color: #0a1f44; letter-spacing: -.02em;
-    box-shadow: 0 4px 16px rgba(251,191,36,.3);
+    font-size: 1rem; font-weight: 800; color: #fbbf24; letter-spacing: -.02em;
+    box-shadow: 0 2px 12px rgba(10,31,68,.18);
   }
-  .sd-hero__text h1 { font-size: 1.6rem; font-weight: 800; color: #fff; margin: 0 0 4px; letter-spacing: -.025em; line-height: 1.15; }
-  .sd-hero__text p  { font-size: .82rem; color: rgba(255,255,255,.48); margin: 0; display: flex; align-items: center; gap: 6px; }
-  .sd-hero__text p span.sep { opacity: .3; }
-  .sd-hero__pills { display: flex; gap: 8px; flex-wrap: wrap; position: relative; z-index: 1; align-items: center; }
+  .sd-hero__text h1 {
+    font-size: 1.45rem; font-weight: 800; color: #0a1f44; margin: 0 0 3px;
+    letter-spacing: -.025em; line-height: 1.15;
+  }
+  .sd-hero__text p {
+    font-size: .79rem; color: #64748b; margin: 0;
+    display: flex; align-items: center; gap: 5px; font-weight: 500;
+  }
+  .sd-hero__text p span.sep { color: #cbd5e1; }
+  .sd-hero__pills { display: flex; gap: 7px; flex-wrap: wrap; position: relative; z-index: 1; align-items: center; }
   .sd-hero__pill {
-    background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.13);
-    border-radius: 10px; padding: .35rem .9rem;
-    font-size: .76rem; font-weight: 600; color: rgba(255,255,255,.78);
+    background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;
+    padding: .36rem .9rem; font-size: .75rem; font-weight: 600; color: #334155;
     display: flex; align-items: center; gap: 6px;
-    backdrop-filter: blur(8px); transition: background .15s, border-color .15s; letter-spacing: .005em;
+    transition: background .15s, border-color .15s, box-shadow .15s;
   }
-  .sd-hero__pill:hover { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.22); }
-  .sd-hero__pill svg { width: 13px; height: 13px; opacity: .65; }
-  .sd-hero__pill--active { background: rgba(251,191,36,.13); border-color: rgba(251,191,36,.32); color: #fbbf24; }
-  .sd-hero__pill--active svg { opacity: .9; }
-  .sd-hero__pill--warn { background: rgba(239,68,68,.12); border-color: rgba(239,68,68,.28); color: #fca5a5; }
-  .sd-hero__pill--warn svg { opacity: .9; }
+  .sd-hero__pill:hover { background: #f1f5f9; border-color: #cbd5e1; box-shadow: 0 1px 4px rgba(10,31,68,.06); }
+  .sd-hero__pill svg { width: 13px; height: 13px; color: #94a3b8; }
+  .sd-hero__pill--active {
+    background: #fef9c3; border-color: #fbbf24; color: #854d0e;
+    box-shadow: 0 1px 6px rgba(251,191,36,.18);
+  }
+  .sd-hero__pill--active svg { color: #d97706; }
+  .sd-hero__pill--warn { background: #fef2f2; border-color: #fecaca; color: #991b1b; }
+  .sd-hero__pill--warn svg { color: #dc2626; }
 
   /* ── Stat Strip ─────────────────────────────────────────────── */
   .sd-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-bottom: 20px; }
