@@ -7,9 +7,11 @@ use App\Models\AcademicYear;
 use App\Models\Announcement;
 use App\Models\Applicant;
 use App\Models\Enrollment;
+use App\Models\Grade;
 use App\Models\GradeComplaint;
 use App\Models\GradeUnlockRequest;
 use App\Models\GradingQuarter;
+use App\Models\Section;
 use App\Models\AuditLog;
 use App\Models\User;
 use App\Services\PrerequisiteService;
@@ -212,12 +214,30 @@ class RegistrarUserDashboardController extends Controller
             'Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12',
         ];
 
+        $allStudents = User::where('role_id', '01')
+            ->where('status', 'active')
+            ->orderBy('last_name')
+            ->get(['id', 'first_name', 'last_name', 'lrn']);
+
+        $recentEnrollments = Enrollment::with([
+            'student:id,first_name,last_name,lrn',
+            'section.adviser:id,first_name,last_name',
+            'section.sectionSubjects.subject:id,subject_name',
+            'section.sectionSubjects.faculty:id,first_name,last_name',
+        ])
+        ->where('academic_year_id', AcademicYear::currentId())
+        ->where('status', 'enrolled')
+        ->latest('enrolled_at')
+        ->paginate(20);
+
         return view('dashboard.registrar-enrollment', compact(
             'activeAcademicYear',
             'checkStudent',
             'checkGrade',
             'unmetPrereqs',
-            'standardGradeLevels'
+            'standardGradeLevels',
+            'allStudents',
+            'recentEnrollments'
         ));
     }
 
@@ -295,6 +315,140 @@ class RegistrarUserDashboardController extends Controller
             ->orderByDesc('created_at')
             ->get();
         return view('dashboard.registrar-announcements', compact('announcements'));
+    }
+
+    public function ajaxSections(Request $request)
+    {
+        $request->validate([
+            'grade_level' => ['required', 'string'],
+        ]);
+
+        $sections = Section::where('grade_level', $request->grade_level)
+            ->where('academic_year_id', AcademicYear::currentId())
+            ->where('status', 'active')
+            ->withCount(['enrollments' => fn($q) => $q->where('status', 'enrolled')])
+            ->get(['id', 'section_name', 'grade_level', 'capacity'])
+            ->map(fn($s) => [
+                'id'           => $s->id,
+                'section_name' => $s->section_name,
+                'grade_level'  => $s->grade_level,
+                'enrolled'     => $s->enrollments_count,
+                'capacity'     => $s->capacity,
+            ]);
+
+        return response()->json($sections);
+    }
+
+    public function ajaxStudents(Request $request)
+    {
+        $students = User::where('role_id', '01')
+            ->where('status', 'active')
+            ->orderBy('last_name')
+            ->get(['id', 'first_name', 'last_name', 'lrn'])
+            ->map(fn($u) => [
+                'id'        => $u->id,
+                'full_name' => $u->last_name . ', ' . $u->first_name,
+                'lrn'       => $u->lrn,
+            ]);
+
+        return response()->json($students);
+    }
+
+    public function ajaxSectionInfo(Request $request)
+    {
+        $request->validate([
+            'section_id' => ['required', 'integer', 'exists:sections,id'],
+        ]);
+
+        $section = Section::with([
+            'adviser:id,first_name,last_name',
+            'sectionSubjects' => fn($q) => $q->where('academic_year_id', AcademicYear::currentId()),
+            'sectionSubjects.subject:id,subject_name',
+            'sectionSubjects.faculty:id,first_name,last_name',
+        ])
+        ->withCount(['enrollments' => fn($q) => $q->where('status', 'enrolled')])
+        ->findOrFail($request->section_id);
+
+        $dayAbbr = [
+            'monday'    => 'Mon', 'tuesday'  => 'Tue', 'wednesday' => 'Wed',
+            'thursday'  => 'Thu', 'friday'   => 'Fri', 'saturday'  => 'Sat',
+            'sunday'    => 'Sun',
+        ];
+
+        $subjects = $section->sectionSubjects->map(function ($ss) use ($dayAbbr) {
+            $days = $ss->schedule_days;
+            $days = is_string($days) ? json_decode($days, true) : $days;
+            $days = is_array($days) && count($days) > 0 ? $days : null;
+
+            if ($days && $ss->start_time && $ss->end_time) {
+                $dayStr   = implode(', ', array_map(fn($d) => $dayAbbr[strtolower($d)] ?? ucfirst($d), $days));
+                $timeStr  = \Carbon\Carbon::parse($ss->start_time)->format('H:i')
+                          . '–'
+                          . \Carbon\Carbon::parse($ss->end_time)->format('H:i');
+                $schedule = "{$dayStr} {$timeStr}";
+            } else {
+                $schedule = 'TBA';
+            }
+
+            return [
+                'subject'  => optional($ss->subject)->subject_name ?? 'Unknown',
+                'faculty'  => $ss->faculty
+                    ? $ss->faculty->first_name . ' ' . $ss->faculty->last_name
+                    : 'TBA',
+                'schedule' => $schedule,
+            ];
+        })->values()->toArray();
+
+        return response()->json([
+            'section_name' => $section->section_name,
+            'grade_level'  => $section->grade_level,
+            'adviser'      => $section->adviser
+                ? $section->adviser->first_name . ' ' . $section->adviser->last_name
+                : 'No adviser assigned',
+            'capacity'     => $section->capacity,
+            'enrolled'     => $section->enrollments_count,
+            'subjects'     => $subjects,
+        ]);
+    }
+
+    public function dropEnrollment(Request $request)
+    {
+        $request->validate([
+            'enrollment_id' => ['required', 'integer', 'exists:enrollments,id'],
+        ]);
+
+        $enrollment = Enrollment::with([
+            'student:id,first_name,last_name',
+            'section:id,section_name',
+        ])->findOrFail($request->enrollment_id);
+
+        if ($enrollment->status !== 'enrolled') {
+            return redirect()->back()
+                ->with('error', 'This student is not currently enrolled.');
+        }
+
+        $hasGrades = Grade::where('enrollment_id', $enrollment->id)
+            ->whereIn('status', ['finalized', 'locked'])
+            ->exists();
+
+        if ($hasGrades) {
+            return redirect()->back()
+                ->with('error', 'Cannot remove enrollment — this student has finalized grades on record.');
+        }
+
+        $enrollment->update([
+            'status'     => 'dropped',
+            'dropped_at' => now(),
+        ]);
+
+        AuditLog::record('enrollment.dropped', [
+            'student'    => $enrollment->student->first_name . ' ' . $enrollment->student->last_name,
+            'section'    => $enrollment->section->section_name,
+            'dropped_by' => auth()->user()->first_name . ' ' . auth()->user()->last_name,
+        ]);
+
+        return redirect()->route('registrar.enrollment')
+            ->with('success', 'Student has been removed from the section.');
     }
 
     public function enroll(Request $request)
