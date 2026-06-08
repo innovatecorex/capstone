@@ -14,7 +14,7 @@
   {{-- Platform CSS --}}
   <link rel="stylesheet" href="{{ asset('css/encrypted.css') }}">
 
-  @if(auth()->check() && auth()->user()->role_id === '01')
+  @if(auth()->check())
   <style>
   /* ═══════════════════════════════════════════════════════════
      STUDENT SIDEBAR — Clean professional student portal style
@@ -911,530 +911,684 @@
        ║   FACULTY SIDEBAR                    ║
        ╚══════════════════════════════════════╝ --}}
 
-    {{-- Brand --}}
-    <a href="{{ route('faculty.dashboard') }}" class="enc-sidebar__brand" style="text-decoration:none;display:block;">
-      <img src="{{ asset('images/EncryptEd.png') }}" alt="EncryptEd" class="enc-sidebar__logo-img">
-    </a>
+  {{-- Brand --}}
+  <a href="{{ route('faculty.dashboard') }}" class="stu-brand" style="text-decoration:none;">
+    <div class="stu-brand__glow"></div>
+    <img src="{{ asset('images/EncryptEd.png') }}" alt="EncryptEd" class="stu-brand__logo">
+  </a>
 
-    {{-- School identity --}}
-    <div class="enc-sidebar__school">
-      <img src="{{ asset('images/logo.png') }}" alt="Phil. Academy of Sakya" class="enc-sidebar__school-seal">
-      <div class="enc-sidebar__school-text">
-        <span class="enc-sidebar__school-name">Phil. Academy of Sakya</span>
-        <span class="enc-sidebar__school-sub">Faculty Portal · {{ date('Y') }}</span>
-      </div>
+  {{-- School identity --}}
+  <div class="stu-school">
+    <img src="{{ asset('images/logo.png') }}" alt="Phil. Academy of Sakya" class="stu-school__seal">
+    <div>
+      <div class="stu-school__name">Phil. Academy of Sakya</div>
+      <div class="stu-school__sub">Faculty Portal · {{ date('Y') }}</div>
+    </div>
+  </div>
+
+  {{-- Navigation --}}
+  <nav class="stu-nav">
+
+    <div class="stu-section">
+      <span class="stu-section__text">Overview</span>
+      <div class="stu-section__line"></div>
     </div>
 
-    {{-- Navigation --}}
-    <nav class="enc-sidebar__nav">
-      <div class="enc-sidebar__section-label">Overview</div>
-
-      <a href="{{ route('faculty.dashboard') }}"
-         class="enc-nav-item {{ request()->routeIs('faculty.dashboard') ? 'active' : '' }}">
+    <a href="{{ route('faculty.dashboard') }}"
+       class="stu-nav-item {{ request()->routeIs('faculty.dashboard') ? 'active' : '' }}">
+      <span class="stu-icon si-rose">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z"/>
         </svg>
-        Dashboard
-      </a>
+      </span>
+      Dashboard
+    </a>
 
-      <div class="enc-sidebar__section-label" style="margin-top:8px;">My Classes</div>
+    <div class="stu-section">
+      <span class="stu-section__text">My Classes</span>
+      <div class="stu-section__line"></div>
+    </div>
 
-      <a href="{{ route('faculty.classes') }}"
-         class="enc-nav-item {{ request()->routeIs('faculty.classes') ? 'active' : '' }}">
+    <a href="{{ route('faculty.classes') }}"
+       class="stu-nav-item {{ request()->routeIs('faculty.classes') ? 'active' : '' }}">
+      <span class="stu-icon si-sky">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5"/>
         </svg>
-        Teaching Load
-      </a>
+      </span>
+      Teaching Load
+    </a>
 
-      <a href="{{ route('faculty.gradebook') }}"
-         class="enc-nav-item {{ request()->routeIs('faculty.gradebook') ? 'active' : '' }}">
+    <a href="{{ route('faculty.gradebook') }}"
+       class="stu-nav-item {{ request()->routeIs('faculty.gradebook') ? 'active' : '' }}">
+      <span class="stu-icon si-emerald">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/>
         </svg>
-        Gradebook
-      </a>
+      </span>
+      Gradebook
+    </a>
 
-      <a href="{{ route('faculty.attendance') }}"
-         class="enc-nav-item {{ request()->routeIs('faculty.attendance') ? 'active' : '' }}">
+    <a href="{{ route('faculty.attendance') }}"
+       class="stu-nav-item {{ request()->routeIs('faculty.attendance') ? 'active' : '' }}">
+      <span class="stu-icon si-teal">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z"/>
         </svg>
-        Attendance
-      </a>
+      </span>
+      Attendance
+    </a>
 
-      <a href="{{ route('complaints.manage') }}"
-         class="enc-nav-item {{ request()->routeIs('complaints.*') ? 'active' : '' }}">
+    <a href="{{ route('complaints.manage') }}"
+       class="stu-nav-item {{ request()->routeIs('complaints.*') ? 'active' : '' }}">
+      <span class="stu-icon si-amber">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"/>
         </svg>
-        Grade Complaints
-      </a>
+      </span>
+      Grade Complaints
+    </a>
 
-      <div class="enc-sidebar__section-label" style="margin-top:8px;">Resources</div>
+    <div class="stu-section">
+      <span class="stu-section__text">Resources</span>
+      <div class="stu-section__line"></div>
+    </div>
 
-      <a href="{{ route('faculty.my-schedule') }}"
-         class="enc-nav-item {{ request()->routeIs('faculty.my-schedule') ? 'active' : '' }}">
+    <a href="{{ route('faculty.my-schedule') }}"
+       class="stu-nav-item {{ request()->routeIs('faculty.my-schedule') ? 'active' : '' }}">
+      <span class="stu-icon si-orange">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 9v7.5m-9-6h.008v.008H12V12zm0 3h.008v.008H12v-.008zm0 3h.008v.008H12v-.008zM9 12h.008v.008H9V12zm0 3h.008v.008H9v-.008zm0 3h.008v.008H9v-.008zm3-6h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z"/>
         </svg>
-        My Schedule
-      </a>
+      </span>
+      My Schedule
+    </a>
 
-      <a href="{{ route('faculty.announcements') }}"
-         class="enc-nav-item {{ request()->routeIs('faculty.announcements') ? 'active' : '' }}">
+    <a href="{{ route('faculty.announcements') }}"
+       class="stu-nav-item {{ request()->routeIs('faculty.announcements') ? 'active' : '' }}">
+      <span class="stu-icon si-amber">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/>
         </svg>
-        Announcements
-      </a>
+      </span>
+      Announcements
+    </a>
 
-      <a href="{{ route('faculty.inbox') }}"
-         class="enc-nav-item {{ request()->routeIs('faculty.inbox*') ? 'active' : '' }}">
-        @php $facUnread = \App\Models\Message::where('recipient_id', auth()->id())->whereNull('read_at')->count(); @endphp
+    <a href="{{ route('faculty.inbox') }}"
+       class="stu-nav-item {{ request()->routeIs('faculty.inbox*') ? 'active' : '' }}">
+      @php $facUnread = \App\Models\Message::where('recipient_id', auth()->id())->whereNull('read_at')->count(); @endphp
+      <span class="stu-icon si-violet">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/>
         </svg>
-        Student Inbox
-        @if($facUnread > 0)
-          <span style="margin-left:auto;background:#ef4444;color:#fff;border-radius:99px;font-size:.65rem;font-weight:700;padding:.1rem .45rem;">{{ $facUnread }}</span>
-        @endif
-      </a>
+      </span>
+      Student Inbox
+      @if($facUnread > 0)
+        <span style="margin-left:auto;background:#ef4444;color:#fff;border-radius:99px;font-size:.65rem;font-weight:700;padding:.1rem .45rem;">{{ $facUnread }}</span>
+      @endif
+    </a>
 
-      <a href="{{ route('assignments.faculty.index') }}"
-         class="enc-nav-item {{ request()->routeIs('assignments.faculty.*') ? 'active' : '' }}">
+    <a href="{{ route('assignments.faculty.index') }}"
+       class="stu-nav-item {{ request()->routeIs('assignments.faculty.*') ? 'active' : '' }}">
+      <span class="stu-icon si-yellow">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125"/>
         </svg>
-        Assignments
-      </a>
+      </span>
+      Assignments
+    </a>
 
-      <a href="{{ route('leave.faculty.index') }}"
-         class="enc-nav-item {{ request()->routeIs('leave.faculty.*') ? 'active' : '' }}">
+    <a href="{{ route('leave.faculty.index') }}"
+       class="stu-nav-item {{ request()->routeIs('leave.faculty.*') ? 'active' : '' }}">
+      <span class="stu-icon si-teal">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 9v7.5"/>
         </svg>
-        Leave Requests
-      </a>
+      </span>
+      Leave Requests
+    </a>
 
-      <a href="{{ route('calendar.index') }}"
-         class="enc-nav-item {{ request()->routeIs('calendar.index') ? 'active' : '' }}">
+    <a href="{{ route('calendar.index') }}"
+       class="stu-nav-item {{ request()->routeIs('calendar.index') ? 'active' : '' }}">
+      <span class="stu-icon si-sky">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 9v7.5m-9-6h.008v.008H12V12zm0 3h.008v.008H12v-.008zm0 3h.008v.008H12v-.008zM9 12h.008v.008H9V12zm0 3h.008v.008H9v-.008zm0 3h.008v.008H9v-.008zm3-6h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z"/>
         </svg>
-        School Calendar
-      </a>
+      </span>
+      School Calendar
+    </a>
 
-      <div class="enc-sidebar__section-label" style="margin-top:8px;">Account</div>
+    <div class="stu-section">
+      <span class="stu-section__text">Account</span>
+      <div class="stu-section__line"></div>
+    </div>
 
-      <a href="{{ route('faculty.settings.index') }}"
-         class="enc-nav-item {{ request()->routeIs('faculty.settings.*') ? 'active' : '' }}">
+    <a href="{{ route('faculty.settings.index') }}"
+       class="stu-nav-item {{ request()->routeIs('faculty.settings.*') ? 'active' : '' }}">
+      <span class="stu-icon si-violet">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
           <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
         </svg>
-        Settings
-      </a>
-    </nav>
+      </span>
+      Settings
+    </a>
 
-    {{-- User Footer --}}
-    <div class="enc-sidebar__footer">
-      <div class="enc-sidebar__user" style="cursor:default;">
-        <div class="enc-sidebar__avatar">
-          {{ strtoupper(substr(auth()->user()->first_name ?? 'F', 0, 1)) }}{{ strtoupper(substr(auth()->user()->last_name ?? '', 0, 1)) }}
-        </div>
-        <div class="enc-sidebar__user-info">
-          <div class="enc-sidebar__user-name">{{ auth()->user()->first_name ?? '' }} {{ auth()->user()->last_name ?? '' }}</div>
-          <div class="enc-sidebar__user-role">Faculty</div>
-        </div>
-        <button type="button" onclick="openLogoutModal()" title="Sign out"
-                style="width:26px;height:26px;border-radius:7px;border:1px solid rgba(255,255,255,.12);background:transparent;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;color:rgba(255,255,255,.4);">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"/>
-          </svg>
-        </button>
+  </nav>
+
+  {{-- User footer --}}
+  <div class="stu-footer">
+    <div class="stu-user-card">
+      <div class="stu-avatar">
+        {{ strtoupper(substr(auth()->user()->first_name ?? 'F', 0, 1)) }}{{ strtoupper(substr(auth()->user()->last_name ?? '', 0, 1)) }}
       </div>
+      <div class="stu-user-info">
+        <div class="stu-user-name">{{ auth()->user()->first_name ?? '' }} {{ auth()->user()->last_name ?? '' }}</div>
+        <div class="stu-user-role">Faculty</div>
+      </div>
+      <button type="button" class="stu-logout-btn" title="Sign out" onclick="openLogoutModal()">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"/>
+        </svg>
+      </button>
     </div>
+  </div>
 
   @elseif(auth()->user()->role_id === '03')
   {{-- ╔══════════════════════════════════════╗
        ║   REGISTRAR SIDEBAR                  ║
        ╚══════════════════════════════════════╝ --}}
 
-    <a href="{{ route('registrar.dashboard') }}" class="enc-sidebar__brand" style="text-decoration:none;display:block;">
-      <img src="{{ asset('images/EncryptEd.png') }}" alt="EncryptEd" class="enc-sidebar__logo-img">
-    </a>
+  <a href="{{ route('registrar.dashboard') }}" class="stu-brand" style="text-decoration:none;">
+    <div class="stu-brand__glow"></div>
+    <img src="{{ asset('images/EncryptEd.png') }}" alt="EncryptEd" class="stu-brand__logo">
+  </a>
 
-    <div class="enc-sidebar__school">
-      <img src="{{ asset('images/logo.png') }}" alt="Phil. Academy of Sakya" class="enc-sidebar__school-seal">
-      <div class="enc-sidebar__school-text">
-        <span class="enc-sidebar__school-name">Phil. Academy of Sakya</span>
-        <span class="enc-sidebar__school-sub">Registrar Portal · {{ date('Y') }}</span>
-      </div>
+  <div class="stu-school">
+    <img src="{{ asset('images/logo.png') }}" alt="Phil. Academy of Sakya" class="stu-school__seal">
+    <div>
+      <div class="stu-school__name">Phil. Academy of Sakya</div>
+      <div class="stu-school__sub">Registrar Portal · {{ date('Y') }}</div>
+    </div>
+  </div>
+
+  <nav class="stu-nav">
+
+    <div class="stu-section">
+      <span class="stu-section__text">Overview</span>
+      <div class="stu-section__line"></div>
     </div>
 
-    <nav class="enc-sidebar__nav">
-
-      <div class="enc-sidebar__section-label">Overview</div>
-
-      <a href="{{ route('registrar.dashboard') }}"
-         class="enc-nav-item {{ request()->routeIs('registrar.dashboard') ? 'active' : '' }}">
+    <a href="{{ route('registrar.dashboard') }}"
+       class="stu-nav-item {{ request()->routeIs('registrar.dashboard') ? 'active' : '' }}">
+      <span class="stu-icon si-rose">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z"/>
         </svg>
-        Dashboard
-      </a>
+      </span>
+      Dashboard
+    </a>
 
-      <div class="enc-sidebar__section-label" style="margin-top:8px;">Students</div>
+    <div class="stu-section">
+      <span class="stu-section__text">Students</span>
+      <div class="stu-section__line"></div>
+    </div>
 
-      <a href="{{ route('registrar.students') }}"
-         class="enc-nav-item {{ request()->routeIs('registrar.students') ? 'active' : '' }}">
+    <a href="{{ route('registrar.students') }}"
+       class="stu-nav-item {{ request()->routeIs('registrar.students') ? 'active' : '' }}">
+      <span class="stu-icon si-sky">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/>
         </svg>
-        Student Records
-      </a>
+      </span>
+      Student Records
+    </a>
 
-      <a href="{{ route('registrar.enrollment') }}"
-         class="enc-nav-item {{ request()->routeIs('registrar.enrollment') ? 'active' : '' }}">
+    <a href="{{ route('registrar.enrollment') }}"
+       class="stu-nav-item {{ request()->routeIs('registrar.enrollment') ? 'active' : '' }}">
+      <span class="stu-icon si-emerald">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-3-3v6m2 7H7a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v11a2 2 0 01-2 2z"/>
         </svg>
-        Enrollment
-      </a>
+      </span>
+      Enrollment
+    </a>
 
-      <div class="enc-sidebar__section-label" style="margin-top:8px;">Documents</div>
+    <div class="stu-section">
+      <span class="stu-section__text">Documents</span>
+      <div class="stu-section__line"></div>
+    </div>
 
-      <a href="{{ route('registrar.requests') }}"
-         class="enc-nav-item {{ request()->routeIs('registrar.requests') ? 'active' : '' }}">
+    <a href="{{ route('registrar.requests') }}"
+       class="stu-nav-item {{ request()->routeIs('registrar.requests') ? 'active' : '' }}">
+      <span class="stu-icon si-amber">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
         </svg>
-        Document Requests
-      </a>
+      </span>
+      Document Requests
+    </a>
 
-      <a href="{{ route('registrar.report-cards') }}"
-         class="enc-nav-item {{ request()->routeIs('registrar.report-cards') ? 'active' : '' }}">
+    <a href="{{ route('registrar.report-cards') }}"
+       class="stu-nav-item {{ request()->routeIs('registrar.report-cards') ? 'active' : '' }}">
+      <span class="stu-icon si-yellow">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/>
         </svg>
-        Report Cards
-      </a>
+      </span>
+      Report Cards
+    </a>
 
-      <div class="enc-sidebar__section-label" style="margin-top:8px;">Academics</div>
+    <div class="stu-section">
+      <span class="stu-section__text">Academics</span>
+      <div class="stu-section__line"></div>
+    </div>
 
-      <a href="{{ route('registrar.grades') }}"
-         class="enc-nav-item {{ request()->routeIs('registrar.grades') ? 'active' : '' }}">
+    <a href="{{ route('registrar.grades') }}"
+       class="stu-nav-item {{ request()->routeIs('registrar.grades') ? 'active' : '' }}">
+      <span class="stu-icon si-emerald">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5"/>
         </svg>
-        Grades & Records
-      </a>
+      </span>
+      Grades & Records
+    </a>
 
-      <a href="{{ route('registrar.assessment') }}"
-         class="enc-nav-item {{ request()->routeIs('registrar.assessment*') ? 'active' : '' }}">
+    <a href="{{ route('registrar.assessment') }}"
+       class="stu-nav-item {{ request()->routeIs('registrar.assessment*') ? 'active' : '' }}">
+      <span class="stu-icon si-teal">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/>
         </svg>
-        Assessment
-      </a>
+      </span>
+      Assessment
+    </a>
 
-      <a href="{{ route('calendar.index') }}"
-         class="enc-nav-item {{ request()->routeIs('calendar.index') ? 'active' : '' }}">
+    <a href="{{ route('calendar.index') }}"
+       class="stu-nav-item {{ request()->routeIs('calendar.index') ? 'active' : '' }}">
+      <span class="stu-icon si-sky">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 9v7.5"/>
         </svg>
-        School Calendar
-      </a>
+      </span>
+      School Calendar
+    </a>
 
-      <a href="{{ route('complaints.manage') }}"
-         class="enc-nav-item {{ request()->routeIs('complaints.*') ? 'active' : '' }}">
+    <a href="{{ route('complaints.manage') }}"
+       class="stu-nav-item {{ request()->routeIs('complaints.*') ? 'active' : '' }}">
+      <span class="stu-icon si-amber">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"/>
         </svg>
-        Grade Complaints
-      </a>
+      </span>
+      Grade Complaints
+    </a>
 
-      <a href="{{ route('documents.registrar.index') }}"
-         class="enc-nav-item {{ request()->routeIs('documents.registrar.*') ? 'active' : '' }}">
+    <a href="{{ route('documents.registrar.index') }}"
+       class="stu-nav-item {{ request()->routeIs('documents.registrar.*') ? 'active' : '' }}">
+      <span class="stu-icon si-orange">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z"/>
         </svg>
-        Doc Requests (New)
-      </a>
+      </span>
+      Doc Requests (New)
+    </a>
 
-      <a href="{{ route('leave.admin.index') }}"
-         class="enc-nav-item {{ request()->routeIs('leave.admin.*') ? 'active' : '' }}">
+    <a href="{{ route('leave.admin.index') }}"
+       class="stu-nav-item {{ request()->routeIs('leave.admin.*') ? 'active' : '' }}">
+      <span class="stu-icon si-violet">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"/>
         </svg>
-        Leave Management
-      </a>
+      </span>
+      Leave Management
+    </a>
 
-      <a href="{{ route('analytics.index') }}"
-         class="enc-nav-item {{ request()->routeIs('analytics.index') ? 'active' : '' }}">
+    <a href="{{ route('analytics.index') }}"
+       class="stu-nav-item {{ request()->routeIs('analytics.index') ? 'active' : '' }}">
+      <span class="stu-icon si-rose">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/>
         </svg>
-        Analytics
-      </a>
+      </span>
+      Analytics
+    </a>
 
-      <div class="enc-sidebar__section-label" style="margin-top:8px;">DepEd SF Forms</div>
+    <div class="stu-section">
+      <span class="stu-section__text">DepEd SF Forms</span>
+      <div class="stu-section__line"></div>
+    </div>
 
-      <a href="{{ route('sf.sf1') }}"
-         class="enc-nav-item {{ request()->routeIs('sf.sf1') ? 'active' : '' }}">
+    <a href="{{ route('sf.sf1') }}"
+       class="stu-nav-item {{ request()->routeIs('sf.sf1') ? 'active' : '' }}">
+      <span class="stu-icon si-yellow">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/>
         </svg>
-        SF1 Class List
-      </a>
+      </span>
+      SF1 Class List
+    </a>
 
-      <a href="{{ route('sf.sf2') }}"
-         class="enc-nav-item {{ request()->routeIs('sf.sf2') ? 'active' : '' }}">
+    <a href="{{ route('sf.sf2') }}"
+       class="stu-nav-item {{ request()->routeIs('sf.sf2') ? 'active' : '' }}">
+      <span class="stu-icon si-teal">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
         </svg>
-        SF2 Attendance
-      </a>
+      </span>
+      SF2 Attendance
+    </a>
 
-      <a href="{{ route('sf.sf9') }}"
-         class="enc-nav-item {{ request()->routeIs('sf.sf9') ? 'active' : '' }}">
+    <a href="{{ route('sf.sf9') }}"
+       class="stu-nav-item {{ request()->routeIs('sf.sf9') ? 'active' : '' }}">
+      <span class="stu-icon si-sky">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/>
         </svg>
-        SF9 Report Card
-      </a>
+      </span>
+      SF9 Report Card
+    </a>
 
-      <a href="{{ route('sf.sf10') }}"
-         class="enc-nav-item {{ request()->routeIs('sf.sf10') ? 'active' : '' }}">
+    <a href="{{ route('sf.sf10') }}"
+       class="stu-nav-item {{ request()->routeIs('sf.sf10') ? 'active' : '' }}">
+      <span class="stu-icon si-emerald">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5"/>
         </svg>
-        SF10 Permanent
-      </a>
+      </span>
+      SF10 Permanent
+    </a>
 
-      <div class="enc-sidebar__section-label" style="margin-top:8px;">Resources</div>
+    <div class="stu-section">
+      <span class="stu-section__text">Resources</span>
+      <div class="stu-section__line"></div>
+    </div>
 
-      <a href="{{ route('registrar.announcements') }}"
-         class="enc-nav-item {{ request()->routeIs('registrar.announcements') ? 'active' : '' }}">
+    <a href="{{ route('registrar.announcements') }}"
+       class="stu-nav-item {{ request()->routeIs('registrar.announcements') ? 'active' : '' }}">
+      <span class="stu-icon si-amber">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/>
         </svg>
-        Announcements
-      </a>
+      </span>
+      Announcements
+    </a>
 
-      <div class="enc-sidebar__section-label" style="margin-top:8px;">Account</div>
+    <div class="stu-section">
+      <span class="stu-section__text">Account</span>
+      <div class="stu-section__line"></div>
+    </div>
 
-      <a href="{{ route('registrar.settings.index') }}"
-         class="enc-nav-item {{ request()->routeIs('registrar.settings.*') ? 'active' : '' }}">
+    <a href="{{ route('registrar.settings.index') }}"
+       class="stu-nav-item {{ request()->routeIs('registrar.settings.*') ? 'active' : '' }}">
+      <span class="stu-icon si-violet">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
         </svg>
-        Settings
-      </a>
+      </span>
+      Settings
+    </a>
 
-    </nav>
+  </nav>
 
-    <div class="enc-sidebar__footer">
-      <div class="enc-sidebar__user" style="cursor:default;">
-        <div class="enc-sidebar__avatar">
-          {{ strtoupper(substr(auth()->user()->first_name ?? 'R', 0, 1)) }}{{ strtoupper(substr(auth()->user()->last_name ?? '', 0, 1)) }}
-        </div>
-        <div class="enc-sidebar__user-info">
-          <div class="enc-sidebar__user-name">{{ auth()->user()->first_name }} {{ auth()->user()->last_name }}</div>
-          <div class="enc-sidebar__user-role">Registrar</div>
-        </div>
-        <button type="button" onclick="openLogoutModal()" title="Sign out" style="background:transparent;border:none;cursor:pointer;padding:4px;border-radius:6px;display:flex;align-items:center;">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;color:rgba(255,255,255,.35);">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"/>
-          </svg>
-        </button>
+  <div class="stu-footer">
+    <div class="stu-user-card">
+      <div class="stu-avatar">
+        {{ strtoupper(substr(auth()->user()->first_name ?? 'R', 0, 1)) }}{{ strtoupper(substr(auth()->user()->last_name ?? '', 0, 1)) }}
       </div>
+      <div class="stu-user-info">
+        <div class="stu-user-name">{{ auth()->user()->first_name }} {{ auth()->user()->last_name }}</div>
+        <div class="stu-user-role">Registrar</div>
+      </div>
+      <button type="button" class="stu-logout-btn" title="Sign out" onclick="openLogoutModal()">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"/>
+        </svg>
+      </button>
     </div>
+  </div>
 
   @else
   {{-- ╔══════════════════════════════════════╗
        ║   ADMIN SIDEBAR                      ║
        ╚══════════════════════════════════════╝ --}}
 
-    <a href="{{ route('admin.dashboard') }}" class="enc-sidebar__brand" style="text-decoration:none;display:block;">
-      <img src="{{ asset('images/EncryptEd.png') }}" alt="EncryptEd" class="enc-sidebar__logo-img">
-    </a>
+  <a href="{{ route('admin.dashboard') }}" class="stu-brand" style="text-decoration:none;">
+    <div class="stu-brand__glow"></div>
+    <img src="{{ asset('images/EncryptEd.png') }}" alt="EncryptEd" class="stu-brand__logo">
+  </a>
 
-    <div class="enc-sidebar__school">
-      <img src="{{ asset('images/logo.png') }}" alt="Phil. Academy of Sakya" class="enc-sidebar__school-seal">
-      <div class="enc-sidebar__school-text">
-        <span class="enc-sidebar__school-name">Phil. Academy of Sakya</span>
-        <span class="enc-sidebar__school-sub">Admin Portal · {{ date('Y') }}</span>
-      </div>
+  <div class="stu-school">
+    <img src="{{ asset('images/logo.png') }}" alt="Phil. Academy of Sakya" class="stu-school__seal">
+    <div>
+      <div class="stu-school__name">Phil. Academy of Sakya</div>
+      <div class="stu-school__sub">Admin Portal · {{ date('Y') }}</div>
+    </div>
+  </div>
+
+  <nav class="stu-nav">
+
+    <div class="stu-section">
+      <span class="stu-section__text">Overview</span>
+      <div class="stu-section__line"></div>
     </div>
 
-    <nav class="enc-sidebar__nav">
-      <div class="enc-sidebar__section-label">Overview</div>
-
-      <a href="{{ route('admin.dashboard') }}"
-         class="enc-nav-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+    <a href="{{ route('admin.dashboard') }}"
+       class="stu-nav-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+      <span class="stu-icon si-rose">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z"/>
         </svg>
-        Dashboard
-      </a>
+      </span>
+      Dashboard
+    </a>
 
-      <div class="enc-sidebar__section-label" style="margin-top:8px;">Academics</div>
+    <div class="stu-section">
+      <span class="stu-section__text">Academics</span>
+      <div class="stu-section__line"></div>
+    </div>
 
-      <a href="{{ route('admin.users.index') }}"
-         class="enc-nav-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
+    <a href="{{ route('admin.users.index') }}"
+       class="stu-nav-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
+      <span class="stu-icon si-sky">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/>
         </svg>
-        User Management
-      </a>
+      </span>
+      User Management
+    </a>
 
-      <a href="{{ route('admin.grades.index') }}"
-         class="enc-nav-item {{ request()->routeIs('admin.grades.*') ? 'active' : '' }}">
+    <a href="{{ route('admin.grades.index') }}"
+       class="stu-nav-item {{ request()->routeIs('admin.grades.*') ? 'active' : '' }}">
+      <span class="stu-icon si-emerald">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5"/>
         </svg>
-        Grades & Records
-      </a>
+      </span>
+      Grades & Records
+    </a>
 
-      <a href="{{ route('admin.announcements.index') }}"
-         class="enc-nav-item {{ request()->routeIs('admin.announcements.*') ? 'active' : '' }}">
+    <a href="{{ route('admin.announcements.index') }}"
+       class="stu-nav-item {{ request()->routeIs('admin.announcements.*') ? 'active' : '' }}">
+      <span class="stu-icon si-amber">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/>
         </svg>
-        Announcements
-      </a>
+      </span>
+      Announcements
+    </a>
 
-      <a href="{{ route('admin.schedules.index') }}"
-         class="enc-nav-item {{ request()->routeIs('admin.schedules.*') ? 'active' : '' }}">
+    <a href="{{ route('admin.schedules.index') }}"
+       class="stu-nav-item {{ request()->routeIs('admin.schedules.*') ? 'active' : '' }}">
+      <span class="stu-icon si-orange">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 9v7.5"/>
         </svg>
-        Schedules
-      </a>
+      </span>
+      Schedules
+    </a>
 
-      <div class="enc-sidebar__section-label" style="margin-top:8px;">Academic Setup</div>
+    <div class="stu-section">
+      <span class="stu-section__text">Academic Setup</span>
+      <div class="stu-section__line"></div>
+    </div>
 
-      <a href="{{ route('admin.academic-years.index') }}"
-         class="enc-nav-item {{ request()->routeIs('admin.academic-years.*') ? 'active' : '' }}">
+    <a href="{{ route('admin.academic-years.index') }}"
+       class="stu-nav-item {{ request()->routeIs('admin.academic-years.*') ? 'active' : '' }}">
+      <span class="stu-icon si-teal">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
         </svg>
-        Academic Years
-      </a>
+      </span>
+      Academic Years
+    </a>
 
-      <a href="{{ route('admin.sections.index') }}"
-         class="enc-nav-item {{ request()->routeIs('admin.sections.*') ? 'active' : '' }}">
+    <a href="{{ route('admin.sections.index') }}"
+       class="stu-nav-item {{ request()->routeIs('admin.sections.*') ? 'active' : '' }}">
+      <span class="stu-icon si-sky">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
         </svg>
-        Sections
-      </a>
+      </span>
+      Sections
+    </a>
 
-      <a href="{{ route('admin.subjects.index') }}"
-         class="enc-nav-item {{ request()->routeIs('admin.subjects.*') ? 'active' : '' }}">
+    <a href="{{ route('admin.subjects.index') }}"
+       class="stu-nav-item {{ request()->routeIs('admin.subjects.*') ? 'active' : '' }}">
+      <span class="stu-icon si-emerald">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
         </svg>
-        Subjects
-      </a>
+      </span>
+      Subjects
+    </a>
 
-      <a href="{{ route('admin.classrooms.index') }}"
-         class="enc-nav-item {{ request()->routeIs('admin.classrooms.*') ? 'active' : '' }}">
+    <a href="{{ route('admin.classrooms.index') }}"
+       class="stu-nav-item {{ request()->routeIs('admin.classrooms.*') ? 'active' : '' }}">
+      <span class="stu-icon si-amber">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M3 21v-4a2 2 0 012-2h14a2 2 0 012 2v4M3 21h18M5 21V7a2 2 0 012-2h10a2 2 0 012 2v14M9 9h.01M15 9h.01M9 13h.01M15 13h.01M9 17h.01M15 17h.01"/>
         </svg>
-        Classrooms
-      </a>
+      </span>
+      Classrooms
+    </a>
 
-      <div class="enc-sidebar__section-label" style="margin-top:8px;">Enrollment</div>
+    <div class="stu-section">
+      <span class="stu-section__text">Enrollment</span>
+      <div class="stu-section__line"></div>
+    </div>
 
-      <a href="{{ route('admin.payments.index') }}"
-         class="enc-nav-item {{ request()->routeIs('admin.payments.*') ? 'active' : '' }}">
+    <a href="{{ route('admin.payments.index') }}"
+       class="stu-nav-item {{ request()->routeIs('admin.payments.*') ? 'active' : '' }}">
+      <span class="stu-icon si-yellow">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z"/>
         </svg>
-        Payments
-      </a>
+      </span>
+      Payments
+    </a>
 
-      <a href="{{ route('analytics.index') }}"
-         class="enc-nav-item {{ request()->routeIs('analytics.index') ? 'active' : '' }}">
+    <a href="{{ route('analytics.index') }}"
+       class="stu-nav-item {{ request()->routeIs('analytics.index') ? 'active' : '' }}">
+      <span class="stu-icon si-rose">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/>
         </svg>
-        Analytics
-      </a>
+      </span>
+      Analytics
+    </a>
 
-      <a href="{{ route('calendar.index') }}"
-         class="enc-nav-item {{ request()->routeIs('calendar.index') ? 'active' : '' }}">
+    <a href="{{ route('calendar.index') }}"
+       class="stu-nav-item {{ request()->routeIs('calendar.index') ? 'active' : '' }}">
+      <span class="stu-icon si-sky">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 9v7.5m-9-6h.008v.008H12V12zm0 3h.008v.008H12v-.008zm0 3h.008v.008H12v-.008zM9 12h.008v.008H9V12zm0 3h.008v.008H9v-.008zm0 3h.008v.008H9v-.008zm3-6h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z"/>
         </svg>
-        School Calendar
-      </a>
+      </span>
+      School Calendar
+    </a>
 
-      <a href="{{ route('leave.admin.index') }}"
-         class="enc-nav-item {{ request()->routeIs('leave.admin.*') ? 'active' : '' }}">
+    <a href="{{ route('leave.admin.index') }}"
+       class="stu-nav-item {{ request()->routeIs('leave.admin.*') ? 'active' : '' }}">
+      <span class="stu-icon si-violet">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"/>
         </svg>
-        Leave Management
-      </a>
+      </span>
+      Leave Management
+    </a>
 
-      <div class="enc-sidebar__section-label" style="margin-top:8px;">Security</div>
+    <div class="stu-section">
+      <span class="stu-section__text">Security</span>
+      <div class="stu-section__line"></div>
+    </div>
 
-      <a href="{{ route('admin.threat.index') }}"
-         class="enc-nav-item {{ request()->routeIs('admin.threat.*') ? 'active' : '' }}">
+    <a href="{{ route('admin.threat.index') }}"
+       class="stu-nav-item {{ request()->routeIs('admin.threat.*') ? 'active' : '' }}">
+      <span class="stu-icon si-rose">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
         </svg>
-        Threat Events
-        @if(isset($activeThreats) && $activeThreats > 0)
-          <span class="enc-nav-badge">{{ $activeThreats }}</span>
-        @endif
-      </a>
+      </span>
+      Threat Events
+      @if(isset($activeThreats) && $activeThreats > 0)
+        <span style="margin-left:auto;background:#ef4444;color:#fff;border-radius:99px;font-size:.65rem;font-weight:700;padding:.1rem .45rem;">{{ $activeThreats }}</span>
+      @endif
+    </a>
 
-      <a href="{{ route('admin.audit.index') }}"
-         class="enc-nav-item {{ request()->routeIs('admin.audit.*') ? 'active' : '' }}">
+    <a href="{{ route('admin.audit.index') }}"
+       class="stu-nav-item {{ request()->routeIs('admin.audit.*') ? 'active' : '' }}">
+      <span class="stu-icon si-orange">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
         </svg>
-        Audit Log
-      </a>
+      </span>
+      Audit Log
+    </a>
 
-      <a href="{{ route('admin.compliance.index') }}"
-         class="enc-nav-item {{ request()->routeIs('admin.compliance.*') ? 'active' : '' }}">
+    <a href="{{ route('admin.compliance.index') }}"
+       class="stu-nav-item {{ request()->routeIs('admin.compliance.*') ? 'active' : '' }}">
+      <span class="stu-icon si-teal">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z"/>
         </svg>
-        Compliance & Reports
-      </a>
+      </span>
+      Compliance & Reports
+    </a>
 
-      <div class="enc-sidebar__section-label" style="margin-top:8px;">Account</div>
-      <a href="{{ route('admin.settings.index') }}"
-         class="enc-nav-item {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}">
+    <div class="stu-section">
+      <span class="stu-section__text">Account</span>
+      <div class="stu-section__line"></div>
+    </div>
+
+    <a href="{{ route('admin.settings.index') }}"
+       class="stu-nav-item {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}">
+      <span class="stu-icon si-violet">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
         </svg>
-        Settings
-      </a>
-    </nav>
+      </span>
+      Settings
+    </a>
 
-    <div class="enc-sidebar__footer">
-      <a href="{{ route('admin.security-settings') }}" class="enc-sidebar__user">
-        <div class="enc-sidebar__avatar">
-          {{ strtoupper(substr(auth()->user()->first_name ?? 'A', 0, 1)) }}{{ strtoupper(substr(auth()->user()->last_name ?? 'D', 0, 1)) }}
-        </div>
-        <div class="enc-sidebar__user-info">
-          <div class="enc-sidebar__user-name">{{ auth()->user()->first_name ?? 'Administrator' }} {{ auth()->user()->last_name ?? '' }}</div>
-          <div class="enc-sidebar__user-role">{{ auth()->user()->role_label ?? 'Admin' }}</div>
-        </div>
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;color:rgba(255,255,255,.3)">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/>
+  </nav>
+
+  <div class="stu-footer">
+    <div class="stu-user-card">
+      <div class="stu-avatar">
+        {{ strtoupper(substr(auth()->user()->first_name ?? 'A', 0, 1)) }}{{ strtoupper(substr(auth()->user()->last_name ?? 'D', 0, 1)) }}
+      </div>
+      <div class="stu-user-info">
+        <div class="stu-user-name">{{ auth()->user()->first_name ?? 'Administrator' }} {{ auth()->user()->last_name ?? '' }}</div>
+        <div class="stu-user-role">{{ auth()->user()->role_label ?? 'Admin' }}</div>
+      </div>
+      <button type="button" class="stu-logout-btn" title="Sign out" onclick="openLogoutModal()">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"/>
         </svg>
-      </a>
+      </button>
     </div>
+  </div>
 
   @endif
 
