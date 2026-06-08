@@ -2,13 +2,14 @@
    EncryptEd — Phil. Academy of Sakya
    Academic Management Platform
    ---------------------------------------------------------
-   Design system v2 — Navy / White / Yellow
+   Design system v3 — Navy / White / Yellow / Violet
    Theme: scholarly, calm, focused. Navy is dominant,
    yellow is reserved for primary actions, key stats,
    active nav items, and notable highlights.
+   Violet added as tertiary accent.
    ========================================================= */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
 
 /* ═══════════════════════════════════════════════════════════
    1. DESIGN TOKENS
@@ -32,6 +33,12 @@
   --yellow-tint:   #fef3c7;
   --yellow-pale:   #fefce8;
 
+  /* ── Accent Violet (tertiary) ────────────────────────── */
+  --violet:        #7c3aed;
+  --violet-soft:   #8b5cf6;
+  --violet-tint:   #ede9fe;
+  --violet-border: #ddd6fe;
+
   /* ── Secondary accents (used sparingly) ─────────────── */
   --accent-blue:   #2563eb;
   --accent-sky:    #3b82f6;
@@ -42,7 +49,7 @@
 
   /* ── Neutrals ────────────────────────────────────────── */
   --white:         #ffffff;
-  --paper:         #fdfcf7;     /* faint warm white for surfaces */
+  --paper:         #fdfcf7;
   --off-white:     #f8fafc;
   --gray-50:       #f5f7fb;
   --gray-100:      #e6ebf2;
@@ -84,19 +91,65 @@
   --shadow-yellow: 0 6px 16px rgba(251, 191, 36, .35);
 
   /* ── Typography ──────────────────────────────────────── */
-  --font-display:  'Inter', 'DM Sans', system-ui, sans-serif;
-  --font-body:     'Inter', 'DM Sans', system-ui, sans-serif;
+  --font-display:  'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-body:     'Plus Jakarta Sans', system-ui, sans-serif;
   --font-mono:     'IBM Plex Mono', ui-monospace, monospace;
 
   /* ── Motion ──────────────────────────────────────────── */
   --ease:          cubic-bezier(.4, 0, .2, 1);
+  --ease-spring:   cubic-bezier(.34, 1.56, .64, 1);
   --t-fast:        .12s var(--ease);
   --t:             .2s var(--ease);
   --t-slow:        .35s var(--ease);
 }
 
 /* ═══════════════════════════════════════════════════════════
-   2. RESET & BASE
+   2. KEYFRAMES
+   ═══════════════════════════════════════════════════════════ */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(22, 163, 74, .55); }
+  50%       { box-shadow: 0 0 0 6px rgba(22, 163, 74, 0); }
+}
+
+@keyframes amberShimmer {
+  0%   { background-position: -100% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes titleBarShift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes floatIcon {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-8px); }
+}
+
+@keyframes skeletonShimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes gradientBorderShift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes notifSpring {
+  from { opacity: 0; transform: translateY(-10px) scale(.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   3. RESET & BASE
    ═══════════════════════════════════════════════════════════ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -109,8 +162,9 @@ html {
 body {
   font-family: var(--font-body);
   background:
-    radial-gradient(1200px 600px at -10% -20%, rgba(10, 31, 68, .04), transparent 60%),
-    radial-gradient(1000px 500px at 110% 0%, rgba(251, 191, 36, .05), transparent 60%),
+    radial-gradient(1200px 600px at -10% -20%, rgba(10, 31, 68, .07), transparent 60%),
+    radial-gradient(1000px 500px at 110% 0%, rgba(251, 191, 36, .06), transparent 60%),
+    radial-gradient(800px 800px at 50% 110%, rgba(124, 58, 237, .05), transparent 60%),
     var(--gray-50);
   color: var(--gray-700);
   line-height: 1.6;
@@ -125,7 +179,7 @@ input, select, textarea, button { font-family: var(--font-body); }
 ::selection { background: var(--yellow); color: var(--navy); }
 
 /* ═══════════════════════════════════════════════════════════
-   3. LAYOUT SHELL
+   4. LAYOUT SHELL
    ═══════════════════════════════════════════════════════════ */
 .enc-shell {
   display: flex;
@@ -137,7 +191,7 @@ input, select, textarea, button { font-family: var(--font-body); }
   width: var(--sidebar-w);
   height: 100vh;
   background:
-    linear-gradient(180deg, var(--navy) 0%, var(--navy-dark) 100%);
+    linear-gradient(160deg, #0d1f3c 0%, #07122a 55%, #050d1e 100%);
   display: flex;
   flex-direction: column;
   position: fixed;
@@ -146,19 +200,22 @@ input, select, textarea, button { font-family: var(--font-body); }
   overflow-y: auto;
   overflow-x: hidden;
   border-right: 1px solid rgba(255, 255, 255, .04);
-  box-shadow: 4px 0 20px rgba(10, 31, 68, .15);
+  box-shadow: 4px 0 24px rgba(5, 13, 30, .35);
 }
 
 .enc-sidebar::before {
-  /* Subtle yellow accent stripe at the top */
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0;
   height: 3px;
   background: linear-gradient(90deg,
-    var(--yellow) 0%,
-    var(--yellow-bright) 50%,
+    var(--yellow-dark) 0%,
+    var(--yellow-bright) 30%,
+    #fffde7 50%,
+    var(--yellow-bright) 70%,
     var(--yellow-dark) 100%);
+  background-size: 200% 100%;
+  animation: amberShimmer 2.5s linear infinite;
   z-index: 1;
 }
 
@@ -369,7 +426,7 @@ input, select, textarea, button { font-family: var(--font-body); }
 }
 
 /* ═══════════════════════════════════════════════════════════
-   4. MAIN CONTENT & HEADER
+   5. MAIN CONTENT & HEADER
    ═══════════════════════════════════════════════════════════ */
 .enc-main {
   margin-left: var(--sidebar-w);
@@ -381,8 +438,8 @@ input, select, textarea, button { font-family: var(--font-body); }
 
 .enc-header {
   height: var(--header-h);
-  background: var(--white);
-  border-bottom: 1px solid var(--gray-100);
+  background: rgba(255, 255, 255, .72);
+  border-bottom: 1px solid rgba(255, 255, 255, .5);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -390,8 +447,9 @@ input, select, textarea, button { font-family: var(--font-body); }
   position: sticky;
   top: 0;
   z-index: 110;
-  box-shadow: var(--shadow-xs);
-  backdrop-filter: saturate(180%) blur(8px);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .6) inset, var(--shadow-sm);
+  backdrop-filter: saturate(200%) blur(24px);
+  -webkit-backdrop-filter: saturate(200%) blur(24px);
 }
 
 .enc-header__left {
@@ -474,7 +532,7 @@ input, select, textarea, button { font-family: var(--font-body); }
 }
 
 /* ═══════════════════════════════════════════════════════════
-   5. PAGE CONTENT
+   6. PAGE CONTENT
    ═══════════════════════════════════════════════════════════ */
 .enc-page {
   padding: 32px;
@@ -482,11 +540,6 @@ input, select, textarea, button { font-family: var(--font-body); }
   animation: fadeUp .35s var(--ease) both;
   max-width: 1600px;
   width: 100%;
-}
-
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
 }
 
 .enc-page__header {
@@ -519,7 +572,12 @@ input, select, textarea, button { font-family: var(--font-body); }
   bottom: 0;
   width: 48px;
   height: 4px;
-  background: linear-gradient(90deg, var(--yellow) 0%, var(--yellow-dark) 100%);
+  background: linear-gradient(90deg,
+    var(--yellow) 0%,
+    var(--violet-soft) 50%,
+    var(--yellow-dark) 100%);
+  background-size: 200% 100%;
+  animation: titleBarShift 3s ease infinite;
   border-radius: 2px;
 }
 
@@ -539,7 +597,7 @@ input, select, textarea, button { font-family: var(--font-body); }
 }
 
 /* ═══════════════════════════════════════════════════════════
-   6. BUTTONS
+   7. BUTTONS
    ═══════════════════════════════════════════════════════════ */
 .enc-btn {
   display: inline-flex;
@@ -680,7 +738,7 @@ input, select, textarea, button { font-family: var(--font-body); }
 }
 
 /* ═══════════════════════════════════════════════════════════
-   7. STAT CARDS
+   8. STAT CARDS
    ═══════════════════════════════════════════════════════════ */
 .enc-stats {
   display: grid;
@@ -704,7 +762,6 @@ input, select, textarea, button { font-family: var(--font-body); }
 }
 
 .enc-stat-card::before {
-  /* Subtle navy accent rail on the left */
   content: '';
   position: absolute;
   top: 0; bottom: 0; left: 0;
@@ -737,13 +794,42 @@ input, select, textarea, button { font-family: var(--font-body); }
 }
 
 .enc-stat-icon svg { width: 20px; height: 20px; }
-.enc-stat-icon--blue   { background: #eff6ff; color: var(--accent-blue); }
-.enc-stat-icon--red    { background: var(--danger-bg); color: var(--danger); }
-.enc-stat-icon--amber  { background: var(--yellow-tint); color: var(--yellow-deep); }
-.enc-stat-icon--yellow { background: var(--yellow-tint); color: var(--yellow-deep); }
-.enc-stat-icon--green  { background: var(--success-bg); color: var(--success); }
-.enc-stat-icon--teal   { background: var(--info-bg); color: var(--info); }
-.enc-stat-icon--navy   { background: var(--navy-soft); color: var(--navy); }
+
+.enc-stat-icon--blue {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  color: var(--accent-blue);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, .2);
+}
+.enc-stat-icon--red {
+  background: linear-gradient(135deg, var(--danger-bg) 0%, #fecaca 100%);
+  color: var(--danger);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, .2);
+}
+.enc-stat-icon--amber {
+  background: linear-gradient(135deg, var(--yellow-tint) 0%, #fde68a 100%);
+  color: var(--yellow-deep);
+  box-shadow: 0 4px 12px rgba(217, 119, 6, .22);
+}
+.enc-stat-icon--yellow {
+  background: linear-gradient(135deg, var(--yellow-tint) 0%, #fde68a 100%);
+  color: var(--yellow-deep);
+  box-shadow: 0 4px 12px rgba(251, 191, 36, .25);
+}
+.enc-stat-icon--green {
+  background: linear-gradient(135deg, var(--success-bg) 0%, #bbf7d0 100%);
+  color: var(--success);
+  box-shadow: 0 4px 12px rgba(22, 163, 74, .2);
+}
+.enc-stat-icon--teal {
+  background: linear-gradient(135deg, var(--info-bg) 0%, #a5f3fc 100%);
+  color: var(--info);
+  box-shadow: 0 4px 12px rgba(8, 145, 178, .2);
+}
+.enc-stat-icon--navy {
+  background: linear-gradient(135deg, var(--navy-soft) 0%, #c7d2eb 100%);
+  color: var(--navy);
+  box-shadow: 0 4px 12px rgba(10, 31, 68, .15);
+}
 
 .enc-stat-body { flex: 1; min-width: 0; }
 
@@ -782,7 +868,7 @@ input, select, textarea, button { font-family: var(--font-body); }
 .enc-stat-delta--flat { color: var(--gray-500); background: var(--gray-100); }
 
 /* ═══════════════════════════════════════════════════════════
-   8. CARDS & PANELS
+   9. CARDS & PANELS
    ═══════════════════════════════════════════════════════════ */
 .enc-card {
   background: white;
@@ -833,7 +919,7 @@ input, select, textarea, button { font-family: var(--font-body); }
 .enc-card__body--no-pad { padding: 0; }
 
 /* ═══════════════════════════════════════════════════════════
-   9. FILTER BAR & INPUTS
+   10. FILTER BAR & INPUTS
    ═══════════════════════════════════════════════════════════ */
 .enc-filter-bar {
   display: flex;
@@ -914,7 +1000,7 @@ input, select, textarea, button { font-family: var(--font-body); }
 }
 
 /* ═══════════════════════════════════════════════════════════
-   10. DATA TABLES
+   11. DATA TABLES
    ═══════════════════════════════════════════════════════════ */
 .enc-table-wrap {
   overflow-x: auto;
@@ -982,7 +1068,7 @@ input, select, textarea, button { font-family: var(--font-body); }
 .enc-table .mono--ip { color: var(--info); }
 
 /* ═══════════════════════════════════════════════════════════
-   11. BADGES & PILLS
+   12. BADGES & PILLS
    ═══════════════════════════════════════════════════════════ */
 .enc-badge {
   display: inline-flex;
@@ -1053,7 +1139,7 @@ input, select, textarea, button { font-family: var(--font-body); }
 .enc-action-tag--violation{ background: #fff1f2; color: #be123c; }
 
 /* ═══════════════════════════════════════════════════════════
-   12. THREAT INDICATORS & TIMELINE
+   13. THREAT INDICATORS & TIMELINE
    ═══════════════════════════════════════════════════════════ */
 .enc-threat-row--critical { border-left: 4px solid var(--danger); }
 .enc-threat-row--high     { border-left: 4px solid var(--yellow-dark); }
@@ -1061,7 +1147,7 @@ input, select, textarea, button { font-family: var(--font-body); }
 .enc-threat-row--low      { border-left: 4px solid var(--gray-200); }
 
 /* ═══════════════════════════════════════════════════════════
-   13. PAGINATION
+   14. PAGINATION
    ═══════════════════════════════════════════════════════════ */
 .enc-pagination {
   display: flex;
@@ -1116,7 +1202,7 @@ input, select, textarea, button { font-family: var(--font-body); }
 .enc-page-btn:disabled { opacity: .4; cursor: not-allowed; }
 
 /* ═══════════════════════════════════════════════════════════
-   14. TIMELINE
+   15. TIMELINE
    ═══════════════════════════════════════════════════════════ */
 .enc-timeline {
   padding: 0 22px;
@@ -1199,7 +1285,7 @@ input, select, textarea, button { font-family: var(--font-body); }
 }
 
 /* ═══════════════════════════════════════════════════════════
-   15. ALERTS / BANNERS
+   16. ALERTS / BANNERS
    ═══════════════════════════════════════════════════════════ */
 .enc-alert {
   display: flex;
@@ -1244,7 +1330,7 @@ input, select, textarea, button { font-family: var(--font-body); }
 }
 
 /* ═══════════════════════════════════════════════════════════
-   16. REPORT CARDS (compliance / export tiles)
+   17. REPORT CARDS (compliance / export tiles)
    ═══════════════════════════════════════════════════════════ */
 .enc-report-grid {
   display: grid;
@@ -1335,7 +1421,7 @@ input, select, textarea, button { font-family: var(--font-body); }
 }
 
 /* ═══════════════════════════════════════════════════════════
-   17. FORMS
+   18. FORMS
    ═══════════════════════════════════════════════════════════ */
 .enc-form-row {
   display: grid;
@@ -1384,7 +1470,7 @@ input, select, textarea, button { font-family: var(--font-body); }
 }
 
 /* ═══════════════════════════════════════════════════════════
-   18. EMPTY STATES
+   19. EMPTY STATES
    ═══════════════════════════════════════════════════════════ */
 .enc-empty {
   text-align: center;
@@ -1399,6 +1485,7 @@ input, select, textarea, button { font-family: var(--font-body); }
   display: block;
   opacity: .4;
   color: var(--yellow-dark);
+  animation: floatIcon 3s ease-in-out infinite;
 }
 
 .enc-empty__title {
@@ -1418,7 +1505,7 @@ input, select, textarea, button { font-family: var(--font-body); }
 }
 
 /* ═══════════════════════════════════════════════════════════
-   19. SCROLLBAR
+   20. SCROLLBAR
    ═══════════════════════════════════════════════════════════ */
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
@@ -1431,7 +1518,7 @@ input, select, textarea, button { font-family: var(--font-body); }
 ::-webkit-scrollbar-thumb:hover { background: var(--yellow-dark); background-clip: padding-box; }
 
 /* ═══════════════════════════════════════════════════════════
-   20. LIVE INDICATOR
+   21. LIVE INDICATOR
    ═══════════════════════════════════════════════════════════ */
 .enc-live-dot {
   display: inline-flex;
@@ -1454,13 +1541,8 @@ input, select, textarea, button { font-family: var(--font-body); }
   animation: pulse 1.8s infinite;
 }
 
-@keyframes pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(22, 163, 74, .55); }
-  50%       { box-shadow: 0 0 0 6px rgba(22, 163, 74, 0); }
-}
-
 /* ═══════════════════════════════════════════════════════════
-   21. UTILITY HELPERS
+   22. UTILITY HELPERS
    ═══════════════════════════════════════════════════════════ */
 .enc-divider {
   height: 1px;
@@ -1478,14 +1560,66 @@ input, select, textarea, button { font-family: var(--font-body); }
 .enc-bg-navy     { background: var(--navy); color: white; }
 .enc-bg-paper    { background: var(--paper); }
 
-/* Decorative — yellow underline highlight */
 .enc-highlight {
   background: linear-gradient(180deg, transparent 60%, var(--yellow) 60%);
   padding: 0 2px;
 }
 
+/* ─── New utility: glassmorphism ──────────────────────── */
+.enc-glass {
+  background: rgba(255, 255, 255, .65);
+  backdrop-filter: saturate(180%) blur(16px);
+  -webkit-backdrop-filter: saturate(180%) blur(16px);
+  border: 1px solid rgba(255, 255, 255, .5);
+  box-shadow: 0 4px 24px rgba(10, 31, 68, .08);
+}
+
+/* ─── New utility: skeleton shimmer loading ───────────── */
+.enc-skeleton {
+  background: linear-gradient(90deg,
+    var(--gray-100) 25%,
+    var(--gray-50)  50%,
+    var(--gray-100) 75%);
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.5s ease-in-out infinite;
+  border-radius: var(--radius-sm);
+  color: transparent !important;
+  user-select: none;
+}
+
+/* ─── New utility: gradient text ─────────────────────── */
+.enc-gradient-text {
+  background: linear-gradient(135deg, var(--navy) 0%, var(--violet-soft) 50%, var(--yellow) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ─── New utility: animated gradient border ──────────── */
+.enc-gradient-border {
+  position: relative;
+}
+
+.enc-gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: linear-gradient(135deg,
+    var(--yellow) 0%,
+    var(--violet-soft) 50%,
+    var(--accent-sky) 100%);
+  background-size: 200% 200%;
+  animation: gradientBorderShift 3s ease infinite;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
 /* ═══════════════════════════════════════════════════════════
-   22. RESPONSIVE
+   23. RESPONSIVE
    ═══════════════════════════════════════════════════════════ */
 @media (max-width: 1024px) {
   .enc-page { padding: 24px; }
@@ -1511,7 +1645,7 @@ input, select, textarea, button { font-family: var(--font-body); }
 }
 
 /* ═══════════════════════════════════════════════════════════
-   23. PRINT
+   24. PRINT
    ═══════════════════════════════════════════════════════════ */
 @media print {
   .enc-sidebar, .enc-header, .enc-page__actions { display: none; }
@@ -1521,10 +1655,8 @@ input, select, textarea, button { font-family: var(--font-body); }
 }
 
 /* ═══════════════════════════════════════════════════════════
-   24. MOBILE — HAMBURGER + OVERLAY + RESPONSIVE FIXES
+   25. MOBILE — HAMBURGER + OVERLAY + RESPONSIVE FIXES
    ═══════════════════════════════════════════════════════════ */
-
-/* Hamburger button — hidden on desktop */
 .enc-hamburger {
   display: none;
   align-items: center;
@@ -1543,7 +1675,6 @@ input, select, textarea, button { font-family: var(--font-body); }
 .enc-hamburger:hover { background: var(--gray-50); }
 .enc-hamburger svg { width: 20px; height: 20px; }
 
-/* Mobile overlay backdrop */
 .enc-sidebar-overlay {
   display: none;
   position: fixed;
@@ -1557,23 +1688,11 @@ input, select, textarea, button { font-family: var(--font-body); }
 
 @media (max-width: 900px) {
   .enc-hamburger { display: flex; }
-
-  /* Stack the tables on small screens */
   .enc-table th, .enc-table td { white-space: nowrap; }
-
-  /* Header breadcrumb shorter */
   .enc-header__breadcrumb { font-size: .8rem; }
-
-  /* Card grids collapse */
   .sd-grid-3, .sd-grid-4 { grid-template-columns: 1fr 1fr !important; }
-
-  /* Page padding tighter */
   .enc-page { padding: 14px 12px; }
-
-  /* Hide the clock on very small screens */
   .enc-header__time { display: none; }
-
-  /* Year picker shrinks */
   .enc-year-picker select { max-width: 120px; font-size: .78rem; }
 }
 
@@ -1581,17 +1700,13 @@ input, select, textarea, button { font-family: var(--font-body); }
   .sd-grid-3, .sd-grid-4, .enc-stats { grid-template-columns: 1fr !important; }
   .enc-page { padding: 10px; }
   .enc-header { padding: 0 12px; }
-
-  /* Force tables to scroll */
   .enc-table-wrap, .doc-table-card > div, .lv-table-card > div,
   .asgn-table-card > div, .sub-table-card > div, .sf-table-card > div { overflow-x: auto; }
-
-  /* Full width modal */
   .asgn-modal { margin: 8px; }
 }
 
 /* ═══════════════════════════════════════════════════════════
-   25. NOTIFICATION DROPDOWN
+   26. NOTIFICATION DROPDOWN
    ═══════════════════════════════════════════════════════════ */
 .notif-wrap {
   position: relative;
@@ -1609,7 +1724,10 @@ input, select, textarea, button { font-family: var(--font-body); }
   z-index: 300;
   overflow: hidden;
 }
-.notif-dropdown.open { display: block; }
+.notif-dropdown.open {
+  display: block;
+  animation: notifSpring .45s var(--ease-spring) both;
+}
 .notif-dropdown__head {
   display: flex;
   align-items: center;
@@ -1718,4 +1836,3 @@ body.dark-mode .notif-item--unread { background: rgba(59,130,246,.12); }
 body.dark-mode .notif-title { color: #f1f5f9; }
 body.dark-mode .notif-text { color: #94a3b8; }
 body.dark-mode .notif-dropdown__title { color: #f1f5f9; }
-
