@@ -101,16 +101,9 @@
 <div style="max-width:1160px;">
 
   {{-- ── Page header ──────────────────────────────────────────────────── --}}
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
-    <div>
-      <h1 style="font-size:1.2rem;font-weight:800;color:#0f172a;margin:0 0 4px;">Document Requests</h1>
-      <p style="font-size:.82rem;color:#64748b;margin:0;">Review and process student document and record requests.</p>
-    </div>
-    <a href="{{ route('documents.student.index') }}"
-       style="padding:.5rem 1.1rem;background:#4f46e5;color:#fff;border-radius:8px;font-size:.82rem;font-weight:700;text-decoration:none;display:inline-block;transition:background .15s;"
-       onmouseover="this.style.background='#4338ca'" onmouseout="this.style.background='#4f46e5'">
-      + New Request
-    </a>
+  <div style="margin-bottom:20px;">
+    <h1 style="font-size:1.2rem;font-weight:800;color:#0f172a;margin:0 0 4px;">Document Requests</h1>
+    <p style="font-size:.82rem;color:#64748b;margin:0;">Review and process student document and record requests.</p>
   </div>
 
   {{-- Flash messages --}}
