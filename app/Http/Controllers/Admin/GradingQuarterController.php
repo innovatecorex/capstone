@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\AcademicYear;
+use App\Models\AuditLog;
+use App\Models\Grade;
 use App\Models\GradingQuarter;
 use Illuminate\Http\Request;
 
@@ -80,7 +82,12 @@ class GradingQuarterController extends Controller
         }
         
         $quarter = GradingQuarter::create($validated);
-        
+
+        AuditLog::record('grading_quarter.created', [
+            'target'  => $quarter->id,
+            'details' => $quarter->toArray(),
+        ]);
+
         return redirect()
             ->route('admin.grading-quarters.index')
             ->with('success', "Grading Quarter '{$quarter->quarter_name}' created successfully.");
@@ -123,7 +130,12 @@ class GradingQuarterController extends Controller
         }
         
         $quarter->update($validated);
-        
+
+        AuditLog::record('grading_quarter.updated', [
+            'target'  => $quarter->id,
+            'details' => $request->validated(),
+        ]);
+
         return redirect()
             ->route('admin.grading-quarters.index')
             ->with('success', "Grading Quarter '{$quarter->quarter_name}' updated successfully.");
@@ -134,9 +146,28 @@ class GradingQuarterController extends Controller
      */
     public function destroy(GradingQuarter $quarter)
     {
+        if ($quarter->is_active) {
+            return redirect()
+                ->route('admin.grading-quarters.index')
+                ->with('error', 'Cannot delete an active grading period. Deactivate it first.');
+        }
+
+        $hasGrades = Grade::whereHas('gradingQuarter', fn ($q) => $q->where('id', $quarter->id))->exists();
+        if ($hasGrades) {
+            return redirect()
+                ->route('admin.grading-quarters.index')
+                ->with('error', 'Cannot delete this grading period because grades have been submitted for it.');
+        }
+
         $name = $quarter->quarter_name;
+
+        AuditLog::record('grading_quarter.deleted', [
+            'target'  => $quarter->id,
+            'details' => ['quarter_name' => $quarter->quarter_name],
+        ]);
+
         $quarter->delete();
-        
+
         return redirect()
             ->route('admin.grading-quarters.index')
             ->with('success', "Grading Quarter '{$name}' deleted successfully.");

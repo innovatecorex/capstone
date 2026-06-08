@@ -8,6 +8,7 @@ use App\Models\Announcement;
 use App\Models\Assessment;
 use App\Models\Attendance;
 use App\Models\AuditLog;
+use App\Models\CurriculumMapping;
 use App\Models\Enrollment;
 use App\Models\Grade;
 use App\Models\SectionSubject;
@@ -433,6 +434,84 @@ class StudentDashboardController extends Controller
         $enrollment  = $this->activeEnrollment($user->id);
         $studentInfo = $this->studentInfo($user, $enrollment);
         $curriculum  = [];
+
+        if (!$enrollment) {
+            return view('dashboard.student-program-curriculum', compact('user', 'studentInfo', 'curriculum'));
+        }
+
+        // Gather every enrollment (current + historical) for this student
+        $allEnrollments = $user->enrollments()
+            ->with(['section', 'academicYear'])
+            ->get();
+
+        $activeYearId = $enrollment->academic_year_id;
+
+        // Build a map: academic_year_id → [enrollment, gradeLevel]
+        // Last write wins if somehow duplicated; that's fine.
+        $yearGroups = [];
+        foreach ($allEnrollments as $enr) {
+            $gl = $enr->section?->grade_level;
+            $yi = $enr->academic_year_id;
+            if (!$gl || !$yi) {
+                continue;
+            }
+            $yearGroups[$yi] = ['enrollment' => $enr, 'gradeLevel' => $gl];
+        }
+
+        foreach ($yearGroups as $yearId => $info) {
+            $enr        = $info['enrollment'];
+            $gradeLevel = $info['gradeLevel'];
+
+            $mappings = CurriculumMapping::forGradeLevel($gradeLevel)
+                ->forAcademicYear($yearId)
+                ->active()
+                ->ordered()
+                ->with(['subject'])
+                ->get();
+
+            if ($mappings->isEmpty()) {
+                continue;
+            }
+
+            $subjects = [];
+            foreach ($mappings as $mapping) {
+                $grade = Grade::where('enrollment_id', $enr->id)
+                    ->whereHas('sectionSubject', fn ($q) => $q->where('subject_id', $mapping->subject_id))
+                    ->latest()
+                    ->first();
+
+                if ($grade) {
+                    $status = in_array($grade->status, ['finalized', 'locked'])
+                        ? 'completed'
+                        : 'in-progress';
+                } else {
+                    $status = 'pending';
+                }
+
+                $subjects[] = [
+                    'code'     => $mapping->subject?->subject_code ?? '—',
+                    'name'     => $mapping->subject?->subject_name ?? '—',
+                    'category' => $mapping->is_required ? 'Required' : 'Elective',
+                    'status'   => $status,
+                ];
+            }
+
+            $curriculum[$yearId] = [
+                'label'    => $enr->academicYear?->year_label ?? "Year {$yearId}",
+                'subjects' => $subjects,
+            ];
+        }
+
+        // Current academic year first; newer years before older ones
+        uksort($curriculum, function ($a, $b) use ($activeYearId) {
+            if ($a == $activeYearId) {
+                return -1;
+            }
+            if ($b == $activeYearId) {
+                return 1;
+            }
+            return $b <=> $a;
+        });
 
         return view('dashboard.student-program-curriculum', compact('user', 'studentInfo', 'curriculum'));
     }

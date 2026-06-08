@@ -76,7 +76,7 @@
           <label style="display:block;font-size:.78rem;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">
             Term Type <span style="color:#dc2626;">*</span>
           </label>
-          <select name="term_type" required
+          <select name="term_type" id="term_type" required onchange="updateTermPreview()"
                   style="width:100%;padding:10px 12px;border:1px solid {{ $errors->has('term_type') ? '#fca5a5' : '#cbd5e1' }};border-radius:8px;background:#fff;font-size:.9rem;">
             <option value="quarterly" {{ old('term_type', $academicYear->term_type ?? 'quarterly') === 'quarterly' ? 'selected' : '' }}>Quarterly (4 grading periods)</option>
             <option value="semestral" {{ old('term_type', $academicYear->term_type ?? '') === 'semestral' ? 'selected' : '' }}>Semestral (2 grading periods)</option>
@@ -102,6 +102,13 @@
         </div>
       </div>
 
+      {{-- Grading-period preview --}}
+      <div id="term-preview" style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:12px 16px;font-size:.82rem;color:#166534;">
+        <strong>Current grading periods for this term type:</strong>
+        <div id="term-preview-list" style="margin-top:6px;display:flex;flex-wrap:wrap;gap:8px;"></div>
+        <p style="margin:8px 0 0;font-size:.74rem;color:#475569;">Changing the term type and saving will reconcile grading periods under this academic year.</p>
+      </div>
+
       <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px 16px;font-size:.82rem;color:#1e40af;">
         <strong>Note:</strong> Multiple academic years may be active at the same time so you can prepare next year's schedules while the current year is still in progress.
       </div>
@@ -115,5 +122,25 @@
     </div>
   </form>
 </div>
+
+
+<script>
+function updateTermPreview() {
+    const sel  = document.getElementById('term_type');
+    const list = document.getElementById('term-preview-list');
+    if (!sel || !list) return;
+    const periods = sel.value === 'semestral'
+        ? ['1st Semester', '2nd Semester']
+        : ['1st Quarter', '2nd Quarter', '3rd Quarter', '4th Quarter'];
+    list.innerHTML = '';
+    periods.forEach(function (p) {
+        const pill = document.createElement('span');
+        pill.textContent = p;
+        pill.style.cssText = 'display:inline-block;padding:.25rem .7rem;border-radius:6px;font-size:.78rem;font-weight:700;color:#fff;background:#1d4ed8;';
+        list.appendChild(pill);
+    });
+}
+updateTermPreview();
+</script>
 
 @endsection
