@@ -1840,71 +1840,270 @@
 {{-- ══════════════════════════════════════════════════════
      LOGOUT CONFIRMATION MODAL — shared across all roles
 ═══════════════════════════════════════════════════════ --}}
+
+<style>
+/* ── Logout modal keyframes ─────────────────────────────── */
+@keyframes lm-orb1 {
+  0%,100% { transform: translate(0,0) scale(1); }
+  33%      { transform: translate(18px,-22px) scale(1.12); }
+  66%      { transform: translate(-12px,14px) scale(.9); }
+}
+@keyframes lm-orb2 {
+  0%,100% { transform: translate(0,0) scale(1); }
+  40%      { transform: translate(-20px,16px) scale(1.08); }
+  75%      { transform: translate(10px,-18px) scale(.92); }
+}
+@keyframes lm-orb3 {
+  0%,100% { transform: translate(0,0) scale(1); }
+  50%      { transform: translate(14px,20px) scale(1.15); }
+}
+@keyframes lm-pulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(239,68,68,.55), 0 0 0 0 rgba(239,68,68,.25); }
+  50%      { box-shadow: 0 0 0 14px rgba(239,68,68,.12), 0 0 0 28px rgba(239,68,68,.04); }
+}
+@keyframes lm-ring-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+@keyframes lm-shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+@keyframes lm-float {
+  0%,100% { transform: translateY(0); }
+  50%      { transform: translateY(-4px); }
+}
+@keyframes lm-bar-flow {
+  0%   { background-position: 0% center; }
+  100% { background-position: -250% center; }
+}
+@keyframes lm-glow-pulse {
+  0%,100% { opacity: .7; }
+  50%      { opacity: 1; }
+}
+
+/* ── Backdrop particle dots ─────────────────────────────── */
+#logout-backdrop::before,
+#logout-backdrop::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+#logout-backdrop::before {
+  width: 320px; height: 320px;
+  background: radial-gradient(circle, rgba(99,102,241,.18) 0%, transparent 70%);
+  top: 15%; left: 8%;
+  animation: lm-orb1 8s ease-in-out infinite;
+}
+#logout-backdrop::after {
+  width: 280px; height: 280px;
+  background: radial-gradient(circle, rgba(239,68,68,.14) 0%, transparent 70%);
+  bottom: 12%; right: 10%;
+  animation: lm-orb2 9s ease-in-out infinite;
+}
+
+/* ── Dialog orbs ────────────────────────────────────────── */
+.lm-orb-a, .lm-orb-b, .lm-orb-c {
+  position: absolute; border-radius: 50%; pointer-events: none; filter: blur(36px);
+}
+.lm-orb-a {
+  width: 220px; height: 220px;
+  background: radial-gradient(circle, rgba(99,102,241,.28) 0%, transparent 70%);
+  top: -60px; left: -60px;
+  animation: lm-orb1 7s ease-in-out infinite;
+}
+.lm-orb-b {
+  width: 180px; height: 180px;
+  background: radial-gradient(circle, rgba(239,68,68,.22) 0%, transparent 70%);
+  bottom: -50px; right: -50px;
+  animation: lm-orb2 9s ease-in-out infinite;
+}
+.lm-orb-c {
+  width: 140px; height: 140px;
+  background: radial-gradient(circle, rgba(168,85,247,.18) 0%, transparent 70%);
+  top: 40%; left: 55%;
+  animation: lm-orb3 6s ease-in-out infinite;
+}
+
+/* ── Sign-out button glow ───────────────────────────────── */
+.lm-signout-btn {
+  position: relative; overflow: hidden;
+  flex: 1; padding: .75rem 1rem; border: none; border-radius: 12px;
+  background: linear-gradient(135deg, #dc2626 0%, #ef4444 45%, #f97316 100%);
+  background-size: 200% 100%;
+  color: #fff; font-size: .9rem; font-weight: 800; letter-spacing: .02em;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  box-shadow: 0 4px 24px rgba(239,68,68,.45), 0 1px 0 rgba(255,255,255,.12) inset;
+  transition: transform .15s, box-shadow .15s, background-position .4s;
+}
+.lm-signout-btn::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,.18) 50%, transparent 60%);
+  background-size: 200% 100%;
+  animation: lm-shimmer 2.4s linear infinite;
+}
+.lm-signout-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 32px rgba(239,68,68,.6), 0 1px 0 rgba(255,255,255,.12) inset;
+  background-position: right center;
+}
+.lm-signout-btn:active { transform: translateY(0); }
+
+/* ── Stay signed in button ──────────────────────────────── */
+.lm-stay-btn {
+  flex: 1; padding: .75rem 1rem;
+  border: 1px solid rgba(255,255,255,.12); border-radius: 12px;
+  background: rgba(255,255,255,.06); color: rgba(255,255,255,.72);
+  font-size: .875rem; font-weight: 600; cursor: pointer;
+  transition: background .15s, border-color .15s, color .15s;
+  backdrop-filter: blur(4px);
+}
+.lm-stay-btn:hover {
+  background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.22);
+  color: rgba(255,255,255,.92);
+}
+</style>
+
 <div id="logout-modal" style="display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;">
 
   {{-- Backdrop --}}
   <div id="logout-backdrop"
        onclick="closeLogoutModal()"
-       style="position:absolute;inset:0;background:rgba(15,23,42,.55);backdrop-filter:blur(4px);"></div>
+       style="position:absolute;inset:0;background:rgba(6,9,24,.82);backdrop-filter:blur(10px);overflow:hidden;"></div>
 
   {{-- Dialog --}}
   <div id="logout-dialog" style="
       position:relative;z-index:1;
-      background:#fff;border-radius:20px;
-      width:100%;max-width:400px;margin:0 16px;
-      box-shadow:0 24px 64px rgba(15,23,42,.18);
+      background:linear-gradient(145deg,#0d1630 0%,#111827 55%,#0f0d1f 100%);
+      border:1px solid rgba(255,255,255,.09);
+      border-radius:24px;
+      width:100%;max-width:420px;margin:0 16px;
+      box-shadow:0 32px 80px rgba(0,0,0,.7), 0 0 0 1px rgba(99,102,241,.12), 0 0 60px rgba(99,102,241,.08);
       overflow:hidden;
-      transform:scale(.95) translateY(10px);
+      transform:scale(.9) translateY(20px);
       opacity:0;
-      transition:transform .22s cubic-bezier(.34,1.56,.64,1), opacity .18s ease;">
+      transition:transform .3s cubic-bezier(.34,1.56,.64,1), opacity .22s ease;">
 
-    {{-- Top accent bar --}}
-    <div style="height:4px;background:linear-gradient(90deg,#ef4444,#f87171);"></div>
+    {{-- Animated background orbs --}}
+    <div class="lm-orb-a"></div>
+    <div class="lm-orb-b"></div>
+    <div class="lm-orb-c"></div>
+
+    {{-- Animated top accent bar --}}
+    <div style="
+        position:relative;z-index:2;
+        height:4px;
+        background:linear-gradient(90deg,#6366f1 0%,#8b5cf6 15%,#ec4899 30%,#ef4444 45%,#f97316 60%,#fbbf24 75%,#6366f1 100%);
+        background-size:250% 100%;
+        animation:lm-bar-flow 4s linear infinite;"></div>
 
     {{-- Body --}}
-    <div style="padding:32px 28px 24px;">
+    <div style="position:relative;z-index:2;padding:36px 30px 28px;">
 
-      {{-- Icon --}}
-      <div style="width:52px;height:52px;border-radius:14px;background:#fef2f2;display:flex;align-items:center;justify-content:center;margin-bottom:20px;">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:24px;height:24px;color:#ef4444;">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"/>
-        </svg>
+      {{-- Animated power icon with pulsing ring --}}
+      <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:28px;">
+        {{-- Outer spinning dashed ring --}}
+        <div style="
+            position:relative;width:96px;height:96px;
+            display:flex;align-items:center;justify-content:center;
+            animation:lm-float 3s ease-in-out infinite;">
+          <div style="
+              position:absolute;inset:0;border-radius:50%;
+              border:2px dashed rgba(239,68,68,.35);
+              animation:lm-ring-spin 8s linear infinite;"></div>
+          <div style="
+              position:absolute;inset:8px;border-radius:50%;
+              border:1.5px solid rgba(239,68,68,.18);
+              animation:lm-ring-spin 5s linear infinite reverse;"></div>
+          {{-- Icon bubble --}}
+          <div style="
+              width:64px;height:64px;border-radius:18px;
+              background:linear-gradient(135deg,rgba(239,68,68,.22) 0%,rgba(239,68,68,.08) 100%);
+              border:1px solid rgba(239,68,68,.28);
+              display:flex;align-items:center;justify-content:center;
+              animation:lm-pulse 2.5s ease-in-out infinite;
+              box-shadow:0 0 0 0 rgba(239,68,68,.4);">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" style="width:28px;height:28px;color:#f87171;">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"/>
+            </svg>
+          </div>
+        </div>
+
+        {{-- Heading --}}
+        <h2 style="
+            margin:18px 0 6px;font-size:1.35rem;font-weight:800;letter-spacing:-.02em;text-align:center;
+            background:linear-gradient(90deg,#f1f5f9 0%,#c7d2fe 40%,#fda4af 70%,#f1f5f9 100%);
+            background-size:200% 100%;
+            -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+            animation:lm-shimmer 4s linear infinite;">
+          Signing Out of EncryptEd?
+        </h2>
+        <p style="font-size:.84rem;color:rgba(148,163,184,.7);margin:0;text-align:center;line-height:1.6;max-width:300px;">
+          You'll be returned to the login&nbsp;page.<br>Any unsaved work may be lost.
+        </p>
       </div>
 
-      {{-- Heading --}}
-      <h2 style="font-size:1.15rem;font-weight:700;color:#0f172a;margin:0 0 6px;">Sign out of EncryptEd?</h2>
-      <p style="font-size:.875rem;color:#64748b;margin:0 0 20px;line-height:1.55;">
-        You'll be returned to the login page. Any unsaved work may be lost.
-      </p>
-
       {{-- User info strip --}}
-      <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:#f8fafc;border:1px solid #f1f5f9;border-radius:12px;margin-bottom:24px;">
-        <div style="width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#1e3a5f,#2d5fa8);display:flex;align-items:center;justify-content:center;font-size:.82rem;font-weight:800;color:#fff;flex-shrink:0;letter-spacing:-.5px;">
+      <div style="
+          display:flex;align-items:center;gap:13px;padding:13px 15px;
+          background:rgba(255,255,255,.04);
+          border:1px solid rgba(255,255,255,.08);
+          border-radius:14px;margin-bottom:24px;
+          backdrop-filter:blur(6px);
+          position:relative;overflow:hidden;">
+        {{-- Shimmer strip --}}
+        <div style="
+            position:absolute;inset:0;
+            background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.04) 50%,transparent 100%);
+            background-size:200% 100%;
+            animation:lm-shimmer 3s linear infinite;pointer-events:none;"></div>
+        {{-- Avatar --}}
+        <div style="
+            position:relative;width:42px;height:42px;border-radius:11px;flex-shrink:0;
+            background:linear-gradient(135deg,#3730a3,#6366f1);
+            display:flex;align-items:center;justify-content:center;
+            font-size:.85rem;font-weight:800;color:#fff;letter-spacing:-.5px;
+            box-shadow:0 4px 12px rgba(99,102,241,.4);">
           {{ strtoupper(substr(auth()->user()->first_name ?? 'U', 0, 1)) }}{{ strtoupper(substr(auth()->user()->last_name ?? '', 0, 1)) }}
+          <div style="position:absolute;inset:-2px;border-radius:13px;border:1.5px solid rgba(99,102,241,.4);pointer-events:none;"></div>
         </div>
         <div style="min-width:0;">
-          <div style="font-size:.88rem;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+          <div style="font-size:.9rem;font-weight:700;color:rgba(241,245,249,.9);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
             {{ auth()->user()->full_name ?? 'User' }}
           </div>
-          <div style="font-size:.74rem;color:#94a3b8;margin-top:1px;">
-            {{ auth()->user()->email ?? '' }} &nbsp;·&nbsp; {{ auth()->user()->role_label ?? 'User' }}
+          <div style="font-size:.73rem;color:rgba(148,163,184,.55);margin-top:2px;display:flex;align-items:center;gap:5px;">
+            <span>{{ auth()->user()->email ?: '—' }}</span>
+            <span style="width:3px;height:3px;border-radius:50%;background:rgba(148,163,184,.3);flex-shrink:0;"></span>
+            <span style="color:rgba(167,139,250,.7);font-weight:600;text-transform:uppercase;font-size:.67rem;letter-spacing:.06em;">
+              {{ auth()->user()->role_label ?? 'User' }}
+            </span>
           </div>
         </div>
+      </div>
+
+      {{-- Warning note --}}
+      <div style="
+          display:flex;align-items:center;gap:8px;padding:9px 13px;
+          background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.15);
+          border-radius:10px;margin-bottom:22px;">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;color:#f87171;flex-shrink:0;animation:lm-glow-pulse 2s ease-in-out infinite;">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
+        </svg>
+        <span style="font-size:.76rem;color:rgba(252,165,165,.7);line-height:1.4;">
+          Your active session will be terminated immediately.
+        </span>
       </div>
 
       {{-- Actions --}}
       <div style="display:flex;gap:10px;">
-        <button onclick="closeLogoutModal()" type="button"
-                style="flex:1;padding:.65rem 1rem;border:1px solid #e2e8f0;border-radius:10px;background:#fff;color:#374151;font-size:.875rem;font-weight:600;cursor:pointer;transition:background .15s,border-color .15s;"
-                onmouseover="this.style.background='#f8fafc';this.style.borderColor='#cbd5e1'"
-                onmouseout="this.style.background='#fff';this.style.borderColor='#e2e8f0'">
+        <button onclick="closeLogoutModal()" type="button" class="lm-stay-btn">
           Stay Signed In
         </button>
-        <button onclick="document.getElementById('logout-form').submit()" type="button"
-                style="flex:1;padding:.65rem 1rem;border:none;border-radius:10px;background:#ef4444;color:#fff;font-size:.875rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:background .15s;"
-                onmouseover="this.style.background='#dc2626'"
-                onmouseout="this.style.background='#ef4444'">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;">
+        <button onclick="document.getElementById('logout-form').submit()" type="button" class="lm-signout-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2" style="width:16px;height:16px;flex-shrink:0;">
             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"/>
           </svg>
           Sign Out
