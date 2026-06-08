@@ -830,6 +830,16 @@ input, select, textarea, button { font-family: var(--font-body); }
   color: var(--navy);
   box-shadow: 0 4px 12px rgba(10, 31, 68, .15);
 }
+.enc-stat-icon--indigo {
+  background: linear-gradient(135deg, #ede9fe 0%, #c4b5fd 100%);
+  color: #4f46e5;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, .22);
+}
+.enc-stat-icon--emerald {
+  background: linear-gradient(135deg, #ecfdf5 0%, #6ee7b7 100%);
+  color: #0f766e;
+  box-shadow: 0 4px 12px rgba(15, 118, 110, .2);
+}
 
 .enc-stat-body { flex: 1; min-width: 0; }
 
