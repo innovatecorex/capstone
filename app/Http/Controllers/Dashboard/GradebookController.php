@@ -30,6 +30,50 @@ class GradebookController extends Controller
             ->first();
     }
 
+    /**
+     * Faculty posts an announcement to the students of one of their sections.
+     * Scoped: only the section's enrolled students are notified.
+     */
+    public function postSectionAnnouncement(Request $request, SectionSubject $sectionSubject): RedirectResponse
+    {
+        $ss = $sectionSubject->load(['section', 'subject']);
+        $this->assertFacultyOwns($ss);
+
+        $data = $request->validate([
+            'title'    => 'required|string|max:255',
+            'message'  => 'required|string|max:2000',
+            'priority' => 'required|in:high,medium,low',
+        ]);
+
+        $announcement = \App\Models\Announcement::create([
+            'title'           => $data['title'],
+            'message'         => $data['message'],
+            'priority'        => $data['priority'],
+            'target_audience' => 'student',
+            'section_id'      => $ss->section_id,
+            'created_by'      => auth()->id(),
+            'is_active'       => true,
+        ]);
+
+        // Notify only the enrolled students of this section.
+        $studentIds = Enrollment::where('section_id', $ss->section_id)
+            ->where('status', 'enrolled')
+            ->pluck('student_id');
+
+        foreach ($studentIds as $sid) {
+            Notification::create([
+                'user_id' => $sid,
+                'type'    => 'announcement',
+                'title'   => $announcement->title,
+                'body'    => substr($announcement->message, 0, 150),
+            ]);
+        }
+
+        return redirect()
+            ->route('faculty.gradebook.show', $ss)
+            ->with('success', 'Announcement posted to ' . ($ss->section_name ?? 'your section') . '.');
+    }
+
     private function assertFacultyOwns(SectionSubject $ss): void
     {
         abort_unless(
@@ -66,9 +110,28 @@ class GradebookController extends Controller
         $anyLocked    = $grades->some(fn($g) => $g->status === 'locked');
         $anyFinalized = $grades->some(fn($g) => in_array($g->status, ['finalized', 'locked']));
 
+        // Grade weights for this subject, normalized to the ww/pt/qa keys the
+        // view's script expects.
+        $rawWeights = $ss->subject?->getGradeWeights()
+            ?? config('academic.grade_weights')
+            ?? ['written_work' => 0.30, 'performance_task' => 0.50, 'quarterly_assessment' => 0.20];
+
+        $subjectWeights = [
+            'ww' => $rawWeights['written_work']         ?? $rawWeights['ww'] ?? 0.30,
+            'pt' => $rawWeights['performance_task']     ?? $rawWeights['pt'] ?? 0.50,
+            'qa' => $rawWeights['quarterly_assessment'] ?? $rawWeights['qa'] ?? 0.20,
+        ];
+
+        // Announcements this faculty has posted to THIS section (newest first).
+        $sectionAnnouncements = \App\Models\Announcement::where('section_id', $ss->section_id)
+            ->where('created_by', auth()->id())
+            ->orderByDesc('created_at')
+            ->get();
+
         return view('dashboard.faculty-gradebook-entry', compact(
             'ss', 'quarter', 'enrollments', 'grades',
-            'allDraft', 'allSubmitted', 'anyLocked', 'anyFinalized'
+            'allDraft', 'allSubmitted', 'anyLocked', 'anyFinalized',
+            'subjectWeights', 'sectionAnnouncements'
         ));
     }
 

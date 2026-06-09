@@ -1,28 +1,23 @@
-PERSONAL EMAIL + EMAILED CREDENTIALS
-====================================
+SECTION EDIT — FIXED (replaces the broken section-edit.zip)
+===========================================================
 
-WHAT THIS DOES
-  - Replaces the fake auto-generated @pas.edu.ph email with a REQUIRED
-    "Personal Email" field on the create-user form (a real inbox).
-  - On account creation, emails the username + temp password to that
-    email via SendGrid.
-  - Password reset (forgot-password) now works because the stored email
-    is a real address. (No change needed to the recovery controller.)
+PROBLEM
+  The earlier section-edit used @json([...]) with PHP => syntax inline in an
+  onclick attribute, which Blade could not parse — causing a 500 ParseError
+  on /admin/sections.
 
-FILES INCLUDED
-  - resources/views/admin/users/create.blade.php   (real email field)
-  - app/Http/Controllers/Admin/UserManagementController.php  (validate + send)
-  - app/Mail/WelcomeCredentialsMail.php             (new mailable)
-  - resources/views/emails/welcome-credentials.blade.php  (new email template)
+FIX
+  Rebuilt from the clean original. The row data is now built in a @php block
+  and passed via Js::from() (Laravel's safe JS encoder). Adds the Edit button
+  + modal correctly. Editable: grade level, section name, adviser, capacity,
+  status.
 
-STEPS (PowerShell) — stop the server (Ctrl+C) first, then:
+STEPS (PowerShell) — stop server (Ctrl+C) first, then:
   cd D:\xampp\htdocs\capstone
-  Expand-Archive -Path "$HOME\Downloads\email-fix.zip" -DestinationPath . -Force
-  php artisan optimize:clear
+  Expand-Archive -Path "$HOME\Downloads\sec2.zip" -DestinationPath . -Force
+  php artisan view:clear
   php artisan serve
 
 TEST
-  1. Go to http://127.0.0.1:8000/admin/users/create
-  2. Create a user with YOUR real email as the Personal Email.
-  3. Check that inbox — the username + temp password should arrive.
-  4. Then test http://127.0.0.1:8000/forgot-password with that same email.
+  /admin/sections should load again. Click "Edit" on a section -> modal opens
+  pre-filled -> change adviser/capacity/status -> Save.

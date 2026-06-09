@@ -308,7 +308,7 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware('role:faculty')->group(function () {
         Route::get('/faculty/dashboard',      [App\Http\Controllers\Dashboard\FacultyDashboardController::class, 'index'])       ->name('faculty.dashboard');
         Route::get('/faculty/my-classes',     [App\Http\Controllers\Dashboard\FacultyDashboardController::class, 'myClasses'])   ->name('faculty.classes');
-        Route::get('/faculty/gradebook',      [App\Http\Controllers\Dashboard\FacultyDashboardController::class, 'gradebook'])   ->name('faculty.gradebook');
+        Route::get('/faculty/classes',      [App\Http\Controllers\Dashboard\FacultyDashboardController::class, 'gradebook'])   ->name('faculty.gradebook');
         Route::get('/faculty/attendance',     [App\Http\Controllers\Dashboard\AttendanceController::class,        'index'])  ->name('faculty.attendance');
         Route::post('/faculty/attendance',    [App\Http\Controllers\Dashboard\AttendanceController::class,        'store'])  ->name('faculty.attendance.store');
         Route::get('/faculty/my-schedule',    [App\Http\Controllers\Dashboard\FacultyDashboardController::class, 'mySchedule'])  ->name('faculty.my-schedule');
@@ -316,14 +316,15 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/faculty/announcements', [App\Http\Controllers\Dashboard\FacultyDashboardController::class, 'postAnnouncement'])->name('faculty.announcements.store');
 
         // Grade entry workflow
-        Route::get( '/faculty/gradebook/{sectionSubject}',                     [App\Http\Controllers\Dashboard\GradebookController::class, 'show'])          ->name('faculty.gradebook.show');
-        Route::post('/faculty/gradebook/{sectionSubject}/save-draft',          [App\Http\Controllers\Dashboard\GradebookController::class, 'saveDraft'])      ->name('faculty.gradebook.save-draft');
-        Route::post('/faculty/gradebook/{sectionSubject}/submit',              [App\Http\Controllers\Dashboard\GradebookController::class, 'submit'])         ->name('faculty.gradebook.submit');
-        Route::post('/faculty/gradebook/{sectionSubject}/request-unlock',      [App\Http\Controllers\Dashboard\GradebookController::class, 'requestUnlock'])  ->name('faculty.gradebook.request-unlock');
+        Route::get( '/faculty/classes/{sectionSubject}',                     [App\Http\Controllers\Dashboard\GradebookController::class, 'show'])          ->name('faculty.gradebook.show');
+        Route::post('/faculty/classes/{sectionSubject}/announce',            [App\Http\Controllers\Dashboard\GradebookController::class, 'postSectionAnnouncement'])->name('faculty.gradebook.announce');
+        Route::post('/faculty/classes/{sectionSubject}/save-draft',          [App\Http\Controllers\Dashboard\GradebookController::class, 'saveDraft'])      ->name('faculty.gradebook.save-draft');
+        Route::post('/faculty/classes/{sectionSubject}/submit',              [App\Http\Controllers\Dashboard\GradebookController::class, 'submit'])         ->name('faculty.gradebook.submit');
+        Route::post('/faculty/classes/{sectionSubject}/request-unlock',      [App\Http\Controllers\Dashboard\GradebookController::class, 'requestUnlock'])  ->name('faculty.gradebook.request-unlock');
 
         // Dropped student workflow
-        Route::post('/faculty/gradebook/{sectionSubject}/drop',      [App\Http\Controllers\Dashboard\GradebookController::class, 'dropStudent'])      ->name('faculty.gradebook.drop');
-        Route::post('/faculty/gradebook/{sectionSubject}/reinstate',  [App\Http\Controllers\Dashboard\GradebookController::class, 'reinstateStudent']) ->name('faculty.gradebook.reinstate');
+        Route::post('/faculty/classes/{sectionSubject}/drop',      [App\Http\Controllers\Dashboard\GradebookController::class, 'dropStudent'])      ->name('faculty.gradebook.drop');
+        Route::post('/faculty/classes/{sectionSubject}/reinstate',  [App\Http\Controllers\Dashboard\GradebookController::class, 'reinstateStudent']) ->name('faculty.gradebook.reinstate');
 
         // Faculty Inbox / Messaging
         Route::get( '/faculty/inbox',                  [App\Http\Controllers\Dashboard\MessageController::class, 'facultyInbox']) ->name('faculty.inbox');

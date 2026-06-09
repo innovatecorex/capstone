@@ -16,13 +16,18 @@ class PasswordOtp extends Model
         'otp_hash',
         'attempts',
         'expires_at',
+        'locked_until',
     ];
 
     protected $casts = [
-        'expires_at' => 'datetime',
-        'created_at' => 'datetime',
-        'attempts'   => 'integer',
+        'expires_at'   => 'datetime',
+        'locked_until' => 'datetime',
+        'created_at'   => 'datetime',
+        'attempts'     => 'integer',
     ];
+
+    const MAX_ATTEMPTS  = 3;
+    const LOCK_MINUTES  = 30;
 
     // ── Helpers ────────────────────────────────────────────────────────────
 
@@ -38,17 +43,42 @@ class PasswordOtp extends Model
         return hash('sha256', strtolower(trim($email)));
     }
 
-    /** Create or replace an OTP for the given email hash */
-    public static function createForEmail(string $emailHash, string $plainOtp, int $expiryMinutes = 10): self
+    /** Is this email currently locked out from OTP requests/verifies? */
+    public static function lockRemaining(string $emailHash): ?int
     {
-        // Delete any existing OTP for this email first
+        $record = static::where('email_hash', $emailHash)->first();
+        if ($record && $record->locked_until && now()->isBefore($record->locked_until)) {
+            return now()->diffInMinutes($record->locked_until) + 1; // minutes left (rounded up)
+        }
+        return null;
+    }
+
+    /** Create or replace an OTP for the given email hash.
+     *  If the email is currently locked, returns null and does NOT issue one. */
+    public static function createForEmail(string $emailHash, string $plainOtp, int $expiryMinutes = 10): ?self
+    {
+        // Respect an active lock — do not issue a new OTP while locked.
+        if (static::lockRemaining($emailHash) !== null) {
+            return null;
+        }
+
+        // Delete any existing (unlocked) OTP for this email first
         static::where('email_hash', $emailHash)->delete();
 
         return static::create([
-            'email_hash' => $emailHash,
-            'otp_hash'   => Hash::make($plainOtp),
-            'attempts'   => 0,
-            'expires_at' => now()->addMinutes($expiryMinutes),
+            'email_hash'   => $emailHash,
+            'otp_hash'     => Hash::make($plainOtp),
+            'attempts'     => 0,
+            'expires_at'   => now()->addMinutes($expiryMinutes),
+            'locked_until' => null,
+        ]);
+    }
+
+    /** Lock this email's OTP for the standard lock window. */
+    public function applyLock(): void
+    {
+        $this->update([
+            'locked_until' => now()->addMinutes(self::LOCK_MINUTES),
         ]);
     }
 

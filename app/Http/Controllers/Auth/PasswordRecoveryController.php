@@ -50,6 +50,14 @@ class PasswordRecoveryController extends Controller
         $email     = strtolower(trim($request->input('email')));
         $emailHash = hash('sha256', $email);
 
+        // ── Lockout: refuse if this email is in a 30-min OTP lock ──────────
+        $lockLeft = PasswordOtp::lockRemaining($emailHash);
+        if ($lockLeft !== null) {
+            return back()->withErrors([
+                'email' => "Too many incorrect attempts. Please try again in {$lockLeft} minute(s).",
+            ]);
+        }
+
         // ── Rate limit: 1 OTP per email per 60 seconds ─────────────────────
         $recent = PasswordOtp::where('email_hash', $emailHash)
             ->where('created_at', '>=', now()->subMinute())
@@ -141,7 +149,10 @@ class PasswordRecoveryController extends Controller
 
         // ── OTP not found or expired ───────────────────────────────────────
         if (!$otpRecord || !$otpRecord->isValid()) {
-            PasswordOtp::where('email_hash', $emailHash)->delete();
+            // Preserve the record if it carries an active lock; otherwise clean up.
+            if (!$otpRecord || PasswordOtp::lockRemaining($emailHash) === null) {
+                PasswordOtp::where('email_hash', $emailHash)->delete();
+            }
             session()->forget('recovery_email_hash');
             return redirect()->route('password.request')
                 ->withErrors(['email' => 'OTP expired or already used. Please request a new one.']);
@@ -152,10 +163,12 @@ class PasswordRecoveryController extends Controller
             $attemptsLeft = max(0, 3 - $otpRecord->fresh()->attempts);
 
             if ($attemptsLeft === 0) {
-                PasswordOtp::where('email_hash', $emailHash)->delete();
+                // Lock this email's OTP for 30 minutes instead of deleting,
+                // so re-entering the same email cannot bypass the limit.
+                $otpRecord->applyLock();
                 session()->forget('recovery_email_hash');
                 return redirect()->route('password.request')
-                    ->withErrors(['email' => 'Too many incorrect attempts. Please request a new OTP.']);
+                    ->withErrors(['email' => 'Too many incorrect attempts. Please try again in 30 minutes.']);
             }
 
             return back()->withErrors([

@@ -123,6 +123,20 @@
               <span style="display:inline-block;padding:.2rem .55rem;border-radius:6px;font-size:.7rem;font-weight:700;text-transform:uppercase;color:{{ $c[0] }};background:{{ $c[2] }};border:1px solid {{ $c[1] }};">{{ $s->status }}</span>
             </td>
             <td style="padding:12px 14px;text-align:right;white-space:nowrap;">
+              @php
+                $editData = [
+                  'id'           => $s->id,
+                  'grade_level'  => $s->grade_level,
+                  'section_name' => $s->section_name,
+                  'adviser_id'   => $s->adviser_id,
+                  'capacity'     => $s->capacity,
+                  'status'       => $s->status,
+                  'url'          => route('admin.sections.update', $s),
+                ];
+              @endphp
+              <button type="button"
+                onclick="openEditSection({{ Js::from($editData) }})"
+                style="background:none;border:none;color:#1d4ed8;font-size:.82rem;font-weight:600;cursor:pointer;margin-right:14px;padding:0;">Edit</button>
               <a href="{{ route('admin.sections.roster', $s) }}" style="color:#1d4ed8;font-size:.82rem;font-weight:600;text-decoration:none;margin-right:14px;">Manage Students</a>
               <form action="{{ route('admin.sections.destroy', $s) }}" method="POST" style="display:inline;" onsubmit="return confirm('Delete section \'{{ $s->grade_level }} — {{ $s->section_name }}\'?');">
                 @csrf @method('DELETE')
@@ -199,5 +213,79 @@ function toggleCustomName() {
 document.addEventListener('DOMContentLoaded', loadSectionNames);
 </script>
 @endpush
+
+{{-- ── Edit Section Modal ───────────────────────────────────────────── --}}
+<div id="editSectionOverlay" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:1000;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:#fff;border-radius:14px;max-width:460px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.25);overflow:hidden;">
+    <div style="padding:18px 22px;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;">
+      <h3 style="margin:0;font-size:1.05rem;font-weight:800;color:#0f172a;">Edit Section</h3>
+      <button type="button" onclick="closeEditSection()" style="background:none;border:none;font-size:1.4rem;line-height:1;color:#94a3b8;cursor:pointer;">&times;</button>
+    </div>
+    <form id="editSectionForm" method="POST" style="padding:22px;display:flex;flex-direction:column;gap:14px;">
+      @csrf
+      @method('PUT')
+
+      <div>
+        <label style="display:block;font-size:.78rem;font-weight:700;color:#475569;margin-bottom:5px;">Grade Level</label>
+        <select name="grade_level" id="edit_grade_level" required style="width:100%;padding:9px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:.88rem;">
+          @foreach(['Grade 7','Grade 8','Grade 9','Grade 10','Grade 11','Grade 12'] as $gl)
+            <option value="{{ $gl }}">{{ $gl }}</option>
+          @endforeach
+        </select>
+      </div>
+
+      <div>
+        <label style="display:block;font-size:.78rem;font-weight:700;color:#475569;margin-bottom:5px;">Section Name</label>
+        <input type="text" name="section_name" id="edit_section_name" required maxlength="100" style="width:100%;padding:9px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:.88rem;">
+      </div>
+
+      <div>
+        <label style="display:block;font-size:.78rem;font-weight:700;color:#475569;margin-bottom:5px;">Adviser</label>
+        <select name="adviser_id" id="edit_adviser_id" style="width:100%;padding:9px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:.88rem;">
+          <option value="">— None —</option>
+          @foreach($faculty as $f)
+            <option value="{{ $f->id }}">{{ $f->last_name }}, {{ $f->first_name }}</option>
+          @endforeach
+        </select>
+      </div>
+
+      <div>
+        <label style="display:block;font-size:.78rem;font-weight:700;color:#475569;margin-bottom:5px;">Capacity</label>
+        <input type="number" name="capacity" id="edit_capacity" required min="1" max="200" style="width:100%;padding:9px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:.88rem;">
+      </div>
+
+      <div>
+        <label style="display:block;font-size:.78rem;font-weight:700;color:#475569;margin-bottom:5px;">Status</label>
+        <select name="status" id="edit_status" required style="width:100%;padding:9px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:.88rem;">
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:4px;">
+        <button type="button" onclick="closeEditSection()" style="padding:.5rem 1rem;border:1px solid #cbd5e1;border-radius:8px;background:#fff;color:#475569;font-size:.85rem;font-weight:700;cursor:pointer;">Cancel</button>
+        <button type="submit" style="padding:.5rem 1.1rem;border:none;border-radius:8px;background:#1d4ed8;color:#fff;font-size:.85rem;font-weight:700;cursor:pointer;">Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function openEditSection(data) {
+  document.getElementById('editSectionForm').action = data.url;
+  document.getElementById('edit_grade_level').value  = data.grade_level;
+  document.getElementById('edit_section_name').value = data.section_name;
+  document.getElementById('edit_adviser_id').value   = data.adviser_id ?? '';
+  document.getElementById('edit_capacity').value     = data.capacity;
+  document.getElementById('edit_status').value       = data.status;
+  document.getElementById('editSectionOverlay').style.display = 'flex';
+}
+function closeEditSection() {
+  document.getElementById('editSectionOverlay').style.display = 'none';
+}
+document.getElementById('editSectionOverlay').addEventListener('click', function(e){
+  if (e.target === this) closeEditSection();
+});
+</script>
 
 @endsection

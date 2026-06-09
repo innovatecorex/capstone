@@ -38,6 +38,19 @@ return Application::configure(basePath: dirname(__DIR__))
             }
         });
 
+        // ── Expired CSRF token (419) ───────────────────────────────────────
+        // When a page sits idle past the session lifetime, the CSRF token
+        // expires and forms (including logout) throw a 419 "Page Expired".
+        // For logout, just send them to login (they wanted out anyway).
+        // For anything else, bounce back to login with a friendly notice.
+        $exceptions->render(function (\Illuminate\Session\TokenMismatchException $e, $request) {
+            if ($request->is('logout')) {
+                return redirect()->route('login');
+            }
+            return redirect()->route('login')
+                ->with('status', 'Your session expired. Please sign in again.');
+        });
+
         // ── Rate-limit threat event (FRS §Threat Monitoring) ───────────────
         // Every 429 response from Laravel's throttle middleware emits both an
         // audit log entry and a threat event so administrators can see when

@@ -61,10 +61,9 @@
             <div>
               <label class="enc-label" style="display:block;margin-bottom:4px;">Audience *</label>
               <select name="target_audience" required class="enc-input" style="width:100%;">
-                <option value="all"       {{ old('target_audience','all') === 'all'       ? 'selected' : '' }}>Everyone</option>
-                <option value="student"   {{ old('target_audience') === 'student'   ? 'selected' : '' }}>Students Only</option>
-                <option value="faculty"   {{ old('target_audience') === 'faculty'   ? 'selected' : '' }}>Faculty Only</option>
-                <option value="registrar" {{ old('target_audience') === 'registrar' ? 'selected' : '' }}>Registrar Only</option>
+                <option value="student" {{ old('target_audience','student') === 'student' ? 'selected' : '' }}>Students Only</option>
+                <option value="faculty" {{ old('target_audience') === 'faculty' ? 'selected' : '' }}>Teachers Only</option>
+                <option value="both"    {{ old('target_audience') === 'both'    ? 'selected' : '' }}>Teachers &amp; Students</option>
               </select>
             </div>
           </div>

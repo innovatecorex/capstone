@@ -11,6 +11,7 @@ use App\Models\Grade;
 use App\Models\GradeComplaint;
 use App\Models\GradeUnlockRequest;
 use App\Models\GradingQuarter;
+use App\Models\Notification;
 use App\Models\Section;
 use App\Models\AuditLog;
 use App\Models\User;
@@ -345,6 +346,46 @@ class RegistrarUserDashboardController extends Controller
             ->orderByDesc('created_at')
             ->get();
         return view('dashboard.registrar-announcements', compact('announcements'));
+    }
+
+    public function postAnnouncement(Request $request)
+    {
+        // Registrar may target students, teachers, or both — never admins.
+        $data = $request->validate([
+            'title'           => 'required|string|max:255',
+            'message'         => 'required|string|max:2000',
+            'priority'        => 'required|in:high,medium,low',
+            'target_audience' => 'required|in:student,faculty,both',
+        ]);
+
+        $data['created_by'] = auth()->id();
+        $data['is_active']  = true;
+
+        $announcement = Announcement::create($data);
+
+        // Notify the targeted users
+        $roleIds = match ($announcement->target_audience) {
+            'student' => ['01'],
+            'faculty' => ['02'],
+            'both'    => ['01', '02'],
+            default   => [],
+        };
+
+        $users = User::whereIn('role_id', $roleIds)
+            ->where('status', 'active')
+            ->get();
+
+        foreach ($users as $u) {
+            Notification::create([
+                'user_id' => $u->id,
+                'type'    => 'announcement',
+                'title'   => $announcement->title,
+                'body'    => substr($announcement->message, 0, 150),
+            ]);
+        }
+
+        return redirect()->route('registrar.announcements')
+            ->with('success', 'Announcement posted successfully.');
     }
 
     public function ajaxSections(Request $request)

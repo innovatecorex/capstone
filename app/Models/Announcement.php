@@ -12,6 +12,7 @@ class Announcement extends Model
         'message',
         'priority',
         'target_audience',
+        'section_id',
         'created_by',
         'is_active',
         'expires_at',
@@ -38,9 +39,16 @@ class Announcement extends Model
 
     public function scopeForRole($query, string $roleLabel)
     {
-        return $query->where(function ($q) use ($roleLabel) {
+        $role = strtolower($roleLabel);
+
+        return $query->where(function ($q) use ($role) {
             $q->where('target_audience', 'all')
-              ->orWhere('target_audience', strtolower($roleLabel));
+              ->orWhere('target_audience', $role);
+
+            // 'both' = teachers + students (used by registrar announcements)
+            if (in_array($role, ['student', 'faculty'], true)) {
+                $q->orWhere('target_audience', 'both');
+            }
         });
     }
 
@@ -53,9 +61,10 @@ class Announcement extends Model
     {
         return match($this->target_audience) {
             'all'       => 'Everyone',
-            'student'   => 'Students',
+            'student'   => $this->section_id ? 'Section Students' : 'Students',
             'faculty'   => 'Faculty',
             'registrar' => 'Registrars',
+            'both'      => 'Teachers & Students',
             default     => ucfirst($this->target_audience),
         };
     }

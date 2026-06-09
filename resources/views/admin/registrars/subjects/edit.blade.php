@@ -36,6 +36,8 @@
         <label class="enc-label">Subject Code <span style="color:var(--gray-400);font-weight:400;">(immutable)</span></label>
         <input type="text" value="{{ $subject->subject_code }}" disabled
                class="enc-input" style="background:var(--gray-50);color:var(--gray-400);cursor:not-allowed;">
+        {{-- Hidden field carries the (unchanged) code so validation passes. Disabled inputs don't submit. --}}
+        <input type="hidden" name="subject_code" value="{{ $subject->subject_code }}">
         <div class="enc-field-hint">Subject codes cannot be changed after creation.</div>
       </div>
 

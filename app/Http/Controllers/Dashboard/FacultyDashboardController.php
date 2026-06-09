@@ -94,11 +94,16 @@ class FacultyDashboardController extends Controller
 
     public function announcements(Request $request)
     {
-        $user          = auth()->user();
+        $user = auth()->user();
+
+        // Faculty see only announcements from admins (04) or registrars (03)
+        // that target faculty or everyone. Faculty no longer post here — they
+        // announce to their own sections from "My Classes".
         $announcements = Announcement::active()
-            ->where(function ($q) use ($user) {
-                $q->forRole('faculty')
-                  ->orWhere('created_by', $user->id);
+            ->forRole('faculty')
+            ->whereNull('section_id')
+            ->whereHas('author', function ($q) {
+                $q->whereIn('role_id', ['03', '04']);
             })
             ->orderByDesc('created_at')
             ->get();

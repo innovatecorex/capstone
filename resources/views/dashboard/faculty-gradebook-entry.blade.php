@@ -47,6 +47,21 @@
   </div>
   @endif
 
+  {{-- ── Tab bar (Grades / Announcements) ───────────────────────────── --}}
+  <div style="display:flex;gap:4px;border-bottom:2px solid #e2e8f0;margin-bottom:24px;">
+    <button type="button" id="tab-btn-grades" onclick="switchClassTab('grades')"
+      style="background:none;border:none;padding:10px 20px;font-size:.9rem;font-weight:700;color:#1d4ed8;border-bottom:2px solid #1d4ed8;margin-bottom:-2px;cursor:pointer;">
+      Grades
+    </button>
+    <button type="button" id="tab-btn-ann" onclick="switchClassTab('ann')"
+      style="background:none;border:none;padding:10px 20px;font-size:.9rem;font-weight:700;color:#64748b;border-bottom:2px solid transparent;margin-bottom:-2px;cursor:pointer;">
+      Announcements
+    </button>
+  </div>
+
+  {{-- ════════════ GRADES TAB ════════════ --}}
+  <div id="tab-grades">
+
   @if(!$quarter)
   <div style="background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:40px;text-align:center;">
     <div style="font-size:.95rem;font-weight:700;color:#374151;margin-bottom:8px;">No Active Grading Quarter</div>
@@ -61,10 +76,10 @@
 
   @else
   @php
-    $subjectWeights = $ss->subject?->getGradeWeights() ?? ['ww' => 0.30, 'pt' => 0.50, 'qa' => 0.20];
-    $wwPct = round($subjectWeights['ww'] * 100);
-    $ptPct = round($subjectWeights['pt'] * 100);
-    $qaPct = round($subjectWeights['qa'] * 100);
+    // $subjectWeights is provided by the controller with ww/pt/qa keys.
+    $wwPct = round(($subjectWeights['ww'] ?? 0.30) * 100);
+    $ptPct = round(($subjectWeights['pt'] ?? 0.50) * 100);
+    $qaPct = round(($subjectWeights['qa'] ?? 0.20) * 100);
   @endphp
 
   {{-- Grade entry form --}}
@@ -323,7 +338,85 @@
   </form>
   @endif
 
+  </div>{{-- /#tab-grades --}}
+
+  {{-- ════════════ ANNOUNCEMENTS TAB ════════════ --}}
+  <div id="tab-ann" style="display:none;">
+
+    <div style="background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:24px;margin-bottom:20px;">
+      <h2 style="font-size:1rem;font-weight:800;color:#0f172a;margin:0 0 4px;">Post an Announcement</h2>
+      <p style="font-size:.82rem;color:#64748b;margin:0 0 18px;">
+        This will be sent to the enrolled students of <strong>{{ $ss->section_name ?? 'this section' }}</strong> only.
+      </p>
+
+      <form method="POST" action="{{ route('faculty.gradebook.announce', $ss) }}" style="display:flex;flex-direction:column;gap:14px;">
+        @csrf
+        <div>
+          <label style="display:block;font-size:.78rem;font-weight:700;color:#475569;margin-bottom:5px;">Title</label>
+          <input type="text" name="title" required maxlength="255" value="{{ old('title') }}"
+                 style="width:100%;padding:9px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:.88rem;">
+        </div>
+        <div>
+          <label style="display:block;font-size:.78rem;font-weight:700;color:#475569;margin-bottom:5px;">Message</label>
+          <textarea name="message" required maxlength="2000" rows="4"
+                    style="width:100%;padding:9px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:.88rem;">{{ old('message') }}</textarea>
+        </div>
+        <div style="max-width:200px;">
+          <label style="display:block;font-size:.78rem;font-weight:700;color:#475569;margin-bottom:5px;">Priority</label>
+          <select name="priority" required style="width:100%;padding:9px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:.88rem;">
+            <option value="low"    {{ old('priority','low') === 'low' ? 'selected' : '' }}>Notice</option>
+            <option value="medium" {{ old('priority') === 'medium' ? 'selected' : '' }}>Medium</option>
+            <option value="high"   {{ old('priority') === 'high' ? 'selected' : '' }}>High</option>
+          </select>
+        </div>
+        <div>
+          <button type="submit" style="padding:.55rem 1.2rem;border:none;border-radius:8px;background:#1d4ed8;color:#fff;font-size:.85rem;font-weight:700;cursor:pointer;">
+            Post to Section
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <h3 style="font-size:.9rem;font-weight:800;color:#0f172a;margin:0 0 12px;">Posted to this section</h3>
+    @forelse($sectionAnnouncements as $a)
+      <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px 18px;margin-bottom:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
+          <div style="font-size:.92rem;font-weight:700;color:#0f172a;">{{ $a->title }}</div>
+          <div style="font-size:.72rem;color:#94a3b8;white-space:nowrap;">{{ $a->created_at->format('M d, Y') }}</div>
+        </div>
+        <p style="font-size:.85rem;color:#475569;margin:6px 0 0;line-height:1.5;">{{ $a->message }}</p>
+      </div>
+    @empty
+      <div style="background:#f8fafc;border:1px dashed #cbd5e1;border-radius:12px;padding:28px;text-align:center;color:#94a3b8;font-size:.85rem;">
+        No announcements posted to this section yet.
+      </div>
+    @endforelse
+
+  </div>{{-- /#tab-ann --}}
+
 </div>
+
+<script>
+function switchClassTab(which) {
+  const grades = document.getElementById('tab-grades');
+  const ann    = document.getElementById('tab-ann');
+  const bg     = document.getElementById('tab-btn-grades');
+  const ba     = document.getElementById('tab-btn-ann');
+  const on  = (b) => { b.style.color = '#1d4ed8'; b.style.borderBottomColor = '#1d4ed8'; };
+  const off = (b) => { b.style.color = '#64748b'; b.style.borderBottomColor = 'transparent'; };
+  if (which === 'ann') {
+    grades.style.display = 'none'; ann.style.display = '';
+    on(ba); off(bg);
+  } else {
+    ann.style.display = 'none'; grades.style.display = '';
+    on(bg); off(ba);
+  }
+}
+// If validation failed on the announcement form, open the Announcements tab.
+@if($errors->any() && old('title') !== null)
+  document.addEventListener('DOMContentLoaded', () => switchClassTab('ann'));
+@endif
+</script>
 
 <script>
 (function () {

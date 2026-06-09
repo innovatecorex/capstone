@@ -169,10 +169,13 @@ class User extends Authenticatable
     // ── password (bcrypt) ──────────────────────────────────────────────────
     public function setPasswordAttribute(string $value): void
     {
-        // Only hash if not already hashed
-        $this->attributes['password'] = Hash::needsRehash($value)
-            ? Hash::make($value, ['rounds' => 12])
-            : $value;
+        // Detect an already-bcrypt-hashed value (starts with $2y$, $2a$, or $2b$).
+        // Only hash plain-text passwords; never re-hash an existing hash.
+        $isAlreadyHashed = preg_match('/^\$2[aby]\$/', $value) === 1;
+
+        $this->attributes['password'] = $isAlreadyHashed
+            ? $value
+            : Hash::make($value, ['rounds' => 12]);
     }
 
     // ══════════════════════════════════════════════════════════════════════
