@@ -223,104 +223,145 @@
   }
 
   /* ══════════════════════════════════════════════════════
-     PROFESSIONAL SIDEBAR REFINEMENTS — global polish
+     SIDEBAR — Lively global design (all 4 roles)
   ══════════════════════════════════════════════════════ */
 
-  /* Richer, deeper sidebar with subtle gradient */
+  /* Sidebar base */
   .enc-sidebar {
-    background: linear-gradient(180deg, #0c1628 0%, #0f1c32 60%, #101e35 100%);
+    background: linear-gradient(180deg, #0b1220 0%, #0d1628 55%, #0b1220 100%);
     border-right: 1px solid rgba(255,255,255,.04);
+    position: relative;
+  }
+
+  /* Animated 3px gradient accent at the very top of the sidebar */
+  .enc-sidebar::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 3px; z-index: 10;
+    background: linear-gradient(90deg,
+      #6366f1 0%, #8b5cf6 15%, #ec4899 30%, #ef4444 45%,
+      #f97316 60%, #fbbf24 75%, #6366f1 100%);
+    background-size: 250% 100%;
+    animation: accentFlow 6s linear infinite;
+    pointer-events: none;
   }
 
   /* Brand area */
   .stu-brand {
-    padding: 18px 20px 14px;
+    padding: 20px 20px 15px;
     border-bottom: 1px solid rgba(255,255,255,.05);
   }
 
   /* School identity */
   .stu-school {
-    padding: 11px 18px 12px;
-    background: rgba(0,0,0,.15);
+    padding: 11px 16px 12px;
+    background: rgba(0,0,0,.2);
     border-bottom: 1px solid rgba(255,255,255,.04);
   }
   .stu-school__name { color: rgba(255,255,255,.82); font-size: .73rem; }
-  .stu-school__sub  {
-    color: #f59e0b;
-    font-size: .6rem;
-    letter-spacing: .07em;
-    font-weight: 700;
-    margin-top: 2px;
+  .stu-school__sub {
+    color: #f59e0b; font-size: .59rem;
+    text-transform: uppercase; letter-spacing: .08em;
+    font-weight: 700; margin-top: 2px;
   }
 
   /* Section dividers */
-  .stu-section { padding: 18px 8px 4px; }
+  .stu-section { padding: 16px 8px 5px; }
   .stu-section__text {
-    font-size: .58rem;
-    font-weight: 700;
-    letter-spacing: .13em;
-    color: rgba(255,255,255,.22);
+    font-size: .58rem; font-weight: 700;
+    letter-spacing: .12em; text-transform: uppercase;
+    color: rgba(99,102,241,.6);
   }
-  .stu-section__line { background: rgba(255,255,255,.05); }
+  /* Gradient line — indigo → transparent */
+  .stu-section__line {
+    background: linear-gradient(90deg, rgba(99,102,241,.25), transparent);
+  }
 
   /* Nav items */
   .stu-nav-item {
-    color: rgba(255,255,255,.52);
-    font-size: .84rem;
-    font-weight: 500;
-    padding: 8px 10px;
-    border-radius: 9px;
-    margin-bottom: 1px;
+    color: rgba(255,255,255,.5);
+    font-size: .845rem; font-weight: 500;
+    padding: 9px 10px; border-radius: 10px; margin-bottom: 2px;
     border-left: 2px solid transparent;
-    transition: background .14s, color .14s, border-color .14s;
+    transition: background .14s, color .14s, transform .14s, border-color .14s;
   }
   .stu-nav-item:hover {
-    background: rgba(255,255,255,.055);
-    color: rgba(255,255,255,.86);
+    background: rgba(255,255,255,.065);
+    color: rgba(255,255,255,.9);
+    transform: translateX(2px);
   }
-  /* Remove the old left-border shift hack */
   .stu-nav-item.active {
-    background: rgba(99,102,241,.16);
-    color: #e0e7ff;
-    font-weight: 600;
-    border-left: 2px solid #6366f1;
+    background: rgba(99,102,241,.18);
+    color: #e0e7ff; font-weight: 650;
+    border-left: 2px solid #818cf8;
     padding-left: 10px;
+    box-shadow: inset 3px 0 12px -4px rgba(99,102,241,.5);
   }
   .stu-nav-item.active::after { display: none; }
 
-  /* ALL icon bubbles → unified soft monochrome by default */
-  .stu-icon,
-  .si-rose,.si-amber,.si-emerald,.si-sky,
-  .si-violet,.si-yellow,.si-teal,.si-orange {
-    background: rgba(255,255,255,.07) !important;
-    color: rgba(255,255,255,.32) !important;
-    transition: background .14s, color .14s;
+  /* Icon bubbles — per-color (vivid but tasteful) */
+  .stu-icon {
+    width: 28px; height: 28px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: transform .14s, filter .14s;
   }
-  .stu-nav-item:hover .stu-icon {
-    background: rgba(255,255,255,.1) !important;
-    color: rgba(255,255,255,.62) !important;
-  }
-  /* Active item gets a clear indigo accent on the icon */
-  .stu-nav-item.active .stu-icon {
-    background: rgba(99,102,241,.28) !important;
-    color: #a5b4fc !important;
-  }
+  .stu-icon svg { width: 14px; height: 14px; }
+
+  .si-rose    { background: rgba(244, 63, 94, .14);  color: #fb7185; }
+  .si-amber   { background: rgba(245,158, 11, .14);  color: #fbbf24; }
+  .si-emerald { background: rgba( 16,185,129, .14);  color: #34d399; }
+  .si-sky     { background: rgba( 56,189,248, .14);  color: #38bdf8; }
+  .si-violet  { background: rgba(167,139,250, .14);  color: #a78bfa; }
+  .si-yellow  { background: rgba(253,224, 71, .14);  color: #fde047; }
+  .si-teal    { background: rgba( 45,212,191, .14);  color: #2dd4bf; }
+  .si-orange  { background: rgba(251,146, 60, .14);  color: #fb923c; }
+
+  /* Hover: icon lifts and brightens */
+  .stu-nav-item:hover .stu-icon { transform: scale(1.1); filter: brightness(1.25); }
+
+  /* Active: icon gets a richer tinted background */
+  .stu-nav-item.active .stu-icon { transform: none; filter: brightness(1.35); }
+  .stu-nav-item.active .si-rose    { background: rgba(244, 63, 94, .24); }
+  .stu-nav-item.active .si-amber   { background: rgba(245,158, 11, .24); }
+  .stu-nav-item.active .si-emerald { background: rgba( 16,185,129, .24); }
+  .stu-nav-item.active .si-sky     { background: rgba( 56,189,248, .24); }
+  .stu-nav-item.active .si-violet  { background: rgba(167,139,250, .24); }
+  .stu-nav-item.active .si-yellow  { background: rgba(253,224, 71, .24); }
+  .stu-nav-item.active .si-teal    { background: rgba( 45,212,191, .24); }
+  .stu-nav-item.active .si-orange  { background: rgba(251,146, 60, .24); }
 
   /* User footer */
-  .stu-footer { border-top: 1px solid rgba(255,255,255,.05); padding: 8px 10px 10px; }
+  .stu-footer { border-top: 1px solid rgba(255,255,255,.05); padding: 8px 8px 10px; }
   .stu-user-card {
-    background: rgba(255,255,255,.04);
-    border: 1px solid rgba(255,255,255,.06);
+    background: rgba(255,255,255,.045);
+    border: 1px solid rgba(255,255,255,.07);
+    transition: background .15s, border-color .15s, box-shadow .15s;
   }
-  .stu-user-card:hover { background: rgba(255,255,255,.08); }
+  .stu-user-card:hover {
+    background: rgba(99,102,241,.1);
+    border-color: rgba(99,102,241,.22);
+    box-shadow: 0 0 0 3px rgba(99,102,241,.07);
+  }
   .stu-avatar {
-    background: linear-gradient(135deg, #3730a3 0%, #4f46e5 100%);
+    background: linear-gradient(135deg, #312e81 0%, #4f46e5 100%);
     border-radius: 9px;
+    box-shadow: 0 2px 8px rgba(99,102,241,.4);
   }
-  .stu-user-name  { color: rgba(255,255,255,.82); }
-  .stu-user-role  { color: rgba(255,255,255,.28); letter-spacing: .05em; }
-  .stu-logout-btn { border-color: rgba(255,255,255,.07); }
-  .stu-logout-btn:hover { background: rgba(239,68,68,.12); border-color: rgba(239,68,68,.2); }
+  .stu-user-name { color: rgba(255,255,255,.85); }
+  /* Role shown as an indigo pill badge */
+  .stu-user-role {
+    display: inline-block;
+    margin-top: 3px;
+    font-size: .59rem; font-weight: 700;
+    color: #a5b4fc;
+    background: rgba(99,102,241,.16);
+    border: 1px solid rgba(99,102,241,.28);
+    border-radius: 99px;
+    padding: 1px 7px;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+  }
+  .stu-logout-btn { border-color: rgba(255,255,255,.08); }
+  .stu-logout-btn:hover { background: rgba(239,68,68,.14); border-color: rgba(239,68,68,.28); }
   </style>
   @endif
 
