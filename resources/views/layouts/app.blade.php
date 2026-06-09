@@ -230,7 +230,6 @@
   .enc-sidebar {
     background: linear-gradient(180deg, #0b1220 0%, #0d1628 55%, #0b1220 100%);
     border-right: 1px solid rgba(255,255,255,.04);
-    position: relative;
   }
 
   /* Animated 3px gradient accent at the very top of the sidebar */
