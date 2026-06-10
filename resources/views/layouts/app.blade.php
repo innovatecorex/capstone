@@ -1882,557 +1882,104 @@
 ═══════════════════════════════════════════════════════ --}}
 
 <style>
-/* ════════════════════════════════════════════════════════════
-   LOGOUT MODAL — ABSOLUTE CHAOS EDITION v4.0 — TOO MUCH
-   ════════════════════════════════════════════════════════════ */
-@keyframes lm-orb1 { 0%,100%{transform:translate(0,0) scale(1)} 33%{transform:translate(45px,-60px) scale(1.35)} 66%{transform:translate(-35px,40px) scale(.75)} }
-@keyframes lm-orb2 { 0%,100%{transform:translate(0,0) scale(1)} 40%{transform:translate(-50px,38px) scale(1.25)} 75%{transform:translate(30px,-48px) scale(.8)} }
-@keyframes lm-orb3 { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(38px,55px) scale(1.3)} }
-@keyframes lm-orb4 { 0%,100%{transform:translate(0,0) scale(1)} 30%{transform:translate(-28px,-35px) scale(1.2)} 70%{transform:translate(42px,18px) scale(.8)} }
-@keyframes lm-orb5 { 0%,100%{transform:translate(0,0) scale(1)} 60%{transform:translate(22px,-42px) scale(1.35)} }
-@keyframes lm-spin-cw  { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-@keyframes lm-spin-ccw { from{transform:rotate(0deg)} to{transform:rotate(-360deg)} }
-@keyframes lm-halo { 0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.9),0 0 0 0 rgba(239,68,68,.5)} 50%{box-shadow:0 0 0 18px rgba(239,68,68,.1),0 0 0 36px rgba(239,68,68,.05)} }
-@keyframes lm-shimmer { 0%{background-position:-300% center} 100%{background-position:300% center} }
-@keyframes lm-float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-11px)} }
-@keyframes lm-bar-flow { 0%{background-position:0% center} 100%{background-position:-300% center} }
-@keyframes lm-scan-v { 0%{top:-10%;opacity:0} 5%{opacity:1} 95%{opacity:1} 100%{top:110%;opacity:0} }
-@keyframes lm-scan-v2 { 0%{top:110%;opacity:0} 5%{opacity:1} 95%{opacity:1} 100%{top:-10%;opacity:0} }
-@keyframes lm-scan-h { 0%{left:-80%} 100%{left:180%} }
-@keyframes lm-scan-h2 { 0%{right:-80%} 100%{right:180%} }
-@keyframes lm-breathe { 0%,100%{opacity:.3;transform:scale(.88)} 50%{opacity:1;transform:scale(1.1)} }
-@keyframes lm-orbit1 { from{transform:rotate(0deg) translateX(54px) rotate(0deg)} to{transform:rotate(360deg) translateX(54px) rotate(-360deg)} }
-@keyframes lm-orbit2 { from{transform:rotate(120deg) translateX(54px) rotate(-120deg)} to{transform:rotate(480deg) translateX(54px) rotate(-480deg)} }
-@keyframes lm-orbit3 { from{transform:rotate(240deg) translateX(54px) rotate(-240deg)} to{transform:rotate(600deg) translateX(54px) rotate(-600deg)} }
-@keyframes lm-orbit-m1 { from{transform:rotate(0deg) translateX(76px) rotate(0deg)} to{transform:rotate(-360deg) translateX(76px) rotate(360deg)} }
-@keyframes lm-orbit-m2 { from{transform:rotate(120deg) translateX(76px) rotate(-120deg)} to{transform:rotate(-240deg) translateX(76px) rotate(240deg)} }
-@keyframes lm-orbit-m3 { from{transform:rotate(240deg) translateX(76px) rotate(-240deg)} to{transform:rotate(120deg) translateX(76px) rotate(-120deg)} }
-@keyframes lm-orbit-o1 { from{transform:rotate(0deg) translateX(100px) rotate(0deg)} to{transform:rotate(360deg) translateX(100px) rotate(-360deg)} }
-@keyframes lm-orbit-o2 { from{transform:rotate(90deg) translateX(100px) rotate(-90deg)} to{transform:rotate(450deg) translateX(100px) rotate(-450deg)} }
-@keyframes lm-orbit-o3 { from{transform:rotate(180deg) translateX(100px) rotate(-180deg)} to{transform:rotate(540deg) translateX(100px) rotate(-540deg)} }
-@keyframes lm-orbit-o4 { from{transform:rotate(270deg) translateX(100px) rotate(-270deg)} to{transform:rotate(630deg) translateX(100px) rotate(-630deg)} }
-@keyframes lm-orbit-xx1 { from{transform:rotate(0deg) translateX(128px) rotate(0deg)} to{transform:rotate(-360deg) translateX(128px) rotate(360deg)} }
-@keyframes lm-orbit-xx2 { from{transform:rotate(180deg) translateX(128px) rotate(-180deg)} to{transform:rotate(-180deg) translateX(128px) rotate(180deg)} }
-@keyframes lm-ripple { 0%{transform:scale(.8);opacity:.7} 100%{transform:scale(3.2);opacity:0} }
-@keyframes lm-ripple2 { 0%{transform:scale(.8);opacity:.5} 100%{transform:scale(4.8);opacity:0} }
-@keyframes lm-ripple3 { 0%{transform:scale(.8);opacity:.3} 100%{transform:scale(6.5);opacity:0} }
-@keyframes lm-twinkle { 0%,100%{opacity:.05;transform:scale(.4)} 50%{opacity:1;transform:scale(1.6)} }
-@keyframes lm-data { 0%{transform:translateY(-100%);opacity:0} 4%{opacity:1} 92%{opacity:.5} 100%{transform:translateY(100vh);opacity:0} }
-@keyframes lm-fadein { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
-@keyframes lm-glitch { 0%,85%,100%{transform:translate(0)} 86%{transform:translate(-5px,2px)} 87%{transform:translate(5px,-2px)} 88%{transform:translate(-4px,4px)} 89%{transform:translate(4px,-4px)} 90%{transform:translate(0)} }
-@keyframes lm-glitch2 { 0%,91%,100%{transform:translate(0) skewX(0)} 92%{transform:translate(6px,0) skewX(5deg)} 93%{transform:translate(-6px,0) skewX(-5deg)} 94%{transform:translate(0)} }
-@keyframes lm-glitch-before { 0%,87%,100%{opacity:0;transform:translate(0)} 88%{opacity:1;transform:translate(-7px,2px)} 89%{transform:translate(7px,-2px)} 90%{opacity:0} }
-@keyframes lm-glitch-after { 0%,82%,100%{opacity:0;transform:translate(0)} 83%{opacity:1;transform:translate(7px,-3px)} 84%{transform:translate(-6px,3px)} 85%{opacity:0} }
-@keyframes lm-badge-pulse { 0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.6)} 50%{box-shadow:0 0 0 8px rgba(34,197,94,.06)} }
-@keyframes lm-icon-glow { 0%,100%{filter:drop-shadow(0 0 6px rgba(248,113,113,.9))} 50%{filter:drop-shadow(0 0 22px rgba(248,113,113,1)) drop-shadow(0 0 44px rgba(239,68,68,.8)) drop-shadow(0 0 70px rgba(239,68,68,.4))} }
-@keyframes lm-neon-flash { 0%,18%,22%,53%,57%,100%{box-shadow:0 0 10px rgba(239,68,68,.7),0 0 25px rgba(239,68,68,.5),0 0 50px rgba(239,68,68,.3),0 0 100px rgba(239,68,68,.15)} 19%,21%{box-shadow:none} 54%,56%{box-shadow:0 0 4px rgba(239,68,68,.2)} }
-@keyframes lm-hue-spin { from{filter:hue-rotate(0deg)} to{filter:hue-rotate(360deg)} }
-@keyframes lm-blink { 0%,100%{opacity:1} 50%{opacity:0} }
-@keyframes lm-hex-count { 0%{color:#ef4444} 16%{color:#f97316} 32%{color:#fbbf24} 48%{color:#22c55e} 64%{color:#22d3ee} 80%{color:#a78bfa} 100%{color:#ef4444} }
-@keyframes lm-danger-flash { 0%,100%{background:rgba(239,68,68,.07);border-color:rgba(239,68,68,.2)} 50%{background:rgba(239,68,68,.22);border-color:rgba(239,68,68,.65)} }
-@keyframes lm-wave-1 { 0%,100%{height:4px} 50%{height:22px} }
-@keyframes lm-wave-2 { 0%,100%{height:11px} 50%{height:20px} }
-@keyframes lm-wave-3 { 0%,100%{height:6px} 50%{height:24px} }
-@keyframes lm-wave-4 { 0%,100%{height:16px} 50%{height:7px} }
-@keyframes lm-wave-5 { 0%,100%{height:3px} 50%{height:21px} }
-@keyframes lm-wave-6 { 0%,100%{height:18px} 50%{height:5px} }
-@keyframes lm-wave-7 { 0%,100%{height:9px} 50%{height:23px} }
-@keyframes lm-wave-8 { 0%,100%{height:14px} 50%{height:4px} }
-@keyframes lm-scanline-move { 0%{background-position:0 0} 100%{background-position:0 80px} }
-@keyframes lm-lightning { 0%,7%,100%{opacity:0} 3%{opacity:1} 5%{opacity:.2} 6%{opacity:.8} }
-@keyframes lm-lightning2 { 0%,95%,100%{opacity:0} 96%{opacity:.9} 97%{opacity:0} 98%{opacity:.6} }
-@keyframes lm-corner-pulse { 0%,100%{opacity:.6} 50%{opacity:1;box-shadow:0 0 8px currentColor} }
-
+/* ── Logout Modal — clean ── */
+@keyframes lm-fadein { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+@keyframes lm-pulse-dot { 0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.4)} 50%{box-shadow:0 0 0 5px rgba(34,197,94,.0)} }
 /* ── Backdrop ── */
 #logout-backdrop {
   position:absolute; inset:0;
-  background:rgba(1,2,10,.97);
-  backdrop-filter:blur(26px) saturate(2.5) contrast(1.1);
-  overflow:hidden;
-}
-#logout-backdrop::before {
-  content:''; position:absolute; inset:0; pointer-events:none;
-  background-image:radial-gradient(rgba(99,102,241,.1) 1px, transparent 1px);
-  background-size:22px 22px;
-  mask-image:radial-gradient(ellipse 90% 90% at 50% 50%, black 20%, transparent 100%);
-  -webkit-mask-image:radial-gradient(ellipse 90% 90% at 50% 50%, black 20%, transparent 100%);
-  animation:lm-hue-spin 6s linear infinite;
-}
-#logout-backdrop::after {
-  content:''; position:absolute; inset:0; pointer-events:none;
-  background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.18) 3px,rgba(0,0,0,.18) 4px);
-  animation:lm-scanline-move 1.8s linear infinite;
-}
-.lm-bg-orb { position:absolute; border-radius:50%; pointer-events:none; filter:blur(90px); }
-.lm-data-line { position:absolute; width:1px; pointer-events:none; background:linear-gradient(180deg,transparent,rgba(99,102,241,.7) 30%,rgba(168,85,247,.5) 70%,transparent); animation:lm-data linear infinite; opacity:0; }
-.lm-bd-scan { position:absolute; left:0; right:0; height:2px; pointer-events:none; background:linear-gradient(90deg,transparent,rgba(99,102,241,.35) 30%,rgba(168,85,247,.55) 50%,rgba(99,102,241,.35) 70%,transparent); filter:blur(2px); }
-.lm-bd-scan-x { position:absolute; top:0; bottom:0; width:3px; pointer-events:none; background:linear-gradient(180deg,transparent,rgba(239,68,68,.3) 30%,rgba(249,115,22,.45) 50%,rgba(239,68,68,.3) 70%,transparent); filter:blur(2px); animation:lm-scan-h 10s linear infinite; left:0; }
-.lm-star { position:absolute; border-radius:50%; background:#fff; pointer-events:none; animation:lm-twinkle ease-in-out infinite; }
-.lm-lightning { position:absolute; pointer-events:none; width:2px; background:linear-gradient(180deg,transparent,rgba(255,255,255,.95),rgba(99,102,241,.85),transparent); filter:blur(1px); opacity:0; }
-
-/* ── Rainbow border wrapper ── */
-#lm-border-wrap {
-  position:relative; z-index:1;
-  width:100%; max-width:464px; margin:0 16px;
-  border-radius:28px; padding:2px;
-  background:linear-gradient(135deg,#6366f1,#8b5cf6,#ec4899,#ef4444,#f97316,#fbbf24,#22d3ee,#a3e635,#6366f1);
-  background-size:400% 400%;
-  animation:lm-bar-flow 1.6s linear infinite;
-  box-shadow:
-    0 0 35px rgba(99,102,241,.6),
-    0 0 70px rgba(239,68,68,.35),
-    0 0 110px rgba(168,85,247,.25),
-    0 0 160px rgba(34,211,238,.12),
-    0 70px 160px rgba(0,0,0,.95);
-}
-#lm-border-wrap::before {
-  content:''; position:absolute; inset:-8px; border-radius:36px;
-  background:inherit; filter:blur(26px); opacity:.75; z-index:-1;
-  animation:lm-hue-spin 3s linear infinite;
-}
-#lm-border-wrap::after {
-  content:''; position:absolute; inset:-2px; border-radius:30px;
-  border:1px solid rgba(255,255,255,.1); z-index:2; pointer-events:none;
+  background:rgba(15,23,42,.6);
+  backdrop-filter:blur(8px);
 }
 
 /* ── Dialog card ── */
 #logout-dialog {
-  background:linear-gradient(150deg,#04061a 0%,#07091f 35%,#050210 65%,#080410 100%);
-  border-radius:26px; overflow:hidden; position:relative;
-  transform:scale(.82) translateY(36px); opacity:0;
-  transition:transform .44s cubic-bezier(.34,1.56,.64,1), opacity .32s ease;
+  background:#fff;
+  border-radius:20px; overflow:hidden; position:relative;
+  width:100%; max-width:420px; margin:0 16px;
+  box-shadow:0 24px 64px rgba(15,23,42,.18);
+  transform:scale(.95) translateY(10px); opacity:0;
+  transition:transform .22s cubic-bezier(.34,1.56,.64,1), opacity .18s ease;
 }
-#logout-dialog::before {
-  content:''; position:absolute; inset:0; pointer-events:none; z-index:2;
-  background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.2) 3px,rgba(0,0,0,.2) 4px);
-  animation:lm-scanline-move 1.4s linear infinite; opacity:.55;
-}
-.lm-card-orb { position:absolute; border-radius:50%; pointer-events:none; }
-.lm-card-scan  { position:absolute; left:0; right:0; height:260px; pointer-events:none; background:linear-gradient(180deg,transparent,rgba(99,102,241,.045) 50%,transparent); animation:lm-scan-v 3.8s ease-in-out infinite; z-index:1; }
-.lm-card-scan2 { position:absolute; left:0; right:0; height:210px; pointer-events:none; background:linear-gradient(180deg,transparent,rgba(239,68,68,.035) 50%,transparent); animation:lm-scan-v2 5s ease-in-out infinite 1.2s; z-index:1; }
-.lm-card-scan-x { position:absolute; top:0; bottom:0; width:220px; pointer-events:none; background:linear-gradient(90deg,transparent,rgba(168,85,247,.04) 50%,transparent); animation:lm-scan-h 7s ease-in-out infinite .6s; z-index:1; }
-.lm-corner { position:absolute; width:18px; height:18px; pointer-events:none; z-index:6; animation:lm-corner-pulse 2s ease-in-out infinite; }
-.lm-corner.tl { top:14px; left:14px; border-top:2px solid rgba(99,102,241,.9); border-left:2px solid rgba(99,102,241,.9); border-radius:3px 0 0 0; }
-.lm-corner.tr { top:14px; right:14px; border-top:2px solid rgba(239,68,68,.9); border-right:2px solid rgba(239,68,68,.9); border-radius:0 3px 0 0; animation-delay:.5s; }
-.lm-corner.bl { bottom:14px; left:14px; border-bottom:2px solid rgba(168,85,247,.9); border-left:2px solid rgba(168,85,247,.9); border-radius:0 0 0 3px; animation-delay:1s; }
-.lm-corner.br { bottom:14px; right:14px; border-bottom:2px solid rgba(251,191,36,.9); border-right:2px solid rgba(251,191,36,.9); border-radius:0 0 3px 0; animation-delay:1.5s; }
 
-/* ── Icon zone ── */
-.lm-icon-zone { position:relative; width:170px; height:170px; display:flex; align-items:center; justify-content:center; animation:lm-float 3.4s ease-in-out infinite; }
-.lm-ring { position:absolute; border-radius:50%; }
-.lm-particle   { position:absolute; width:10px; height:10px; border-radius:50%; background:radial-gradient(circle,#fca5a5,#ef4444); box-shadow:0 0 12px rgba(239,68,68,1),0 0 24px rgba(239,68,68,.5); }
-.lm-particle.p1 { animation:lm-orbit1 2s linear infinite; }
-.lm-particle.p2 { animation:lm-orbit2 2s linear infinite; }
-.lm-particle.p3 { animation:lm-orbit3 2s linear infinite; }
-.lm-pm { position:absolute; width:8px; height:8px; border-radius:50%; }
-.lm-pm1 { background:radial-gradient(circle,#c4b5fd,#8b5cf6); box-shadow:0 0 10px rgba(139,92,246,1); animation:lm-orbit-m1 3.2s linear infinite; }
-.lm-pm2 { background:radial-gradient(circle,#fde68a,#fbbf24); box-shadow:0 0 10px rgba(251,191,36,1); animation:lm-orbit-m2 3.2s linear infinite; }
-.lm-pm3 { background:radial-gradient(circle,#6ee7b7,#10b981); box-shadow:0 0 10px rgba(16,185,129,1); animation:lm-orbit-m3 3.2s linear infinite; }
-.lm-po { position:absolute; width:7px; height:7px; border-radius:50%; }
-.lm-po1 { background:#22d3ee; box-shadow:0 0 9px rgba(34,211,238,1); animation:lm-orbit-o1 5s linear infinite; }
-.lm-po2 { background:#f472b6; box-shadow:0 0 9px rgba(244,114,182,1); animation:lm-orbit-o2 5s linear infinite; }
-.lm-po3 { background:#fb923c; box-shadow:0 0 9px rgba(251,146,60,1); animation:lm-orbit-o3 5s linear infinite; }
-.lm-po4 { background:#a3e635; box-shadow:0 0 9px rgba(163,230,53,1); animation:lm-orbit-o4 5s linear infinite; }
-.lm-pxx { position:absolute; width:5px; height:5px; border-radius:50%; }
-.lm-pxx1 { background:#fff; box-shadow:0 0 7px rgba(255,255,255,.95); animation:lm-orbit-xx1 8s linear infinite; }
-.lm-pxx2 { background:#ef4444; box-shadow:0 0 7px rgba(239,68,68,.95); animation:lm-orbit-xx2 8s linear infinite; }
-.lm-ripple-ring { position:absolute; border-radius:50%; border:1.5px solid rgba(239,68,68,.6); pointer-events:none; width:54px; height:54px; }
-.lm-ripple-ring.r1 { animation:lm-ripple 2.2s ease-out infinite; }
-.lm-ripple-ring.r2 { animation:lm-ripple2 2.2s ease-out infinite .74s; }
-.lm-ripple-ring.r3 { animation:lm-ripple3 2.2s ease-out infinite 1.48s; }
-
-/* ── Gradient title + glitch ── */
-.lm-grad-text {
-  background:linear-gradient(90deg,#e2e8f0 0%,#c7d2fe 12%,#f9a8d4 26%,#fca5a5 40%,#fde68a 54%,#6ee7b7 68%,#a5f3fc 82%,#e2e8f0 100%);
-  background-size:300% 100%; -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
-  animation:lm-shimmer 1.8s linear infinite;
-}
-.lm-title-glitch { position:relative; }
-.lm-title-glitch::before, .lm-title-glitch::after {
-  content:attr(data-text); position:absolute; top:0; left:0; width:100%;
-  background:linear-gradient(90deg,#e2e8f0 0%,#c7d2fe 12%,#f9a8d4 26%,#fca5a5 40%,#fde68a 54%,#6ee7b7 68%,#a5f3fc 82%,#e2e8f0 100%);
-  background-size:300% 100%; -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
-}
-.lm-title-glitch::before { animation:lm-glitch-before 3.5s linear infinite, lm-shimmer 1.8s linear infinite; clip-path:polygon(0 15%,100% 15%,100% 40%,0 40%); }
-.lm-title-glitch::after  { animation:lm-glitch-after 3.1s linear infinite .5s, lm-shimmer 1.8s linear infinite .7s; clip-path:polygon(0 62%,100% 62%,100% 85%,0 85%); filter:hue-rotate(130deg); }
-
-/* ── User strip ── */
-.lm-user-strip { position:relative; overflow:hidden; border-radius:16px; }
-.lm-user-strip-border {
-  position:absolute; inset:0; border-radius:16px;
-  background:linear-gradient(135deg,rgba(99,102,241,.4),rgba(168,85,247,.3),rgba(236,72,153,.35),rgba(99,102,241,.4));
-  background-size:300% 300%; animation:lm-bar-flow 2.5s linear infinite;
-  -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite:xor; mask-composite:exclude; padding:1px;
-}
-.lm-user-strip-inner {
-  position:relative; z-index:1;
-  background:linear-gradient(135deg,rgba(255,255,255,.05) 0%,rgba(99,102,241,.07) 50%,rgba(255,255,255,.03) 100%);
-  border-radius:15px; backdrop-filter:blur(10px);
-  display:flex; align-items:center; gap:14px; padding:14px 16px; margin-bottom:14px;
-}
-.lm-user-sweep  { position:absolute; top:0; bottom:0; width:50%; background:linear-gradient(90deg,transparent,rgba(255,255,255,.09),transparent); animation:lm-scan-h 1.9s linear infinite; pointer-events:none; }
-.lm-user-sweep2 { position:absolute; top:0; bottom:0; width:40%; background:linear-gradient(90deg,transparent,rgba(239,68,68,.06),transparent); animation:lm-scan-h2 2.6s linear infinite .6s; pointer-events:none; }
-
-/* ── Badges ── */
-.lm-badge { display:inline-flex; align-items:center; gap:5px; padding:4px 9px; border-radius:20px; font-size:.62rem; font-weight:700; letter-spacing:.07em; text-transform:uppercase; }
-.lm-badge-aes  { background:rgba(99,102,241,.14); border:1px solid rgba(99,102,241,.4);  color:#a5b4fc; }
-.lm-badge-sess { background:rgba(34,197,94,.11);  border:1px solid rgba(34,197,94,.36); color:#86efac; animation:lm-badge-pulse 1.3s ease-in-out infinite; }
-.lm-badge-ssl  { background:rgba(34,211,238,.09); border:1px solid rgba(34,211,238,.32); color:#67e8f9; }
-.lm-badge-2fa  { background:rgba(251,191,36,.09); border:1px solid rgba(251,191,36,.32); color:#fde68a; }
-.lm-badge-vpn  { background:rgba(163,230,53,.08); border:1px solid rgba(163,230,53,.28); color:#bef264; }
-
-/* ── Waveform ── */
-.lm-waveform { display:flex; align-items:center; gap:2.5px; height:28px; }
-.lm-wave-bar { width:3px; border-radius:2px; }
-
-/* ── Threat meter ── */
-.lm-threat-wrap { display:flex; align-items:center; gap:8px; padding:7px 12px; border-radius:9px; animation:lm-danger-flash 1.2s ease-in-out infinite; }
-.lm-threat-bar  { flex:1; height:6px; background:rgba(255,255,255,.07); border-radius:3px; overflow:hidden; }
-.lm-threat-fill { height:100%; width:94%; border-radius:3px; background:linear-gradient(90deg,#fbbf24,#f97316,#ef4444,#dc2626); background-size:200% 100%; animation:lm-bar-flow .9s linear infinite; }
-
-/* ── Warning strip ── */
-.lm-warn { position:relative; overflow:hidden; display:flex; align-items:center; gap:10px; padding:12px 15px; border-radius:12px; margin-bottom:14px; animation:lm-danger-flash 1s ease-in-out infinite; }
-.lm-warn::before { content:''; position:absolute; top:0; left:-80%; width:50%; height:100%; background:linear-gradient(90deg,transparent,rgba(239,68,68,.25),transparent); animation:lm-scan-h 1.3s linear infinite; }
-.lm-warn::after  { content:''; position:absolute; top:0; right:-80%; width:50%; height:100%; background:linear-gradient(90deg,transparent,rgba(239,68,68,.18),transparent); animation:lm-scan-h2 1.8s linear infinite .3s; }
-
-/* ── Sign Out button ── */
+/* ── Buttons ── */
 .lm-signout-btn {
-  position:relative; overflow:hidden; flex:1.4;
-  padding:.92rem 1rem; border:none; border-radius:14px;
-  background:linear-gradient(135deg,#7f1d1d,#dc2626,#ef4444,#f97316,#fbbf24,#ef4444);
-  background-size:400% 100%;
-  color:#fff; font-size:.95rem; font-weight:800; letter-spacing:.05em;
-  cursor:pointer; display:flex; align-items:center; justify-content:center; gap:9px;
-  text-shadow:0 1px 8px rgba(0,0,0,.5);
-  animation:lm-bar-flow 1.3s linear infinite, lm-neon-flash 1.8s ease-in-out infinite;
-  box-shadow:0 0 0 1px rgba(239,68,68,.7),0 8px 40px rgba(239,68,68,.75),0 0 100px rgba(239,68,68,.3),inset 0 1px 0 rgba(255,255,255,.22);
-  transition:transform .18s,box-shadow .18s;
+  flex:1.3; padding:.68rem 1rem; border:none; border-radius:10px;
+  background:#dc2626; color:#fff; font-size:.875rem; font-weight:700;
+  cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;
+  transition:background .15s, box-shadow .15s;
 }
-.lm-signout-btn::before { content:''; position:absolute; top:0; left:-80%; width:60%; height:100%; background:linear-gradient(90deg,transparent,rgba(255,255,255,.4),transparent); animation:lm-scan-h 1s linear infinite; }
-.lm-signout-btn::after  { content:''; position:absolute; inset:-5px; border-radius:19px; background:linear-gradient(135deg,#ef4444,#f97316,#fbbf24,#ef4444); background-size:400% 100%; animation:lm-bar-flow 1.3s linear infinite; z-index:-1; filter:blur(16px); opacity:.85; }
-.lm-signout-btn:hover { transform:translateY(-3px) scale(1.03); box-shadow:0 0 0 2px rgba(239,68,68,1),0 16px 60px rgba(239,68,68,.95),0 0 130px rgba(239,68,68,.5),inset 0 1px 0 rgba(255,255,255,.28); }
-.lm-signout-btn:active { transform:translateY(0) scale(.98); }
-
-/* ── Stay button ── */
+.lm-signout-btn:hover { background:#b91c1c; box-shadow:0 4px 16px rgba(220,38,38,.35); }
 .lm-stay-btn {
-  position:relative; overflow:hidden; flex:1;
-  padding:.92rem 1rem; border:1px solid rgba(255,255,255,.12); border-radius:14px;
-  background:rgba(255,255,255,.05); color:rgba(255,255,255,.65);
-  font-size:.875rem; font-weight:600; cursor:pointer;
-  transition:background .18s,border-color .18s,color .18s,box-shadow .18s;
-  backdrop-filter:blur(8px);
+  flex:1; padding:.68rem 1rem; border:1px solid #e2e8f0; border-radius:10px;
+  background:#fff; color:#374151; font-size:.875rem; font-weight:600;
+  cursor:pointer; transition:background .15s, border-color .15s;
 }
-.lm-stay-btn::before { content:''; position:absolute; top:0; left:-80%; width:50%; height:100%; background:linear-gradient(90deg,transparent,rgba(255,255,255,.08),transparent); animation:lm-scan-h 3.2s linear infinite; }
-.lm-stay-btn:hover { background:rgba(99,102,241,.13); border-color:rgba(99,102,241,.42); color:rgba(255,255,255,.95); box-shadow:0 0 30px rgba(99,102,241,.28),inset 0 1px 0 rgba(255,255,255,.07); }
+.lm-stay-btn:hover { background:#f8fafc; border-color:#cbd5e1; }
 
 /* ── Stagger ── */
-.lm-s1{animation:lm-fadein .32s ease .06s both}
-.lm-s2{animation:lm-fadein .32s ease .14s both}
-.lm-s3{animation:lm-fadein .32s ease .22s both}
-.lm-s4{animation:lm-fadein .32s ease .30s both}
-.lm-s5{animation:lm-fadein .32s ease .38s both}
-.lm-s6{animation:lm-fadein .32s ease .46s both}
-.lm-s7{animation:lm-fadein .32s ease .54s both}
-.lm-s8{animation:lm-fadein .32s ease .62s both}
+.lm-s1{animation:lm-fadein .25s ease .04s both}
+.lm-s2{animation:lm-fadein .25s ease .10s both}
+.lm-s3{animation:lm-fadein .25s ease .16s both}
 </style>
 
 <div id="logout-modal" style="display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;">
 
-  {{-- ═══ BACKDROP ═══ --}}
-  <div id="logout-backdrop" onclick="closeLogoutModal()">
+  <div id="logout-backdrop" onclick="closeLogoutModal()"></div>
 
-    {{-- Vertical scanning beams --}}
-    <div class="lm-bd-scan" style="animation:lm-scan-v 4.5s linear infinite;"></div>
-    <div class="lm-bd-scan" style="animation:lm-scan-v 6.5s linear infinite 1.8s;opacity:.45;"></div>
-    <div class="lm-bd-scan" style="animation:lm-scan-v2 5.5s linear infinite .9s;background:linear-gradient(90deg,transparent,rgba(239,68,68,.25) 50%,transparent);"></div>
-    {{-- Horizontal beams --}}
-    <div class="lm-bd-scan-x"></div>
-    <div class="lm-bd-scan-x" style="animation:lm-scan-h2 11s linear infinite 4s;background:linear-gradient(180deg,transparent,rgba(99,102,241,.28) 50%,transparent);"></div>
+  <div id="logout-dialog">
 
-    {{-- 8 massive ambient orbs --}}
-    <div class="lm-bg-orb" style="width:620px;height:620px;background:radial-gradient(circle,rgba(99,102,241,.2) 0%,transparent 70%);top:-160px;left:-160px;animation:lm-orb1 9s ease-in-out infinite;"></div>
-    <div class="lm-bg-orb" style="width:570px;height:570px;background:radial-gradient(circle,rgba(239,68,68,.18) 0%,transparent 70%);bottom:-130px;right:-130px;animation:lm-orb2 11s ease-in-out infinite;"></div>
-    <div class="lm-bg-orb" style="width:420px;height:420px;background:radial-gradient(circle,rgba(168,85,247,.15) 0%,transparent 70%);top:50%;left:58%;animation:lm-orb3 7s ease-in-out infinite;"></div>
-    <div class="lm-bg-orb" style="width:370px;height:370px;background:radial-gradient(circle,rgba(34,211,238,.13) 0%,transparent 70%);top:12%;right:2%;animation:lm-orb4 8s ease-in-out infinite;"></div>
-    <div class="lm-bg-orb" style="width:330px;height:330px;background:radial-gradient(circle,rgba(251,191,36,.11) 0%,transparent 70%);bottom:15%;left:2%;animation:lm-orb5 6.5s ease-in-out infinite;"></div>
-    <div class="lm-bg-orb" style="width:290px;height:290px;background:radial-gradient(circle,rgba(244,114,182,.11) 0%,transparent 70%);top:32%;left:12%;animation:lm-orb1 10s ease-in-out infinite 2.5s;"></div>
-    <div class="lm-bg-orb" style="width:270px;height:270px;background:radial-gradient(circle,rgba(16,185,129,.1) 0%,transparent 70%);bottom:32%;right:18%;animation:lm-orb2 8.5s ease-in-out infinite 1.2s;"></div>
-    <div class="lm-bg-orb" style="width:210px;height:210px;background:radial-gradient(circle,rgba(163,230,53,.08) 0%,transparent 70%);top:8%;left:38%;animation:lm-orb3 12s ease-in-out infinite 3.5s;"></div>
+    {{-- Top accent bar --}}
+    <div style="height:4px;background:linear-gradient(90deg,#7c3aed,#a78bfa);"></div>
 
-    {{-- 13 data stream lines --}}
-    <div class="lm-data-line" style="left:4%;height:38%;animation-duration:3.5s;animation-delay:0s;"></div>
-    <div class="lm-data-line" style="left:11%;height:26%;animation-duration:5s;animation-delay:.5s;"></div>
-    <div class="lm-data-line" style="left:18%;height:42%;animation-duration:4.3s;animation-delay:1s;"></div>
-    <div class="lm-data-line" style="left:29%;height:22%;animation-duration:6s;animation-delay:.2s;"></div>
-    <div class="lm-data-line" style="left:43%;height:30%;animation-duration:6.8s;animation-delay:2s;"></div>
-    <div class="lm-data-line" style="left:56%;height:34%;animation-duration:3.9s;animation-delay:.7s;"></div>
-    <div class="lm-data-line" style="left:67%;height:24%;animation-duration:5.5s;animation-delay:1.4s;"></div>
-    <div class="lm-data-line" style="left:74%;height:40%;animation-duration:3.2s;animation-delay:.1s;"></div>
-    <div class="lm-data-line" style="left:82%;height:28%;animation-duration:6.4s;animation-delay:1.7s;"></div>
-    <div class="lm-data-line" style="left:90%;height:32%;animation-duration:4.1s;animation-delay:.4s;"></div>
-    <div class="lm-data-line" style="left:96%;height:20%;animation-duration:5.2s;animation-delay:2.6s;"></div>
-    <div class="lm-data-line" style="left:7%;height:44%;animation-duration:7.5s;animation-delay:3s;width:2px;"></div>
-    <div class="lm-data-line" style="left:61%;height:16%;animation-duration:3s;animation-delay:1.2s;"></div>
+    {{-- Body --}}
+    <div style="padding:28px 26px 24px;">
 
-    {{-- Lightning bolts --}}
-    <div class="lm-lightning" style="left:17%;top:4%;height:42%;animation:lm-lightning 6.5s linear infinite .8s;transform:rotate(7deg);"></div>
-    <div class="lm-lightning" style="left:74%;top:8%;height:32%;animation:lm-lightning2 10s linear infinite 3.5s;transform:rotate(-4deg);"></div>
-    <div class="lm-lightning" style="left:41%;top:52%;height:38%;animation:lm-lightning 8.5s linear infinite 1.8s;transform:rotate(3deg);"></div>
-
-    {{-- 15 twinkling stars --}}
-    <div class="lm-star" style="width:2px;height:2px;top:7%;left:11%;animation-duration:1.7s;"></div>
-    <div class="lm-star" style="width:3px;height:3px;top:14%;left:77%;animation-duration:2.8s;animation-delay:.5s;"></div>
-    <div class="lm-star" style="width:2px;height:2px;top:24%;left:4%;animation-duration:2.2s;animation-delay:.9s;"></div>
-    <div class="lm-star" style="width:2px;height:2px;top:37%;left:93%;animation-duration:1.5s;animation-delay:.2s;"></div>
-    <div class="lm-star" style="width:3px;height:3px;top:51%;left:87%;animation-duration:3s;animation-delay:.8s;"></div>
-    <div class="lm-star" style="width:2px;height:2px;top:64%;left:1%;animation-duration:2.6s;animation-delay:1.3s;"></div>
-    <div class="lm-star" style="width:2px;height:2px;top:73%;left:65%;animation-duration:2s;animation-delay:.1s;"></div>
-    <div class="lm-star" style="width:3px;height:3px;top:84%;left:32%;animation-duration:1.4s;animation-delay:.6s;"></div>
-    <div class="lm-star" style="width:2px;height:2px;top:91%;left:79%;animation-duration:2.4s;animation-delay:1s;"></div>
-    <div class="lm-star" style="width:2px;height:2px;top:3%;left:54%;animation-duration:3.2s;animation-delay:.3s;"></div>
-    <div class="lm-star" style="width:3px;height:3px;top:47%;left:21%;animation-duration:1.8s;animation-delay:1.5s;"></div>
-    <div class="lm-star" style="width:2px;height:2px;top:29%;left:47%;animation-duration:2.5s;animation-delay:.55s;"></div>
-    <div class="lm-star" style="width:2px;height:2px;top:69%;left:49%;animation-duration:2.1s;animation-delay:1.2s;"></div>
-    <div class="lm-star" style="width:3px;height:3px;top:17%;left:37%;animation-duration:3.4s;animation-delay:.75s;"></div>
-    <div class="lm-star" style="width:2px;height:2px;top:57%;left:14%;animation-duration:1.6s;animation-delay:1.7s;"></div>
-  </div>
-
-  {{-- ═══ RAINBOW BORDER WRAPPER ═══ --}}
-  <div id="lm-border-wrap">
-    {{-- ═══ DIALOG ═══ --}}
-    <div id="logout-dialog">
-
-      {{-- Corner brackets --}}
-      <div class="lm-corner tl"></div>
-      <div class="lm-corner tr"></div>
-      <div class="lm-corner bl"></div>
-      <div class="lm-corner br"></div>
-
-      {{-- Card interior orbs --}}
-      <div class="lm-card-orb" style="width:310px;height:310px;background:radial-gradient(circle,rgba(99,102,241,.3) 0%,transparent 70%);top:-110px;left:-110px;filter:blur(65px);animation:lm-orb1 6.5s ease-in-out infinite;"></div>
-      <div class="lm-card-orb" style="width:270px;height:270px;background:radial-gradient(circle,rgba(239,68,68,.26) 0%,transparent 70%);bottom:-90px;right:-90px;filter:blur(58px);animation:lm-orb2 8.5s ease-in-out infinite;"></div>
-      <div class="lm-card-orb" style="width:210px;height:210px;background:radial-gradient(circle,rgba(168,85,247,.22) 0%,transparent 70%);top:38%;left:43%;filter:blur(52px);animation:lm-orb3 5.5s ease-in-out infinite;"></div>
-      <div class="lm-card-orb" style="width:180px;height:180px;background:radial-gradient(circle,rgba(34,211,238,.16) 0%,transparent 70%);top:6%;right:6%;filter:blur(46px);animation:lm-orb4 7.5s ease-in-out infinite;"></div>
-      <div class="lm-card-orb" style="width:150px;height:150px;background:radial-gradient(circle,rgba(251,191,36,.14) 0%,transparent 70%);bottom:18%;left:8%;filter:blur(42px);animation:lm-orb5 6.5s ease-in-out infinite .8s;"></div>
-
-      {{-- Scanning beams --}}
-      <div class="lm-card-scan"></div>
-      <div class="lm-card-scan2"></div>
-      <div class="lm-card-scan-x"></div>
-
-      {{-- Top rainbow accent bar --}}
-      <div style="position:relative;z-index:5;height:6px;background:linear-gradient(90deg,#6366f1,#8b5cf6,#ec4899,#ef4444,#f97316,#fbbf24,#22d3ee,#a3e635,#6366f1);background-size:400% 100%;animation:lm-bar-flow 1.2s linear infinite;box-shadow:0 2px 24px rgba(99,102,241,.7),0 0 50px rgba(239,68,68,.35);"></div>
-
-      {{-- Sub-bar --}}
-      <div style="position:relative;z-index:4;background:rgba(99,102,241,.09);border-bottom:1px solid rgba(255,255,255,.05);padding:5px 18px;display:flex;align-items:center;justify-content:space-between;">
-        <span style="font-size:.57rem;letter-spacing:.14em;text-transform:uppercase;font-family:monospace;animation:lm-hex-count 1.8s linear infinite;">SYS::AUTH v4.0</span>
-        <div style="display:flex;align-items:center;gap:10px;">
-          <span style="font-size:.57rem;letter-spacing:.1em;color:rgba(239,68,68,.8);font-family:monospace;animation:lm-blink .7s ease-in-out infinite;">⚠ TERMINATING</span>
-          <span style="font-size:.57rem;letter-spacing:.08em;color:rgba(34,197,94,.55);font-family:monospace;display:flex;align-items:center;gap:4px;">
-            <span style="width:5px;height:5px;border-radius:50%;background:#22c55e;display:inline-block;animation:lm-blink .9s ease-in-out infinite;box-shadow:0 0 8px rgba(34,197,94,.9);"></span>
-            SESSION LIVE
-          </span>
-        </div>
-      </div>
-
-      {{-- Body --}}
-      <div style="position:relative;z-index:3;padding:24px 24px 20px;">
-
-        {{-- ── ICON ZONE ── --}}
-        <div class="lm-s1" style="display:flex;flex-direction:column;align-items:center;margin-bottom:20px;">
-          <div class="lm-icon-zone">
-            {{-- 8 rings at varying speeds/directions --}}
-            <div class="lm-ring" style="inset:-12px;border:1.5px dashed rgba(99,102,241,.22);animation:lm-spin-cw 20s linear infinite;"></div>
-            <div class="lm-ring" style="inset:0;border:2px solid rgba(99,102,241,.38);animation:lm-spin-cw 11s linear infinite;"></div>
-            <div class="lm-ring" style="inset:8px;border:1px solid rgba(239,68,68,.28);animation:lm-spin-ccw 6.5s linear infinite;"></div>
-            <div class="lm-ring" style="inset:16px;border:2px dotted rgba(168,85,247,.38);animation:lm-spin-cw 4.5s linear infinite;"></div>
-            <div class="lm-ring" style="inset:24px;border:1.5px solid rgba(34,211,238,.28);animation:lm-spin-ccw 3s linear infinite;"></div>
-            <div class="lm-ring" style="inset:32px;border:1px solid rgba(251,191,36,.32);animation:lm-spin-cw 2.2s linear infinite;"></div>
-            <div class="lm-ring" style="inset:40px;border:1.5px dashed rgba(244,114,182,.32);animation:lm-spin-ccw 1.8s linear infinite;"></div>
-            <div class="lm-ring" style="inset:48px;border:1px solid rgba(163,230,53,.22);animation:lm-spin-cw 1.3s linear infinite;"></div>
-            {{-- Inner particles (54px) --}}
-            <div class="lm-particle p1"></div>
-            <div class="lm-particle p2"></div>
-            <div class="lm-particle p3"></div>
-            {{-- Mid particles (76px) --}}
-            <div class="lm-pm lm-pm1"></div>
-            <div class="lm-pm lm-pm2"></div>
-            <div class="lm-pm lm-pm3"></div>
-            {{-- Outer particles (100px) --}}
-            <div class="lm-po lm-po1"></div>
-            <div class="lm-po lm-po2"></div>
-            <div class="lm-po lm-po3"></div>
-            <div class="lm-po lm-po4"></div>
-            {{-- Extreme outer (128px) --}}
-            <div class="lm-pxx lm-pxx1"></div>
-            <div class="lm-pxx lm-pxx2"></div>
-            {{-- 3 ripple rings --}}
-            <div class="lm-ripple-ring r1"></div>
-            <div class="lm-ripple-ring r2"></div>
-            <div class="lm-ripple-ring r3"></div>
-            {{-- Multi-layer aura --}}
-            <div style="position:absolute;inset:30px;border-radius:50%;background:radial-gradient(circle,rgba(239,68,68,.6) 0%,rgba(168,85,247,.25) 50%,transparent 70%);animation:lm-breathe 1.8s ease-in-out infinite;filter:blur(16px);"></div>
-            <div style="position:absolute;inset:38px;border-radius:50%;background:radial-gradient(circle,rgba(251,191,36,.3) 0%,transparent 70%);animation:lm-breathe 2.4s ease-in-out infinite .4s;filter:blur(8px);"></div>
-            {{-- Icon container --}}
-            <div style="position:relative;width:56px;height:56px;border-radius:17px;
-                background:linear-gradient(135deg,rgba(239,68,68,.35) 0%,rgba(127,29,29,.55) 100%);
-                border:1.5px solid rgba(239,68,68,.6);
-                display:flex;align-items:center;justify-content:center;
-                animation:lm-halo 2s ease-in-out infinite;
-                box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 0 40px rgba(239,68,68,.5);">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" style="width:26px;height:26px;color:#f87171;animation:lm-icon-glow 1.8s ease-in-out infinite;">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"/>
-              </svg>
-            </div>
-          </div>
-
-          {{-- Heading --}}
-          <div class="lm-s2" style="text-align:center;margin-top:14px;">
-            <div style="font-size:.6rem;letter-spacing:.24em;text-transform:uppercase;font-family:monospace;margin-bottom:5px;animation:lm-glitch 3.5s ease-in-out infinite,lm-hex-count 2.5s linear infinite;">◈ TERMINATING SESSION ◈</div>
-            <h2 style="margin:0 0 6px;font-size:1.44rem;font-weight:900;letter-spacing:-.02em;line-height:1.2;display:block;" class="lm-grad-text lm-title-glitch" data-text="Signing Out of EncryptEd?">
-              Signing Out of EncryptEd?
-            </h2>
-            <p style="font-size:.8rem;color:rgba(148,163,184,.5);margin:0;line-height:1.65;max-width:300px;animation:lm-glitch2 5.5s ease-in-out infinite;">
-              You'll be returned to the login page.<br>
-              <span style="color:rgba(248,113,113,.6);animation:lm-blink 2.8s ease-in-out infinite;">Any unsaved work may be lost.</span>
-            </p>
-          </div>
-        </div>
-
-        {{-- ── 5 SECURITY BADGES ── --}}
-        <div class="lm-s3" style="display:flex;align-items:center;justify-content:center;gap:5px;margin-bottom:10px;flex-wrap:wrap;">
-          <span class="lm-badge lm-badge-aes">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" style="width:8px;height:8px;"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
-            AES-256
-          </span>
-          <span class="lm-badge lm-badge-sess">
-            <span style="width:5px;height:5px;border-radius:50%;background:#22c55e;display:inline-block;box-shadow:0 0 8px rgba(34,197,94,1);animation:lm-blink .65s ease-in-out infinite;"></span>
-            SESSION LIVE
-          </span>
-          <span class="lm-badge lm-badge-ssl">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" style="width:8px;height:8px;"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg>
-            SSL SECURED
-          </span>
-          <span class="lm-badge lm-badge-2fa">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" style="width:8px;height:8px;"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z"/></svg>
-            2FA ACTIVE
-          </span>
-          <span class="lm-badge lm-badge-vpn">◉ VPN OK</span>
-        </div>
-
-        {{-- ── THREAT LEVEL BAR ── --}}
-        <div class="lm-s3" style="margin-bottom:12px;">
-          <div class="lm-threat-wrap">
-            <span style="font-size:.58rem;font-weight:800;font-family:monospace;letter-spacing:.1em;color:rgba(239,68,68,.8);white-space:nowrap;animation:lm-blink .9s ease-in-out infinite;">THREAT LVL</span>
-            <div class="lm-threat-bar"><div class="lm-threat-fill"></div></div>
-            <span style="font-size:.58rem;font-weight:900;font-family:monospace;letter-spacing:.1em;color:#ef4444;white-space:nowrap;animation:lm-blink .45s ease-in-out infinite;">■ CRITICAL</span>
-          </div>
-        </div>
-
-        {{-- ── WAVEFORM + HEX ── --}}
-        <div class="lm-s4" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding:8px 12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:10px;">
-          <div class="lm-waveform">
-            <div class="lm-wave-bar" style="animation:lm-wave-1 .65s ease-in-out infinite;background:linear-gradient(180deg,#ef4444,#f97316);"></div>
-            <div class="lm-wave-bar" style="animation:lm-wave-2 .75s ease-in-out infinite .04s;background:linear-gradient(180deg,#f97316,#fbbf24);"></div>
-            <div class="lm-wave-bar" style="animation:lm-wave-3 .6s ease-in-out infinite .08s;background:linear-gradient(180deg,#fbbf24,#a3e635);"></div>
-            <div class="lm-wave-bar" style="animation:lm-wave-4 .85s ease-in-out infinite .12s;background:linear-gradient(180deg,#22d3ee,#6366f1);"></div>
-            <div class="lm-wave-bar" style="animation:lm-wave-5 .68s ease-in-out infinite .16s;background:linear-gradient(180deg,#a78bfa,#ec4899);"></div>
-            <div class="lm-wave-bar" style="animation:lm-wave-6 .8s ease-in-out infinite .2s;background:linear-gradient(180deg,#ec4899,#ef4444);"></div>
-            <div class="lm-wave-bar" style="animation:lm-wave-7 .72s ease-in-out infinite .24s;background:linear-gradient(180deg,#ef4444,#a78bfa);"></div>
-            <div class="lm-wave-bar" style="animation:lm-wave-8 .63s ease-in-out infinite .28s;background:linear-gradient(180deg,#22d3ee,#22c55e);"></div>
-          </div>
-          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">
-            <span style="font-size:.52rem;font-family:monospace;color:rgba(99,102,241,.5);letter-spacing:.08em;">TOKEN ID</span>
-            <span style="font-size:.66rem;font-family:monospace;font-weight:700;animation:lm-hex-count 1s linear infinite;letter-spacing:.06em;">0xDEAD•F1RE</span>
-          </div>
-        </div>
-
-        {{-- ── USER STRIP ── --}}
-        <div class="lm-user-strip lm-s5" style="margin-bottom:12px;">
-          <div class="lm-user-strip-border"></div>
-          <div class="lm-user-strip-inner">
-            <div class="lm-user-sweep"></div>
-            <div class="lm-user-sweep2"></div>
-            {{-- Avatar --}}
-            <div style="position:relative;width:46px;height:46px;border-radius:12px;flex-shrink:0;background:linear-gradient(135deg,#312e81,#4f46e5,#6366f1);display:flex;align-items:center;justify-content:center;font-size:.88rem;font-weight:800;color:#fff;letter-spacing:-.5px;box-shadow:0 4px 18px rgba(99,102,241,.65);">
-              {{ strtoupper(substr(auth()->user()->first_name ?? 'U', 0, 1)) }}{{ strtoupper(substr(auth()->user()->last_name ?? '', 0, 1)) }}
-              <div style="position:absolute;inset:-2px;border-radius:14px;border:1.5px solid rgba(99,102,241,.65);pointer-events:none;animation:lm-breathe 2.6s ease-in-out infinite;"></div>
-            </div>
-            <div style="min-width:0;flex:1;">
-              <div style="font-size:.9rem;font-weight:700;color:rgba(241,245,249,.94);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px;">
-                {{ auth()->user()->full_name ?? 'User' }}
-              </div>
-              <div style="font-size:.72rem;color:rgba(148,163,184,.5);display:flex;align-items:center;gap:5px;flex-wrap:wrap;">
-                <span>{{ auth()->user()->email ?: '—' }}</span>
-                <span style="width:3px;height:3px;border-radius:50%;background:rgba(148,163,184,.3);flex-shrink:0;"></span>
-                <span style="padding:1px 6px;border-radius:8px;font-weight:700;font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;background:rgba(167,139,250,.18);border:1px solid rgba(167,139,250,.38);color:rgba(196,181,253,.95);">
-                  {{ auth()->user()->role_label ?? 'User' }}
-                </span>
-              </div>
-            </div>
-            <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:3px;">
-              <div style="width:9px;height:9px;border-radius:50%;background:#22c55e;box-shadow:0 0 10px rgba(34,197,94,1),0 0 20px rgba(34,197,94,.4);animation:lm-badge-pulse 1.1s ease-in-out infinite;"></div>
-              <span style="font-size:.54rem;color:rgba(134,239,172,.6);letter-spacing:.06em;text-transform:uppercase;font-family:monospace;">ONLINE</span>
-            </div>
-          </div>
-        </div>
-
-        {{-- ── WARNING ── --}}
-        <div class="lm-warn lm-s6">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;color:#f87171;flex-shrink:0;animation:lm-icon-glow 1.4s ease-in-out infinite,lm-blink 1.8s ease-in-out infinite;">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
+      {{-- Icon + heading --}}
+      <div class="lm-s1" style="display:flex;align-items:flex-start;gap:16px;margin-bottom:22px;">
+        <div style="width:46px;height:46px;border-radius:13px;background:#fee2e2;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:22px;height:22px;color:#dc2626;">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"/>
           </svg>
-          <span style="font-size:.74rem;color:rgba(252,165,165,.8);line-height:1.5;font-family:monospace;">
-            <span style="color:rgba(252,165,165,.45);">[CRITICAL]</span> Active session will be <strong style="color:#fca5a5;animation:lm-blink 1.2s ease-in-out infinite;">terminated immediately</strong>. All tokens revoked. Data flushed.
-          </span>
         </div>
-
-        {{-- ── SYSTEM STATUS ROW ── --}}
-        <div class="lm-s7" style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:18px;flex-wrap:wrap;">
-          <span style="display:flex;align-items:center;gap:4px;font-size:.59rem;color:rgba(148,163,184,.42);font-family:monospace;letter-spacing:.05em;">
-            <span style="width:5px;height:5px;border-radius:50%;background:#22c55e;box-shadow:0 0 6px rgba(34,197,94,.9);animation:lm-blink .85s ease-in-out infinite;"></span>
-            SYS ONLINE
-          </span>
-          <span style="width:1px;height:10px;background:rgba(255,255,255,.08);"></span>
-          <span style="display:flex;align-items:center;gap:4px;font-size:.59rem;color:rgba(148,163,184,.42);font-family:monospace;letter-spacing:.05em;">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" style="width:8px;height:8px;color:rgba(34,211,238,.65);"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg>
-            CONN SECURE
-          </span>
-          <span style="width:1px;height:10px;background:rgba(255,255,255,.08);"></span>
-          <span style="display:flex;align-items:center;gap:4px;font-size:.59rem;font-family:monospace;letter-spacing:.05em;animation:lm-hex-count 1.8s linear infinite;">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" style="width:8px;height:8px;"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            TIMEOUT: MANUAL
-          </span>
-          <span style="width:1px;height:10px;background:rgba(255,255,255,.08);"></span>
-          <span style="display:flex;align-items:center;gap:4px;font-size:.59rem;color:rgba(239,68,68,.6);font-family:monospace;letter-spacing:.05em;animation:lm-blink .55s ease-in-out infinite;">
-            ▲ LOGOUT PENDING
-          </span>
+        <div style="flex:1;min-width:0;">
+          <h2 style="margin:0 0 5px;font-size:1.05rem;font-weight:700;color:#0f172a;">Sign out of EncryptEd?</h2>
+          <p style="margin:0;font-size:.875rem;color:#64748b;line-height:1.55;">You'll be returned to the login page. Any unsaved work may be lost.</p>
         </div>
-
-        {{-- ── ACTIONS ── --}}
-        <div class="lm-s8" style="display:flex;gap:10px;">
-          <button onclick="closeLogoutModal()" type="button" class="lm-stay-btn">
-            <span style="display:flex;align-items:center;gap:7px;justify-content:center;">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3"/></svg>
-              Stay Signed In
-            </span>
-          </button>
-          <button onclick="document.getElementById('logout-form').submit()" type="button" class="lm-signout-btn">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2" style="width:17px;height:17px;flex-shrink:0;">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"/>
-            </svg>
-            Sign Out
-          </button>
-        </div>
-
-        {{-- Footer watermark --}}
-        <div style="text-align:center;margin-top:14px;display:flex;align-items:center;justify-content:center;gap:5px;">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:8px;height:8px;animation:lm-icon-glow 2.8s ease-in-out infinite;"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
-          <span style="font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;font-family:monospace;animation:lm-hex-count 3.5s linear infinite;">EncryptEd · Secure Auth Gateway · AES-256 · v4.0</span>
-        </div>
-
       </div>
+
+      {{-- User info --}}
+      <div class="lm-s2" style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;margin-bottom:22px;">
+        <div style="width:38px;height:38px;border-radius:10px;flex-shrink:0;background:linear-gradient(135deg,#4f46e5,#6366f1);display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:800;color:#fff;letter-spacing:-.5px;">
+          {{ strtoupper(substr(auth()->user()->first_name ?? 'U', 0, 1)) }}{{ strtoupper(substr(auth()->user()->last_name ?? '', 0, 1)) }}
+        </div>
+        <div style="min-width:0;flex:1;">
+          <div style="font-size:.875rem;font-weight:600;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+            {{ auth()->user()->full_name ?? 'User' }}
+          </div>
+          <div style="font-size:.78rem;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+            {{ auth()->user()->email ?: '—' }}
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:5px;flex-shrink:0;">
+          <span style="width:7px;height:7px;border-radius:50%;background:#22c55e;display:inline-block;animation:lm-pulse-dot 2s ease-in-out infinite;"></span>
+          <span style="font-size:.72rem;color:#22c55e;font-weight:600;">Online</span>
+        </div>
+      </div>
+
+      {{-- Actions --}}
+      <div class="lm-s3" style="display:flex;gap:10px;">
+        <button onclick="closeLogoutModal()" type="button" class="lm-stay-btn">
+          Stay Signed In
+        </button>
+        <button onclick="document.getElementById('logout-form').submit()" type="button" class="lm-signout-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;flex-shrink:0;">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"/>
+          </svg>
+          Sign Out
+        </button>
+      </div>
+
     </div>
   </div>
 </div>
