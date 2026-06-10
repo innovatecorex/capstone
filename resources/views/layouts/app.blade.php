@@ -2078,6 +2078,12 @@
         if (window.innerWidth <= 900) closeSidebar();
       });
     });
+
+    // Scroll active nav item into view on page load
+    var activeItem = sidebar.querySelector('.stu-nav-item.active');
+    if (activeItem) {
+      activeItem.scrollIntoView({ block: 'center', behavior: 'instant' });
+    }
   })();
 
   // ── Notification dropdown ─────────────────────────────────────────────
