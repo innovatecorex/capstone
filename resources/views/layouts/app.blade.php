@@ -16,6 +16,9 @@
 
   @if(auth()->check())
   <style>
+  /* Prevent horizontal page scroll — tables scroll inside .enc-table-wrap only */
+  html, body, .enc-shell { overflow-x: hidden; }
+
   /* ═══════════════════════════════════════════════════════════
      STUDENT SIDEBAR — Clean professional student portal style
   ═══════════════════════════════════════════════════════════ */
