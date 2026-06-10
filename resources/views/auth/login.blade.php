@@ -10,125 +10,262 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="{{ asset('css/encrypted.css') }}">
   <style>
-    /* ── Login Page Overrides ───────────────────── */
+    *, *::before, *::after { box-sizing: border-box; }
+
     body {
       background:
-        radial-gradient(1200px 700px at 15% 10%, rgba(251, 191, 36, .08), transparent 60%),
-        radial-gradient(900px 500px at 90% 90%, rgba(28, 58, 110, .35), transparent 60%),
+        radial-gradient(1200px 700px at 15% 10%, rgba(251,191,36,.07), transparent 60%),
+        radial-gradient(900px 500px at 90% 90%, rgba(28,58,110,.35), transparent 60%),
         var(--navy-dark);
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 20px;
+      font-family: var(--font-body);
     }
 
-    /* Subtle grid background pattern */
+    /* Grid pattern overlay */
     body::before {
       content: '';
       position: fixed;
       inset: 0;
       background-image:
-        linear-gradient(rgba(251, 191, 36, .04) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(251, 191, 36, .04) 1px, transparent 1px);
+        linear-gradient(rgba(251,191,36,.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(251,191,36,.04) 1px, transparent 1px);
       background-size: 48px 48px;
       pointer-events: none;
     }
 
-    /* Floating yellow orb accents */
-    body::after {
-      content: '';
-      position: fixed;
-      top: -120px;
-      right: -120px;
-      width: 360px;
-      height: 360px;
-      background: radial-gradient(circle, rgba(251, 191, 36, .12) 0%, transparent 70%);
-      pointer-events: none;
-    }
-
-    .login-card {
+    /* ── Two-column wrapper ──────────────────────────────────────────── */
+    .lp-wrap {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
       width: 100%;
-      max-width: 440px;
-      background: white;
-      border-radius: 20px;
+      max-width: 920px;
+      min-height: 580px;
+      border-radius: 22px;
       overflow: hidden;
-      box-shadow:
-        0 30px 80px rgba(0, 0, 0, .5),
-        0 12px 24px rgba(0, 0, 0, .3),
-        0 0 0 1px rgba(251, 191, 36, .15);
+      box-shadow: 0 32px 80px rgba(0,0,0,.55), 0 0 0 1px rgba(251,191,36,.12);
       animation: fadeUp .4s ease both;
       position: relative;
       z-index: 1;
     }
 
-    /* Top accent bar — yellow */
-    .login-card::before {
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── LEFT PANEL — Branding ───────────────────────────────────────── */
+    .lp-left {
+      background: linear-gradient(155deg, #0d1f3c 0%, #0a1628 55%, #050d1e 100%);
+      padding: 48px 40px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* decorative blobs */
+    .lp-left::before {
+      content: '';
+      position: absolute;
+      top: -80px; left: -80px;
+      width: 280px; height: 280px;
+      background: radial-gradient(circle, rgba(251,191,36,.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .lp-left::after {
+      content: '';
+      position: absolute;
+      bottom: -60px; right: -60px;
+      width: 220px; height: 220px;
+      background: radial-gradient(circle, rgba(37,99,235,.14) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .lp-logos {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 36px;
+    }
+
+    .lp-logo-enc {
+      height: 40px;
+      width: auto;
+      filter: brightness(0) invert(1);
+      opacity: .92;
+    }
+
+    .lp-logo-divider {
+      width: 1px;
+      height: 32px;
+      background: rgba(255,255,255,.15);
+    }
+
+    .lp-logo-school {
+      height: 44px;
+      width: 44px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid rgba(255,255,255,.2);
+      filter: brightness(0) invert(1);
+      opacity: .85;
+    }
+
+    .lp-heading {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -.02em;
+      line-height: 1.25;
+      margin-bottom: 6px;
+    }
+
+    .lp-sub {
+      font-size: .8rem;
+      color: rgba(251,191,36,.8);
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      margin-bottom: 28px;
+    }
+
+    .lp-divider {
+      width: 40px;
+      height: 3px;
+      background: linear-gradient(90deg, var(--yellow-dark), var(--yellow));
+      border-radius: 99px;
+      margin-bottom: 28px;
+    }
+
+    .lp-features {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      flex: 1;
+    }
+
+    .lp-feature {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .lp-feature-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .lp-feature-icon svg { width: 17px; height: 17px; }
+
+    .lp-feature-body {}
+    .lp-feature-title {
+      font-size: .82rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 2px;
+    }
+    .lp-feature-desc {
+      font-size: .73rem;
+      color: rgba(255,255,255,.45);
+      line-height: 1.5;
+    }
+
+    .lp-bottom {
+      margin-top: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .lp-apply-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: .6rem 1.1rem;
+      background: linear-gradient(135deg, #1e40af, #2563eb);
+      color: #fff;
+      border-radius: 10px;
+      font-size: .8rem;
+      font-weight: 700;
+      text-decoration: none;
+      letter-spacing: .01em;
+      transition: opacity .15s;
+      box-shadow: 0 4px 14px rgba(37,99,235,.35);
+    }
+    .lp-apply-btn:hover { opacity: .88; }
+    .lp-apply-btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+
+    .lp-about-btn {
+      background: none;
+      border: 1px solid rgba(251,191,36,.3);
+      color: rgba(251,191,36,.75);
+      padding: .45rem .9rem;
+      border-radius: 10px;
+      font-size: .75rem;
+      font-weight: 700;
+      letter-spacing: .04em;
+      cursor: pointer;
+      text-transform: uppercase;
+      width: fit-content;
+      transition: border-color .15s, color .15s;
+    }
+    .lp-about-btn:hover { border-color: rgba(251,191,36,.7); color: var(--yellow); }
+
+    /* ── RIGHT PANEL — Form ──────────────────────────────────────────── */
+    .lp-right {
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* Yellow top accent */
+    .lp-right::before {
       content: '';
       display: block;
       height: 5px;
-      background: linear-gradient(90deg,
-        var(--yellow-dark) 0%,
-        var(--yellow-bright) 50%,
-        var(--yellow) 100%);
+      background: linear-gradient(90deg, var(--yellow-dark) 0%, var(--yellow-bright) 50%, var(--yellow) 100%);
+      flex-shrink: 0;
     }
 
-    .login-header {
-      padding: 32px 36px 24px;
-      text-align: center;
+    .lp-form-head {
+      padding: 28px 36px 20px;
       border-bottom: 1px solid var(--gray-100);
       background: var(--gray-50);
     }
 
-    .login-logos {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 16px;
-      margin-bottom: 20px;
-    }
-
-    .login-logo-enc {
-      height: 44px;
-      width: auto;
-      /* Black bg logo — use drop-shadow + darken blend to show on light bg */
-      filter: invert(1) brightness(.15);
-    }
-
-    .login-logo-divider {
-      width: 1px;
-      height: 36px;
-      background: var(--gray-200);
-    }
-
-    .login-logo-school {
-      height: 48px;
-      width: 48px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 2px solid var(--gray-200);
-      /* School seal also has black bg */
-      filter: invert(1) brightness(.85) saturate(1.2);
-    }
-
-    .login-title {
-      font-size: 1.25rem;
-      font-weight: 700;
+    .lp-form-title {
+      font-size: 1.15rem;
+      font-weight: 800;
       color: var(--navy);
-      letter-spacing: -.02em;
+      margin-bottom: 3px;
+      letter-spacing: -.01em;
     }
 
-    .login-subtitle {
-      font-size: .78rem;
+    .lp-form-subtitle {
+      font-size: .75rem;
       color: var(--gray-400);
-      margin-top: 3px;
       font-family: var(--font-mono);
     }
 
-    .login-body {
-      padding: 28px 36px 32px;
+    .lp-form-body {
+      padding: 24px 36px 28px;
+      flex: 1;
+      overflow-y: auto;
     }
 
+    /* ── Form elements ────────────────────────── */
     .login-form-group {
       display: flex;
       flex-direction: column;
@@ -160,7 +297,7 @@
 
     .login-input:focus {
       border-color: var(--yellow);
-      box-shadow: 0 0 0 3px rgba(251, 191, 36, .2);
+      box-shadow: 0 0 0 3px rgba(251,191,36,.18);
     }
 
     .login-input.is-error {
@@ -168,9 +305,7 @@
       box-shadow: 0 0 0 3px rgba(220,38,38,.08);
     }
 
-    .login-input-wrap {
-      position: relative;
-    }
+    .login-input-wrap { position: relative; }
 
     .login-input-wrap svg {
       position: absolute;
@@ -182,12 +317,9 @@
       cursor: pointer;
       transition: color .15s;
     }
-
     .login-input-wrap svg:hover { color: var(--gray-500); }
 
     .login-input--padded { padding-right: 40px; }
-
-    /* Hide the browser's built-in password reveal (Edge/IE) so only our eye shows */
     .login-input::-ms-reveal,
     .login-input::-ms-clear { display: none; }
 
@@ -199,14 +331,13 @@
       align-items: center;
       gap: 4px;
     }
-
     .login-error svg { width: 12px; height: 12px; flex-shrink: 0; }
 
     .login-options {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
       font-size: .78rem;
     }
 
@@ -229,7 +360,6 @@
       font-weight: 700;
       transition: color .15s;
     }
-
     .login-forgot:hover { color: var(--navy); }
 
     .login-submit {
@@ -249,7 +379,7 @@
       justify-content: center;
       gap: 8px;
       letter-spacing: .01em;
-      box-shadow: 0 1px 0 rgba(255, 255, 255, .15) inset, 0 4px 10px rgba(10, 31, 68, .25);
+      box-shadow: 0 1px 0 rgba(255,255,255,.15) inset, 0 4px 10px rgba(10,31,68,.25);
       position: relative;
       overflow: hidden;
     }
@@ -259,207 +389,224 @@
       position: absolute;
       top: 0; left: -100%;
       width: 100%; height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(251, 191, 36, .25), transparent);
+      background: linear-gradient(90deg, transparent, rgba(251,191,36,.25), transparent);
       transition: left .6s;
     }
 
     .login-submit:hover {
       background: linear-gradient(180deg, var(--navy-hover) 0%, var(--navy-light) 100%);
       transform: translateY(-1px);
-      box-shadow: 0 1px 0 rgba(255, 255, 255, .15) inset, 0 8px 16px rgba(10, 31, 68, .35);
+      box-shadow: 0 1px 0 rgba(255,255,255,.15) inset, 0 8px 16px rgba(10,31,68,.35);
     }
-
     .login-submit:hover::before { left: 100%; }
     .login-submit:active { transform: translateY(0); }
-
     .login-submit svg { width: 16px; height: 16px; }
 
-    .login-footer {
-      padding: 14px 36px 20px;
-      text-align: center;
-      border-top: 1px solid var(--gray-100);
-      background: var(--gray-50);
-    }
-
-    .login-footer-text {
-      font-size: .72rem;
-      color: var(--gray-300);
-      font-family: var(--font-mono);
-      line-height: 1.5;
-    }
-
-    .login-security-badges {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      margin-top: 8px;
-    }
-
-    .login-sec-badge {
-      font-size: .62rem;
-      font-family: var(--font-mono);
-      font-weight: 600;
-      padding: 2px 7px;
-      border-radius: 3px;
-      letter-spacing: .04em;
-    }
-
-    .login-sec-badge--sha { background: var(--navy-soft); color: var(--navy); }
-    .login-sec-badge--aes { background: var(--success-bg); color: var(--success); }
-    .login-sec-badge--ra  { background: var(--yellow-tint); color: var(--yellow-deep); }
-
-    /* Alert for lockout / general errors */
     .login-alert {
       background: var(--danger-bg);
       border: 1px solid var(--danger-border);
       border-left: 4px solid var(--danger);
       border-radius: var(--radius-md);
       padding: 10px 14px;
-      margin-bottom: 18px;
+      margin-bottom: 16px;
       font-size: .8rem;
       color: #991b1b;
       display: flex;
       gap: 8px;
       align-items: flex-start;
     }
-
     .login-alert svg { width: 15px; height: 15px; flex-shrink: 0; margin-top: 1px; }
+
+    /* ── Mobile: stack vertically ───────────────────────────────────── */
+    @media (max-width: 680px) {
+      .lp-wrap { grid-template-columns: 1fr; max-width: 440px; min-height: unset; }
+      .lp-left { padding: 32px 28px; }
+      .lp-features { display: none; }
+    }
   </style>
 </head>
 <body>
 
-<div class="login-card">
+<div class="lp-wrap">
 
-  {{-- Header with logos --}}
-  <div class="login-header">
-    <div class="login-logos">
-      <img src="{{ asset('images/EncryptEd.png') }}"
-           alt="EncryptEd"
-           class="login-logo-enc">
-      <div class="login-logo-divider"></div>
-      <img src="{{ asset('images/logo.png') }}"
-           alt="Phil. Academy of Sakya"
-           class="login-logo-school">
-    </div>
-    <div class="login-title">Academic Management Portal</div>
-    <div class="login-subtitle">Philippine Academy of Sakya</div>
-    <div style="margin-top:14px;">
-      <button type="button" onclick="document.getElementById('aboutModal').style.display='flex'"
-              style="background:none;border:1px solid rgba(251,191,36,.4);color:var(--yellow);padding:.35rem .9rem;border-radius:999px;font-size:.74rem;font-weight:700;letter-spacing:.04em;cursor:pointer;text-transform:uppercase;">
-        About &amp; Security
-      </button>
-    </div>
-  </div>
+  {{-- ════════════════════ LEFT — Branding ════════════════════ --}}
+  <div class="lp-left">
 
-  {{-- Login Form --}}
-  <div class="login-body">
-
-    {{-- Session / Lockout error --}}
-    @if(session('error'))
-      <div class="login-alert">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round"
-            d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
-        </svg>
-        <span>{{ session('error') }}</span>
-      </div>
-    @endif
-
-    <div style="background:var(--yellow-tint);border:1px solid var(--yellow);border-left:4px solid var(--yellow-dark);border-radius:8px;padding:11px 14px;margin-bottom:18px;font-size:.78rem;color:var(--navy);line-height:1.5;">
-        <strong>Heads-up:</strong> Multiple failed attempts will temporarily lock your account for 10 minutes.
-        If you can't sign in, use <a href="{{ route('password.request') }}" style="text-decoration:underline;font-weight:700;color:var(--yellow-deep);">Forgot Password</a>.
+    <div class="lp-logos">
+      <img src="{{ asset('images/EncryptEd.png') }}" alt="EncryptEd" class="lp-logo-enc">
+      <div class="lp-logo-divider"></div>
+      <img src="{{ asset('images/logo.png') }}"      alt="Phil. Academy of Sakya" class="lp-logo-school">
     </div>
 
-    <form method="POST" action="{{ route('login') }}" autocomplete="off">
-      @csrf
+    <div class="lp-heading">Academic<br>Management Portal</div>
+    <div class="lp-sub">Philippine Academy of Sakya</div>
 
-      {{-- Username --}}
-      <div class="login-form-group">
-        <label class="login-label" for="username">
-          Username / LRN / Employee No.
-        </label>
-        <input
-          type="text"
-          id="username"
-          name="username"
-          value="{{ old('username') }}"
-          class="login-input {{ $errors->has('username') ? 'is-error' : '' }}"
-          placeholder="Enter your ID or username"
-          autocomplete="username"
-          autofocus>
-        @error('username')
-          <div class="login-error">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9.303 3.376c.866 1.5-.217 3.374-1.948 3.374H4.645c-1.73 0-2.813-1.874-1.948-3.374l7.547-13.015c.866-1.5 3.032-1.5 3.898 0l5.16 8.898z"/>
-            </svg>
-            {{ $message }}
-          </div>
-        @enderror
-      </div>
+    <div class="lp-divider"></div>
 
-      {{-- Password --}}
-      <div class="login-form-group">
-        <label class="login-label" for="password">Password</label>
-        <div class="login-input-wrap">
-          <input
-            type="password"
-            id="password"
-            name="password"
-            class="login-input login-input--padded {{ $errors->has('password') ? 'is-error' : '' }}"
-            placeholder="Enter your password"
-            autocomplete="current-password" />
-          {{-- Show/hide toggle --}}
-          <svg id="toggle-pw" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" onclick="togglePassword()">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.964-7.178z"/>
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+    <div class="lp-features">
+
+      <div class="lp-feature">
+        <div class="lp-feature-icon" style="background:rgba(251,191,36,.12);">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="rgba(251,191,36,.9)" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/>
           </svg>
         </div>
-        @error('password')
-          <div class="login-error">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9.303 3.376c.866 1.5-.217 3.374-1.948 3.374H4.645c-1.73 0-2.813-1.874-1.948-3.374l7.547-13.015c.866-1.5 3.032-1.5 3.898 0l5.16 8.898z"/>
-            </svg>
-            {{ $message }}
-          </div>
-        @enderror
+        <div class="lp-feature-body">
+          <div class="lp-feature-title">For Students</div>
+          <div class="lp-feature-desc">View grades, report cards, schedule, attendance &amp; payments.</div>
+        </div>
       </div>
 
-      {{-- Remember + Forgot --}}
-      <div class="login-options">
-        <label class="login-remember">
-          <input type="checkbox" name="remember" {{ old('remember') ? 'checked' : '' }}>
-          Remember me
-        </label>
-        <a href="{{ route('password.request') }}" class="login-forgot">Forgot password?</a>
+      <div class="lp-feature">
+        <div class="lp-feature-icon" style="background:rgba(52,211,153,.1);">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="rgba(52,211,153,.9)" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5"/>
+          </svg>
+        </div>
+        <div class="lp-feature-body">
+          <div class="lp-feature-title">For Faculty</div>
+          <div class="lp-feature-desc">Manage gradebook, attendance, assignments &amp; class schedules.</div>
+        </div>
       </div>
 
-      {{-- Submit --}}
-      <button type="submit" class="login-submit">
+      <div class="lp-feature">
+        <div class="lp-feature-icon" style="background:rgba(96,165,250,.1);">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="rgba(96,165,250,.9)" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
+          </svg>
+        </div>
+        <div class="lp-feature-body">
+          <div class="lp-feature-title">For Registrars</div>
+          <div class="lp-feature-desc">Handle admissions, enrollment, grade finalization &amp; records.</div>
+        </div>
+      </div>
+
+      <div class="lp-feature">
+        <div class="lp-feature-icon" style="background:rgba(248,113,113,.1);">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="rgba(248,113,113,.9)" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/>
+          </svg>
+        </div>
+        <div class="lp-feature-body">
+          <div class="lp-feature-title">Secure &amp; Encrypted</div>
+          <div class="lp-feature-desc">AES-256 PII encryption, bcrypt passwords, tamper-evident audit logs.</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="lp-bottom">
+      <a href="{{ route('apply') }}" class="lp-apply-btn">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round"
-            d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"/>
-        </svg>
-        Sign In
-      </button>
-
-    </form>
-  </div>
-
-  {{-- Footer --}}
-  <div class="login-footer">
-    <div style="margin-bottom:10px;">
-      <a href="{{ route('apply') }}"
-         style="display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#1e3a5f,#2563eb);color:#fff;padding:.5rem 1.25rem;border-radius:999px;font-size:.78rem;font-weight:700;text-decoration:none;letter-spacing:.02em;box-shadow:0 2px 8px rgba(37,99,235,.35);">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;">
           <path stroke-linecap="round" stroke-linejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z"/>
         </svg>
         Apply for Admission / Enrollment
       </a>
+      <button type="button" class="lp-about-btn" onclick="document.getElementById('aboutModal').style.display='flex'">
+        About &amp; Security
+      </button>
     </div>
-    <div class="login-footer-text">
-      New student? Submit an admission application above.
+
+  </div>
+
+  {{-- ════════════════════ RIGHT — Form ════════════════════ --}}
+  <div class="lp-right">
+
+    <div class="lp-form-head">
+      <div class="lp-form-title">Sign In</div>
+      <div class="lp-form-subtitle">Enter your credentials to access your portal</div>
+    </div>
+
+    <div class="lp-form-body">
+
+      {{-- Session / Lockout error --}}
+      @if(session('error'))
+        <div class="login-alert">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
+          </svg>
+          <span>{{ session('error') }}</span>
+        </div>
+      @endif
+
+      <div style="background:var(--yellow-tint);border:1px solid var(--yellow);border-left:4px solid var(--yellow-dark);border-radius:8px;padding:10px 13px;margin-bottom:18px;font-size:.76rem;color:var(--navy);line-height:1.5;">
+        <strong>Heads-up:</strong> Multiple failed attempts will temporarily lock your account for 10 minutes.
+        If you can't sign in, use <a href="{{ route('password.request') }}" style="text-decoration:underline;font-weight:700;color:var(--yellow-deep);">Forgot Password</a>.
+      </div>
+
+      <form method="POST" action="{{ route('login') }}" autocomplete="off">
+        @csrf
+
+        {{-- Username --}}
+        <div class="login-form-group">
+          <label class="login-label" for="username">Username / LRN / Employee No.</label>
+          <input
+            type="text"
+            id="username"
+            name="username"
+            value="{{ old('username') }}"
+            class="login-input {{ $errors->has('username') ? 'is-error' : '' }}"
+            placeholder="Enter your ID or username"
+            autocomplete="username"
+            autofocus>
+          @error('username')
+            <div class="login-error">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9.303 3.376c.866 1.5-.217 3.374-1.948 3.374H4.645c-1.73 0-2.813-1.874-1.948-3.374l7.547-13.015c.866-1.5 3.032-1.5 3.898 0l5.16 8.898z"/>
+              </svg>
+              {{ $message }}
+            </div>
+          @enderror
+        </div>
+
+        {{-- Password --}}
+        <div class="login-form-group">
+          <label class="login-label" for="password">Password</label>
+          <div class="login-input-wrap">
+            <input
+              type="password"
+              id="password"
+              name="password"
+              class="login-input login-input--padded {{ $errors->has('password') ? 'is-error' : '' }}"
+              placeholder="Enter your password"
+              autocomplete="current-password" />
+            <svg id="toggle-pw" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" onclick="togglePassword()">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.964-7.178z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+          </div>
+          @error('password')
+            <div class="login-error">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9.303 3.376c.866 1.5-.217 3.374-1.948 3.374H4.645c-1.73 0-2.813-1.874-1.948-3.374l7.547-13.015c.866-1.5 3.032-1.5 3.898 0l5.16 8.898z"/>
+              </svg>
+              {{ $message }}
+            </div>
+          @enderror
+        </div>
+
+        {{-- Remember + Forgot --}}
+        <div class="login-options">
+          <label class="login-remember">
+            <input type="checkbox" name="remember" {{ old('remember') ? 'checked' : '' }}>
+            Remember me
+          </label>
+          <a href="{{ route('password.request') }}" class="login-forgot">Forgot password?</a>
+        </div>
+
+        {{-- Submit --}}
+        <button type="submit" class="login-submit">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"/>
+          </svg>
+          Sign In
+        </button>
+
+      </form>
+
     </div>
   </div>
 
@@ -470,7 +617,6 @@
     const field = document.getElementById('password');
     const icon  = document.getElementById('toggle-pw');
 
-    // SVG path data for the two states
     const eyeOpen = '<path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.964-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>';
     const eyeOff  = '<path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.243 4.243L9.88 9.88"/>';
 
@@ -486,7 +632,7 @@
   }
 </script>
 
-{{-- ── About & Security Modal ────────────────────────────────────── --}}
+{{-- ── About & Security Modal ─────────────────────────────────────── --}}
 <div id="aboutModal"
      style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.7);z-index:1000;align-items:center;justify-content:center;padding:20px;"
      onclick="if(event.target===this)this.style.display='none'">
