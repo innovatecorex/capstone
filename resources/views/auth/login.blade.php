@@ -449,10 +449,17 @@
 
   {{-- Footer --}}
   <div class="login-footer">
-    <div class="login-security-badges">
+    <div style="margin-bottom:10px;">
+      <a href="{{ route('apply') }}"
+         style="display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#1e3a5f,#2563eb);color:#fff;padding:.5rem 1.25rem;border-radius:999px;font-size:.78rem;font-weight:700;text-decoration:none;letter-spacing:.02em;box-shadow:0 2px 8px rgba(37,99,235,.35);">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z"/>
+        </svg>
+        Apply for Admission / Enrollment
+      </a>
     </div>
-    <div class="login-footer-text" style="margin-top:8px;">
-    
+    <div class="login-footer-text">
+      New student? Submit an admission application above.
     </div>
   </div>
 

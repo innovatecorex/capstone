@@ -1305,6 +1305,20 @@
       Enrollment
     </a>
 
+    <a href="{{ route('registrar.applicants.index') }}"
+       class="stu-nav-item {{ request()->routeIs('registrar.applicants.*') ? 'active' : '' }}">
+      <span class="stu-icon si-violet">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z"/>
+        </svg>
+      </span>
+      Admissions
+      @php $pendingCount = \App\Models\Applicant::where('status','pending')->count(); @endphp
+      @if($pendingCount > 0)
+        <span style="margin-left:auto;background:#8b5cf6;color:#fff;border-radius:99px;font-size:.65rem;font-weight:700;padding:.1rem .45rem;">{{ $pendingCount }}</span>
+      @endif
+    </a>
+
     <div class="stu-section">
       <span class="stu-section__text">Documents</span>
       <div class="stu-section__line"></div>
@@ -1628,6 +1642,16 @@
       <span class="stu-section__text">Enrollment</span>
       <div class="stu-section__line"></div>
     </div>
+
+    <a href="{{ route('admin.applicants.index') }}"
+       class="stu-nav-item {{ request()->routeIs('admin.applicants.*') ? 'active' : '' }}">
+      <span class="stu-icon si-violet">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z"/>
+        </svg>
+      </span>
+      Admissions
+    </a>
 
     <a href="{{ route('admin.payments.index') }}"
        class="stu-nav-item {{ request()->routeIs('admin.payments.*') ? 'active' : '' }}">

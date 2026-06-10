@@ -19,6 +19,9 @@ use App\Http\Controllers\Admin\GradingQuarterController;
 use App\Http\Controllers\Admin\SubjectController;
 use App\Http\Controllers\Admin\CurriculumMappingController;
 use App\Http\Controllers\Admin\EntranceTestController;
+use App\Http\Controllers\Admin\ApplicantManagementController;
+use App\Http\Controllers\ApplicantController;
+use App\Http\Controllers\Dashboard\RegistrarApplicantController;
 use App\Http\Controllers\Settings\AdminSettingsController;
 use App\Http\Controllers\Settings\StudentSettingsController;
 use App\Http\Controllers\Settings\FacultySettingsController;
@@ -59,7 +62,10 @@ Route::get('/report-card/{student}/download', [\App\Http\Controllers\ReportCardC
 Route::get('/verify/{token}', [\App\Http\Controllers\ReportCardController::class, 'verify'])
     ->name('report-card.verify');
 
-// ── Public Applicant Onboarding — REMOVED (out of scope: grading management only) ──
+// ── Public Admission Application Form (no login required) ─────────────────
+Route::get('/apply',                    [ApplicantController::class, 'create'])->name('apply');
+Route::post('/apply',                   [ApplicantController::class, 'store'])->name('apply.store')->middleware('throttle:10,1');
+Route::get('/apply/thanks/{reference}', [ApplicantController::class, 'thanks'])->name('apply.thanks');
 
 // ── Global Academic-Year Context (header selector, all roles) ──────────────
 Route::post('/academic-year/switch', [\App\Http\Controllers\AcademicYearContextController::class, 'switch'])
@@ -133,8 +139,20 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     // ── Registrar Module — Dashboard ──────────────────────────────────────
     Route::get('/registrar-dashboard', [RegistrarDashboardController::class, 'index'])->name('registrar-dashboard');
 
-    // ── Applicant Management — REMOVED (out of scope: grading management only) ──
-    // ── Entrance Test Results   — REMOVED (out of scope: grading management only) ──
+    // ── Applicant Management ───────────────────────────────────────────────
+    Route::prefix('applicants')->name('applicants.')->group(function () {
+        Route::get('/',                              [ApplicantManagementController::class, 'index'])        ->name('index');
+        Route::get('/{applicant}',                   [ApplicantManagementController::class, 'show'])         ->name('show');
+        Route::patch('/{applicant}/status',          [ApplicantManagementController::class, 'updateStatus']) ->name('update-status');
+        Route::post('/{applicant}/create-account',   [ApplicantManagementController::class, 'createAccount'])->name('create-account');
+    });
+
+    // ── Entrance Test Results ─────────────────────────────────────────────
+    Route::prefix('entrance-tests')->name('entrance-tests.')->group(function () {
+        Route::get('/',                    [EntranceTestController::class, 'index'])  ->name('index');
+        Route::get('/{applicant}/record',  [EntranceTestController::class, 'create']) ->name('create');
+        Route::post('/{applicant}/record', [EntranceTestController::class, 'store'])  ->name('store');
+    });
 
     // ── Academic Years Management ─────────────────────────────────────────
     Route::prefix('academic-years')->name('academic-years.')->group(function () {
@@ -302,6 +320,14 @@ Route::middleware(['auth'])->group(function () {
 
         // Aggregate Reports (honor roll + academic intervention)
         Route::get('/registrar/reports/aggregate', [App\Http\Controllers\Dashboard\AggregateReportController::class, 'index'])->name('registrar.reports.aggregate');
+
+        // ── Admissions — applicant review & approval ───────────────────────
+        Route::prefix('registrar/applicants')->name('registrar.applicants.')->group(function () {
+            Route::get('/',                            [RegistrarApplicantController::class, 'index'])        ->name('index');
+            Route::get('/{applicant}',                 [RegistrarApplicantController::class, 'show'])         ->name('show');
+            Route::patch('/{applicant}/status',        [RegistrarApplicantController::class, 'updateStatus']) ->name('update-status');
+            Route::post('/{applicant}/create-account', [RegistrarApplicantController::class, 'createAccount'])->name('create-account');
+        });
     });
 
     // Faculty Dashboard & Pages

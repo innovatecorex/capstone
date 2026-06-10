@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
 use App\Models\Applicant;
@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
-class ApplicantManagementController extends Controller
+class RegistrarApplicantController extends Controller
 {
     public function index(Request $request): View
     {
@@ -28,16 +28,15 @@ class ApplicantManagementController extends Controller
         if ($request->filled('search')) {
             $s = $request->input('search');
             $query->where(function ($q) use ($s) {
-                $q->where('first_name',      'like', "%{$s}%")
-                  ->orWhere('last_name',     'like', "%{$s}%")
-                  ->orWhere('reference_number', 'like', "%{$s}%")
-                  ->orWhere('lrn',           'like', "%{$s}%");
+                $q->where('first_name',       'like', "%{$s}%")
+                  ->orWhere('last_name',      'like', "%{$s}%")
+                  ->orWhere('reference_number','like', "%{$s}%")
+                  ->orWhere('lrn',            'like', "%{$s}%");
             });
         }
 
         $applicants = $query->with('reviewedBy')->paginate(25)->withQueryString();
-
-        $grades = Applicant::distinct()->orderBy('applying_for_grade')->pluck('applying_for_grade');
+        $grades     = Applicant::distinct()->orderBy('applying_for_grade')->pluck('applying_for_grade');
 
         $counts = [
             'pending'      => Applicant::where('status', 'pending')->count(),
@@ -46,13 +45,13 @@ class ApplicantManagementController extends Controller
             'rejected'     => Applicant::where('status', 'rejected')->count(),
         ];
 
-        return view('admin.applicants.index', compact('applicants', 'grades', 'counts'));
+        return view('registrar.applicants.index', compact('applicants', 'grades', 'counts'));
     }
 
     public function show(Applicant $applicant): View
     {
         $applicant->load('reviewedBy');
-        return view('admin.applicants.show', compact('applicant'));
+        return view('registrar.applicants.show', compact('applicant'));
     }
 
     public function updateStatus(Request $request, Applicant $applicant): RedirectResponse
@@ -87,11 +86,8 @@ class ApplicantManagementController extends Controller
             return back()->with('error', 'Only accepted applications can be converted to student accounts.');
         }
 
-        // Map applicant sex to user gender (Male→male, Female→female)
         $gender = strtolower($applicant->sex);
-
-        // Use existing LRN or generate a student number
-        $lrn = $applicant->lrn ?: $this->generateStudentNumber();
+        $lrn    = $applicant->lrn ?: $this->generateStudentNumber();
 
         $username     = $this->generateUsername($applicant->first_name, $applicant->last_name);
         $tempPassword = $this->generateTempPassword();
@@ -120,7 +116,7 @@ class ApplicantManagementController extends Controller
             'username'         => $username,
             'role_id'          => '01',
             'source_applicant' => $applicant->reference_number,
-            'note'             => 'Student account created from admission application.',
+            'note'             => 'Student account created from admission application by registrar.',
         ]);
 
         $mailSent = false;
