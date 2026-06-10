@@ -15,6 +15,17 @@
 .enr-card__desc { font-size: .78rem; color: #64748b; margin: 2px 0 0; }
 .enr-card__body { padding: 20px; }
 
+/* ── Stat chips ──────────────────────────── */
+.enr-stat-chip { display:inline-flex; align-items:center; gap:8px; padding:.4rem .85rem; border-radius:8px; border:1px solid; }
+.enr-stat-chip--green { background:#f0fdf4; border-color:#86efac; }
+.enr-stat-chip--blue  { background:#eff6ff; border-color:#93c5fd; }
+.enr-stat-chip--amber { background:#fffbeb; border-color:#fcd34d; }
+.enr-stat-chip__num   { font-size:1.05rem; font-weight:800; color:#0f172a; line-height:1; }
+.enr-stat-chip--green .enr-stat-chip__num { color:#166534; }
+.enr-stat-chip--blue  .enr-stat-chip__num { color:#1d4ed8; }
+.enr-stat-chip--amber .enr-stat-chip__num { color:#92400e; }
+.enr-stat-chip__label { font-size:.72rem; font-weight:600; color:#64748b; white-space:nowrap; }
+
 /* ── Form ───────────────────────────────── */
 .enr-field { margin-bottom: 14px; }
 .enr-label { display: block; font-size: .75rem; font-weight: 700; text-transform: uppercase; color: #64748b; margin-bottom: 5px; }
@@ -76,7 +87,16 @@
 .enr-student-opt:hover { background: #f1f5f9; }
 .enr-student-opt__name { font-weight: 700; font-size: .85rem; color: #0f172a; }
 .enr-student-opt__lrn  { font-size: .75rem; color: #64748b; }
-.enr-student-opt__tag  { font-size: .68rem; font-weight: 700; border-radius: 4px; padding: 1px 6px; background: #fef3c7; color: #92400e; white-space: nowrap; margin-left: 8px; }
+.enr-pay-badge { font-size: .65rem; font-weight: 700; border-radius: 4px; padding: 1px 5px; white-space: nowrap; }
+.enr-pay-badge--paid   { background: #dcfce7; color: #166534; }
+.enr-pay-badge--unpaid { background: #fee2e2; color: #991b1b; }
+.enr-student-opt__tag  { font-size: .68rem; font-weight: 700; border-radius: 4px; padding: 1px 6px; background: #fef3c7; color: #92400e; white-space: nowrap; margin-left: 6px; }
+
+/* ── Prereq inline badge ─────────────────── */
+.enr-prereq-ok   { display:flex; align-items:center; gap:.45rem; padding:.5rem .75rem; background:#f0fdf4; border:1px solid #86efac; border-radius:7px; font-size:.8rem; color:#166534; font-weight:600; }
+.enr-prereq-warn { padding:.55rem .75rem; background:#fffbeb; border:1px solid #fcd34d; border-radius:7px; font-size:.8rem; color:#92400e; }
+.enr-prereq-warn strong { display:block; font-weight:700; margin-bottom:3px; }
+.enr-prereq-checking { font-size:.8rem; color:#64748b; padding:.4rem 0; }
 
 /* ── Section preview panel ──────────────── */
 .section-preview { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; margin-top: 12px; display: none; }
@@ -99,12 +119,14 @@
 .enr-table th { padding: 10px 12px; text-align: left; font-weight: 700; font-size: .7rem; text-transform: uppercase; color: #64748b; border-bottom: 2px solid #e2e8f0; background: #f8fafc; }
 .enr-table td { padding: 10px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
 .enr-table tr:hover td { background: #f8fafc; }
-.enr-status { display: inline-block; padding: .2rem .5rem; border-radius: 5px; font-size: .68rem; font-weight: 700; text-transform: uppercase; }
-.enr-status.enrolled { background: #dcfce7; color: #166534; }
+.enr-status { display: inline-block; padding: .2rem .55rem; border-radius: 5px; font-size: .68rem; font-weight: 700; text-transform: uppercase; }
+.enr-status--enrolled   { background: #dcfce7; color: #166534; }
+.enr-status--dropped    { background: #fee2e2; color: #991b1b; }
+.enr-status--finalized  { background: #e0e7ff; color: #3730a3; }
 
-/* ── Search bar ─────────────────────────── */
-.enr-search-bar { display: flex; gap: 10px; margin-bottom: 14px; }
-.enr-search-bar input { flex: 1; padding: .5rem .85rem; border: 1px solid #e2e8f0; border-radius: 8px; font-size: .85rem; }
+/* ── Table filter bar ───────────────────── */
+.enr-filter-bar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.enr-filter-bar input, .enr-filter-bar select { padding: .42rem .75rem; border: 1px solid #e2e8f0; border-radius: 7px; font-size: .82rem; background: #fff; }
 
 /* ── Alert ──────────────────────────────── */
 .enr-alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; font-size: .85rem; }
@@ -116,17 +138,62 @@
 @section('content')
 <div style="max-width:1200px;">
 
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;">
+  {{-- ── Page heading ───────────────────────────────────────────────────── --}}
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
     <div>
       <h1 style="font-size:1.2rem;font-weight:800;color:#0f172a;margin:0 0 4px;">Enrollment Management</h1>
-      <p style="font-size:.82rem;color:#64748b;margin:0;">Assign students to sections and view their faculty/subject assignments.</p>
+      <p style="font-size:.82rem;color:#64748b;margin:0;">Assign students to sections and view faculty/subject assignments.</p>
     </div>
-    @if($activeAcademicYear)
+    @if($activeAcademicYear && $selectedYear && $selectedYear->id !== $activeAcademicYear->id)
+    <div style="display:inline-flex;align-items:center;gap:6px;background:#fef3c7;border:1px solid #fcd34d;border-radius:999px;padding:.3rem .85rem;">
+      <span style="font-size:.75rem;font-weight:700;color:#92400e;">Viewing historical year — {{ $selectedYear->year_label }}</span>
+    </div>
+    @elseif($activeAcademicYear)
     <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.2);border-radius:999px;padding:.35rem 1rem;">
       <div style="width:7px;height:7px;border-radius:50%;background:#10b981;"></div>
       <span style="font-size:.8rem;font-weight:700;color:#059669;">{{ $activeAcademicYear->year_label }}</span>
     </div>
     @endif
+  </div>
+
+  {{-- ── Term Selection Bar + Stats ─────────────────────────────────────── --}}
+  <div class="enr-card" style="margin-bottom:20px;">
+    <div class="enr-card__body" style="padding:14px 20px;">
+      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+
+        <div style="display:flex;align-items:center;gap:8px;">
+          <label class="enr-label" style="margin:0;white-space:nowrap;">Academic Year</label>
+          <form method="GET" action="{{ route('registrar.enrollment') }}" style="display:contents;">
+            @if(request('search'))      <input type="hidden" name="search"        value="{{ request('search') }}">      @endif
+            @if(request('grade_filter'))<input type="hidden" name="grade_filter"  value="{{ request('grade_filter') }}">@endif
+            @if(request('status_filter'))<input type="hidden" name="status_filter" value="{{ request('status_filter') }}">@endif
+            <select name="year_id" class="enr-select" style="width:auto;min-width:190px;" onchange="this.form.submit()">
+              @foreach($allAcademicYears as $yr)
+              <option value="{{ $yr->id }}" {{ $selectedYearId == $yr->id ? 'selected' : '' }}>
+                {{ $yr->year_label }}{{ $yr->status === 'active' ? ' (Active)' : '' }}
+              </option>
+              @endforeach
+            </select>
+          </form>
+        </div>
+
+        <div style="margin-left:auto;display:flex;gap:10px;flex-wrap:wrap;">
+          <div class="enr-stat-chip enr-stat-chip--green">
+            <span class="enr-stat-chip__num">{{ $totalEnrolled }}</span>
+            <span class="enr-stat-chip__label">Total Enrolled</span>
+          </div>
+          <div class="enr-stat-chip enr-stat-chip--blue">
+            <span class="enr-stat-chip__num">{{ $sectionsWithSeats }}</span>
+            <span class="enr-stat-chip__label">Sections w/ Seats</span>
+          </div>
+          <div class="enr-stat-chip enr-stat-chip--amber">
+            <span class="enr-stat-chip__num">{{ $unpaidCount }}</span>
+            <span class="enr-stat-chip__label">Unpaid Students</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
   </div>
 
   @if(session('success'))
@@ -149,7 +216,7 @@
       <div class="enr-card__body">
         <form method="POST" action="{{ route('registrar.enroll') }}" id="enrollForm">
           @csrf
-          <input type="hidden" name="academic_year_id" value="{{ $activeAcademicYear?->id }}">
+          <input type="hidden" name="academic_year_id" value="{{ $selectedYear?->id }}">
           <input type="hidden" name="grade_level" id="hidden_grade_level">
 
           {{-- Student Dropdown --}}
@@ -157,7 +224,6 @@
             <label class="enr-label">Select Student</label>
             <div class="enr-search-wrap">
 
-              {{-- Trigger button --}}
               <div class="enr-dropdown-trigger" id="studentTrigger" onclick="toggleStudentDropdown()">
                 <span class="enr-dropdown-trigger__text" id="triggerText" style="color:#94a3b8;">— Choose a student —</span>
                 <svg class="enr-dropdown-trigger__arrow" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px;">
@@ -165,7 +231,6 @@
                 </svg>
               </div>
 
-              {{-- Dropdown panel --}}
               <div class="enr-dropdown-panel" id="studentDropdownPanel">
                 <input type="text" id="studentFilter" class="enr-student-filter"
                        placeholder="🔍  Filter by name or LRN…"
@@ -179,19 +244,27 @@
                        data-name="{{ $s->full_name }}"
                        data-lrn="{{ $s->lrn ?? '' }}"
                        data-section="{{ $currentSection ?? '' }}"
+                       data-paid="{{ ($studentPaymentStatus[$s->id] ?? false) ? '1' : '0' }}"
                        data-search="{{ strtolower($s->full_name . ' ' . ($s->lrn ?? '')) }}"
                        onclick="selectStudent(this)">
                     <div>
                       <div class="enr-student-opt__name">{{ $s->full_name }}</div>
                       <div class="enr-student-opt__lrn">LRN: {{ $s->lrn ?? 'No LRN' }}</div>
                     </div>
-                    @if($currentSection)
-                    <span class="enr-student-opt__tag">{{ $currentSection }}</span>
-                    @endif
+                    <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">
+                      @if($studentPaymentStatus[$s->id] ?? false)
+                        <span class="enr-pay-badge enr-pay-badge--paid">Paid</span>
+                      @else
+                        <span class="enr-pay-badge enr-pay-badge--unpaid">Unpaid</span>
+                      @endif
+                      @if($currentSection)
+                        <span class="enr-student-opt__tag">{{ $currentSection }}</span>
+                      @endif
+                    </div>
                   </div>
                   @endforeach
                   @if($allStudents->isEmpty())
-                  <div style="padding:20px;text-align:center;color:#94a3b8;font-size:.82rem;">No students found in the system.</div>
+                  <div style="padding:20px;text-align:center;color:#94a3b8;font-size:.82rem;">No active students found.</div>
                   @endif
                 </div>
               </div>
@@ -202,6 +275,7 @@
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;color:#22c55e;flex-shrink:0;"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
               <strong id="selectedStudentName" style="color:#0f172a;"></strong>
               <span id="selectedStudentLrn" style="color:#94a3b8;"></span>
+              <span id="selectedStudentPay" style="font-size:.7rem;font-weight:700;border-radius:4px;padding:1px 5px;"></span>
               <span id="alreadyEnrolledWarning" style="display:none;background:#fef3c7;color:#92400e;font-size:.72rem;font-weight:700;border-radius:4px;padding:1px 6px;"></span>
             </div>
           </div>
@@ -215,6 +289,9 @@
               <option value="{{ $lvl }}">{{ $lvl }}</option>
               @endforeach
             </select>
+
+            {{-- Inline Prerequisite Status --}}
+            <div id="prereqStatus" style="margin-top:8px;display:none;"></div>
           </div>
 
           {{-- Section --}}
@@ -224,7 +301,6 @@
               <option value="">— Select grade level first —</option>
             </select>
 
-            {{-- Section Preview --}}
             <div id="sectionPreview" class="section-preview">
               <div class="section-preview__header">
                 <div class="section-preview__name" id="previewName">—</div>
@@ -252,6 +328,7 @@
       </div>
       <div class="enr-card__body">
         <form method="GET" action="{{ route('registrar.enrollment') }}">
+          <input type="hidden" name="year_id" value="{{ $selectedYearId }}">
           <div class="enr-field">
             <label class="enr-label">Student LRN</label>
             <input type="text" name="check_lrn" value="{{ request('check_lrn') }}"
@@ -306,16 +383,30 @@
 
   {{-- ── Current Enrollments Table ─────────────────────────────────────── --}}
   <div class="enr-card">
-    <div class="enr-card__head" style="display:flex;align-items:center;justify-content:space-between;">
+    <div class="enr-card__head" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
       <div>
-        <div class="enr-card__title">Current Enrollments</div>
-        <div class="enr-card__desc">Students enrolled this academic year with their assigned sections and teachers</div>
+        <div class="enr-card__title">Enrollments — {{ $selectedYear?->year_label ?? '—' }}</div>
+        <div class="enr-card__desc">Filtered view of student enrollments with section and faculty assignments</div>
       </div>
-      <form method="GET" action="{{ route('registrar.enrollment') }}" style="display:flex;gap:8px;align-items:center;">
-        @if(request('check_lrn'))<input type="hidden" name="check_lrn" value="{{ request('check_lrn') }}">@endif
-        <input type="text" name="search" value="{{ request('search') }}" placeholder="Filter by name or section…"
-          style="padding:.45rem .8rem;border:1px solid #e2e8f0;border-radius:7px;font-size:.82rem;width:220px;">
-        <button type="submit" style="padding:.45rem .9rem;background:#4f46e5;color:#fff;border:none;border-radius:7px;font-size:.82rem;font-weight:600;cursor:pointer;">Search</button>
+      <form method="GET" action="{{ route('registrar.enrollment') }}" class="enr-filter-bar">
+        <input type="hidden" name="year_id" value="{{ $selectedYearId }}">
+        <input type="text" name="search" value="{{ $search }}" placeholder="Name or section…" style="width:180px;">
+        <select name="grade_filter">
+          <option value="">All grades</option>
+          @foreach($standardGradeLevels as $lvl)
+          <option value="{{ $lvl }}" {{ $gradeFilter === $lvl ? 'selected' : '' }}>{{ $lvl }}</option>
+          @endforeach
+        </select>
+        <select name="status_filter">
+          <option value="enrolled" {{ $statusFilter === 'enrolled' ? 'selected' : '' }}>Enrolled</option>
+          <option value="dropped"  {{ $statusFilter === 'dropped'  ? 'selected' : '' }}>Dropped</option>
+          <option value="all"      {{ $statusFilter === 'all'      ? 'selected' : '' }}>All statuses</option>
+        </select>
+        <button type="submit" style="padding:.42rem .9rem;background:#4f46e5;color:#fff;border:none;border-radius:7px;font-size:.82rem;font-weight:600;cursor:pointer;">Filter</button>
+        @if($search || $gradeFilter || $statusFilter !== 'enrolled')
+        <a href="{{ route('registrar.enrollment', ['year_id' => $selectedYearId]) }}"
+           style="padding:.42rem .75rem;background:#f1f5f9;color:#475569;border-radius:7px;font-size:.82rem;font-weight:600;text-decoration:none;">Clear</a>
+        @endif
       </form>
     </div>
     <div style="overflow-x:auto;">
@@ -329,6 +420,7 @@
             <th>Adviser</th>
             <th>Subjects / Faculty</th>
             <th>Enrolled On</th>
+            <th>Status</th>
             <th>Action</th>
           </tr>
         </thead>
@@ -354,17 +446,34 @@
             </td>
             <td style="font-size:.78rem;color:#64748b;">{{ $enr->enrolled_at?->format('M d, Y') ?? '—' }}</td>
             <td>
-              <form method="POST" action="{{ route('registrar.drop-enrollment') }}"
-                onsubmit="return confirm('Remove {{ $enr->student?->full_name }} from this section?')">
-                @csrf
-                <input type="hidden" name="enrollment_id" value="{{ $enr->id }}">
-                <button type="submit" style="padding:.3rem .65rem;font-size:.72rem;background:#fee2e2;color:#991b1b;border:none;border-radius:5px;cursor:pointer;font-weight:700;">Remove</button>
-              </form>
+              <span class="enr-status enr-status--{{ $enr->status }}">{{ ucfirst($enr->status) }}</span>
+            </td>
+            <td>
+              @if($enr->status === 'enrolled')
+                @if($enr->finalized_at)
+                  <span class="enr-status enr-status--finalized" title="Confirmed {{ $enr->finalized_at->format('M d, Y') }}">
+                    &#x1F512; Confirmed
+                  </span>
+                @else
+                  <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+                    <a href="{{ route('registrar.enrollment.finalize', $enr->student_id) }}?year_id={{ $selectedYearId }}"
+                       style="padding:.3rem .65rem;font-size:.72rem;background:#e0e7ff;color:#3730a3;border-radius:5px;text-decoration:none;font-weight:700;">Finalize</a>
+                    <form method="POST" action="{{ route('registrar.drop-enrollment') }}"
+                          onsubmit="return confirmRemove('{{ addslashes($enr->student?->full_name ?? '') }}', '{{ addslashes($enr->section?->section_name ?? '') }}')">
+                      @csrf
+                      <input type="hidden" name="enrollment_id" value="{{ $enr->id }}">
+                      <button type="submit" style="padding:.3rem .65rem;font-size:.72rem;background:#fee2e2;color:#991b1b;border:none;border-radius:5px;cursor:pointer;font-weight:700;">Remove</button>
+                    </form>
+                  </div>
+                @endif
+              @else
+              <span style="font-size:.75rem;color:#94a3b8;">—</span>
+              @endif
             </td>
           </tr>
           @empty
           <tr>
-            <td colspan="8" style="text-align:center;color:#94a3b8;padding:32px;">No enrollments found for this academic year.</td>
+            <td colspan="9" style="text-align:center;color:#94a3b8;padding:32px;">No enrollments found matching the current filters.</td>
           </tr>
           @endforelse
         </tbody>
@@ -384,13 +493,26 @@
 <script>
 const AJAX_SECTIONS_URL = '{{ route('registrar.ajax.sections') }}';
 const AJAX_SECTION_URL  = '{{ route('registrar.ajax.section-info') }}';
+const AJAX_PREREQ_URL   = '{{ route('registrar.ajax.prereq-check') }}';
+const SELECTED_YEAR_ID  = {{ $selectedYearId ?: 'null' }};
+const CSRF_TOKEN        = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
+
+let prereqUnmet      = false;
+let prereqCheckTimer = null;
+
+// ── Confirm removal dialog ────────────────────────────────────────────────
+function confirmRemove(studentName, sectionName) {
+  return confirm(
+    'Remove ' + studentName + ' from ' + sectionName + '?\n\n' +
+    'This cannot be undone if no finalized grades exist.'
+  );
+}
 
 // ── Student Dropdown ──────────────────────────────────────────────────────
 function toggleStudentDropdown() {
   const trigger = document.getElementById('studentTrigger');
   const panel   = document.getElementById('studentDropdownPanel');
-  const isOpen  = panel.classList.contains('open');
-  if (isOpen) {
+  if (panel.classList.contains('open')) {
     closeStudentDropdown();
   } else {
     trigger.classList.add('open');
@@ -404,7 +526,6 @@ function closeStudentDropdown() {
   document.getElementById('studentDropdownPanel').classList.remove('open');
 }
 
-// Close on outside click
 document.addEventListener('click', e => {
   if (!e.target.closest('.enr-search-wrap')) closeStudentDropdown();
 });
@@ -420,6 +541,7 @@ function selectStudent(el) {
   const name    = el.dataset.name;
   const lrn     = el.dataset.lrn;
   const section = el.dataset.section;
+  const paid    = el.dataset.paid === '1';
 
   document.getElementById('selectedStudentId').value = el.dataset.id;
   document.getElementById('triggerText').textContent  = name + (lrn ? '  (' + lrn + ')' : '');
@@ -427,12 +549,18 @@ function selectStudent(el) {
   document.getElementById('selectedStudentName').textContent = name;
   document.getElementById('selectedStudentLrn').textContent  = lrn ? '(' + lrn + ')' : '';
 
+  const payBadge = document.getElementById('selectedStudentPay');
+  payBadge.textContent = paid ? 'Paid' : 'Unpaid';
+  payBadge.className   = paid ? 'enr-pay-badge enr-pay-badge--paid' : 'enr-pay-badge enr-pay-badge--unpaid';
+
   const warn = document.getElementById('alreadyEnrolledWarning');
   warn.textContent   = section ? 'Already in ' + section : '';
   warn.style.display = section ? 'inline' : 'none';
 
   document.getElementById('selectedStudentInfo').style.display = 'flex';
   closeStudentDropdown();
+
+  firePrereqCheck();
   checkEnrollBtn();
 }
 
@@ -441,13 +569,24 @@ function onGradeChange(grade) {
   document.getElementById('hidden_grade_level').value = grade;
   const sel = document.getElementById('sectionSelect');
   document.getElementById('sectionPreview').style.display = 'none';
+  clearPrereqStatus();
 
-  if (!grade) { sel.innerHTML = '<option value="">— Select grade level first —</option>'; sel.disabled = true; checkEnrollBtn(); return; }
+  if (!grade) {
+    sel.innerHTML = '<option value="">— Select grade level first —</option>';
+    sel.disabled = true;
+    prereqUnmet = false;
+    checkEnrollBtn();
+    return;
+  }
+
+  // Load sections
+  let url = AJAX_SECTIONS_URL + '?grade_level=' + encodeURIComponent(grade);
+  if (SELECTED_YEAR_ID) url += '&academic_year_id=' + SELECTED_YEAR_ID;
 
   sel.innerHTML = '<option value="">Loading…</option>';
   sel.disabled = true;
 
-  fetch(AJAX_SECTIONS_URL + '?grade_level=' + encodeURIComponent(grade))
+  fetch(url)
     .then(r => r.json())
     .then(data => {
       if (!data.length) {
@@ -456,24 +595,32 @@ function onGradeChange(grade) {
         sel.innerHTML = '<option value="">— Choose a section —</option>' +
           data.map(s => {
             const full = s.enrolled >= s.capacity;
-            return `<option value="${s.id}" ${full ? 'disabled' : ''}>${s.section_name} (${s.enrolled}/${s.capacity}${full ? ' — FULL' : ''})</option>`;
+            return `<option value="${s.id}" ${full ? 'disabled' : ''}>${escHtml(s.section_name)} (${s.enrolled}/${s.capacity}${full ? ' — FULL' : ''})</option>`;
           }).join('');
         sel.disabled = false;
       }
+      firePrereqCheck();
       checkEnrollBtn();
     });
 }
 
 function onSectionChange(sectionId) {
-  if (!sectionId) { document.getElementById('sectionPreview').style.display = 'none'; checkEnrollBtn(); return; }
+  if (!sectionId) {
+    document.getElementById('sectionPreview').style.display = 'none';
+    checkEnrollBtn();
+    return;
+  }
 
-  fetch(AJAX_SECTION_URL + '?section_id=' + sectionId)
+  let url = AJAX_SECTION_URL + '?section_id=' + sectionId;
+  if (SELECTED_YEAR_ID) url += '&academic_year_id=' + SELECTED_YEAR_ID;
+
+  fetch(url)
     .then(r => r.json())
     .then(s => {
       if (!s) return;
 
-      document.getElementById('previewName').textContent    = s.section_name;
-      document.getElementById('previewAdviser').textContent = s.adviser;
+      document.getElementById('previewName').textContent     = s.section_name;
+      document.getElementById('previewAdviser').textContent  = s.adviser;
       document.getElementById('previewCapacity').textContent = s.enrolled + ' / ' + s.capacity + ' students';
 
       const pct = Math.min(100, Math.round((s.enrolled / s.capacity) * 100));
@@ -487,22 +634,83 @@ function onSectionChange(sectionId) {
             <div class="subject-row__name">${escHtml(sub.subject)}</div>
             <div class="subject-row__faculty">${escHtml(sub.faculty)}</div>
           </div>
-          <div class="subject-row__schedule">${escHtml(sub.days || '')} ${sub.time ? '<br>' + escHtml(sub.time) : ''}</div>
+          <div class="subject-row__schedule">${escHtml(sub.schedule ?? '')}</div>
         </div>
       `).join('');
 
-      document.getElementById('previewSubjects').innerHTML = subList || '<div style="font-size:.78rem;color:#94a3b8;">No subjects assigned to this section yet.</div>';
+      document.getElementById('previewSubjects').innerHTML = subList ||
+        '<div style="font-size:.78rem;color:#94a3b8;">No subjects assigned to this section yet.</div>';
       document.getElementById('sectionPreview').style.display = 'block';
       checkEnrollBtn();
     });
 }
 
+// ── Inline Prerequisite Check ─────────────────────────────────────────────
+function clearPrereqStatus() {
+  const box = document.getElementById('prereqStatus');
+  box.style.display = 'none';
+  box.innerHTML = '';
+  prereqUnmet = false;
+}
+
+function firePrereqCheck() {
+  const studentId = document.getElementById('selectedStudentId').value;
+  const grade     = document.getElementById('gradeLevelSelect').value;
+  const box       = document.getElementById('prereqStatus');
+
+  if (!studentId || !grade || !SELECTED_YEAR_ID) {
+    clearPrereqStatus();
+    checkEnrollBtn();
+    return;
+  }
+
+  // Debounce — avoid double-firing when both fields change rapidly
+  clearTimeout(prereqCheckTimer);
+  prereqCheckTimer = setTimeout(() => {
+    box.innerHTML = '<div class="enr-prereq-checking">Checking prerequisites…</div>';
+    box.style.display = 'block';
+
+    fetch(AJAX_PREREQ_URL +
+      '?student_id=' + encodeURIComponent(studentId) +
+      '&grade_level=' + encodeURIComponent(grade) +
+      '&academic_year_id=' + encodeURIComponent(SELECTED_YEAR_ID))
+      .then(r => r.json())
+      .then(data => {
+        if (data.met) {
+          prereqUnmet = false;
+          box.innerHTML = `
+            <div class="enr-prereq-ok">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" style="width:15px;height:15px;flex-shrink:0;"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              Prerequisites met
+            </div>`;
+        } else {
+          prereqUnmet = true;
+          const list = data.unmet.map(u =>
+            `<div style="margin-top:3px;font-size:.78rem;"><strong>${escHtml(u.subject)}</strong> requires ${escHtml(u.requires)} (min ${u.min_grade}${u.student_grade != null ? ', got ' + u.student_grade : ', not taken'})</div>`
+          ).join('');
+          box.innerHTML = `
+            <div class="enr-prereq-warn">
+              <strong>⚠ ${data.unmet.length} unmet prerequisite${data.unmet.length > 1 ? 's' : ''}</strong>
+              ${list}
+            </div>`;
+        }
+        box.style.display = 'block';
+        checkEnrollBtn();
+      })
+      .catch(() => {
+        clearPrereqStatus();
+        checkEnrollBtn();
+      });
+  }, 300);
+}
+
+// ── Enroll button gate ────────────────────────────────────────────────────
 function checkEnrollBtn() {
-  const btn = document.getElementById('enrollBtn');
-  const hasStudent  = !!document.getElementById('selectedStudentId').value;
-  const hasSection  = !!document.getElementById('sectionSelect').value;
-  const hasGrade    = !!document.getElementById('gradeLevelSelect').value;
-  btn.disabled = !(hasStudent && hasSection && hasGrade);
+  const btn        = document.getElementById('enrollBtn');
+  const hasStudent = !!document.getElementById('selectedStudentId').value;
+  const hasSection = !!document.getElementById('sectionSelect').value;
+  const hasGrade   = !!document.getElementById('gradeLevelSelect').value;
+  btn.disabled = !(hasStudent && hasSection && hasGrade) || prereqUnmet;
 }
 
 function escHtml(str) {

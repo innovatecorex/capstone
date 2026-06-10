@@ -25,11 +25,14 @@ class Enrollment extends Model
         'status',
         'enrolled_at',
         'dropped_at',
+        'finalized_at',
+        'finalized_by',
     ];
 
     protected $casts = [
-        'enrolled_at' => 'datetime',
-        'dropped_at'  => 'datetime',
+        'enrolled_at'  => 'datetime',
+        'dropped_at'   => 'datetime',
+        'finalized_at' => 'datetime',
     ];
 
     // ── Relationships ──────────────────────────────────────────────────────
@@ -47,6 +50,11 @@ class Enrollment extends Model
     public function academicYear(): BelongsTo
     {
         return $this->belongsTo(AcademicYear::class, 'academic_year_id');
+    }
+
+    public function finalizedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'finalized_by');
     }
 
     public function grades(): HasMany
@@ -89,6 +97,11 @@ class Enrollment extends Model
     public function isActive(): bool
     {
         return $this->status === 'enrolled';
+    }
+
+    public function isFinalized(): bool
+    {
+        return $this->finalized_at !== null;
     }
 
     /**
