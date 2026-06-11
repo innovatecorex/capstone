@@ -13,83 +13,115 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; overflow: hidden; }
-
-    body {
-      font-family: 'Inter', sans-serif;
-      background: #0c1a30;
-    }
+    body { font-family: 'Inter', sans-serif; background: #0c1a30; }
 
     /* ══════════════════════════════════════
        LAYOUT
     ══════════════════════════════════════ */
     .lp-wrap {
       display: grid;
-      grid-template-columns: 420px 1fr;
+      grid-template-columns: 430px 1fr;
       height: 100vh;
       overflow: hidden;
-      animation: lp-fade .4s ease both;
+      animation: lp-in .5s cubic-bezier(.22,.68,0,1.2) both;
     }
-    @keyframes lp-fade {
-      from { opacity: 0; }
-      to   { opacity: 1; }
+    @keyframes lp-in {
+      from { opacity: 0; transform: scale(.98); }
+      to   { opacity: 1; transform: scale(1); }
     }
 
     /* ══════════════════════════════════════
        LEFT PANEL
     ══════════════════════════════════════ */
     .lp-left {
-      background: linear-gradient(180deg, #0c1f3d 0%, #091629 60%, #060f1e 100%);
-      border-right: 1px solid rgba(255,255,255,.06);
+      background: linear-gradient(160deg, #0d2148 0%, #091630 55%, #050e1c 100%);
+      border-right: 1px solid rgba(255,255,255,.07);
       display: flex;
       flex-direction: column;
-      padding: 36px 32px 28px;
+      padding: 36px 30px 26px;
       height: 100vh;
       overflow: hidden;
       position: relative;
     }
 
-    /* subtle vertical line accents */
+    /* ── Animated orbs ── */
+    .lp-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(60px);
+      pointer-events: none;
+      opacity: 0;
+      animation: orb-drift linear infinite;
+    }
+    .lp-orb-1 {
+      width: 320px; height: 320px;
+      top: -80px; left: -60px;
+      background: radial-gradient(circle, rgba(56,120,220,.28) 0%, transparent 70%);
+      animation-duration: 18s;
+      animation-delay: 0s;
+    }
+    .lp-orb-2 {
+      width: 260px; height: 260px;
+      bottom: 60px; right: -40px;
+      background: radial-gradient(circle, rgba(180,130,60,.2) 0%, transparent 70%);
+      animation-duration: 22s;
+      animation-delay: -6s;
+    }
+    .lp-orb-3 {
+      width: 200px; height: 200px;
+      top: 45%; left: 30%;
+      background: radial-gradient(circle, rgba(80,190,160,.14) 0%, transparent 70%);
+      animation-duration: 26s;
+      animation-delay: -12s;
+    }
+    @keyframes orb-drift {
+      0%   { opacity: 0; transform: translate(0,0) scale(1); }
+      10%  { opacity: 1; }
+      50%  { transform: translate(18px, -22px) scale(1.08); }
+      90%  { opacity: 1; }
+      100% { opacity: 0; transform: translate(0,0) scale(1); }
+    }
+
+    /* left accent line */
     .lp-left::before {
       content: '';
       position: absolute;
       top: 0; left: 0; bottom: 0; width: 3px;
-      background: linear-gradient(180deg, transparent 0%, rgba(180,150,80,.5) 30%, rgba(180,150,80,.5) 70%, transparent 100%);
+      background: linear-gradient(180deg,
+        transparent 0%,
+        rgba(90,150,255,.6) 25%,
+        rgba(180,130,60,.5) 65%,
+        transparent 100%);
     }
 
-    /* ── Seal / Logo block ── */
+    /* ── Seal block ── */
     .lp-seal-block {
       display: flex;
       flex-direction: column;
       align-items: center;
       text-align: center;
-      padding-bottom: 24px;
+      padding-bottom: 22px;
       border-bottom: 1px solid rgba(255,255,255,.07);
-      margin-bottom: 22px;
+      margin-bottom: 20px;
       position: relative;
+      z-index: 1;
     }
     .lp-seal-logos {
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 10px;
-      margin-bottom: 14px;
+      margin-bottom: 13px;
     }
-    .lp-logo-enc {
-      height: 22px;
-      filter: brightness(0) invert(1);
-      opacity: .7;
-    }
-    .lp-logo-sep {
-      width: 1px; height: 18px;
-      background: rgba(255,255,255,.15);
-    }
+    .lp-logo-enc  { height: 21px; filter: brightness(0) invert(1); opacity: .65; }
+    .lp-logo-sep  { width: 1px; height: 18px; background: rgba(255,255,255,.13); }
     .lp-logo-school {
-      height: 30px; width: 30px;
+      height: 32px; width: 32px;
       border-radius: 50%;
       object-fit: cover;
-      border: 1.5px solid rgba(180,150,80,.4);
+      border: 1.5px solid rgba(180,145,70,.45);
       filter: brightness(0) invert(1);
-      opacity: .8;
+      opacity: .82;
     }
     .lp-institution {
       font-family: 'Merriweather', Georgia, serif;
@@ -103,21 +135,18 @@
     .lp-system-name {
       font-size: .58rem;
       font-weight: 700;
-      color: rgba(180,150,80,.75);
+      color: rgba(170,135,60,.8);
       letter-spacing: .18em;
       text-transform: uppercase;
-      margin-bottom: 0;
     }
-
-    /* ── Official designation ── */
     .lp-official-tag {
       display: inline-flex;
       align-items: center;
       gap: 5px;
-      background: rgba(180,150,80,.08);
-      border: 1px solid rgba(180,150,80,.2);
-      color: rgba(180,150,80,.8);
-      font-size: .58rem;
+      background: rgba(90,150,255,.08);
+      border: 1px solid rgba(90,150,255,.22);
+      color: rgba(130,180,255,.8);
+      font-size: .57rem;
       font-weight: 700;
       letter-spacing: .12em;
       text-transform: uppercase;
@@ -129,46 +158,63 @@
 
     /* ── Role access list ── */
     .lp-access-title {
-      font-size: .6rem;
+      font-size: .59rem;
       font-weight: 700;
-      color: rgba(255,255,255,.25);
+      color: rgba(255,255,255,.22);
       letter-spacing: .14em;
       text-transform: uppercase;
-      margin-bottom: 9px;
+      margin-bottom: 8px;
+      position: relative;
+      z-index: 1;
     }
     .lp-features {
       display: flex;
       flex-direction: column;
-      gap: 5px;
+      gap: 6px;
+      position: relative;
+      z-index: 1;
     }
     .lp-feat {
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 10px 12px;
-      border-radius: 6px;
-      border: 1px solid rgba(255,255,255,.055);
-      background: rgba(255,255,255,.022);
-      transition: background .15s, border-color .15s;
+      padding: 11px 13px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,.06);
+      background: rgba(255,255,255,.025);
+      transition: background .2s, border-color .2s, transform .2s;
+      cursor: default;
     }
     .lp-feat:hover {
-      background: rgba(255,255,255,.04);
-      border-color: rgba(255,255,255,.09);
+      background: rgba(255,255,255,.055);
+      border-color: rgba(255,255,255,.12);
+      transform: translateX(3px);
     }
     .lp-feat-icon {
-      width: 32px; height: 32px;
-      border-radius: 5px;
+      width: 36px; height: 36px;
+      border-radius: 9px;
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
-      border: 1px solid rgba(255,255,255,.08);
-      background: rgba(255,255,255,.03);
+      transition: transform .2s;
     }
-    .lp-feat-icon svg { width: 14px; height: 14px; }
-    .lp-feat-body {}
+    .lp-feat:hover .lp-feat-icon { transform: scale(1.1); }
+    .lp-feat-icon svg { width: 16px; height: 16px; }
+    .lp-feat-icon--amber {
+      background: linear-gradient(135deg, rgba(245,180,50,.22), rgba(245,150,20,.1));
+      border: 1px solid rgba(245,180,50,.22);
+    }
+    .lp-feat-icon--emerald {
+      background: linear-gradient(135deg, rgba(52,211,153,.18), rgba(16,185,129,.08));
+      border: 1px solid rgba(52,211,153,.18);
+    }
+    .lp-feat-icon--blue {
+      background: linear-gradient(135deg, rgba(99,179,255,.2), rgba(59,130,246,.1));
+      border: 1px solid rgba(99,179,255,.18);
+    }
     .lp-feat-title {
-      font-size: .78rem;
+      font-size: .8rem;
       font-weight: 700;
-      color: rgba(255,255,255,.78);
+      color: rgba(255,255,255,.82);
       margin-bottom: 1px;
     }
     .lp-feat-desc {
@@ -177,35 +223,46 @@
       line-height: 1.4;
     }
 
-    /* ── Admission section ── */
+    /* ── Admission card ── */
     .lp-adm {
       margin-top: auto;
-      border-radius: 8px;
-      background: rgba(26,58,107,.55);
-      border: 1px solid rgba(99,140,210,.22);
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(26,58,107,.7), rgba(18,40,85,.5));
+      border: 1px solid rgba(90,150,255,.2);
       padding: 16px 18px;
       position: relative;
+      z-index: 1;
+      overflow: hidden;
+    }
+    .lp-adm::after {
+      content: '';
+      position: absolute;
+      top: -30px; right: -30px;
+      width: 100px; height: 100px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(90,150,255,.1) 0%, transparent 70%);
+      pointer-events: none;
     }
     .lp-adm-label {
       font-size: .57rem;
       font-weight: 700;
-      color: rgba(180,150,80,.7);
+      color: rgba(180,145,70,.75);
       letter-spacing: .13em;
       text-transform: uppercase;
       margin-bottom: 6px;
       display: flex;
       align-items: center;
-      gap: 5px;
+      gap: 6px;
     }
     .lp-adm-label::before {
       content: '';
       display: inline-block;
       width: 14px; height: 1px;
-      background: rgba(180,150,80,.5);
+      background: rgba(180,145,70,.45);
     }
     .lp-adm-title {
-      font-size: .88rem;
-      font-weight: 700;
+      font-size: .9rem;
+      font-weight: 800;
       color: #fff;
       margin-bottom: 4px;
       line-height: 1.3;
@@ -222,79 +279,120 @@
       gap: 8px;
       width: 100%;
       padding: .65rem 1rem;
-      background: rgba(255,255,255,.06);
-      border: 1px solid rgba(255,255,255,.14);
-      border-radius: 6px;
-      color: rgba(255,255,255,.8);
+      background: rgba(90,150,255,.12);
+      border: 1px solid rgba(90,150,255,.28);
+      border-radius: 8px;
+      color: rgba(180,210,255,.9);
       font-size: .8rem;
-      font-weight: 600;
+      font-weight: 700;
       text-decoration: none;
       letter-spacing: .01em;
-      transition: background .15s, border-color .15s;
+      transition: background .2s, border-color .2s, transform .15s, color .2s;
     }
     .lp-adm-btn:hover {
-      background: rgba(255,255,255,.1);
-      border-color: rgba(255,255,255,.22);
+      background: rgba(90,150,255,.22);
+      border-color: rgba(90,150,255,.45);
       color: #fff;
+      transform: translateY(-1px);
     }
-    .lp-adm-btn svg { width: 14px; height: 14px; flex-shrink: 0; opacity: .65; }
-    .lp-adm-btn .arr { margin-left: auto; opacity: .35; }
+    .lp-adm-btn svg { width: 14px; height: 14px; flex-shrink: 0; }
+    .lp-adm-btn .arr { margin-left: auto; opacity: .45; }
 
-    /* ── Footer note ── */
     .lp-left-foot {
       margin-top: 12px;
-      font-size: .59rem;
-      color: rgba(255,255,255,.18);
+      font-size: .58rem;
+      color: rgba(255,255,255,.16);
       font-weight: 500;
       letter-spacing: .025em;
       text-align: center;
+      position: relative;
+      z-index: 1;
     }
 
     /* ══════════════════════════════════════
        RIGHT PANEL
     ══════════════════════════════════════ */
     .lp-right {
-      background: #eef1f6;
+      position: relative;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       height: 100vh;
       overflow-y: auto;
-      position: relative;
+
+      /* layered background: mesh gradient + dot grid */
+      background:
+        radial-gradient(ellipse 80% 60% at 80% 20%, rgba(99,150,255,.10) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 20% 80%, rgba(52,200,160,.07) 0%, transparent 60%),
+        #eef2f8;
     }
 
-    /* subtle texture */
+    /* dot-grid texture */
     .lp-right::before {
       content: '';
       position: absolute; inset: 0;
-      background-image: radial-gradient(rgba(15,30,70,.04) 1px, transparent 1px);
-      background-size: 22px 22px;
+      background-image: radial-gradient(rgba(26,58,107,.07) 1px, transparent 1px);
+      background-size: 24px 24px;
       pointer-events: none;
+    }
+
+    /* corner decorations */
+    .lp-right-deco {
+      position: absolute;
+      pointer-events: none;
+    }
+    .lp-right-deco-tl {
+      top: -60px; left: -60px;
+      width: 260px; height: 260px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(99,150,255,.09) 0%, transparent 70%);
+      filter: blur(30px);
+    }
+    .lp-right-deco-br {
+      bottom: -80px; right: -60px;
+      width: 300px; height: 300px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(52,200,160,.08) 0%, transparent 70%);
+      filter: blur(40px);
     }
 
     /* ── Form card ── */
     .lp-form-card {
       background: #ffffff;
-      border-radius: 12px;
-      border: 1px solid #d4dae6;
-      box-shadow: 0 2px 12px rgba(10,25,60,.07), 0 8px 32px rgba(10,25,60,.05);
+      border-radius: 16px;
+      border: 1px solid rgba(99,130,200,.14);
+      box-shadow:
+        0 1px 2px rgba(10,25,60,.04),
+        0 4px 16px rgba(10,25,60,.07),
+        0 20px 48px rgba(10,25,60,.08);
       width: 100%;
-      max-width: 430px;
+      max-width: 440px;
       padding: 38px 38px 32px;
       position: relative;
       z-index: 1;
       margin: 0 24px;
+      animation: card-rise .55s cubic-bezier(.22,.68,0,1.1) .1s both;
+    }
+    @keyframes card-rise {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
 
-    /* top accent stripe */
+    /* top accent stripe — animated shimmer */
     .lp-form-card::before {
       content: '';
       position: absolute;
       top: 0; left: 0; right: 0;
-      height: 3px;
-      border-radius: 12px 12px 0 0;
-      background: linear-gradient(90deg, #1a3a6b, #2855a0 50%, #1a3a6b);
+      height: 4px;
+      border-radius: 16px 16px 0 0;
+      background: linear-gradient(90deg, #1a3a6b 0%, #2e6ae6 40%, #3ecfa0 70%, #1a3a6b 100%);
+      background-size: 200% 100%;
+      animation: stripe-move 4s linear infinite;
+    }
+    @keyframes stripe-move {
+      0%   { background-position: 0% 0%; }
+      100% { background-position: 200% 0%; }
     }
 
     /* ── Card header ── */
@@ -303,33 +401,34 @@
       flex-direction: column;
       align-items: center;
       text-align: center;
-      margin-bottom: 24px;
+      margin-bottom: 22px;
       padding-bottom: 20px;
       border-bottom: 1px solid #e8ecf2;
     }
     .lf-emblem {
-      width: 52px; height: 52px;
+      width: 56px; height: 56px;
       border-radius: 50%;
-      background: linear-gradient(145deg, #1a3a6b, #1e4494);
-      border: 3px solid #d4dae6;
+      background: linear-gradient(145deg, #1a3a6b, #2060d8);
+      border: 3px solid #dde4f0;
       display: flex; align-items: center; justify-content: center;
-      margin-bottom: 12px;
-      box-shadow: 0 2px 8px rgba(26,58,107,.25);
+      margin-bottom: 13px;
+      box-shadow: 0 4px 16px rgba(26,58,107,.3), 0 0 0 6px rgba(26,58,107,.06);
+      animation: emblem-pulse 3s ease-in-out infinite;
     }
-    .lf-emblem svg { width: 24px; height: 24px; color: #fff; }
+    @keyframes emblem-pulse {
+      0%, 100% { box-shadow: 0 4px 16px rgba(26,58,107,.3), 0 0 0 6px rgba(26,58,107,.06); }
+      50%       { box-shadow: 0 4px 20px rgba(26,58,107,.4), 0 0 0 9px rgba(26,58,107,.09); }
+    }
+    .lf-emblem svg { width: 26px; height: 26px; color: #fff; }
     .lf-title {
       font-family: 'Merriweather', Georgia, serif;
-      font-size: 1.1rem;
+      font-size: 1.12rem;
       font-weight: 700;
       color: #0f1e38;
       letter-spacing: -.01em;
       margin-bottom: 3px;
     }
-    .lf-sub {
-      font-size: .74rem;
-      color: #8496b0;
-      font-weight: 500;
-    }
+    .lf-sub { font-size: .74rem; color: #8496b0; font-weight: 500; }
 
     /* ── Alerts ── */
     .lf-alert {
@@ -337,29 +436,21 @@
       align-items: flex-start;
       gap: 8px;
       padding: 10px 12px;
-      border-radius: 6px;
+      border-radius: 8px;
       margin-bottom: 16px;
       font-size: .77rem;
       line-height: 1.55;
     }
     .lf-alert svg { width: 14px; height: 14px; flex-shrink: 0; margin-top: 1px; }
-    .lf-alert--error {
-      background: #fef2f2;
-      border: 1px solid #fca5a5;
-      color: #7f1d1d;
-    }
-    .lf-alert--notice {
-      background: #f8f5eb;
-      border: 1px solid #d4bc6a;
-      color: #5a4108;
-    }
+    .lf-alert--error  { background: #fef2f2; border: 1px solid #fca5a5; color: #7f1d1d; }
+    .lf-alert--notice { background: #fffbeb; border: 1px solid #f0cc6a; color: #5a4008; }
     .lf-alert--notice a { color: #7a570a; font-weight: 700; text-decoration: underline; }
 
     /* ── Form fields ── */
     .lf-group { margin-bottom: 15px; }
     .lf-label {
       display: block;
-      font-size: .64rem;
+      font-size: .63rem;
       font-weight: 700;
       color: #4a5872;
       text-transform: uppercase;
@@ -368,36 +459,33 @@
     }
     .lf-input {
       width: 100%;
-      height: 44px;
+      height: 46px;
       padding: 0 13px;
       border: 1.5px solid #d0d8e8;
-      border-radius: 7px;
+      border-radius: 9px;
       font-size: .875rem;
       color: #0f1e38;
       font-family: inherit;
-      background: #f8fafd;
+      background: #f7f9fc;
       outline: none;
-      transition: border-color .15s, box-shadow .15s, background .15s;
+      transition: border-color .2s, box-shadow .2s, background .2s;
     }
     .lf-input:focus {
-      border-color: #1a3a6b;
+      border-color: #2060d8;
       background: #fff;
-      box-shadow: 0 0 0 3px rgba(26,58,107,.1);
+      box-shadow: 0 0 0 4px rgba(32,96,216,.1);
     }
-    .lf-input.is-error {
-      border-color: #dc2626;
-      box-shadow: 0 0 0 3px rgba(220,38,38,.08);
-    }
-    .lf-input::placeholder { color: #b8c4d6; }
+    .lf-input.is-error { border-color: #dc2626; box-shadow: 0 0 0 4px rgba(220,38,38,.08); }
+    .lf-input::placeholder { color: #c0ccd8; }
 
     /* password toggle */
     .lf-pw-wrap { position: relative; }
-    .lf-pw-wrap .lf-input { padding-right: 42px; }
+    .lf-pw-wrap .lf-input { padding-right: 44px; }
     .lf-pw-toggle {
-      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-      width: 16px; height: 16px; color: #b8c4d6; cursor: pointer; transition: color .15s;
+      position: absolute; right: 13px; top: 50%; transform: translateY(-50%);
+      width: 17px; height: 17px; color: #b8c4d6; cursor: pointer; transition: color .2s;
     }
-    .lf-pw-toggle:hover { color: #4a5872; }
+    .lf-pw-toggle:hover { color: #2060d8; }
     .lf-input::-ms-reveal, .lf-input::-ms-clear { display: none; }
 
     /* inline error */
@@ -416,21 +504,22 @@
       display: flex; align-items: center; gap: 6px;
       font-size: .78rem; color: #5a6b85; cursor: pointer; font-weight: 500;
     }
-    .lf-remember input { width: 14px; height: 14px; accent-color: #1a3a6b; cursor: pointer; }
+    .lf-remember input { width: 14px; height: 14px; accent-color: #2060d8; cursor: pointer; }
     .lf-forgot {
-      color: #1a3a6b; font-weight: 700; text-decoration: none;
+      color: #2060d8; font-weight: 700; text-decoration: none;
       font-size: .78rem; transition: color .15s;
     }
-    .lf-forgot:hover { color: #0f2450; text-decoration: underline; }
+    .lf-forgot:hover { color: #1040a0; text-decoration: underline; }
 
-    /* submit button */
+    /* submit button — animated gradient shimmer */
     .lf-submit {
       width: 100%;
-      height: 47px;
-      background: #1a3a6b;
+      height: 48px;
+      background: linear-gradient(90deg, #1a3a6b 0%, #2060d8 50%, #1a3a6b 100%);
+      background-size: 200% 100%;
       color: #fff;
       border: none;
-      border-radius: 7px;
+      border-radius: 9px;
       font-size: .875rem;
       font-weight: 700;
       font-family: inherit;
@@ -438,15 +527,20 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
-      letter-spacing: .02em;
-      box-shadow: 0 2px 8px rgba(10,25,70,.25);
-      transition: background .15s, box-shadow .15s, transform .1s;
+      gap: 9px;
+      letter-spacing: .03em;
+      box-shadow: 0 4px 16px rgba(32,96,216,.35);
+      transition: background-position .4s ease, box-shadow .2s, transform .15s;
+      animation: btn-idle 4s ease-in-out infinite;
+    }
+    @keyframes btn-idle {
+      0%, 100% { background-position: 0% 0%; }
+      50%       { background-position: 100% 0%; }
     }
     .lf-submit:hover {
-      background: #153062;
-      box-shadow: 0 4px 14px rgba(10,25,70,.32);
-      transform: translateY(-1px);
+      background-position: 100% 0%;
+      box-shadow: 0 6px 24px rgba(32,96,216,.45);
+      transform: translateY(-2px);
     }
     .lf-submit:active { transform: translateY(0); }
     .lf-submit svg { width: 16px; height: 16px; }
@@ -466,10 +560,16 @@
       font-size: .61rem; font-weight: 600; color: #9aabbd; letter-spacing: .03em;
     }
     .lf-sec-item svg { width: 10px; height: 10px; }
-    .lf-sec-dot {
-      width: 3px; height: 3px;
-      border-radius: 50%;
-      background: #cdd5e0;
+    .lf-sec-dot { width: 3px; height: 3px; border-radius: 50%; background: #cdd5e0; }
+
+    /* ── Notice ── */
+    .lf-notice {
+      margin-top: 14px;
+      text-align: center;
+      font-size: .62rem;
+      color: #9aabbd;
+      letter-spacing: .02em;
+      line-height: 1.55;
     }
 
     /* ── Page footer ── */
@@ -481,16 +581,6 @@
       font-weight: 500;
       letter-spacing: .025em;
       z-index: 1;
-    }
-
-    /* ── Authorized notice ── */
-    .lf-notice {
-      margin-top: 14px;
-      text-align: center;
-      font-size: .62rem;
-      color: #9aabbd;
-      letter-spacing: .03em;
-      line-height: 1.5;
     }
 
     /* responsive */
@@ -508,6 +598,11 @@
 
   {{-- ══════════ LEFT — Institutional Branding ══════════ --}}
   <div class="lp-left">
+
+    {{-- Animated orbs --}}
+    <div class="lp-orb lp-orb-1"></div>
+    <div class="lp-orb lp-orb-2"></div>
+    <div class="lp-orb lp-orb-3"></div>
 
     {{-- Seal block --}}
     <div class="lp-seal-block">
@@ -531,8 +626,8 @@
     <div class="lp-features">
 
       <div class="lp-feat">
-        <div class="lp-feat-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="rgba(180,150,80,.7)" stroke-width="2">
+        <div class="lp-feat-icon lp-feat-icon--amber">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="rgba(245,180,50,.9)" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/>
           </svg>
         </div>
@@ -543,8 +638,8 @@
       </div>
 
       <div class="lp-feat">
-        <div class="lp-feat-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="rgba(120,190,160,.7)" stroke-width="2">
+        <div class="lp-feat-icon lp-feat-icon--emerald">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="rgba(52,211,153,.9)" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5"/>
           </svg>
         </div>
@@ -555,8 +650,8 @@
       </div>
 
       <div class="lp-feat">
-        <div class="lp-feat-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="rgba(100,150,220,.7)" stroke-width="2">
+        <div class="lp-feat-icon lp-feat-icon--blue">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="rgba(99,179,255,.9)" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
           </svg>
         </div>
@@ -568,7 +663,7 @@
 
     </div>
 
-    {{-- Admission section --}}
+    {{-- Admission card --}}
     <div class="lp-adm">
       <div class="lp-adm-label">New Students &amp; Parents</div>
       <div class="lp-adm-title">Admission &amp; Enrollment Application</div>
@@ -584,7 +679,8 @@
       </a>
     </div>
 
-    <button type="button" class="lp-left-foot" onclick="document.getElementById('aboutModal').style.display='flex'"
+    <button type="button" class="lp-left-foot"
+            onclick="document.getElementById('aboutModal').style.display='flex'"
             style="background:none;border:none;cursor:pointer;font-family:inherit;width:100%;text-align:center;">
       Security Policy &amp; Data Privacy (RA 10173)
     </button>
@@ -593,6 +689,10 @@
 
   {{-- ══════════ RIGHT — Authentication Form ══════════ --}}
   <div class="lp-right">
+
+    {{-- Background decorations --}}
+    <div class="lp-right-deco lp-right-deco-tl"></div>
+    <div class="lp-right-deco lp-right-deco-br"></div>
 
     <div class="lp-form-card">
 
@@ -712,7 +812,8 @@
       </div>
 
       <div class="lf-notice">
-        This is an officially authorized system. Unauthorized access is prohibited<br>and subject to applicable laws of the Republic of the Philippines.
+        This is an officially authorized system. Unauthorized access is prohibited<br>
+        and subject to applicable laws of the Republic of the Philippines.
       </div>
 
     </div>
@@ -720,8 +821,8 @@
     <div class="lp-right-footer">
       &copy; {{ date('Y') }} Philippine Academy of Sakya &nbsp;&middot;&nbsp; Powered by EncryptEd
     </div>
-  </div>
 
+  </div>
 </div>
 
 <script>
@@ -730,20 +831,20 @@
     const i = document.getElementById('toggle-pw');
     const open = '<path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.964-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>';
     const off  = '<path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.243 4.243L9.88 9.88"/>';
-    if (f.type === 'password') { f.type = 'text';     i.innerHTML = off;  i.style.color = '#1a3a6b'; }
+    if (f.type === 'password') { f.type = 'text';     i.innerHTML = off;  i.style.color = '#2060d8'; }
     else                       { f.type = 'password'; i.innerHTML = open; i.style.color = '#b8c4d6'; }
   }
 </script>
 
 {{-- About / Security Modal --}}
 <div id="aboutModal"
-     style="display:none;position:fixed;inset:0;background:rgba(6,13,28,.75);z-index:1000;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px);"
+     style="display:none;position:fixed;inset:0;background:rgba(6,13,28,.75);z-index:1000;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px);"
      onclick="if(event.target===this)this.style.display='none'">
-  <div style="background:#fff;border-radius:12px;max-width:580px;width:100%;max-height:86vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.45);border:1px solid #d4dae6;">
-    <div style="padding:16px 22px;border-bottom:1px solid #e8ecf2;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:#fff;border-radius:12px 12px 0 0;">
-      <h2 style="margin:0;font-size:.95rem;font-weight:800;color:#0f1e38;letter-spacing:-.01em;">Security Policy &amp; Data Privacy</h2>
+  <div style="background:#fff;border-radius:14px;max-width:580px;width:100%;max-height:86vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.45);border:1px solid #d4dae6;">
+    <div style="padding:16px 22px;border-bottom:1px solid #e8ecf2;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:#fff;border-radius:14px 14px 0 0;">
+      <h2 style="margin:0;font-size:.95rem;font-weight:800;color:#0f1e38;">Security Policy &amp; Data Privacy</h2>
       <button type="button" onclick="document.getElementById('aboutModal').style.display='none'"
-              style="background:#f1f5f9;border:1px solid #d4dae6;width:28px;height:28px;border-radius:6px;font-size:1rem;line-height:1;color:#64748b;cursor:pointer;display:flex;align-items:center;justify-content:center;">&times;</button>
+              style="background:#f1f5f9;border:1px solid #d4dae6;width:28px;height:28px;border-radius:7px;font-size:1rem;line-height:1;color:#64748b;cursor:pointer;display:flex;align-items:center;justify-content:center;">&times;</button>
     </div>
     <div style="padding:18px 22px;font-size:.84rem;line-height:1.7;color:#334155;">
       <p style="margin:0 0 12px;"><strong>EncryptEd</strong> is the official academic management platform of the Philippine Academy of Sakya. All personal data is handled in strict compliance with Republic Act No. 10173 (Data Privacy Act of 2012).</p>
@@ -764,9 +865,9 @@
       </ul>
       <p style="margin:12px 0 0;font-size:.72rem;color:#94a3b8;">For data privacy concerns, contact the Data Protection Officer through the School Registrar's Office.</p>
     </div>
-    <div style="padding:12px 22px;border-top:1px solid #e8ecf2;text-align:right;position:sticky;bottom:0;background:#fff;border-radius:0 0 12px 12px;">
+    <div style="padding:12px 22px;border-top:1px solid #e8ecf2;text-align:right;position:sticky;bottom:0;background:#fff;border-radius:0 0 14px 14px;">
       <button type="button" onclick="document.getElementById('aboutModal').style.display='none'"
-              style="background:#1a3a6b;color:#fff;border:none;padding:.45rem 1.2rem;border-radius:6px;font-size:.84rem;font-weight:700;cursor:pointer;">
+              style="background:#1a3a6b;color:#fff;border:none;padding:.45rem 1.2rem;border-radius:7px;font-size:.84rem;font-weight:700;cursor:pointer;">
         Close
       </button>
     </div>
