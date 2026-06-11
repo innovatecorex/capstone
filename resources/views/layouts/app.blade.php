@@ -546,42 +546,59 @@
   .sd-hero__pill--warn svg { color: #dc2626; }
 
   /* ── Stat Strip — matches global enc-stat-card design ───────── */
-  .sd-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 12px; margin-bottom: 20px; }
+  .sd-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 14px; margin-bottom: 20px; }
   .sd-stat {
     background: #ffffff;
-    border: 1px solid #edf2f8;
-    border-radius: 16px;
-    padding: 20px 12px 18px;
-    box-shadow: 0 1px 3px rgba(10,31,68,.04), 0 4px 18px rgba(10,31,68,.06);
-    display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center;
-    transition: transform .22s cubic-bezier(.34,1.56,.64,1), box-shadow .2s ease, border-color .2s ease;
+    border: 1.5px solid #edf2f8;
+    border-radius: 20px;
+    padding: 26px 14px 22px;
+    box-shadow: 0 1px 3px rgba(10,31,68,.04), 0 6px 24px rgba(10,31,68,.07);
+    display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center;
+    transition: transform .26s cubic-bezier(.34,1.56,.64,1), box-shadow .25s ease, border-color .2s ease, background .2s ease;
     position: relative; overflow: hidden; text-decoration: none; color: inherit;
   }
   .sd-stat::before {
-    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-    border-radius: 16px 16px 0 0;
-    background: linear-gradient(90deg, #1a3a6b 0%, #2e6ae6 50%, #3ecfa0 100%);
-    opacity: 0; transform: scaleX(0); transform-origin: left;
-    transition: opacity .2s ease, transform .25s ease;
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+    border-radius: 20px 20px 0 0;
+    background: linear-gradient(90deg,#1a3a6b,#2e6ae6,#3ecfa0);
+    opacity: 1; transition: height .2s ease;
   }
-  .sd-stat:hover { transform: translateY(-4px); box-shadow: 0 10px 36px rgba(10,31,68,.13); border-color: #d8e4f0; }
-  .sd-stat:hover::before { opacity: 1; transform: scaleX(1); }
-  .sd-stat__icon {
-    width: 44px; height: 44px; border-radius: 12px;
-    display: flex; align-items: center; justify-content: center;
-    transition: transform .2s ease;
-  }
-  .sd-stat:hover .sd-stat__icon { transform: scale(1.08); }
-  .sd-stat__icon svg { width: 20px; height: 20px; }
-  .si--blue   { background: linear-gradient(145deg,#dbeafe,#eff6ff); color: #1d4ed8; box-shadow: 0 4px 14px rgba(29,78,216,.18); }
-  .si--green  { background: linear-gradient(145deg,#bbf7d0,#dcfce7); color: #16a34a; box-shadow: 0 4px 14px rgba(22,163,74,.18); }
-  .si--orange { background: linear-gradient(145deg,#fde68a,#fef3c7); color: #d97706; box-shadow: 0 4px 14px rgba(217,119,6,.2); }
-  .si--red    { background: linear-gradient(145deg,#fecaca,#fee2e2); color: #dc2626; box-shadow: 0 4px 14px rgba(220,38,38,.18); }
-  .si--violet { background: linear-gradient(145deg,#c4b5fd,#ede9fe); color: #4f46e5; box-shadow: 0 4px 14px rgba(79,70,229,.2); }
-  .si--teal   { background: linear-gradient(145deg,#a5f3fc,#cffafe); color: #0891b2; box-shadow: 0 4px 14px rgba(8,145,178,.18); }
-  .si--amber  { background: linear-gradient(145deg,#fde68a,#fef9c3); color: #ca8a04; box-shadow: 0 4px 14px rgba(202,138,4,.2); }
-  .sd-stat__val   { font-size: 1.7rem; font-weight: 800; color: #0a1f44; line-height: 1; letter-spacing: -.04em; }
-  .sd-stat__label { font-size: .64rem; color: #94a3b8; margin-top: 4px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; line-height: 1.4; }
+  .sd-stat:hover { transform: translateY(-7px) scale(1.01); box-shadow: 0 20px 50px rgba(10,31,68,.14); }
+  .sd-stat:hover::before { height: 5px; }
+  /* Per-color washes via :has() */
+  .sd-stat:has(.si--blue)   { background: linear-gradient(160deg,rgba(29,78,216,.05) 0%,#fff 50%); border-color:rgba(29,78,216,.14); }
+  .sd-stat:has(.si--blue)::before   { background: linear-gradient(90deg,#1d4ed8,#60a5fa); }
+  .sd-stat:has(.si--blue):hover     { box-shadow: 0 20px 50px rgba(29,78,216,.22),0 6px 24px rgba(10,31,68,.06); border-color:rgba(29,78,216,.25); }
+  .sd-stat:has(.si--green)  { background: linear-gradient(160deg,rgba(22,163,74,.05) 0%,#fff 50%); border-color:rgba(22,163,74,.14); }
+  .sd-stat:has(.si--green)::before  { background: linear-gradient(90deg,#16a34a,#4ade80); }
+  .sd-stat:has(.si--green):hover    { box-shadow: 0 20px 50px rgba(22,163,74,.2),0 6px 24px rgba(10,31,68,.06); border-color:rgba(22,163,74,.25); }
+  .sd-stat:has(.si--orange) { background: linear-gradient(160deg,rgba(217,119,6,.05) 0%,#fff 50%); border-color:rgba(217,119,6,.14); }
+  .sd-stat:has(.si--orange)::before { background: linear-gradient(90deg,#d97706,#fbbf24); }
+  .sd-stat:has(.si--orange):hover   { box-shadow: 0 20px 50px rgba(217,119,6,.22),0 6px 24px rgba(10,31,68,.06); border-color:rgba(217,119,6,.25); }
+  .sd-stat:has(.si--red)    { background: linear-gradient(160deg,rgba(220,38,38,.05) 0%,#fff 50%); border-color:rgba(220,38,38,.14); }
+  .sd-stat:has(.si--red)::before    { background: linear-gradient(90deg,#dc2626,#f87171); }
+  .sd-stat:has(.si--red):hover      { box-shadow: 0 20px 50px rgba(220,38,38,.2),0 6px 24px rgba(10,31,68,.06); border-color:rgba(220,38,38,.25); }
+  .sd-stat:has(.si--violet) { background: linear-gradient(160deg,rgba(79,70,229,.05) 0%,#fff 50%); border-color:rgba(79,70,229,.14); }
+  .sd-stat:has(.si--violet)::before { background: linear-gradient(90deg,#4f46e5,#818cf8); }
+  .sd-stat:has(.si--violet):hover   { box-shadow: 0 20px 50px rgba(79,70,229,.2),0 6px 24px rgba(10,31,68,.06); border-color:rgba(79,70,229,.25); }
+  .sd-stat:has(.si--teal)   { background: linear-gradient(160deg,rgba(8,145,178,.05) 0%,#fff 50%); border-color:rgba(8,145,178,.14); }
+  .sd-stat:has(.si--teal)::before   { background: linear-gradient(90deg,#0891b2,#22d3ee); }
+  .sd-stat:has(.si--teal):hover     { box-shadow: 0 20px 50px rgba(8,145,178,.2),0 6px 24px rgba(10,31,68,.06); border-color:rgba(8,145,178,.25); }
+  .sd-stat:has(.si--amber)  { background: linear-gradient(160deg,rgba(202,138,4,.05) 0%,#fff 50%); border-color:rgba(202,138,4,.14); }
+  .sd-stat:has(.si--amber)::before  { background: linear-gradient(90deg,#ca8a04,#facc15); }
+  .sd-stat:has(.si--amber):hover    { box-shadow: 0 20px 50px rgba(202,138,4,.22),0 6px 24px rgba(10,31,68,.06); border-color:rgba(202,138,4,.25); }
+  .sd-stat__icon { width: 58px; height: 58px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: transform .26s cubic-bezier(.34,1.56,.64,1), box-shadow .2s ease; flex-shrink: 0; }
+  .sd-stat:hover .sd-stat__icon { transform: scale(1.14) translateY(-3px); }
+  .sd-stat__icon svg { width: 27px; height: 27px; }
+  .si--blue   { background: linear-gradient(145deg,#dbeafe,#bfdbfe); color: #1d4ed8; box-shadow: 0 6px 18px rgba(29,78,216,.22); }
+  .si--green  { background: linear-gradient(145deg,#bbf7d0,#86efac); color: #16a34a; box-shadow: 0 6px 18px rgba(22,163,74,.22); }
+  .si--orange { background: linear-gradient(145deg,#fde68a,#fcd34d); color: #d97706; box-shadow: 0 6px 18px rgba(217,119,6,.24); }
+  .si--red    { background: linear-gradient(145deg,#fecaca,#fca5a5); color: #dc2626; box-shadow: 0 6px 18px rgba(220,38,38,.22); }
+  .si--violet { background: linear-gradient(145deg,#c4b5fd,#a78bfa); color: #4f46e5; box-shadow: 0 6px 18px rgba(79,70,229,.24); }
+  .si--teal   { background: linear-gradient(145deg,#a5f3fc,#67e8f9); color: #0891b2; box-shadow: 0 6px 18px rgba(8,145,178,.22); }
+  .si--amber  { background: linear-gradient(145deg,#fde68a,#fef08a); color: #ca8a04; box-shadow: 0 6px 18px rgba(202,138,4,.24); }
+  .sd-stat__val   { font-size: 2.1rem; font-weight: 800; color: #0a1f44; line-height: 1; letter-spacing: -.04em; }
+  .sd-stat__label { font-size: .67rem; color: #94a3b8; margin-top: 6px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; line-height: 1.4; }
 
   /* ── Card ───────────────────────────────────────────────────── */
   .sd-card { background: var(--sd-card); border: 1px solid var(--sd-border); border-radius: var(--sd-radius); box-shadow: var(--sd-shadow); overflow: hidden; }
@@ -1972,9 +1989,9 @@
 ═══════════════════════════════════════════════════════ --}}
 
 <style>
-/* ══════════════════════════════════════════════
-   ABSOLUTE CHAOS LOGOUT MODAL — OVERKILL EDITION
-   ══════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════
+   SPONGEBOB NUCLEAR LOGOUT — MAXIMUM SENSORY OVERLOAD
+   ══════════════════════════════════════════════════════ */
 
 @keyframes lm-fadein       { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
 @keyframes lm-pulse-dot    { 0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.4)} 50%{box-shadow:0 0 0 5px rgba(34,197,94,0)} }
@@ -2195,30 +2212,160 @@
   animation: lm-domain-text 6s ease-in-out 1.2s infinite;
 }
 
-/* ── Dialog card ── */
+/* ── Rotating spotlight ── */
+@keyframes lm-spin-beam { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+#lm-spotlight {
+  position:absolute; inset:-60%; z-index:2; pointer-events:none;
+  background: conic-gradient(
+    transparent 0deg,rgba(255,255,180,.07) 6deg,transparent 18deg,
+    transparent 92deg,rgba(255,255,200,.09) 98deg,transparent 110deg,
+    transparent 183deg,rgba(255,255,160,.06) 188deg,transparent 198deg,
+    transparent 272deg,rgba(255,255,180,.08) 278deg,transparent 288deg
+  );
+  animation:lm-spin-beam 9s linear infinite;
+}
+
+/* ── Realistic flame CSS ── */
+@keyframes lm-rf-base  {0%,100%{transform:scaleX(1) skewX(-2deg)}33%{transform:scaleX(1.06) skewX(4deg)}66%{transform:scaleX(.94) skewX(-1deg)}}
+@keyframes lm-rf-outer {0%,100%{transform:scaleX(1) skewX(2deg) scaleY(1)}25%{transform:scaleX(.9) skewX(-5deg) scaleY(1.1)}75%{transform:scaleX(1.1) skewX(3deg) scaleY(.93)}}
+@keyframes lm-rf-mid   {0%,100%{transform:scaleX(1) skewX(-3deg) scaleY(1)}40%{transform:scaleX(1.12) skewX(5deg) scaleY(1.15)}80%{transform:scaleX(.88) skewX(-2deg) scaleY(.9)}}
+@keyframes lm-rf-inner {0%,100%{transform:scaleX(1) scaleY(1) skewX(2deg)}50%{transform:scaleX(1.18) scaleY(1.22) skewX(-6deg)}}
+@keyframes lm-rf-core  {0%,100%{transform:scaleX(1) scaleY(1)}30%{transform:scaleX(1.25) scaleY(1.35)}70%{transform:scaleX(.82) scaleY(.85)}}
+@keyframes lm-rf-tip   {0%,100%{transform:scaleX(1) scaleY(1) translateY(0)}20%{transform:scaleX(.65) scaleY(1.5) translateY(-18px)}60%{transform:scaleX(1.35) scaleY(.75) translateY(8px)}}
+@keyframes lm-emb1{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(-22px,-140px) scale(0);opacity:0}}
+@keyframes lm-emb2{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(28px,-115px) scale(0);opacity:0}}
+@keyframes lm-emb3{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(-10px,-155px) scale(0);opacity:0}}
+@keyframes lm-emb4{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(35px,-125px) scale(0);opacity:0}}
+@keyframes lm-emb5{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(-38px,-105px) scale(0);opacity:0}}
+@keyframes lm-emb6{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(18px,-145px) scale(0);opacity:0}}
+@keyframes lm-emb7{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(-14px,-95px) scale(0);opacity:0}}
+@keyframes lm-emb8{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(44px,-148px) scale(0);opacity:0}}
+
+.lm-rfire {
+  position:absolute; bottom:0; width:150px; z-index:8; pointer-events:none;
+}
+.lm-rfire-l { left:12%; }
+.lm-rfire-r { right:12%; }
+.lm-rf-layer {
+  position:absolute; bottom:0; left:50%;
+  transform-origin:bottom center;
+  border-radius:50% 50% 20% 20% / 65% 65% 30% 30%;
+}
+.lm-rf-base  { width:145px;height:300px;margin-left:-72px;background:radial-gradient(ellipse at 50% 82%,rgba(200,20,0,.95) 0%,rgba(120,0,0,.75) 45%,rgba(60,0,0,.5) 72%,transparent 100%);filter:blur(11px);animation:lm-rf-base .24s ease-in-out infinite alternate;z-index:1; }
+.lm-rf-outer { width:110px;height:255px;margin-left:-55px;background:radial-gradient(ellipse at 50% 79%,rgba(255,55,0,1) 0%,rgba(225,28,0,.88) 38%,rgba(165,8,0,.62) 68%,transparent 100%);filter:blur(8px);animation:lm-rf-outer .19s ease-in-out .04s infinite alternate;z-index:2; }
+.lm-rf-mid   { width:80px;height:215px;margin-left:-40px;background:radial-gradient(ellipse at 50% 76%,rgba(255,145,0,1) 0%,rgba(255,75,0,.92) 38%,rgba(235,38,0,.72) 68%,transparent 100%);filter:blur(5px);animation:lm-rf-mid .15s ease-in-out .06s infinite alternate;z-index:3; }
+.lm-rf-inner { width:55px;height:180px;margin-left:-27px;background:radial-gradient(ellipse at 50% 73%,rgba(255,235,0,1) 0%,rgba(255,155,0,.92) 38%,rgba(255,75,0,.72) 68%,transparent 100%);filter:blur(3.5px);animation:lm-rf-inner .12s ease-in-out .03s infinite alternate;z-index:4; }
+.lm-rf-core  { width:30px;height:140px;margin-left:-15px;background:radial-gradient(ellipse at 50% 70%,#ffffff 0%,rgba(255,255,200,.96) 28%,rgba(255,245,0,.82) 58%,transparent 100%);filter:blur(2px);animation:lm-rf-core .09s ease-in-out infinite alternate;z-index:5; }
+.lm-rf-tip   { width:16px;height:90px;margin-left:-8px;bottom:130px;background:radial-gradient(ellipse at 50% 62%,#ffffff 0%,rgba(255,255,255,.82) 42%,transparent 100%);filter:blur(2.5px);animation:lm-rf-tip .14s ease-in-out .05s infinite alternate;z-index:6;border-radius:50% 50% 30% 30%/72% 72% 42% 42%; }
+.lm-emb{position:absolute;border-radius:50%;pointer-events:none;z-index:7}
+.lm-e1{width:9px;height:9px;background:#ff6600;bottom:62%;left:42%;animation:lm-emb1 .82s ease-out infinite}
+.lm-e2{width:7px;height:7px;background:#ffcc00;bottom:72%;left:57%;animation:lm-emb2 .72s ease-out .16s infinite}
+.lm-e3{width:10px;height:10px;background:#ff4400;bottom:58%;left:28%;animation:lm-emb3 .92s ease-out .06s infinite}
+.lm-e4{width:6px;height:6px;background:#ffaa00;bottom:78%;left:68%;animation:lm-emb4 .78s ease-out .28s infinite}
+.lm-e5{width:8px;height:8px;background:#ff3300;bottom:68%;left:18%;animation:lm-emb5 .88s ease-out .11s infinite}
+.lm-e6{width:7px;height:7px;background:#ff8800;bottom:82%;left:52%;animation:lm-emb6 .74s ease-out .32s infinite}
+.lm-e7{width:9px;height:9px;background:#ffee00;bottom:52%;left:72%;animation:lm-emb7 .68s ease-out .22s infinite}
+.lm-e8{width:6px;height:6px;background:#ff5500;bottom:74%;left:36%;animation:lm-emb8 .80s ease-out .09s infinite}
+
+/* ── Extra strobe layers ── */
+@keyframes lm-strobe-y{0%,22%{opacity:0}23%,25%{opacity:.38}26%,58%{opacity:0}59%,61%{opacity:.32}62%,84%{opacity:0}85%,86%{opacity:.42}87%,100%{opacity:0}}
+@keyframes lm-strobe-c{0%,48%{opacity:0}49%,51%{opacity:.28}52%,73%{opacity:0}74%,76%{opacity:.33}77%,100%{opacity:0}}
+@keyframes lm-strobe-m{0%,65%{opacity:0}66%,68%{opacity:.28}69%,100%{opacity:0}}
+@keyframes lm-strobe-g{0%,40%{opacity:0}41%,43%{opacity:.22}44%,90%{opacity:0}91%,92%{opacity:.3}93%,100%{opacity:0}}
+.lm-strobe{position:absolute;inset:0;pointer-events:none}
+#lm-s-yell{background:#ffff00;z-index:3;animation:lm-strobe-y 3.2s ease-in-out .9s infinite}
+#lm-s-cyan{background:#00ffff;z-index:3;animation:lm-strobe-c 5.8s ease-in-out 1.6s infinite}
+#lm-s-mage{background:#ff00ff;z-index:3;animation:lm-strobe-m 7.5s ease-in-out 2.4s infinite}
+#lm-s-grn {background:#00ff44;z-index:3;animation:lm-strobe-g 6.2s ease-in-out 3.1s infinite}
+
+/* ── Lens flares ── */
+@keyframes lm-flare-pulse{0%,100%{opacity:.14;transform:scale(1)}50%{opacity:.42;transform:scale(1.22)}}
+@keyframes lm-flare-drift{0%{transform:translate(0,0)}33%{transform:translate(18px,-14px)}66%{transform:translate(-14px,10px)}100%{transform:translate(0,0)}}
+.lm-flare{position:absolute;border-radius:50%;pointer-events:none;z-index:9}
+#lm-fl1{width:130px;height:130px;background:radial-gradient(circle,rgba(255,255,255,.32) 0%,rgba(255,230,100,.14) 50%,transparent 76%);top:14%;left:7%;filter:blur(3px);animation:lm-flare-pulse 2.4s ease-in-out infinite,lm-flare-drift 5.5s ease-in-out infinite}
+#lm-fl2{width:85px;height:85px;background:radial-gradient(circle,rgba(255,200,0,.38) 0%,rgba(255,150,0,.18) 50%,transparent 76%);top:22%;right:9%;filter:blur(2px);animation:lm-flare-pulse 1.9s ease-in-out .4s infinite}
+#lm-fl3{width:65px;height:65px;background:radial-gradient(circle,rgba(100,200,255,.32) 0%,rgba(0,150,255,.14) 50%,transparent 76%);top:9%;right:24%;filter:blur(1.5px);animation:lm-flare-pulse 2.8s ease-in-out .9s infinite}
+#lm-fl4{width:220px;height:220px;background:radial-gradient(circle,rgba(255,255,255,.1) 0%,rgba(255,200,50,.05) 50%,transparent 70%);bottom:18%;left:18%;filter:blur(6px);animation:lm-flare-pulse 3.4s ease-in-out 1.3s infinite}
+#lm-fl5{width:95px;height:95px;background:radial-gradient(circle,rgba(200,100,255,.32) 0%,rgba(150,50,255,.14) 50%,transparent 76%);top:38%;right:4%;filter:blur(2.5px);animation:lm-flare-pulse 2.2s ease-in-out .7s infinite}
+#lm-fl6{width:55px;height:55px;background:radial-gradient(circle,rgba(255,80,80,.38) 0%,rgba(255,40,0,.16) 50%,transparent 76%);bottom:30%;right:30%;filter:blur(2px);animation:lm-flare-pulse 1.6s ease-in-out 1.8s infinite}
+#lm-fl7{width:160px;height:160px;background:radial-gradient(circle,rgba(255,255,0,.12) 0%,rgba(255,180,0,.06) 50%,transparent 70%);top:5%;left:40%;filter:blur(5px);animation:lm-flare-pulse 4s ease-in-out 0.5s infinite}
+
+/* ── Bubbles (SpongeBob!) ── */
+@keyframes lm-bubble-rise{0%{transform:translateY(0) translateX(0) scale(1);opacity:.75}30%{transform:translateY(-30vh) translateX(18px) scale(1.06)}60%{transform:translateY(-60vh) translateX(-12px) scale(.94)}100%{transform:translateY(-105vh) translateX(8px) scale(.8);opacity:0}}
+.lm-bubble{position:absolute;border-radius:50%;pointer-events:none;z-index:7;border:2.5px solid rgba(150,220,255,.65);background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.55) 0%,rgba(150,220,255,.18) 42%,transparent 72%)}
+.lm-b1{width:38px;height:38px;left:4%;bottom:5%;animation:lm-bubble-rise 6.5s ease-in-out 0s infinite}
+.lm-b2{width:22px;height:22px;left:11%;bottom:9%;animation:lm-bubble-rise 8.5s ease-in-out 1.2s infinite}
+.lm-b3{width:55px;height:55px;left:1%;bottom:14%;animation:lm-bubble-rise 7.5s ease-in-out 2.2s infinite}
+.lm-b4{width:28px;height:28px;left:20%;bottom:3%;animation:lm-bubble-rise 9.5s ease-in-out .6s infinite}
+.lm-b5{width:44px;height:44px;right:5%;bottom:8%;animation:lm-bubble-rise 7s ease-in-out 1.8s infinite}
+.lm-b6{width:20px;height:20px;right:13%;bottom:12%;animation:lm-bubble-rise 9s ease-in-out 3.2s infinite}
+.lm-b7{width:50px;height:50px;right:1%;bottom:5%;animation:lm-bubble-rise 8s ease-in-out .9s infinite}
+.lm-b8{width:30px;height:30px;left:7%;bottom:22%;animation:lm-bubble-rise 6.2s ease-in-out 4.2s infinite}
+.lm-b9{width:24px;height:24px;right:19%;bottom:16%;animation:lm-bubble-rise 10s ease-in-out 2.8s infinite}
+.lm-b10{width:60px;height:60px;left:28%;bottom:2%;animation:lm-bubble-rise 8.8s ease-in-out .4s infinite}
+.lm-b11{width:16px;height:16px;right:8%;bottom:28%;animation:lm-bubble-rise 7.2s ease-in-out 5s infinite}
+.lm-b12{width:35px;height:35px;left:15%;bottom:1%;animation:lm-bubble-rise 9.2s ease-in-out 1.5s infinite}
+
+/* ── Lightning ── */
+@keyframes lm-lightning{0%,88%{opacity:0}89%,90%{opacity:1}91%,93%{opacity:0}94%,95%{opacity:.85}96%,100%{opacity:0}}
+#lm-lightning{position:absolute;top:5%;left:54%;z-index:10;pointer-events:none;animation:lm-lightning 5s ease-in-out infinite}
+
+/* ── Shooting stars ── */
+@keyframes lm-shoot{0%{transform:translate(0,0) rotate(-40deg);opacity:1}100%{transform:translate(500px,500px) rotate(-40deg);opacity:0}}
+.lm-ss{position:absolute;width:3px;height:3px;border-radius:50%;background:white;pointer-events:none;z-index:6;box-shadow:0 0 6px white,-80px 0 5px rgba(255,255,255,.55),-160px 0 3px rgba(255,255,255,.25)}
+.lm-ss1{top:12%;left:3%;animation:lm-shoot 1.9s ease-out 0s infinite}
+.lm-ss2{top:28%;left:6%;animation:lm-shoot 2.4s ease-out 1s infinite}
+.lm-ss3{top:8%;left:1%;animation:lm-shoot 1.6s ease-out 1.6s infinite}
+.lm-ss4{top:42%;left:8%;animation:lm-shoot 2.1s ease-out .4s infinite}
+.lm-ss5{top:18%;right:4%;animation:lm-shoot 1.8s ease-out 0.7s infinite}
+
+/* ── Characters ── */
+#lm-spb  {position:absolute;bottom:0;left:1%;z-index:12;pointer-events:none;width:250px}
+#lm-pat  {position:absolute;bottom:0;right:1%;z-index:12;pointer-events:none;width:230px}
+#lm-sqd  {position:absolute;bottom:0;left:22%;z-index:10;pointer-events:none;width:165px}
+#lm-sqd2 {position:absolute;bottom:0;right:22%;z-index:10;pointer-events:none;width:155px;transform:scaleX(-1)}
+#lm-gary {position:absolute;bottom:3px;z-index:13;pointer-events:none;width:95px;animation:lm-gary-crawl 14s linear 2.5s infinite}
+@keyframes lm-spb-idle{0%,100%{transform:translateY(0px) rotate(0deg)}35%{transform:translateY(-10px) rotate(2deg)}75%{transform:translateY(6px) rotate(-1.5deg)}}
+@keyframes lm-pat-idle{0%,100%{transform:translateY(0px) rotate(0deg)}40%{transform:translateY(-12px) rotate(-2deg)}80%{transform:translateY(7px) rotate(1.5deg)}}
+@keyframes lm-sqd-idle{0%,100%{transform:translateY(0px)}50%{transform:translateY(-7px) rotate(-2deg)}}
+@keyframes lm-gary-crawl{0%{transform:translateX(-200px) scaleX(1)}49%{transform:translateX(calc(50vw)) scaleX(1)}50%{transform:translateX(calc(50vw)) scaleX(-1)}100%{transform:translateX(calc(100vw + 200px)) scaleX(-1)}}
+
+#lm-gojo-l,#lm-gojo-r{position:absolute;bottom:0;z-index:11;pointer-events:none;width:200px}
+#lm-gojo-l{left:28%;animation:lm-gojo-left .9s cubic-bezier(.34,1.56,.64,1) .2s both}
+#lm-gojo-r{right:28%;animation:lm-gojo-right .9s cubic-bezier(.34,1.56,.64,1) .4s both}
+#lm-gojo-l.lm-idle{animation:lm-gojo-float-l 3.5s ease-in-out infinite}
+#lm-gojo-r.lm-idle{animation:lm-gojo-float-r 3.5s ease-in-out .6s infinite}
+
+/* ── Domain text ── */
+@keyframes lm-domain-pulse{0%,78%,100%{opacity:0;transform:translateX(-50%) scale(.9)}10%,68%{opacity:1;transform:translateX(-50%) scale(1)}}
+#lm-domain-text{position:absolute;top:9%;left:50%;font-size:2.6rem;font-weight:900;color:#7c3aed;letter-spacing:.16em;text-transform:uppercase;pointer-events:none;z-index:14;white-space:nowrap;text-shadow:0 0 22px #7c3aed,0 0 45px #4f46e5,0 0 90px rgba(124,58,237,.6);animation:lm-domain-pulse 8s ease-in-out 1s infinite}
+
+/* ── SOS / Jellyfish text ── */
+@keyframes lm-sos{0%,100%{opacity:0;color:#ff0}45%,55%{opacity:1;color:#fff200}}
+#lm-sos{position:absolute;bottom:7%;left:50%;transform:translateX(-50%);font-size:1.3rem;font-weight:900;letter-spacing:.22em;pointer-events:none;z-index:14;text-shadow:0 0 12px #ff0,0 0 25px #ff0;animation:lm-sos 2.5s ease-in-out .8s infinite}
+
+/* ── Dialog card — WARM FIRE GLOW (no RGB) ── */
+@keyframes lm-dialog-glow {
+  0%   {box-shadow:0 0 0 3px rgba(255,180,0,.88),0 0 30px rgba(255,120,0,.72),0 0 60px rgba(255,60,0,.52),0 24px 64px rgba(10,20,40,.38)}
+  50%  {box-shadow:0 0 0 5px rgba(255,235,0,.96),0 0 48px rgba(255,165,0,.82),0 0 95px rgba(255,80,0,.62),0 24px 64px rgba(10,20,40,.38)}
+  100% {box-shadow:0 0 0 3px rgba(255,105,0,.82),0 0 24px rgba(255,82,0,.68),0 0 50px rgba(255,42,0,.48),0 24px 64px rgba(10,20,40,.38)}
+}
 #logout-dialog {
   background:#fff;
   border-radius:20px; overflow:hidden; position:relative;
   width:100%; max-width:420px; margin:0 16px;
-  border:3px solid #ff0000;
-  animation: lm-rgb-border .45s linear infinite;
+  border:none;
+  animation:lm-dialog-glow 1.6s ease-in-out infinite alternate;
   transform:scale(.95) translateY(10px); opacity:0;
   transition:transform .22s cubic-bezier(.34,1.56,.64,1), opacity .18s ease;
-  z-index:10;
+  z-index:20;
 }
 
 /* Rainbow top bar */
-#lm-rainbow-bar {
-  height:6px;
-  animation: lm-bar 1.5s linear infinite;
-  background-size:200% 100%;
-}
+#lm-rainbow-bar { height:6px; animation:lm-bar 1.5s linear infinite; }
 
 /* Chaos heading */
-#lm-chaos-heading {
-  animation: lm-title-chaos 1.2s ease-in-out infinite;
-  display:inline-block;
-}
+#lm-chaos-heading { animation:lm-title-chaos 1.2s ease-in-out infinite; display:inline-block; }
 
 /* ── Buttons ── */
 .lm-signout-btn {
@@ -2236,54 +2383,359 @@
 .lm-stay-btn:hover { background:#f8fafc; border-color:#cbd5e1; }
 </style>
 
-{{-- ═══════════ CHAOS MODAL ═══════════ --}}
+{{-- ═══════ SPONGEBOB NUCLEAR LOGOUT ═══════ --}}
 <div id="logout-modal" style="display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;">
+
+  {{-- SVG turbulence filter for realistic flames --}}
+  <svg style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true">
+    <defs>
+      <filter id="lm-flame-turb" x="-40%" y="-40%" width="180%" height="180%">
+        <feTurbulence type="turbulence" baseFrequency="0.035 0.09" numOctaves="4" seed="3" result="noise">
+          <animate attributeName="seed" values="3;7;11;5;3" dur="3s" repeatCount="indefinite"/>
+        </feTurbulence>
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="22" xChannelSelector="R" yChannelSelector="G"/>
+      </filter>
+    </defs>
+  </svg>
 
   {{-- Backdrop (click-to-close) --}}
   <div id="logout-backdrop" onclick="closeLogoutModal()"></div>
 
-  {{-- Color flash layers --}}
-  <div id="lm-rainbow"></div>
-  <div id="lm-strobe"></div>
+  {{-- Strobe flash layers --}}
+  <div id="lm-rainbow" class="lm-strobe"></div>
+  <div id="lm-strobe"  class="lm-strobe"></div>
+  <div id="lm-s-yell"  class="lm-strobe"></div>
+  <div id="lm-s-cyan"  class="lm-strobe"></div>
+  <div id="lm-s-mage"  class="lm-strobe"></div>
+  <div id="lm-s-grn"   class="lm-strobe"></div>
+
+  {{-- Rotating spotlight --}}
+  <div id="lm-spotlight"></div>
 
   {{-- Fireworks canvas --}}
   <canvas id="lm-fireworks-canvas"></canvas>
 
-  {{-- Domain expansion text --}}
-  <div id="lm-domain-text">✦ Domain Expansion ✦</div>
+  {{-- Lens flares --}}
+  <div id="lm-fl1" class="lm-flare"></div>
+  <div id="lm-fl2" class="lm-flare"></div>
+  <div id="lm-fl3" class="lm-flare"></div>
+  <div id="lm-fl4" class="lm-flare"></div>
+  <div id="lm-fl5" class="lm-flare"></div>
+  <div id="lm-fl6" class="lm-flare"></div>
+  <div id="lm-fl7" class="lm-flare"></div>
 
-  {{-- Fire: left column --}}
-  <div class="lm-fire-side lm-fire-l">
-    <span class="lm-fire-emoji">🔥</span>
-    <span class="lm-fire-emoji">🔥</span>
-    <span class="lm-fire-emoji">🔥</span>
-    <span class="lm-fire-emoji">🔥</span>
-    <span class="lm-fire-emoji">🔥</span>
-    <span class="lm-fire-emoji">🔥</span>
-    <span class="lm-fire-emoji">🔥</span>
-    <div class="lm-spark"></div>
-    <div class="lm-spark"></div>
-    <div class="lm-spark"></div>
-    <div class="lm-spark"></div>
-    <div class="lm-spark"></div>
-    <div class="lm-spark"></div>
+  {{-- Shooting stars --}}
+  <div class="lm-ss lm-ss1"></div>
+  <div class="lm-ss lm-ss2"></div>
+  <div class="lm-ss lm-ss3"></div>
+  <div class="lm-ss lm-ss4"></div>
+  <div class="lm-ss lm-ss5"></div>
+
+  {{-- Bubbles (SpongeBob underwater theme!) --}}
+  <div class="lm-bubble lm-b1"></div><div class="lm-bubble lm-b2"></div>
+  <div class="lm-bubble lm-b3"></div><div class="lm-bubble lm-b4"></div>
+  <div class="lm-bubble lm-b5"></div><div class="lm-bubble lm-b6"></div>
+  <div class="lm-bubble lm-b7"></div><div class="lm-bubble lm-b8"></div>
+  <div class="lm-bubble lm-b9"></div><div class="lm-bubble lm-b10"></div>
+  <div class="lm-bubble lm-b11"></div><div class="lm-bubble lm-b12"></div>
+
+  {{-- Lightning --}}
+  <div id="lm-lightning">
+    <svg width="80" height="200" viewBox="0 0 80 200" xmlns="http://www.w3.org/2000/svg">
+      <polyline points="50,0 20,90 40,90 10,200" fill="none" stroke="#ffff00" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" filter="drop-shadow(0 0 8px #ffff00) drop-shadow(0 0 16px #ff8800)"/>
+      <polyline points="50,0 20,90 40,90 10,200" fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
   </div>
 
-  {{-- Fire: right column --}}
-  <div class="lm-fire-side lm-fire-r">
-    <span class="lm-fire-emoji">🔥</span>
-    <span class="lm-fire-emoji">🔥</span>
-    <span class="lm-fire-emoji">🔥</span>
-    <span class="lm-fire-emoji">🔥</span>
-    <span class="lm-fire-emoji">🔥</span>
-    <span class="lm-fire-emoji">🔥</span>
-    <span class="lm-fire-emoji">🔥</span>
-    <div class="lm-spark"></div>
-    <div class="lm-spark"></div>
-    <div class="lm-spark"></div>
-    <div class="lm-spark"></div>
-    <div class="lm-spark"></div>
-    <div class="lm-spark"></div>
+  {{-- Domain expansion + SOS text --}}
+  <div id="lm-domain-text">✦ Domain Expansion ✦</div>
+  <div id="lm-sos">🌟 ARE YOU READY KIDS? 🌟</div>
+
+  {{-- Realistic flame — left --}}
+  <div class="lm-rfire lm-rfire-l" style="filter:url(#lm-flame-turb)">
+    <div class="lm-rf-layer lm-rf-base"></div>
+    <div class="lm-rf-layer lm-rf-outer"></div>
+    <div class="lm-rf-layer lm-rf-mid"></div>
+    <div class="lm-rf-layer lm-rf-inner"></div>
+    <div class="lm-rf-layer lm-rf-core"></div>
+    <div class="lm-rf-layer lm-rf-tip"></div>
+    <div class="lm-emb lm-e1"></div><div class="lm-emb lm-e2"></div>
+    <div class="lm-emb lm-e3"></div><div class="lm-emb lm-e4"></div>
+    <div class="lm-emb lm-e5"></div><div class="lm-emb lm-e6"></div>
+    <div class="lm-emb lm-e7"></div><div class="lm-emb lm-e8"></div>
+  </div>
+
+  {{-- Realistic flame — right --}}
+  <div class="lm-rfire lm-rfire-r" style="filter:url(#lm-flame-turb)">
+    <div class="lm-rf-layer lm-rf-base"></div>
+    <div class="lm-rf-layer lm-rf-outer"></div>
+    <div class="lm-rf-layer lm-rf-mid"></div>
+    <div class="lm-rf-layer lm-rf-inner"></div>
+    <div class="lm-rf-layer lm-rf-core"></div>
+    <div class="lm-rf-layer lm-rf-tip"></div>
+    <div class="lm-emb lm-e1"></div><div class="lm-emb lm-e2"></div>
+    <div class="lm-emb lm-e3"></div><div class="lm-emb lm-e4"></div>
+    <div class="lm-emb lm-e5"></div><div class="lm-emb lm-e6"></div>
+    <div class="lm-emb lm-e7"></div><div class="lm-emb lm-e8"></div>
+  </div>
+
+  {{-- ═══ SPONGEBOB SQUAREPANTS (left) ═══ --}}
+  <div id="lm-spb">
+    <svg viewBox="0 0 210 420" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;filter:drop-shadow(0 0 18px rgba(255,220,0,.6))">
+      <!-- Brown square pants -->
+      <rect x="35" y="270" width="140" height="85" rx="6" fill="#8B4513"/>
+      <rect x="35" y="270" width="140" height="14" rx="3" fill="#5C2D0A"/>
+      <rect x="90" y="272" width="28" height="10" rx="2" fill="#DAA520"/>
+      <!-- Legs -->
+      <rect x="48" y="348" width="38" height="72" rx="12" fill="#8B4513"/>
+      <rect x="122" y="348" width="38" height="72" rx="12" fill="#8B4513"/>
+      <!-- Shoes -->
+      <ellipse cx="67" cy="420" rx="28" ry="13" fill="#111111"/>
+      <ellipse cx="141" cy="420" rx="28" ry="13" fill="#111111"/>
+      <rect x="53" y="416" width="26" height="4" rx="2" fill="white"/>
+      <rect x="127" y="416" width="26" height="4" rx="2" fill="white"/>
+      <!-- Yellow body (sponge) -->
+      <rect x="30" y="135" width="150" height="143" rx="20" fill="#FFD700"/>
+      <!-- Sponge pores (holes) -->
+      <ellipse cx="55" cy="158" rx="7" ry="6" fill="rgba(170,120,0,.38)"/>
+      <ellipse cx="88" cy="148" rx="6" ry="5" fill="rgba(170,120,0,.33)"/>
+      <ellipse cx="133" cy="153" rx="8" ry="6" fill="rgba(170,120,0,.38)"/>
+      <ellipse cx="163" cy="160" rx="6" ry="5" fill="rgba(170,120,0,.3)"/>
+      <ellipse cx="48" cy="192" rx="6" ry="7" fill="rgba(170,120,0,.33)"/>
+      <ellipse cx="82" cy="186" rx="5" ry="6" fill="rgba(170,120,0,.28)"/>
+      <ellipse cx="118" cy="180" rx="7" ry="5" fill="rgba(170,120,0,.33)"/>
+      <ellipse cx="158" cy="195" rx="6" ry="6" fill="rgba(170,120,0,.28)"/>
+      <ellipse cx="62" cy="228" rx="7" ry="6" fill="rgba(170,120,0,.38)"/>
+      <ellipse cx="100" cy="220" rx="6" ry="7" fill="rgba(170,120,0,.33)"/>
+      <ellipse cx="142" cy="224" rx="8" ry="6" fill="rgba(170,120,0,.28)"/>
+      <ellipse cx="43" cy="252" rx="5" ry="5" fill="rgba(170,120,0,.33)"/>
+      <ellipse cx="82" cy="258" rx="5" ry="6" fill="rgba(170,120,0,.38)"/>
+      <ellipse cx="158" cy="256" rx="6" ry="5" fill="rgba(170,120,0,.28)"/>
+      <!-- White collar -->
+      <rect x="78" y="133" width="54" height="14" rx="5" fill="white"/>
+      <!-- Red tie -->
+      <polygon points="105,136 97,155 105,150 113,155" fill="#CC0000"/>
+      <polygon points="99,155 105,190 111,155" fill="#CC0000"/>
+      <circle cx="105" cy="163" r="2.5" fill="#990000"/>
+      <circle cx="105" cy="175" r="2.5" fill="#990000"/>
+      <!-- Left arm -->
+      <path d="M 30 175 Q 5 145 8 120 Q 11 105 20 110" stroke="#FFD700" stroke-width="18" fill="none" stroke-linecap="round"/>
+      <circle cx="18" cy="107" r="9" fill="#FFD700"/>
+      <circle cx="8"  cy="100" r="6" fill="#FFD700"/>
+      <circle cx="26" cy="99"  r="6" fill="#FFD700"/>
+      <!-- Right arm -->
+      <path d="M 180 175 Q 205 145 202 120 Q 199 105 190 110" stroke="#FFD700" stroke-width="18" fill="none" stroke-linecap="round"/>
+      <circle cx="192" cy="107" r="9" fill="#FFD700"/>
+      <circle cx="202" cy="100" r="6" fill="#FFD700"/>
+      <circle cx="184" cy="99"  r="6" fill="#FFD700"/>
+      <!-- HEAD -->
+      <rect x="28" y="22" width="154" height="122" rx="22" fill="#FFD700"/>
+      <!-- Head pores -->
+      <ellipse cx="48"  cy="40"  rx="6" ry="5" fill="rgba(170,120,0,.38)"/>
+      <ellipse cx="80"  cy="30"  rx="5" ry="4" fill="rgba(170,120,0,.3)"/>
+      <ellipse cx="135" cy="32"  rx="6" ry="5" fill="rgba(170,120,0,.35)"/>
+      <ellipse cx="163" cy="42"  rx="5" ry="4" fill="rgba(170,120,0,.28)"/>
+      <ellipse cx="40"  cy="80"  rx="5" ry="4" fill="rgba(170,120,0,.28)"/>
+      <ellipse cx="165" cy="85"  rx="5" ry="4" fill="rgba(170,120,0,.25)"/>
+      <!-- GIANT EYES (most iconic!) -->
+      <ellipse cx="75"  cy="68" rx="30" ry="32" fill="white"/>
+      <ellipse cx="75"  cy="71" rx="21" ry="23" fill="#4FC3F7"/>
+      <ellipse cx="75"  cy="71" rx="13" ry="15" fill="#0D47A1"/>
+      <circle  cx="75"  cy="71" r="8"            fill="#000000"/>
+      <ellipse cx="69"  cy="63" rx="5"  ry="3.5" fill="white"/>
+      <ellipse cx="135" cy="68" rx="30" ry="32" fill="white"/>
+      <ellipse cx="135" cy="71" rx="21" ry="23" fill="#4FC3F7"/>
+      <ellipse cx="135" cy="71" rx="13" ry="15" fill="#0D47A1"/>
+      <circle  cx="135" cy="71" r="8"            fill="#000000"/>
+      <ellipse cx="129" cy="63" rx="5"  ry="3.5" fill="white"/>
+      <!-- EYELASHES (super important!) -->
+      <line x1="52"  y1="40" x2="46"  y2="22" stroke="#000" stroke-width="2.8" stroke-linecap="round"/>
+      <line x1="68"  y1="34" x2="65"  y2="15" stroke="#000" stroke-width="2.8" stroke-linecap="round"/>
+      <line x1="84"  y1="34" x2="86"  y2="15" stroke="#000" stroke-width="2.8" stroke-linecap="round"/>
+      <line x1="118" y1="34" x2="116" y2="15" stroke="#000" stroke-width="2.8" stroke-linecap="round"/>
+      <line x1="134" y1="33" x2="136" y2="14" stroke="#000" stroke-width="2.8" stroke-linecap="round"/>
+      <line x1="150" y1="38" x2="156" y2="20" stroke="#000" stroke-width="2.8" stroke-linecap="round"/>
+      <!-- Nose -->
+      <ellipse cx="105" cy="94" rx="9" ry="11" fill="#E8A060"/>
+      <ellipse cx="105" cy="95" rx="6" ry="8" fill="#CC8040"/>
+      <!-- Rosy cheeks -->
+      <ellipse cx="57"  cy="106" rx="14" ry="9" fill="rgba(255,120,120,.52)"/>
+      <ellipse cx="153" cy="106" rx="14" ry="9" fill="rgba(255,120,120,.52)"/>
+      <!-- Big smile -->
+      <path d="M 62 112 Q 105 140 148 112" stroke="#000" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+      <!-- BUCK TEETH (two big squares!) -->
+      <rect x="84" y="115" width="20" height="21" rx="4" fill="white" stroke="#ddd" stroke-width="1"/>
+      <rect x="106" y="115" width="20" height="21" rx="4" fill="white" stroke="#ddd" stroke-width="1"/>
+      <line x1="103" y1="115" x2="107" y2="136" stroke="#ddd" stroke-width="2"/>
+    </svg>
+  </div>
+
+  {{-- ═══ PATRICK STAR (right) ═══ --}}
+  <div id="lm-pat">
+    <svg viewBox="0 0 230 320" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;filter:drop-shadow(0 0 16px rgba(255,150,180,.5))">
+      <!-- Starfish body — 5 arms, blobby pink -->
+      <path d="M115,15 L138,78 L205,55 L168,115 L218,168 L150,152 L132,225 L115,158 L98,225 L80,152 L12,168 L62,115 L25,55 L92,78 Z" fill="#FF9EB5" stroke="#E87090" stroke-width="2.5"/>
+      <!-- Body texture lines -->
+      <path d="M115,100 L115,60" stroke="rgba(255,255,255,.35)" stroke-width="3" stroke-linecap="round"/>
+      <path d="M115,100 L80,130"  stroke="rgba(255,255,255,.3)"  stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M115,100 L150,130" stroke="rgba(255,255,255,.3)"  stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M115,100 L65,155"  stroke="rgba(255,255,255,.25)" stroke-width="2" stroke-linecap="round"/>
+      <path d="M115,100 L165,155" stroke="rgba(255,255,255,.25)" stroke-width="2" stroke-linecap="round"/>
+      <!-- Heavy brows (Patrick's signature look) -->
+      <rect x="88"  y="105" width="28" height="9" rx="5" fill="#CC6888"/>
+      <rect x="114" y="105" width="28" height="9" rx="5" fill="#CC6888"/>
+      <!-- Dumb glazed eyes -->
+      <ellipse cx="102" cy="128" rx="16" ry="18" fill="white"/>
+      <ellipse cx="128" cy="128" rx="16" ry="18" fill="white"/>
+      <circle  cx="102" cy="132" r="9"            fill="#000"/>
+      <circle  cx="128" cy="132" r="9"            fill="#000"/>
+      <!-- Glazed look highlights (small & off-center — he's not smart) -->
+      <ellipse cx="98"  cy="126" rx="3.5" ry="2.5" fill="white"/>
+      <ellipse cx="124" cy="126" rx="3.5" ry="2.5" fill="white"/>
+      <!-- Dumb open mouth -->
+      <path d="M 90 155 Q 115 175 140 155" stroke="#000" stroke-width="2.5" fill="#CC4466"/>
+      <!-- Tongue -->
+      <ellipse cx="115" cy="168" rx="14" ry="9" fill="#FF6688"/>
+      <!-- SHORTS (green with flower) -->
+      <path d="M 72 188 L 50 285 L 92 285 L 115 240 L 138 285 L 180 285 L 158 188 Z" fill="#228B22"/>
+      <!-- Flowers on shorts -->
+      <circle cx="105" cy="225" r="7" fill="#FFD700"/>
+      <circle cx="98"  cy="218" r="5" fill="#FF88BB"/>
+      <circle cx="112" cy="218" r="5" fill="#FF88BB"/>
+      <circle cx="98"  cy="232" r="5" fill="#FF88BB"/>
+      <circle cx="112" cy="232" r="5" fill="#FF88BB"/>
+      <circle cx="130" cy="210" r="6" fill="#FFD700"/>
+      <circle cx="124" cy="204" r="4" fill="#FF99CC"/>
+      <circle cx="136" cy="204" r="4" fill="#FF99CC"/>
+      <circle cx="124" cy="216" r="4" fill="#FF99CC"/>
+      <circle cx="136" cy="216" r="4" fill="#FF99CC"/>
+      <!-- Feet -->
+      <ellipse cx="71"  cy="287" rx="22" ry="11" fill="#FF9EB5"/>
+      <ellipse cx="159" cy="287" rx="22" ry="11" fill="#FF9EB5"/>
+    </svg>
+  </div>
+
+  {{-- ═══ SQUIDWARD (left-center) ═══ --}}
+  <div id="lm-sqd">
+    <svg viewBox="0 0 180 420" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;filter:drop-shadow(0 0 12px rgba(100,180,100,.4))">
+      <!-- Tentacle legs -->
+      <path d="M62 295 Q48 340 42 370 Q36 390 48 396 Q60 402 64 380 Q70 352 72 318" fill="#7AB87A"/>
+      <path d="M80 302 Q76 345 74 378 Q72 396 84 398 Q96 400 94 382 Q92 352 92 320" fill="#8FBC8F"/>
+      <path d="M100 302 Q104 345 106 378 Q108 396 120 394 Q132 392 128 374 Q124 344 116 320" fill="#7AB87A"/>
+      <path d="M118 295 Q132 340 138 370 Q144 390 132 396 Q120 402 116 380 Q110 352 108 318" fill="#8FBC8F"/>
+      <!-- Body (brown shirt) -->
+      <rect x="48" y="200" width="84" height="105" rx="18" fill="#8B6914"/>
+      <!-- Shirt collar -->
+      <path d="M 80 200 L 90 218 L 100 200" fill="#A07820" stroke="#A07820"/>
+      <!-- Tentacle arms -->
+      <path d="M 48 228 Q 10 205 4 182 Q 0 168 14 164" stroke="#8FBC8F" stroke-width="20" fill="none" stroke-linecap="round"/>
+      <path d="M132 228 Q 170 205 176 182 Q 180 168 166 164" stroke="#8FBC8F" stroke-width="20" fill="none" stroke-linecap="round"/>
+      <!-- Clarinet in arm -->
+      <rect x="168" y="148" width="14" height="68" rx="5" fill="#222"/>
+      <rect x="164" y="146" width="22" height="8"  rx="4" fill="#444"/>
+      <circle cx="175" cy="164" r="3.5" fill="#888"/>
+      <circle cx="175" cy="177" r="3.5" fill="#888"/>
+      <circle cx="175" cy="190" r="3.5" fill="#888"/>
+      <ellipse cx="175" cy="218" rx="11" ry="6" fill="#222"/>
+      <!-- Neck -->
+      <rect x="80" y="185" width="30" height="22" rx="8" fill="#8FBC8F"/>
+      <!-- BIG ELONGATED HEAD -->
+      <ellipse cx="95" cy="110" rx="60" ry="95" fill="#8FBC8F"/>
+      <!-- Head shading -->
+      <ellipse cx="95" cy="85"  rx="50" ry="65" fill="rgba(130,195,130,.28)"/>
+      <!-- Forehead bumps (Squidward's weird head) -->
+      <ellipse cx="70"  cy="30" rx="18" ry="25" fill="#8FBC8F"/>
+      <ellipse cx="120" cy="30" rx="18" ry="25" fill="#8FBC8F"/>
+      <!-- GIANT ROUND NOSE -->
+      <ellipse cx="95" cy="128" rx="26" ry="35" fill="#7AB87A"/>
+      <ellipse cx="95" cy="132" rx="19" ry="26" fill="#6AA86A"/>
+      <circle  cx="87" cy="125" r="6"            fill="rgba(90,160,90,.5)"/>
+      <circle  cx="103" cy="125" r="6"           fill="rgba(90,160,90,.5)"/>
+      <!-- Hooded droopy eyes -->
+      <ellipse cx="72"  cy="86" rx="20" ry="22" fill="white"/>
+      <ellipse cx="72"  cy="90" rx="14" ry="16" fill="#FFDD44"/>
+      <circle  cx="72"  cy="90" r="8"            fill="#000"/>
+      <ellipse cx="68"  cy="83" rx="3.5" ry="2.5" fill="white"/>
+      <path d="M 52 76 Q 72 70 92 76 Q 72 84 52 76 Z" fill="#8FBC8F"/>
+      <ellipse cx="118" cy="86" rx="20" ry="22" fill="white"/>
+      <ellipse cx="118" cy="90" rx="14" ry="16" fill="#FFDD44"/>
+      <circle  cx="118" cy="90" r="8"            fill="#000"/>
+      <ellipse cx="114" cy="83" rx="3.5" ry="2.5" fill="white"/>
+      <path d="M 98 76 Q 118 70 138 76 Q 118 84 98 76 Z" fill="#8FBC8F"/>
+      <!-- Angry brows -->
+      <path d="M 52 68 Q 72 58 92 64" stroke="#5A8A5A" stroke-width="5.5" fill="none" stroke-linecap="round"/>
+      <path d="M 98 64 Q 118 58 138 68" stroke="#5A8A5A" stroke-width="5.5" fill="none" stroke-linecap="round"/>
+      <!-- Grumpy frown -->
+      <path d="M 72 160 Q 95 151 118 160" stroke="#555" stroke-width="3" fill="none" stroke-linecap="round"/>
+    </svg>
+  </div>
+
+  {{-- ═══ SQUIDWARD #2 (right-center, mirrored) ═══ --}}
+  <div id="lm-sqd2">
+    <svg viewBox="0 0 180 420" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;filter:drop-shadow(0 0 12px rgba(100,180,100,.4))">
+      <path d="M62 295 Q48 340 42 370 Q36 390 48 396 Q60 402 64 380 Q70 352 72 318" fill="#7AB87A"/>
+      <path d="M80 302 Q76 345 74 378 Q72 396 84 398 Q96 400 94 382 Q92 352 92 320" fill="#8FBC8F"/>
+      <path d="M100 302 Q104 345 106 378 Q108 396 120 394 Q132 392 128 374 Q124 344 116 320" fill="#7AB87A"/>
+      <path d="M118 295 Q132 340 138 370 Q144 390 132 396 Q120 402 116 380 Q110 352 108 318" fill="#8FBC8F"/>
+      <rect x="48" y="200" width="84" height="105" rx="18" fill="#8B6914"/>
+      <path d="M 80 200 L 90 218 L 100 200" fill="#A07820" stroke="#A07820"/>
+      <path d="M 48 228 Q 10 205 4 182 Q 0 168 14 164" stroke="#8FBC8F" stroke-width="20" fill="none" stroke-linecap="round"/>
+      <path d="M132 228 Q 170 205 176 182 Q 180 168 166 164" stroke="#8FBC8F" stroke-width="20" fill="none" stroke-linecap="round"/>
+      <rect x="80" y="185" width="30" height="22" rx="8" fill="#8FBC8F"/>
+      <ellipse cx="95" cy="110" rx="60" ry="95" fill="#8FBC8F"/>
+      <ellipse cx="95" cy="85"  rx="50" ry="65" fill="rgba(130,195,130,.28)"/>
+      <ellipse cx="70"  cy="30" rx="18" ry="25" fill="#8FBC8F"/>
+      <ellipse cx="120" cy="30" rx="18" ry="25" fill="#8FBC8F"/>
+      <ellipse cx="95" cy="128" rx="26" ry="35" fill="#7AB87A"/>
+      <ellipse cx="95" cy="132" rx="19" ry="26" fill="#6AA86A"/>
+      <ellipse cx="72"  cy="86" rx="20" ry="22" fill="white"/>
+      <ellipse cx="72"  cy="90" rx="14" ry="16" fill="#FFDD44"/>
+      <circle  cx="72"  cy="90" r="8" fill="#000"/>
+      <ellipse cx="68"  cy="83" rx="3.5" ry="2.5" fill="white"/>
+      <path d="M 52 76 Q 72 70 92 76 Q 72 84 52 76 Z" fill="#8FBC8F"/>
+      <ellipse cx="118" cy="86" rx="20" ry="22" fill="white"/>
+      <ellipse cx="118" cy="90" rx="14" ry="16" fill="#FFDD44"/>
+      <circle  cx="118" cy="90" r="8" fill="#000"/>
+      <ellipse cx="114" cy="83" rx="3.5" ry="2.5" fill="white"/>
+      <path d="M 98 76 Q 118 70 138 76 Q 118 84 98 76 Z" fill="#8FBC8F"/>
+      <path d="M 52 68 Q 72 58 92 64" stroke="#5A8A5A" stroke-width="5.5" fill="none" stroke-linecap="round"/>
+      <path d="M 98 64 Q 118 58 138 68" stroke="#5A8A5A" stroke-width="5.5" fill="none" stroke-linecap="round"/>
+      <path d="M 72 160 Q 95 151 118 160" stroke="#555" stroke-width="3" fill="none" stroke-linecap="round"/>
+    </svg>
+  </div>
+
+  {{-- ═══ GARY THE SNAIL (crawls across) ═══ --}}
+  <div id="lm-gary">
+    <svg viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto">
+      <!-- Shell (spiral) -->
+      <circle cx="75" cy="30" r="32" fill="#CC8844"/>
+      <circle cx="75" cy="30" r="24" fill="#AA6622"/>
+      <circle cx="75" cy="30" r="16" fill="#CC8844"/>
+      <circle cx="75" cy="30" r="9"  fill="#AA6622"/>
+      <circle cx="75" cy="30" r="4"  fill="#CC8844"/>
+      <!-- Shell shine -->
+      <ellipse cx="62" cy="18" rx="10" ry="7" fill="rgba(255,255,255,.25)" transform="rotate(-20,62,18)"/>
+      <!-- Body -->
+      <ellipse cx="50" cy="60" rx="45" ry="22" fill="#77AABB"/>
+      <!-- Underside -->
+      <ellipse cx="50" cy="68" rx="40" ry="14" fill="#5599AA"/>
+      <!-- Face -->
+      <ellipse cx="20" cy="50" rx="18" ry="15" fill="#77AABB"/>
+      <!-- Eye stalks -->
+      <line x1="16" y1="42" x2="10" y2="24" stroke="#77AABB" stroke-width="5" stroke-linecap="round"/>
+      <line x1="24" y1="40" x2="28" y2="22" stroke="#77AABB" stroke-width="5" stroke-linecap="round"/>
+      <!-- Eyes (big and pink — Gary's most notable feature) -->
+      <circle cx="10" cy="22" r="8" fill="#FF69B4"/>
+      <circle cx="28" cy="20" r="8" fill="#FF69B4"/>
+      <circle cx="10" cy="22" r="4" fill="#000"/>
+      <circle cx="28" cy="20" r="4" fill="#000"/>
+      <circle cx="8"  cy="20" r="2" fill="white"/>
+      <circle cx="26" cy="18" r="2" fill="white"/>
+      <!-- Mouth -->
+      <path d="M 12 58 Q 20 64 28 58" stroke="#446677" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <!-- Meow text (Gary says meow) -->
+      <text x="35" y="30" font-size="9" fill="white" font-weight="bold" opacity=".9">meow</text>
+    </svg>
   </div>
 
   {{-- Gojo Satoru — left --}}
