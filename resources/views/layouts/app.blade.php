@@ -1825,20 +1825,28 @@
 
       <div class="enc-header__right">
         {{-- Global Academic-Year selector (staff only) --}}
-        @if(auth()->user()->role_id !== '01' && isset($globalAcademicYears) && $globalAcademicYears->isNotEmpty())
+        @if(auth()->user()->role_id !== '01')
+        @php
+          $encYears    = isset($globalAcademicYears) ? $globalAcademicYears
+                         : \App\Models\AcademicYear::orderByDesc('start_date')->get();
+          $encActiveId = isset($globalActiveYearId)  ? $globalActiveYearId
+                         : \App\Models\AcademicYear::currentId();
+        @endphp
+        @if($encYears->isNotEmpty())
         <form method="POST" action="{{ route('academic-year.switch') }}" id="enc-year-form" class="enc-year-picker" title="Working academic year">
           @csrf
           <svg class="enc-year-picker__icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 9v7.5"/>
           </svg>
           <select name="academic_year_id" onchange="document.getElementById('enc-year-form').submit()" aria-label="Academic year">
-            @foreach($globalAcademicYears as $ay)
-              <option value="{{ $ay->id }}" {{ (int)$globalActiveYearId === (int)$ay->id ? 'selected' : '' }}>
+            @foreach($encYears as $ay)
+              <option value="{{ $ay->id }}" {{ (int)$encActiveId === (int)$ay->id ? 'selected' : '' }}>
                 S.Y. {{ $ay->year_label }}{{ $ay->status === 'active' ? ' • active' : '' }}
               </option>
             @endforeach
           </select>
         </form>
+        @endif
         @endif
 
         <div class="enc-header__time" id="enc-clock">--:-- --</div>
