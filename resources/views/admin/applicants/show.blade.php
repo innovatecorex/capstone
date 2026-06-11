@@ -71,14 +71,14 @@
       </div>
     </div>
 
-    {{-- Entrance Test Result --}}
+    {{-- Guidance & Test Result --}}
     @php $etr = $applicant->entranceTestResult; @endphp
     <div class="enc-card" style="padding:1.25rem;">
       <div class="enc-card__header">
-        <div class="enc-card__title">Entrance Test</div>
-        <a href="{{ route('admin.entrance-tests.create', $applicant->id) }}"
+        <div class="enc-card__title">Guidance &amp; Testing</div>
+        <a href="{{ route('admin.guidance-testing.create', $applicant->id) }}"
            style="font-size:.78rem;font-weight:700;color:var(--primary);text-decoration:none;">
-          {{ $etr ? 'Edit Result' : 'Record Test' }} →
+          {{ $etr ? 'Edit Record' : 'Record Test' }} →
         </a>
       </div>
       <div class="enc-card__body">
@@ -92,14 +92,26 @@
             <span style="font-size:.85rem;color:var(--gray-500);">{{ $etr->test_date->format('M d, Y') }}</span>
           </div>
           @include('admin.applicants._info-grid', ['rows' => [
-            ['Score',   number_format($etr->total_score, 0) . ' / ' . number_format($etr->max_score, 0) . ' (' . $etr->percentage . '%)'],
-            ['Passing', number_format($etr->passing_score, 0)],
+            ['Score',    number_format($etr->total_score, 0) . ' / ' . number_format($etr->max_score, 0) . ' (' . $etr->percentage . '%)'],
+            ['Passing',  number_format($etr->passing_score, 0)],
+            ['NV',    $etr->nv_score !== null ? number_format($etr->nv_score,0).($etr->nv_pct !== null ? ' ('.$etr->nv_pct.'%)' : '').($etr->nv_descriptive ? ' · '.$etr->nv_descriptive : '') : '—'],
+            ['Verbal',$etr->v_score  !== null ? number_format($etr->v_score, 0).($etr->v_pct  !== null ? ' ('.$etr->v_pct.'%)'  : '').($etr->v_descriptive  ? ' · '.$etr->v_descriptive  : '') : '—'],
           ]])
+          @if($etr->acad_filipino_score !== null || $etr->acad_english_score !== null)
+          <div style="margin-top:.65rem;padding:.6rem .8rem;background:#f8fafc;border-radius:8px;font-size:.8rem;color:var(--gray-500);display:grid;grid-template-columns:1fr 1fr;gap:.35rem;">
+            @foreach(['filipino'=>'Filipino','english'=>'English','math'=>'Math','science'=>'Science'] as $k=>$lbl)
+            @php $pct = $etr->{'acad_'.$k.'_pct'}; $desc = $etr->{'acad_'.$k.'_desc'}; @endphp
+            @if($pct !== null || $desc)
+            <div><strong>{{ $lbl }}:</strong> {{ $pct !== null ? $pct.'%' : '' }}{{ $desc ? ' · '.$desc : '' }}</div>
+            @endif
+            @endforeach
+          </div>
+          @endif
           @if($etr->notes)
-          <div style="margin-top:.6rem;font-size:.82rem;color:var(--gray-500);font-style:italic;">{{ $etr->notes }}</div>
+          <div style="margin-top:.55rem;font-size:.8rem;color:var(--gray-400);font-style:italic;">{{ $etr->notes }}</div>
           @endif
         @else
-          <div style="color:var(--gray-400);font-size:.88rem;">No entrance test recorded yet.</div>
+          <div style="color:var(--gray-400);font-size:.88rem;">No test record yet. <a href="{{ route('admin.guidance-testing.create', $applicant->id) }}" style="color:var(--primary);text-decoration:none;font-weight:600;">Record now →</a></div>
         @endif
       </div>
     </div>
@@ -218,7 +230,8 @@
 .status-under_review { background:#dbeafe; color:#1e40af; }
 .status-accepted     { background:#dcfce7; color:#166534; }
 .status-rejected     { background:#fee2e2; color:#991b1b; }
-.status-enrolled     { background:#e0f2fe; color:#0369a1; }
+.status-enrolled                { background:#e0f2fe; color:#0369a1; }
+.status-eligible_for_enrollment { background:#fffbeb; color:#92400e; }
 .app-label { display:block; font-size:.76rem; font-weight:700; color:var(--gray-500); margin-bottom:.3rem; }
 .app-input { width:100%; padding:.55rem .85rem; border:1px solid rgba(15,23,42,.14); border-radius:8px; font-size:.88rem; background:#fff; color:var(--navy); font-family:inherit; }
 .app-input:focus { outline:none; border-color:var(--primary); }

@@ -15,8 +15,10 @@
 
 <div class="enc-card student-glass-card" style="padding:1.5rem;">
   <div class="enc-card__header">
-    <div class="enc-card__title">Available Courses</div>
-    <span class="enc-card__meta">Subjects offered for the current academic year</span>
+    <div class="enc-card__title">Enrolled Subjects</div>
+    <span class="enc-card__meta">
+      @if($activeYear) {{ $activeYear->year_label }} @endif
+    </span>
   </div>
   <div class="enc-card__body">
     @if(empty($courses))
@@ -24,8 +26,12 @@
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" style="width:48px;height:48px;margin:0 auto 1rem;display:block;color:rgba(255,255,255,.25)">
           <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/>
         </svg>
-        <p style="font-size:.95rem;font-weight:600;">No Course Offerings Available</p>
-        <p style="font-size:.82rem;margin-top:.25rem;">Course offerings will be displayed here once the registrar publishes them.</p>
+        <p style="font-size:.95rem;font-weight:600;">
+          You are not enrolled{{ $activeYear ? ' for ' . $activeYear->year_label : '' }}.
+        </p>
+        <p style="font-size:.82rem;margin-top:.25rem;color:rgba(255,255,255,.35);">
+          Please contact the Registrar's office to be enrolled for this academic year.
+        </p>
       </div>
     @else
       <div style="overflow-x:auto;">
@@ -45,9 +51,20 @@
               <td style="padding:.65rem .75rem;font-size:.82rem;color:rgba(255,255,255,.5);font-family:monospace;">{{ $course['code'] }}</td>
               <td style="padding:.65rem .75rem;font-size:.88rem;font-weight:500;">{{ $course['name'] }}</td>
               <td style="padding:.65rem .75rem;font-size:.85rem;color:rgba(255,255,255,.7);">{{ $course['teacher'] }}</td>
-              <td style="padding:.65rem .75rem;font-size:.85rem;color:rgba(255,255,255,.5);">{{ $course['schedule'] }}</td>
+              <td style="padding:.65rem .75rem;font-size:.82rem;color:rgba(255,255,255,.5);">
+                {{ $course['schedule'] ?: '—' }}
+              </td>
               <td style="padding:.65rem .75rem;">
-                <span style="padding:.2rem .6rem;border-radius:999px;font-size:.75rem;font-weight:600;background:rgba(99,102,241,.2);color:#a5b4fc;">Enrolled</span>
+                @php $status = $course['status'] ?? 'enrolled'; @endphp
+                @if($status === 'enrolled')
+                  <span style="padding:.2rem .6rem;border-radius:999px;font-size:.75rem;font-weight:600;background:rgba(34,197,94,.2);color:#86efac;">Enrolled</span>
+                @elseif($status === 'dropped')
+                  <span style="padding:.2rem .6rem;border-radius:999px;font-size:.75rem;font-weight:600;background:rgba(239,68,68,.2);color:#fca5a5;">Dropped</span>
+                @elseif($status === 'completed')
+                  <span style="padding:.2rem .6rem;border-radius:999px;font-size:.75rem;font-weight:600;background:rgba(99,102,241,.2);color:#a5b4fc;">Completed</span>
+                @else
+                  <span style="padding:.2rem .6rem;border-radius:999px;font-size:.75rem;font-weight:600;background:rgba(148,163,184,.15);color:rgba(255,255,255,.5);">{{ ucfirst($status) }}</span>
+                @endif
               </td>
             </tr>
             @endforeach

@@ -12,6 +12,7 @@ use App\Models\GradeComplaint;
 use App\Models\GradeUnlockRequest;
 use App\Models\GradingQuarter;
 use App\Models\Notification;
+use App\Models\Payment;
 use App\Models\Section;
 use App\Models\AuditLog;
 use App\Models\User;
@@ -192,13 +193,17 @@ class RegistrarUserDashboardController extends Controller
 
     public function enrollment(Request $request)
     {
+        $allAcademicYears   = AcademicYear::orderByDesc('id')->get();
         $activeAcademicYear = AcademicYear::where('status', 'active')->first();
+        $selectedYearId     = (int) $request->input('year_id', optional($activeAcademicYear)->id ?? 0);
+        $selectedYear       = AcademicYear::find($selectedYearId) ?? $activeAcademicYear;
 
+        // ── Prerequisite checker (GET params) ────────────────────────────
         $checkStudent = null;
         $checkGrade   = null;
         $unmetPrereqs = null;
 
-        if ($request->filled('check_lrn') && $activeAcademicYear) {
+        if ($request->filled('check_lrn') && $selectedYear) {
             $checkStudent = User::where('lrn', $request->input('check_lrn'))
                 ->where('role_id', '01')
                 ->first();
@@ -206,7 +211,7 @@ class RegistrarUserDashboardController extends Controller
 
             if ($checkStudent && $checkGrade) {
                 $unmetPrereqs = app(PrerequisiteService::class)
-                    ->getUnmet($checkStudent, $checkGrade, $activeAcademicYear->id);
+                    ->getUnmet($checkStudent, $checkGrade, $selectedYear->id);
             }
         }
 
@@ -215,30 +220,102 @@ class RegistrarUserDashboardController extends Controller
             'Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12',
         ];
 
+        // ── Stats for selected year ───────────────────────────────────────
+        $totalEnrolled     = $selectedYear
+            ? Enrollment::where('academic_year_id', $selectedYear->id)->where('status', 'enrolled')->count()
+            : 0;
+
+        $sectionsWithSeats = $selectedYear
+            ? Section::where('academic_year_id', $selectedYear->id)
+                ->where('status', 'active')
+                ->withCount(['enrollments as enrolled_count' => fn($q) => $q->where('status', 'enrolled')])
+                ->get()
+                ->filter(fn($s) => ($s->capacity - $s->enrolled_count) > 0)
+                ->count()
+            : 0;
+
+        $unpaidCount = $selectedYear
+            ? User::where('role_id', '01')
+                ->where('status', 'active')
+                ->whereDoesntHave('payments', fn($q) => $q->where('academic_year_id', $selectedYear->id)->where('status', 'paid'))
+                ->count()
+            : 0;
+
+        // ── Student list with payment status map ─────────────────────────
         $allStudents = User::where('role_id', '01')
             ->where('status', 'active')
             ->orderBy('last_name')
+            ->with([
+                'enrollments' => fn($q) => $q->where('academic_year_id', optional($selectedYear)->id ?? 0)
+                    ->where('status', 'enrolled')
+                    ->with('section:id,section_name'),
+            ])
             ->get(['id', 'first_name', 'last_name', 'lrn']);
 
-        $recentEnrollments = Enrollment::with([
+        $studentPaymentStatus = [];
+        if ($selectedYear) {
+            $paidIds = Payment::where('academic_year_id', $selectedYear->id)
+                ->where('status', 'paid')
+                ->pluck('student_id')
+                ->flip()
+                ->toArray();
+            foreach ($allStudents as $s) {
+                $studentPaymentStatus[$s->id] = isset($paidIds[$s->id]);
+            }
+        }
+
+        // ── Enrollment table filters ──────────────────────────────────────
+        $search       = $request->input('search', '');
+        $gradeFilter  = $request->input('grade_filter', '');
+        $statusFilter = $request->input('status_filter', 'enrolled');
+
+        $enrollQuery = Enrollment::with([
             'student:id,first_name,last_name,lrn',
             'section.adviser:id,first_name,last_name',
             'section.sectionSubjects.subject:id,subject_name',
             'section.sectionSubjects.faculty:id,first_name,last_name',
         ])
-        ->where('academic_year_id', AcademicYear::currentId())
-        ->where('status', 'enrolled')
-        ->latest('enrolled_at')
-        ->paginate(20);
+        ->where('academic_year_id', optional($selectedYear)->id ?? 0);
+
+        if ($statusFilter && $statusFilter !== 'all') {
+            $enrollQuery->where('status', $statusFilter);
+        }
+
+        if ($search) {
+            $enrollQuery->where(function ($q) use ($search) {
+                $q->whereHas('student', fn($q2) =>
+                    $q2->where('first_name', 'like', "%{$search}%")
+                       ->orWhere('last_name',  'like', "%{$search}%")
+                )->orWhereHas('section', fn($q2) =>
+                    $q2->where('section_name', 'like', "%{$search}%")
+                );
+            });
+        }
+
+        if ($gradeFilter) {
+            $enrollQuery->whereHas('section', fn($q) => $q->where('grade_level', $gradeFilter));
+        }
+
+        $recentEnrollments = $enrollQuery->latest('enrolled_at')->paginate(20)->withQueryString();
 
         return view('dashboard.registrar-enrollment', compact(
+            'allAcademicYears',
             'activeAcademicYear',
+            'selectedYear',
+            'selectedYearId',
             'checkStudent',
             'checkGrade',
             'unmetPrereqs',
             'standardGradeLevels',
             'allStudents',
-            'recentEnrollments'
+            'studentPaymentStatus',
+            'totalEnrolled',
+            'sectionsWithSeats',
+            'unpaidCount',
+            'recentEnrollments',
+            'search',
+            'gradeFilter',
+            'statusFilter'
         ));
     }
 
@@ -394,8 +471,12 @@ class RegistrarUserDashboardController extends Controller
             'grade_level' => ['required', 'string'],
         ]);
 
+        $yearId = $request->input('academic_year_id')
+            ? (int) $request->input('academic_year_id')
+            : AcademicYear::currentId();
+
         $sections = Section::where('grade_level', $request->grade_level)
-            ->where('academic_year_id', AcademicYear::currentId())
+            ->where('academic_year_id', $yearId)
             ->where('status', 'active')
             ->withCount(['enrollments' => fn($q) => $q->where('status', 'enrolled')])
             ->get(['id', 'section_name', 'grade_level', 'capacity'])
@@ -431,9 +512,13 @@ class RegistrarUserDashboardController extends Controller
             'section_id' => ['required', 'integer', 'exists:sections,id'],
         ]);
 
+        $yearId = $request->input('academic_year_id')
+            ? (int) $request->input('academic_year_id')
+            : AcademicYear::currentId();
+
         $section = Section::with([
             'adviser:id,first_name,last_name',
-            'sectionSubjects' => fn($q) => $q->where('academic_year_id', AcademicYear::currentId()),
+            'sectionSubjects' => fn($q) => $q->where('academic_year_id', $yearId),
             'sectionSubjects.subject:id,subject_name',
             'sectionSubjects.faculty:id,first_name,last_name',
         ])
@@ -479,6 +564,24 @@ class RegistrarUserDashboardController extends Controller
             'capacity'     => $section->capacity,
             'enrolled'     => $section->enrollments_count,
             'subjects'     => $subjects,
+        ]);
+    }
+
+    public function prereqCheck(Request $request)
+    {
+        $request->validate([
+            'student_id'       => ['required', 'integer', 'exists:users,id'],
+            'grade_level'      => ['required', 'string'],
+            'academic_year_id' => ['required', 'integer', 'exists:academic_years,id'],
+        ]);
+
+        $student = User::findOrFail($request->student_id);
+        $unmet   = app(PrerequisiteService::class)
+            ->getUnmet($student, $request->grade_level, (int) $request->academic_year_id);
+
+        return response()->json([
+            'met'   => empty($unmet),
+            'unmet' => $unmet,
         ]);
     }
 

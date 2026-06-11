@@ -409,6 +409,7 @@ class StudentDashboardController extends Controller
         $user        = auth()->user();
         $enrollment  = $this->activeEnrollment($user->id);
         $studentInfo = $this->studentInfo($user, $enrollment);
+        $activeYear  = AcademicYear::where('status', 'active')->first();
 
         $courses = $enrollment
             ? SectionSubject::forSection($enrollment->section_id)
@@ -420,12 +421,12 @@ class StudentDashboardController extends Controller
                     'code'     => $ss->subject?->subject_code ?? '—',
                     'name'     => $ss->subject?->subject_name ?? '—',
                     'teacher'  => $ss->faculty?->full_name ?? '—',
-                    'schedule' => $ss->time_range . '  ' . $ss->schedule_days_label,
-                    'status'   => 'Enrolled',
+                    'schedule' => trim($ss->schedule_days_label . '  ' . $ss->time_range),
+                    'status'   => $enrollment->status,
                 ])->toArray()
             : [];
 
-        return view('dashboard.student-course-offerings', compact('user', 'studentInfo', 'courses'));
+        return view('dashboard.student-course-offerings', compact('user', 'studentInfo', 'courses', 'activeYear'));
     }
 
     public function programCurriculum()

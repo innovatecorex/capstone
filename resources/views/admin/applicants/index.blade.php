@@ -16,13 +16,49 @@
   </div>
 </div>
 
-{{-- Status summary chips --}}
-<div style="display:flex;gap:.6rem;flex-wrap:wrap;margin-bottom:1.25rem;">
-  @foreach(['pending'=>['#fef9c3','#854d0e'],'under_review'=>['#dbeafe','#1e40af'],'accepted'=>['#dcfce7','#166534'],'rejected'=>['#fee2e2','#991b1b']] as $s=>[$bg,$fg])
-  <div style="background:{{ $bg }};color:{{ $fg }};padding:.3rem .85rem;border-radius:999px;font-size:.78rem;font-weight:700;">
-    {{ ucfirst(str_replace('_',' ',$s)) }}: {{ $counts[$s] }}
+{{-- Status stat cards --}}
+<div class="enc-stats">
+
+  <div class="enc-stat-card">
+    <div class="enc-stat-icon enc-stat-icon--amber">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+    </div>
+    <div class="enc-stat-body">
+      <div class="enc-stat-value">{{ $counts['pending'] }}</div>
+      <div class="enc-stat-label">Pending</div>
+    </div>
   </div>
-  @endforeach
+
+  <div class="enc-stat-card">
+    <div class="enc-stat-icon enc-stat-icon--blue">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.964-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+    </div>
+    <div class="enc-stat-body">
+      <div class="enc-stat-value">{{ $counts['under_review'] }}</div>
+      <div class="enc-stat-label">Under Review</div>
+    </div>
+  </div>
+
+  <div class="enc-stat-card">
+    <div class="enc-stat-icon enc-stat-icon--green">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+    </div>
+    <div class="enc-stat-body">
+      <div class="enc-stat-value">{{ $counts['accepted'] }}</div>
+      <div class="enc-stat-label">Accepted</div>
+    </div>
+  </div>
+
+  <div class="enc-stat-card">
+    <div class="enc-stat-icon enc-stat-icon--red">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+    </div>
+    <div class="enc-stat-body">
+      <div class="enc-stat-value">{{ $counts['rejected'] }}</div>
+      <div class="enc-stat-label">Rejected</div>
+    </div>
+  </div>
+
 </div>
 
 {{-- Filters --}}
@@ -142,7 +178,8 @@
 .status-under_review  { background:#dbeafe; color:#1e40af; }
 .status-accepted      { background:#dcfce7; color:#166534; }
 .status-rejected      { background:#fee2e2; color:#991b1b; }
-.status-enrolled      { background:#e0f2fe; color:#0369a1; }
+.status-enrolled                { background:#e0f2fe; color:#0369a1; }
+.status-eligible_for_enrollment { background:#fffbeb; color:#92400e; }
 .app-btn { display:inline-flex; align-items:center; justify-content:center; padding:.55rem 1.1rem; border-radius:999px; font-weight:700; text-decoration:none; }
 .app-btn--ghost { background:rgba(15,23,42,.07); color:var(--navy); }
 </style>

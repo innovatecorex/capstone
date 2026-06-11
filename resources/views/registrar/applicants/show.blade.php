@@ -77,6 +77,47 @@
       </div>
     </div>
 
+    {{-- Guidance & Test Result (read-only) --}}
+    @php $etr = $applicant->entranceTestResult; @endphp
+    <div class="enc-card" style="padding:1.25rem;">
+      <div class="enc-card__header">
+        <div class="enc-card__title">Guidance &amp; Testing</div>
+      </div>
+      <div class="enc-card__body">
+        @if($etr)
+          <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem;">
+            <span style="display:inline-block;padding:.3rem .9rem;border-radius:999px;font-size:.78rem;font-weight:800;
+              background:{{ $etr->passed ? '#dcfce7' : '#fee2e2' }};
+              color:{{ $etr->passed ? '#166534' : '#991b1b' }};">
+              {{ $etr->passed ? 'PASSED' : 'FAILED' }}
+            </span>
+            <span style="font-size:.85rem;color:var(--gray-500);">{{ $etr->test_date->format('M d, Y') }}</span>
+          </div>
+          @include('registrar.applicants._info-grid', ['rows' => [
+            ['Score',   number_format($etr->total_score, 0) . ' / ' . number_format($etr->max_score, 0) . ' (' . $etr->percentage . '%)'],
+            ['Passing', number_format($etr->passing_score, 0)],
+            ['NV',    $etr->nv_score !== null ? number_format($etr->nv_score,0).($etr->nv_pct !== null ? ' ('.$etr->nv_pct.'%)' : '').($etr->nv_descriptive ? ' · '.$etr->nv_descriptive : '') : '—'],
+            ['Verbal',$etr->v_score  !== null ? number_format($etr->v_score, 0).($etr->v_pct  !== null ? ' ('.$etr->v_pct.'%)'  : '').($etr->v_descriptive  ? ' · '.$etr->v_descriptive  : '') : '—'],
+          ]])
+          @if($etr->acad_filipino_score !== null || $etr->acad_english_score !== null)
+          <div style="margin-top:.65rem;padding:.6rem .8rem;background:#f8fafc;border-radius:8px;font-size:.8rem;color:var(--gray-500);display:grid;grid-template-columns:1fr 1fr;gap:.35rem;">
+            @foreach(['filipino'=>'Filipino','english'=>'English','math'=>'Math','science'=>'Science'] as $k=>$lbl)
+            @php $pct = $etr->{'acad_'.$k.'_pct'}; $desc = $etr->{'acad_'.$k.'_desc'}; @endphp
+            @if($pct !== null || $desc)
+            <div><strong>{{ $lbl }}:</strong> {{ $pct !== null ? $pct.'%' : '' }}{{ $desc ? ' · '.$desc : '' }}</div>
+            @endif
+            @endforeach
+          </div>
+          @endif
+          @if($etr->notes)
+          <div style="margin-top:.55rem;font-size:.8rem;color:var(--gray-400);font-style:italic;">{{ $etr->notes }}</div>
+          @endif
+        @else
+          <div style="color:var(--gray-400);font-size:.88rem;">No test record yet.</div>
+        @endif
+      </div>
+    </div>
+
   </div>
 
   {{-- ── Right: status & actions panel ───────────────────────────── --}}
@@ -122,7 +163,7 @@
           <div>
             <label class="adm-label">New Status</label>
             <select name="status" class="adm-input" required>
-              @foreach(['pending','under_review','accepted','rejected'] as $s)
+              @foreach(['pending','under_review','accepted','rejected','eligible_for_enrollment','enrolled'] as $s)
               <option value="{{ $s }}" {{ $applicant->status === $s ? 'selected' : '' }}>
                 {{ ucfirst(str_replace('_',' ',$s)) }}
               </option>
@@ -190,7 +231,8 @@
 .adm-status--under_review  { background:#dbeafe; color:#1e40af; }
 .adm-status--accepted      { background:#dcfce7; color:#166534; }
 .adm-status--rejected      { background:#fee2e2; color:#991b1b; }
-.adm-status--enrolled      { background:#e0f2fe; color:#0369a1; }
+.adm-status--enrolled                { background:#e0f2fe; color:#0369a1; }
+.adm-status--eligible_for_enrollment { background:#fffbeb; color:#92400e; }
 .adm-label { display:block; font-size:.76rem; font-weight:700; color:var(--gray-500); margin-bottom:.3rem; }
 .adm-input { width:100%; padding:.55rem .85rem; border:1px solid rgba(15,23,42,.14); border-radius:8px; font-size:.88rem; background:#fff; color:var(--navy); font-family:inherit; }
 .adm-input:focus { outline:none; border-color:var(--primary); }

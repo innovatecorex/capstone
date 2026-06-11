@@ -40,13 +40,16 @@ class UserManagementController extends Controller
             $query->where('gender', $request->input('gender'));
         }
 
-        // Search by username or LRN/employee number (plain text fields)
+        // Search by name, username, LRN, or employee number (all plain text)
         if ($request->filled('search')) {
             $s = $request->input('search');
             $query->where(function ($q) use ($s) {
                 $q->where('username', 'like', "%{$s}%")
                   ->orWhere('lrn', 'like', "%{$s}%")
-                  ->orWhere('employee_number', 'like', "%{$s}%");
+                  ->orWhere('employee_number', 'like', "%{$s}%")
+                  ->orWhere('first_name', 'like', "%{$s}%")
+                  ->orWhere('last_name', 'like', "%{$s}%")
+                  ->orWhereRaw("(first_name || ' ' || last_name) LIKE ?", ["%{$s}%"]);
             });
         }
 

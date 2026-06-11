@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
   {{-- Platform CSS --}}
-  <link rel="stylesheet" href="{{ asset('css/encrypted.css') }}">
+  <link rel="stylesheet" href="{{ asset('css/encrypted.css') }}?v={{ filemtime(public_path('css/encrypted.css')) }}">
 
   @if(auth()->check())
   <style>
@@ -545,18 +545,43 @@
   .sd-hero__pill--warn { background: #fef2f2; border-color: #fecaca; color: #991b1b; }
   .sd-hero__pill--warn svg { color: #dc2626; }
 
-  /* ── Stat Strip ─────────────────────────────────────────────── */
-  .sd-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-bottom: 20px; }
-  .sd-stat { background: var(--sd-card); border: 1px solid var(--sd-border); border-radius: var(--sd-radius); padding: 18px 16px; box-shadow: var(--sd-shadow); display: flex; align-items: center; gap: 12px; transition: transform .18s ease, box-shadow .18s ease; }
-  .sd-stat:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(15,23,42,.1); }
-  .sd-stat__icon { width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  /* ── Stat Strip — matches global enc-stat-card design ───────── */
+  .sd-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 12px; margin-bottom: 20px; }
+  .sd-stat {
+    background: #ffffff;
+    border: 1px solid #edf2f8;
+    border-radius: 16px;
+    padding: 20px 12px 18px;
+    box-shadow: 0 1px 3px rgba(10,31,68,.04), 0 4px 18px rgba(10,31,68,.06);
+    display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center;
+    transition: transform .22s cubic-bezier(.34,1.56,.64,1), box-shadow .2s ease, border-color .2s ease;
+    position: relative; overflow: hidden; text-decoration: none; color: inherit;
+  }
+  .sd-stat::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    border-radius: 16px 16px 0 0;
+    background: linear-gradient(90deg, #1a3a6b 0%, #2e6ae6 50%, #3ecfa0 100%);
+    opacity: 0; transform: scaleX(0); transform-origin: left;
+    transition: opacity .2s ease, transform .25s ease;
+  }
+  .sd-stat:hover { transform: translateY(-4px); box-shadow: 0 10px 36px rgba(10,31,68,.13); border-color: #d8e4f0; }
+  .sd-stat:hover::before { opacity: 1; transform: scaleX(1); }
+  .sd-stat__icon {
+    width: 44px; height: 44px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    transition: transform .2s ease;
+  }
+  .sd-stat:hover .sd-stat__icon { transform: scale(1.08); }
   .sd-stat__icon svg { width: 20px; height: 20px; }
-  .si--blue   { background: rgba(79,70,229,.1);  color: var(--sd-primary); }
-  .si--green  { background: rgba(16,185,129,.1); color: var(--sd-success); }
-  .si--orange { background: rgba(245,158,11,.1); color: var(--sd-warning); }
-  .si--red    { background: rgba(239,68,68,.1);  color: var(--sd-danger);  }
-  .sd-stat__val   { font-size: 1.3rem; font-weight: 800; color: var(--sd-navy); line-height: 1.1; }
-  .sd-stat__label { font-size: .74rem; color: var(--sd-muted); margin-top: 2px; font-weight: 500; }
+  .si--blue   { background: linear-gradient(145deg,#dbeafe,#eff6ff); color: #1d4ed8; box-shadow: 0 4px 14px rgba(29,78,216,.18); }
+  .si--green  { background: linear-gradient(145deg,#bbf7d0,#dcfce7); color: #16a34a; box-shadow: 0 4px 14px rgba(22,163,74,.18); }
+  .si--orange { background: linear-gradient(145deg,#fde68a,#fef3c7); color: #d97706; box-shadow: 0 4px 14px rgba(217,119,6,.2); }
+  .si--red    { background: linear-gradient(145deg,#fecaca,#fee2e2); color: #dc2626; box-shadow: 0 4px 14px rgba(220,38,38,.18); }
+  .si--violet { background: linear-gradient(145deg,#c4b5fd,#ede9fe); color: #4f46e5; box-shadow: 0 4px 14px rgba(79,70,229,.2); }
+  .si--teal   { background: linear-gradient(145deg,#a5f3fc,#cffafe); color: #0891b2; box-shadow: 0 4px 14px rgba(8,145,178,.18); }
+  .si--amber  { background: linear-gradient(145deg,#fde68a,#fef9c3); color: #ca8a04; box-shadow: 0 4px 14px rgba(202,138,4,.2); }
+  .sd-stat__val   { font-size: 1.7rem; font-weight: 800; color: #0a1f44; line-height: 1; letter-spacing: -.04em; }
+  .sd-stat__label { font-size: .64rem; color: #94a3b8; margin-top: 4px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; line-height: 1.4; }
 
   /* ── Card ───────────────────────────────────────────────────── */
   .sd-card { background: var(--sd-card); border: 1px solid var(--sd-border); border-radius: var(--sd-radius); box-shadow: var(--sd-shadow); overflow: hidden; }
@@ -1947,14 +1972,227 @@
 ═══════════════════════════════════════════════════════ --}}
 
 <style>
-/* ── Logout Modal — clean ── */
-@keyframes lm-fadein { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
-@keyframes lm-pulse-dot { 0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.4)} 50%{box-shadow:0 0 0 5px rgba(34,197,94,.0)} }
+/* ══════════════════════════════════════════════
+   ABSOLUTE CHAOS LOGOUT MODAL — OVERKILL EDITION
+   ══════════════════════════════════════════════ */
+
+@keyframes lm-fadein       { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+@keyframes lm-pulse-dot    { 0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.4)} 50%{box-shadow:0 0 0 5px rgba(34,197,94,0)} }
+
+/* Rainbow backdrop strobe */
+@keyframes lm-backdrop-strobe {
+  0%   {background:rgba(15,23,42,.75)}
+  8%   {background:rgba(200,0,50,.45)}
+  9%   {background:rgba(15,23,42,.75)}
+  25%  {background:rgba(0,80,200,.4)}
+  26%  {background:rgba(15,23,42,.75)}
+  50%  {background:rgba(180,0,200,.4)}
+  51%  {background:rgba(15,23,42,.75)}
+  75%  {background:rgba(0,180,80,.35)}
+  76%  {background:rgba(15,23,42,.75)}
+  92%  {background:rgba(255,140,0,.4)}
+  93%  {background:rgba(15,23,42,.75)}
+  100% {background:rgba(15,23,42,.75)}
+}
+
+/* Full-screen white strobe flash */
+@keyframes lm-strobe {
+  0%,38%  {opacity:0}
+  39%,42% {opacity:.55}
+  43%,72% {opacity:0}
+  73%,75% {opacity:.45}
+  76%,89% {opacity:0}
+  90%,91% {opacity:.6}
+  92%,100%{opacity:0}
+}
+
+/* Cycling rainbow overlay */
+@keyframes lm-rainbow {
+  0%   {background:rgba(255,0,0,.18)}
+  12%  {background:rgba(255,100,0,.18)}
+  25%  {background:rgba(255,230,0,.18)}
+  37%  {background:rgba(0,220,50,.18)}
+  50%  {background:rgba(0,180,255,.18)}
+  62%  {background:rgba(80,0,255,.18)}
+  75%  {background:rgba(200,0,255,.18)}
+  87%  {background:rgba(255,0,150,.18)}
+  100% {background:rgba(255,0,0,.18)}
+}
+
+/* RGB border on dialog */
+@keyframes lm-rgb-border {
+  0%   {border-color:#ff0000;box-shadow:0 0 35px #ff0000,0 0 70px rgba(255,0,0,.5),0 24px 64px rgba(15,23,42,.25)}
+  15%  {border-color:#ff8800;box-shadow:0 0 35px #ff8800,0 0 70px rgba(255,136,0,.5),0 24px 64px rgba(15,23,42,.25)}
+  30%  {border-color:#ffee00;box-shadow:0 0 35px #ffee00,0 0 70px rgba(255,238,0,.5),0 24px 64px rgba(15,23,42,.25)}
+  45%  {border-color:#00ff55;box-shadow:0 0 35px #00ff55,0 0 70px rgba(0,255,85,.5),0 24px 64px rgba(15,23,42,.25)}
+  60%  {border-color:#00ccff;box-shadow:0 0 35px #00ccff,0 0 70px rgba(0,204,255,.5),0 24px 64px rgba(15,23,42,.25)}
+  75%  {border-color:#aa00ff;box-shadow:0 0 35px #aa00ff,0 0 70px rgba(170,0,255,.5),0 24px 64px rgba(15,23,42,.25)}
+  90%  {border-color:#ff00cc;box-shadow:0 0 35px #ff00cc,0 0 70px rgba(255,0,204,.5),0 24px 64px rgba(15,23,42,.25)}
+  100% {border-color:#ff0000;box-shadow:0 0 35px #ff0000,0 0 70px rgba(255,0,0,.5),0 24px 64px rgba(15,23,42,.25)}
+}
+
+/* Scrolling rainbow top bar */
+@keyframes lm-bar {
+  0%   {background:linear-gradient(90deg,#ff0000,#ff8800,#ffff00,#00ff00,#00ffff,#0000ff,#aa00ff,#ff00ff)}
+  50%  {background:linear-gradient(90deg,#aa00ff,#ff00ff,#ff0000,#ff8800,#ffff00,#00ff00,#00ffff,#0000ff)}
+  100% {background:linear-gradient(90deg,#ff0000,#ff8800,#ffff00,#00ff00,#00ffff,#0000ff,#aa00ff,#ff00ff)}
+}
+
+/* Chaos title text color cycle */
+@keyframes lm-title-chaos {
+  0%,100%{color:#0f172a;text-shadow:none}
+  10%    {color:#ff2200;text-shadow:0 0 10px #ff2200}
+  20%    {color:#ff8800;text-shadow:0 0 10px #ff8800}
+  30%    {color:#ffcc00;text-shadow:0 0 10px #ffcc00}
+  40%    {color:#00cc44;text-shadow:0 0 10px #00cc44}
+  50%    {color:#0088ff;text-shadow:0 0 10px #0088ff}
+  60%    {color:#aa00ff;text-shadow:0 0 10px #aa00ff}
+  70%    {color:#ff00aa;text-shadow:0 0 10px #ff00aa}
+  80%    {color:#ff4400;text-shadow:0 0 10px #ff4400}
+  90%    {color:#00ffcc;text-shadow:0 0 10px #00ffcc}
+}
+
+/* Sign-out button pulse */
+@keyframes lm-btn-pulse {
+  0%,100%{transform:scale(1);box-shadow:0 4px 15px rgba(220,38,38,.5)}
+  50%    {transform:scale(1.06);box-shadow:0 4px 35px rgba(255,60,0,.9),0 0 60px rgba(255,100,0,.5)}
+}
+
+/* Fire flicker */
+@keyframes lm-fire-flicker {
+  0%,100%{transform:scaleY(1) scaleX(1) skewX(-3deg);filter:hue-rotate(0deg) brightness(1)}
+  20%    {transform:scaleY(1.18) scaleX(.9) skewX(4deg);filter:hue-rotate(12deg) brightness(1.1)}
+  40%    {transform:scaleY(.9) scaleX(1.1) skewX(-2deg);filter:hue-rotate(-8deg) brightness(.95)}
+  60%    {transform:scaleY(1.12) scaleX(.92) skewX(3deg);filter:hue-rotate(6deg) brightness(1.05)}
+  80%    {transform:scaleY(.95) scaleX(1.05) skewX(-4deg);filter:hue-rotate(-4deg) brightness(1)}
+}
+
+/* Gojo slide-in from left */
+@keyframes lm-gojo-left {
+  0%  {transform:translateX(-110%) rotate(-8deg)}
+  55% {transform:translateX(4%) rotate(2deg)}
+  70% {transform:translateX(-3%) rotate(-1deg)}
+  82% {transform:translateX(2%) rotate(1deg)}
+  100%{transform:translateX(0%) rotate(0deg)}
+}
+/* Gojo slide-in from right */
+@keyframes lm-gojo-right {
+  0%  {transform:translateX(110%) rotate(8deg) scaleX(-1)}
+  55% {transform:translateX(-4%) rotate(-2deg) scaleX(-1)}
+  70% {transform:translateX(3%) rotate(1deg) scaleX(-1)}
+  82% {transform:translateX(-2%) rotate(-1deg) scaleX(-1)}
+  100%{transform:translateX(0%) rotate(0deg) scaleX(-1)}
+}
+/* Gojo float idle */
+@keyframes lm-gojo-float-l {
+  0%,100%{transform:translateX(0%) translateY(0px) rotate(0deg)}
+  30%    {transform:translateX(0%) translateY(-12px) rotate(1.5deg)}
+  70%    {transform:translateX(0%) translateY(8px) rotate(-1deg)}
+}
+@keyframes lm-gojo-float-r {
+  0%,100%{transform:translateX(0%) translateY(0px) rotate(0deg) scaleX(-1)}
+  30%    {transform:translateX(0%) translateY(-12px) rotate(-1.5deg) scaleX(-1)}
+  70%    {transform:translateX(0%) translateY(8px) rotate(1deg) scaleX(-1)}
+}
+/* Gojo six-eyes glow pulse */
+@keyframes lm-six-eyes {
+  0%,100%{opacity:.5;filter:blur(1px)}
+  50%    {opacity:1;filter:blur(0px) drop-shadow(0 0 8px #7c3aed)}
+}
+/* Gojo aura rings */
+@keyframes lm-aura-ring {
+  0%  {r:80;opacity:.4}
+  100%{r:200;opacity:0}
+}
+/* Domain expansion text flash */
+@keyframes lm-domain-text {
+  0%,80%,100%{opacity:0}
+  10%,70%    {opacity:1}
+}
+/* Ember spark particles */
+@keyframes lm-spark1{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(-25px,-90px) scale(0);opacity:0}}
+@keyframes lm-spark2{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(22px,-75px) scale(0);opacity:0}}
+@keyframes lm-spark3{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(-8px,-100px) scale(0);opacity:0}}
+@keyframes lm-spark4{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(30px,-65px) scale(0);opacity:0}}
+@keyframes lm-spark5{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(-18px,-80px) scale(0);opacity:0}}
+@keyframes lm-spark6{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(12px,-95px) scale(0);opacity:0}}
+
+/* Stagger */
+.lm-s1{animation:lm-fadein .25s ease .04s both}
+.lm-s2{animation:lm-fadein .25s ease .10s both}
+.lm-s3{animation:lm-fadein .25s ease .16s both}
+
 /* ── Backdrop ── */
 #logout-backdrop {
   position:absolute; inset:0;
-  background:rgba(15,23,42,.6);
-  backdrop-filter:blur(8px);
+  background:rgba(15,23,42,.75);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  animation: lm-backdrop-strobe 4s ease-in-out infinite;
+}
+
+/* ── Strobe & rainbow overlays ── */
+#lm-strobe {
+  position:absolute; inset:0; background:#fff; pointer-events:none; z-index:2;
+  animation: lm-strobe 3.5s ease-in-out infinite;
+}
+#lm-rainbow {
+  position:absolute; inset:0; pointer-events:none; z-index:1;
+  animation: lm-rainbow .35s linear infinite;
+}
+
+/* ── Fireworks canvas ── */
+#lm-fireworks-canvas {
+  position:absolute; inset:0; pointer-events:none; z-index:3;
+}
+
+/* ── Fire side columns ── */
+.lm-fire-side {
+  position:absolute; bottom:0; z-index:4; pointer-events:none;
+  display:flex; flex-direction:column-reverse; align-items:center; gap:0;
+}
+.lm-fire-side.lm-fire-l { left:2%; }
+.lm-fire-side.lm-fire-r { right:2%; }
+.lm-fire-emoji {
+  line-height:1; display:block;
+  transform-origin:center bottom;
+  filter:drop-shadow(0 0 10px #ff6600);
+}
+.lm-fire-emoji:nth-child(1){font-size:7rem;animation:lm-fire-flicker .13s ease-in-out infinite alternate}
+.lm-fire-emoji:nth-child(2){font-size:6rem;animation:lm-fire-flicker .17s ease-in-out .05s infinite alternate}
+.lm-fire-emoji:nth-child(3){font-size:5rem;animation:lm-fire-flicker .11s ease-in-out .09s infinite alternate}
+.lm-fire-emoji:nth-child(4){font-size:4rem;animation:lm-fire-flicker .15s ease-in-out .03s infinite alternate}
+.lm-fire-emoji:nth-child(5){font-size:3rem;animation:lm-fire-flicker .14s ease-in-out .07s infinite alternate}
+.lm-fire-emoji:nth-child(6){font-size:2.5rem;animation:lm-fire-flicker .12s ease-in-out .11s infinite alternate}
+.lm-fire-emoji:nth-child(7){font-size:2rem;animation:lm-fire-flicker .16s ease-in-out .04s infinite alternate}
+
+/* Ember sparks */
+.lm-spark {
+  position:absolute; border-radius:50%; pointer-events:none;
+}
+.lm-spark:nth-child(1){width:7px;height:7px;background:#ff4400;bottom:45%;left:35%;animation:lm-spark1 .75s ease-out infinite}
+.lm-spark:nth-child(2){width:5px;height:5px;background:#ffaa00;bottom:55%;left:55%;animation:lm-spark2 .65s ease-out .18s infinite}
+.lm-spark:nth-child(3){width:6px;height:6px;background:#ff6600;bottom:40%;left:60%;animation:lm-spark3 .85s ease-out .08s infinite}
+.lm-spark:nth-child(4){width:8px;height:8px;background:#ff2200;bottom:50%;left:25%;animation:lm-spark4 .7s ease-out .28s infinite}
+.lm-spark:nth-child(5){width:5px;height:5px;background:#ffcc00;bottom:60%;left:45%;animation:lm-spark5 .8s ease-out .12s infinite}
+.lm-spark:nth-child(6){width:6px;height:6px;background:#ff8800;bottom:42%;left:70%;animation:lm-spark6 .68s ease-out .22s infinite}
+
+/* ── Gojo characters ── */
+#lm-gojo-l, #lm-gojo-r {
+  position:absolute; bottom:0; z-index:6; pointer-events:none; width:260px;
+}
+#lm-gojo-l { left:0; animation:lm-gojo-left .9s cubic-bezier(.34,1.56,.64,1) .2s both; }
+#lm-gojo-r { right:0; animation:lm-gojo-right .9s cubic-bezier(.34,1.56,.64,1) .4s both; }
+#lm-gojo-l.lm-idle { animation:lm-gojo-float-l 3.5s ease-in-out infinite; }
+#lm-gojo-r.lm-idle { animation:lm-gojo-float-r 3.5s ease-in-out .6s infinite; }
+
+/* Domain expansion text */
+#lm-domain-text {
+  position:absolute; top:12%; left:50%; transform:translateX(-50%);
+  font-size:2.2rem; font-weight:900; color:#7c3aed; letter-spacing:.15em;
+  text-transform:uppercase; pointer-events:none; z-index:7; white-space:nowrap;
+  text-shadow: 0 0 20px #7c3aed, 0 0 40px #4f46e5, 0 0 80px rgba(124,58,237,.6);
+  animation: lm-domain-text 6s ease-in-out 1.2s infinite;
 }
 
 /* ── Dialog card ── */
@@ -1962,9 +2200,24 @@
   background:#fff;
   border-radius:20px; overflow:hidden; position:relative;
   width:100%; max-width:420px; margin:0 16px;
-  box-shadow:0 24px 64px rgba(15,23,42,.18);
+  border:3px solid #ff0000;
+  animation: lm-rgb-border .45s linear infinite;
   transform:scale(.95) translateY(10px); opacity:0;
   transition:transform .22s cubic-bezier(.34,1.56,.64,1), opacity .18s ease;
+  z-index:10;
+}
+
+/* Rainbow top bar */
+#lm-rainbow-bar {
+  height:6px;
+  animation: lm-bar 1.5s linear infinite;
+  background-size:200% 100%;
+}
+
+/* Chaos heading */
+#lm-chaos-heading {
+  animation: lm-title-chaos 1.2s ease-in-out infinite;
+  display:inline-block;
 }
 
 /* ── Buttons ── */
@@ -1972,30 +2225,246 @@
   flex:1.3; padding:.68rem 1rem; border:none; border-radius:10px;
   background:#dc2626; color:#fff; font-size:.875rem; font-weight:700;
   cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;
-  transition:background .15s, box-shadow .15s;
+  animation: lm-btn-pulse .9s ease-in-out infinite;
 }
-.lm-signout-btn:hover { background:#b91c1c; box-shadow:0 4px 16px rgba(220,38,38,.35); }
+.lm-signout-btn:hover { background:#b91c1c; }
 .lm-stay-btn {
   flex:1; padding:.68rem 1rem; border:1px solid #e2e8f0; border-radius:10px;
   background:#fff; color:#374151; font-size:.875rem; font-weight:600;
   cursor:pointer; transition:background .15s, border-color .15s;
 }
 .lm-stay-btn:hover { background:#f8fafc; border-color:#cbd5e1; }
-
-/* ── Stagger ── */
-.lm-s1{animation:lm-fadein .25s ease .04s both}
-.lm-s2{animation:lm-fadein .25s ease .10s both}
-.lm-s3{animation:lm-fadein .25s ease .16s both}
 </style>
 
+{{-- ═══════════ CHAOS MODAL ═══════════ --}}
 <div id="logout-modal" style="display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;">
 
+  {{-- Backdrop (click-to-close) --}}
   <div id="logout-backdrop" onclick="closeLogoutModal()"></div>
 
+  {{-- Color flash layers --}}
+  <div id="lm-rainbow"></div>
+  <div id="lm-strobe"></div>
+
+  {{-- Fireworks canvas --}}
+  <canvas id="lm-fireworks-canvas"></canvas>
+
+  {{-- Domain expansion text --}}
+  <div id="lm-domain-text">✦ Domain Expansion ✦</div>
+
+  {{-- Fire: left column --}}
+  <div class="lm-fire-side lm-fire-l">
+    <span class="lm-fire-emoji">🔥</span>
+    <span class="lm-fire-emoji">🔥</span>
+    <span class="lm-fire-emoji">🔥</span>
+    <span class="lm-fire-emoji">🔥</span>
+    <span class="lm-fire-emoji">🔥</span>
+    <span class="lm-fire-emoji">🔥</span>
+    <span class="lm-fire-emoji">🔥</span>
+    <div class="lm-spark"></div>
+    <div class="lm-spark"></div>
+    <div class="lm-spark"></div>
+    <div class="lm-spark"></div>
+    <div class="lm-spark"></div>
+    <div class="lm-spark"></div>
+  </div>
+
+  {{-- Fire: right column --}}
+  <div class="lm-fire-side lm-fire-r">
+    <span class="lm-fire-emoji">🔥</span>
+    <span class="lm-fire-emoji">🔥</span>
+    <span class="lm-fire-emoji">🔥</span>
+    <span class="lm-fire-emoji">🔥</span>
+    <span class="lm-fire-emoji">🔥</span>
+    <span class="lm-fire-emoji">🔥</span>
+    <span class="lm-fire-emoji">🔥</span>
+    <div class="lm-spark"></div>
+    <div class="lm-spark"></div>
+    <div class="lm-spark"></div>
+    <div class="lm-spark"></div>
+    <div class="lm-spark"></div>
+    <div class="lm-spark"></div>
+  </div>
+
+  {{-- Gojo Satoru — left --}}
+  <div id="lm-gojo-l">
+    <svg viewBox="0 0 200 520" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">
+      <!-- Purple domain aura -->
+      <ellipse cx="100" cy="380" rx="130" ry="160" fill="rgba(109,40,217,0.12)"/>
+      <ellipse cx="100" cy="380" rx="100" ry="130" fill="rgba(124,58,237,0.1)"/>
+      <!-- Aura ring animation -->
+      <circle cx="100" cy="350" r="80" fill="none" stroke="rgba(124,58,237,0.25)" stroke-width="2">
+        <animate attributeName="r" values="80;200" dur="2s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.5;0" dur="2s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="100" cy="350" r="80" fill="none" stroke="rgba(109,40,217,0.2)" stroke-width="1.5">
+        <animate attributeName="r" values="80;200" dur="2s" begin="0.7s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.4;0" dur="2s" begin="0.7s" repeatCount="indefinite"/>
+      </circle>
+      <!-- Legs -->
+      <rect x="55" y="355" width="40" height="140" rx="14" fill="#0d0d1e"/>
+      <rect x="105" y="355" width="40" height="140" rx="14" fill="#0d0d1e"/>
+      <!-- Pant seam / crease -->
+      <line x1="75" y1="355" x2="75" y2="495" stroke="#1a1a30" stroke-width="1.5"/>
+      <line x1="125" y1="355" x2="125" y2="495" stroke="#1a1a30" stroke-width="1.5"/>
+      <!-- Belt -->
+      <rect x="48" y="348" width="104" height="12" rx="4" fill="#1e1e38"/>
+      <rect x="92" y="349" width="16" height="10" rx="2" fill="#2a2a50"/>
+      <!-- Torso / jacket -->
+      <rect x="42" y="225" width="116" height="132" rx="16" fill="#0d0d1e"/>
+      <!-- Jacket lapels -->
+      <polygon points="100,230 78,268 90,230" fill="#141428"/>
+      <polygon points="100,230 122,268 110,230" fill="#141428"/>
+      <!-- White shirt strip -->
+      <polygon points="94,230 106,230 109,252 91,252" fill="#e5e5e5"/>
+      <!-- Jacket collar -->
+      <rect x="82" y="218" width="36" height="16" rx="6" fill="#0d0d1e"/>
+      <!-- Arms -->
+      <rect x="14" y="232" width="32" height="98" rx="13" fill="#0d0d1e"/>
+      <rect x="154" y="232" width="32" height="98" rx="13" fill="#0d0d1e"/>
+      <!-- Left hand (relaxed) -->
+      <ellipse cx="30" cy="338" rx="18" ry="22" fill="#f0d5a0"/>
+      <!-- Right hand (index finger pointing up — signature pose) -->
+      <ellipse cx="170" cy="330" rx="17" ry="20" fill="#f0d5a0"/>
+      <rect x="163" y="305" width="14" height="28" rx="6" fill="#f0d5a0"/>
+      <!-- Fingernail hint -->
+      <ellipse cx="170" cy="307" rx="5" ry="4" fill="#ddc090"/>
+      <!-- Neck -->
+      <rect x="84" y="205" width="32" height="28" rx="8" fill="#f0d5a0"/>
+      <!-- HEAD -->
+      <ellipse cx="100" cy="165" rx="58" ry="63" fill="#f0d5a0"/>
+      <!-- ━━ WHITE HAIR ━━ -->
+      <!-- Hair base mass -->
+      <ellipse cx="100" cy="118" rx="62" ry="52" fill="white"/>
+      <!-- Top spikes cluster -->
+      <polygon points="100,108 84,65 116,65" fill="white"/>
+      <polygon points="78,115 55,70 88,98" fill="white"/>
+      <polygon points="122,115 145,70 112,98" fill="white"/>
+      <polygon points="60,128 34,88 68,110" fill="white"/>
+      <polygon points="140,128 166,88 132,110" fill="white"/>
+      <polygon points="50,142 26,108 56,125" fill="white"/>
+      <polygon points="150,142 174,108 144,125" fill="white"/>
+      <!-- Side hair bulk -->
+      <ellipse cx="42" cy="155" rx="22" ry="35" fill="white"/>
+      <ellipse cx="158" cy="155" rx="22" ry="35" fill="white"/>
+      <!-- Top hair coverage -->
+      <ellipse cx="100" cy="105" rx="55" ry="42" fill="white"/>
+      <!-- Stray hair wisp at top -->
+      <ellipse cx="100" cy="68" rx="28" ry="14" fill="white"/>
+      <polygon points="90,62 86,40 102,56" fill="white"/>
+      <polygon points="110,62 114,40 98,56" fill="white"/>
+      <!-- ━━ BLINDFOLD ━━ -->
+      <rect x="40" y="147" width="120" height="26" rx="8" fill="#080810"/>
+      <!-- Blindfold texture / stripe -->
+      <rect x="40" y="147" width="120" height="5" rx="3" fill="#111120"/>
+      <!-- Blindfold knot on left side -->
+      <path d="M 40 153 Q 28 160 35 168 Q 42 175 48 165" stroke="#080810" stroke-width="8" fill="none" stroke-linecap="round"/>
+      <!-- ━━ SIX EYES (glowing through blindfold) ━━ -->
+      <circle cx="62" cy="160" r="6" fill="rgba(124,58,237,0.7)">
+        <animate attributeName="opacity" values="0.5;1;0.5" dur="2.1s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="82" cy="159" r="6.5" fill="rgba(109,40,217,0.75)">
+        <animate attributeName="opacity" values="0.6;1;0.6" dur="1.8s" begin="0.3s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="100" cy="159" r="7" fill="rgba(124,58,237,0.8)">
+        <animate attributeName="opacity" values="0.5;1;0.5" dur="2.4s" begin="0.1s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="118" cy="159" r="6.5" fill="rgba(109,40,217,0.75)">
+        <animate attributeName="opacity" values="0.6;1;0.6" dur="1.9s" begin="0.5s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="136" cy="160" r="6" fill="rgba(124,58,237,0.7)">
+        <animate attributeName="opacity" values="0.5;1;0.5" dur="2.2s" begin="0.2s" repeatCount="indefinite"/>
+      </circle>
+      <!-- outer small eyes (faint) -->
+      <circle cx="46" cy="162" r="4" fill="rgba(124,58,237,0.4)">
+        <animate attributeName="opacity" values="0.3;0.8;0.3" dur="2s" begin="0.7s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="154" cy="162" r="4" fill="rgba(124,58,237,0.4)">
+        <animate attributeName="opacity" values="0.3;0.8;0.3" dur="2s" begin="0.4s" repeatCount="indefinite"/>
+      </circle>
+      <!-- Nose -->
+      <ellipse cx="100" cy="186" rx="5" ry="4" fill="#e0b888"/>
+      <!-- Smirk -->
+      <path d="M 82 200 Q 100 215 118 200" stroke="#c09060" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <!-- Small tooth visible (cocky smirk) -->
+      <rect x="98" y="201" width="8" height="7" rx="2" fill="white"/>
+    </svg>
+  </div>
+
+  {{-- Gojo Satoru — right (mirrored via CSS scaleX(-1)) --}}
+  <div id="lm-gojo-r">
+    <svg viewBox="0 0 200 520" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">
+      <ellipse cx="100" cy="380" rx="130" ry="160" fill="rgba(109,40,217,0.12)"/>
+      <ellipse cx="100" cy="380" rx="100" ry="130" fill="rgba(124,58,237,0.1)"/>
+      <circle cx="100" cy="350" r="80" fill="none" stroke="rgba(124,58,237,0.25)" stroke-width="2">
+        <animate attributeName="r" values="80;200" dur="2s" begin="0.5s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.5;0" dur="2s" begin="0.5s" repeatCount="indefinite"/>
+      </circle>
+      <rect x="55" y="355" width="40" height="140" rx="14" fill="#0d0d1e"/>
+      <rect x="105" y="355" width="40" height="140" rx="14" fill="#0d0d1e"/>
+      <rect x="48" y="348" width="104" height="12" rx="4" fill="#1e1e38"/>
+      <rect x="92" y="349" width="16" height="10" rx="2" fill="#2a2a50"/>
+      <rect x="42" y="225" width="116" height="132" rx="16" fill="#0d0d1e"/>
+      <polygon points="100,230 78,268 90,230" fill="#141428"/>
+      <polygon points="100,230 122,268 110,230" fill="#141428"/>
+      <polygon points="94,230 106,230 109,252 91,252" fill="#e5e5e5"/>
+      <rect x="82" y="218" width="36" height="16" rx="6" fill="#0d0d1e"/>
+      <rect x="14" y="232" width="32" height="98" rx="13" fill="#0d0d1e"/>
+      <rect x="154" y="232" width="32" height="98" rx="13" fill="#0d0d1e"/>
+      <ellipse cx="30" cy="338" rx="18" ry="22" fill="#f0d5a0"/>
+      <!-- Left hand raised / waving -->
+      <ellipse cx="170" cy="330" rx="17" ry="20" fill="#f0d5a0"/>
+      <rect x="163" y="305" width="14" height="28" rx="6" fill="#f0d5a0"/>
+      <rect x="84" y="205" width="32" height="28" rx="8" fill="#f0d5a0"/>
+      <ellipse cx="100" cy="165" rx="58" ry="63" fill="#f0d5a0"/>
+      <ellipse cx="100" cy="118" rx="62" ry="52" fill="white"/>
+      <polygon points="100,108 84,65 116,65" fill="white"/>
+      <polygon points="78,115 55,70 88,98" fill="white"/>
+      <polygon points="122,115 145,70 112,98" fill="white"/>
+      <polygon points="60,128 34,88 68,110" fill="white"/>
+      <polygon points="140,128 166,88 132,110" fill="white"/>
+      <polygon points="50,142 26,108 56,125" fill="white"/>
+      <polygon points="150,142 174,108 144,125" fill="white"/>
+      <ellipse cx="42" cy="155" rx="22" ry="35" fill="white"/>
+      <ellipse cx="158" cy="155" rx="22" ry="35" fill="white"/>
+      <ellipse cx="100" cy="105" rx="55" ry="42" fill="white"/>
+      <ellipse cx="100" cy="68" rx="28" ry="14" fill="white"/>
+      <polygon points="90,62 86,40 102,56" fill="white"/>
+      <polygon points="110,62 114,40 98,56" fill="white"/>
+      <rect x="40" y="147" width="120" height="26" rx="8" fill="#080810"/>
+      <rect x="40" y="147" width="120" height="5" rx="3" fill="#111120"/>
+      <circle cx="62" cy="160" r="6" fill="rgba(124,58,237,0.7)">
+        <animate attributeName="opacity" values="0.5;1;0.5" dur="1.9s" begin="0.4s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="82" cy="159" r="6.5" fill="rgba(109,40,217,0.75)">
+        <animate attributeName="opacity" values="0.6;1;0.6" dur="2.2s" begin="0.1s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="100" cy="159" r="7" fill="rgba(124,58,237,0.8)">
+        <animate attributeName="opacity" values="0.5;1;0.5" dur="1.7s" begin="0.6s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="118" cy="159" r="6.5" fill="rgba(109,40,217,0.75)">
+        <animate attributeName="opacity" values="0.6;1;0.6" dur="2.3s" begin="0.2s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="136" cy="160" r="6" fill="rgba(124,58,237,0.7)">
+        <animate attributeName="opacity" values="0.5;1;0.5" dur="2s" begin="0.5s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="46" cy="162" r="4" fill="rgba(124,58,237,0.4)">
+        <animate attributeName="opacity" values="0.3;0.8;0.3" dur="2.1s" begin="0.3s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="154" cy="162" r="4" fill="rgba(124,58,237,0.4)">
+        <animate attributeName="opacity" values="0.3;0.8;0.3" dur="1.8s" begin="0.8s" repeatCount="indefinite"/>
+      </circle>
+      <ellipse cx="100" cy="186" rx="5" ry="4" fill="#e0b888"/>
+      <path d="M 82 200 Q 100 215 118 200" stroke="#c09060" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <rect x="98" y="201" width="8" height="7" rx="2" fill="white"/>
+    </svg>
+  </div>
+
+  {{-- Dialog --}}
   <div id="logout-dialog">
 
-    {{-- Top accent bar --}}
-    <div style="height:4px;background:linear-gradient(90deg,#7c3aed,#a78bfa);"></div>
+    {{-- Rainbow top bar --}}
+    <div id="lm-rainbow-bar" style="height:6px;"></div>
 
     {{-- Body --}}
     <div style="padding:28px 26px 24px;">
@@ -2008,7 +2477,7 @@
           </svg>
         </div>
         <div style="flex:1;min-width:0;">
-          <h2 style="margin:0 0 5px;font-size:1.05rem;font-weight:700;color:#0f172a;">Sign out of EncryptEd?</h2>
+          <h2 id="lm-chaos-heading" style="margin:0 0 5px;font-size:1.05rem;font-weight:700;">Sign out of EncryptEd?</h2>
           <p style="margin:0;font-size:.875rem;color:#64748b;line-height:1.55;">You'll be returned to the login page. Any unsaved work may be lost.</p>
         </div>
       </div>
@@ -2197,26 +2666,141 @@
     window.addEventListener('focus', updateBadge);
   })();
 
-  // ── Logout modal ──────────────────────────────────────────────────────
+  // ── Logout modal + CHAOS fireworks ────────────────────────────────────
+  var _lmFwFrame = null, _lmFwLaunchTimer = null;
+  var _lmFwParticles = [], _lmFwRockets = [];
+
+  function _lmResizeCanvas() {
+    var c = document.getElementById('lm-fireworks-canvas');
+    if (c) { c.width = window.innerWidth; c.height = window.innerHeight; }
+  }
+
+  function _lmLaunchRocket(c) {
+    var hue = Math.floor(Math.random() * 360);
+    _lmFwRockets.push({
+      x: 60 + Math.random() * (c.width - 120),
+      y: c.height,
+      targetY: 40 + Math.random() * (c.height * 0.55),
+      vy: -13 - Math.random() * 9,
+      hue: hue
+    });
+  }
+
+  function _lmExplode(x, y, hue) {
+    var n = 90 + Math.floor(Math.random() * 70);
+    for (var i = 0; i < n; i++) {
+      var angle = (Math.PI * 2 / n) * i;
+      var spd   = 2 + Math.random() * 7;
+      _lmFwParticles.push({
+        x:x, y:y,
+        vx: Math.cos(angle)*spd, vy: Math.sin(angle)*spd,
+        life:1, decay:.012+Math.random()*.016,
+        hue:(hue+Math.random()*60-30+360)%360,
+        sat:80+Math.random()*20, size:2+Math.random()*3,
+        grav:.08+Math.random()*.05, white:false
+      });
+    }
+    for (var j = 0; j < 24; j++) {
+      var a = Math.random()*Math.PI*2, s = 4+Math.random()*9;
+      _lmFwParticles.push({
+        x:x, y:y, vx:Math.cos(a)*s, vy:Math.sin(a)*s,
+        life:.85, decay:.02+Math.random()*.022,
+        hue:0, sat:0, size:1.5+Math.random()*2.5,
+        grav:.1, white:true
+      });
+    }
+  }
+
+  function _lmFwLoop() {
+    var modal = document.getElementById('logout-modal');
+    if (!modal || modal.style.display === 'none') { _lmFwFrame = null; return; }
+    var c = document.getElementById('lm-fireworks-canvas');
+    if (!c) { _lmFwFrame = requestAnimationFrame(_lmFwLoop); return; }
+    var ctx = c.getContext('2d');
+    ctx.fillStyle = 'rgba(0,0,0,0.13)';
+    ctx.fillRect(0,0,c.width,c.height);
+    // rockets
+    for (var i = _lmFwRockets.length-1; i >= 0; i--) {
+      var r = _lmFwRockets[i];
+      r.vy += .25; r.y += r.vy;
+      if (r.y <= r.targetY) { _lmExplode(r.x,r.y,r.hue); _lmFwRockets.splice(i,1); continue; }
+      ctx.save(); ctx.globalAlpha=.85;
+      ctx.fillStyle='hsl('+r.hue+',100%,72%)';
+      ctx.shadowColor=ctx.fillStyle; ctx.shadowBlur=8;
+      ctx.beginPath(); ctx.arc(r.x,r.y,2.5,0,Math.PI*2); ctx.fill();
+      ctx.restore();
+    }
+    // particles
+    for (var j = _lmFwParticles.length-1; j >= 0; j--) {
+      var p = _lmFwParticles[j];
+      p.vx*=.97; p.vy*=.97; p.vy+=p.grav; p.x+=p.vx; p.y+=p.vy; p.life-=p.decay;
+      if (p.life<=0) { _lmFwParticles.splice(j,1); continue; }
+      ctx.save(); ctx.globalAlpha=p.life;
+      ctx.fillStyle = p.white ? '#ffffff' : 'hsl('+p.hue+','+p.sat+'%,70%)';
+      ctx.shadowColor=ctx.fillStyle; ctx.shadowBlur=5;
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.size*p.life,0,Math.PI*2); ctx.fill();
+      ctx.restore();
+    }
+    _lmFwFrame = requestAnimationFrame(_lmFwLoop);
+  }
+
+  function _lmScheduleLaunch() {
+    var modal = document.getElementById('logout-modal');
+    if (!modal || modal.style.display === 'none') return;
+    var c = document.getElementById('lm-fireworks-canvas');
+    if (c) {
+      var burst = 4 + Math.floor(Math.random()*5);
+      for (var i=0;i<burst;i++) _lmLaunchRocket(c);
+    }
+    _lmFwLaunchTimer = setTimeout(_lmScheduleLaunch, 250+Math.random()*180);
+  }
+
+  function _startLogoutChaos() {
+    _lmResizeCanvas();
+    window.addEventListener('resize', _lmResizeCanvas);
+    _lmFwParticles = []; _lmFwRockets = [];
+    if (!_lmFwFrame) _lmFwFrame = requestAnimationFrame(_lmFwLoop);
+    _lmScheduleLaunch();
+    // Transition Gojo to idle float after entry animation finishes
+    setTimeout(function(){
+      var gl = document.getElementById('lm-gojo-l');
+      var gr = document.getElementById('lm-gojo-r');
+      if (gl) gl.classList.add('lm-idle');
+      if (gr) gr.classList.add('lm-idle');
+    }, 1200);
+  }
+
+  function _stopLogoutChaos() {
+    clearTimeout(_lmFwLaunchTimer);
+    window.removeEventListener('resize', _lmResizeCanvas);
+    var c = document.getElementById('lm-fireworks-canvas');
+    if (c) c.getContext('2d').clearRect(0,0,c.width,c.height);
+    var gl = document.getElementById('lm-gojo-l');
+    var gr = document.getElementById('lm-gojo-r');
+    if (gl) gl.classList.remove('lm-idle');
+    if (gr) gr.classList.remove('lm-idle');
+  }
+
   function openLogoutModal() {
-    const modal  = document.getElementById('logout-modal');
-    const dialog = document.getElementById('logout-dialog');
+    var modal  = document.getElementById('logout-modal');
+    var dialog = document.getElementById('logout-dialog');
     modal.style.display = 'flex';
-    // Trigger animation on next frame
     requestAnimationFrame(function () {
       requestAnimationFrame(function () {
         dialog.style.transform = 'scale(1) translateY(0)';
         dialog.style.opacity   = '1';
       });
     });
+    setTimeout(_startLogoutChaos, 80);
     document.addEventListener('keydown', _escListener);
   }
 
   function closeLogoutModal() {
-    const modal  = document.getElementById('logout-modal');
-    const dialog = document.getElementById('logout-dialog');
+    var modal  = document.getElementById('logout-modal');
+    var dialog = document.getElementById('logout-dialog');
     dialog.style.transform = 'scale(.95) translateY(10px)';
     dialog.style.opacity   = '0';
+    _stopLogoutChaos();
     setTimeout(function () { modal.style.display = 'none'; }, 200);
     document.removeEventListener('keydown', _escListener);
   }
