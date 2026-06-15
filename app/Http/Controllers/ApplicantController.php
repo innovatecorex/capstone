@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AcademicYear;
 use App\Models\Applicant;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -53,6 +54,12 @@ class ApplicantController extends Controller
         ]);
 
         $validated['nationality'] = $validated['nationality'] ?? 'Filipino';
+
+        // Always stamp the active academic year so guidance/testing queries work correctly
+        $activeYear = AcademicYear::where('status', 'active')->first();
+        if ($activeYear) {
+            $validated['applying_for_year'] = $activeYear->year_label;
+        }
 
         $applicant = Applicant::create($validated);
 

@@ -8,7 +8,12 @@
   <div class="enc-page__title-row">
     <div>
       <h1 class="enc-page__title">Guidance &amp; Testing</h1>
-      <p class="enc-page__subtitle">Admission and academic test records for applicants</p>
+      <p class="enc-page__subtitle">
+        Admission and academic test records for applicants
+        @if($activeYear)
+          &mdash; <strong>S.Y. {{ $activeYear->year_label }}</strong>
+        @endif
+      </p>
     </div>
   </div>
 </div>
@@ -72,9 +77,9 @@
 <form method="GET" style="display:flex;gap:.65rem;align-items:center;margin-bottom:1.1rem;flex-wrap:wrap;">
   <select name="result" class="gt-select" style="width:160px;" onchange="this.form.submit()">
     <option value="">All Results</option>
-    <option value="passed"  {{ request('result')==='passed'  ? 'selected':'' }}>Passed</option>
-    <option value="failed"  {{ request('result')==='failed'  ? 'selected':'' }}>Failed</option>
-    <option value="pending" {{ request('result')==='pending' ? 'selected':'' }}>Not Yet Tested</option>
+    <option value="passed"     {{ request('result')==='passed'     ? 'selected':'' }}>Passed</option>
+    <option value="failed"     {{ request('result')==='failed'     ? 'selected':'' }}>Failed</option>
+    <option value="not_tested" {{ request('result')==='not_tested' ? 'selected':'' }}>Not Yet Tested</option>
   </select>
   <select name="grade" class="gt-select" style="width:160px;" onchange="this.form.submit()">
     <option value="">All Grade Levels</option>

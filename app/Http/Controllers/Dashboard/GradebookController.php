@@ -56,7 +56,8 @@ class GradebookController extends Controller
         ]);
 
         // Notify only the enrolled students of this section.
-        $studentIds = Enrollment::where('section_id', $ss->section_id)
+        $studentIds = Enrollment::forActiveAcademicYear()
+            ->where('section_id', $ss->section_id)
             ->where('status', 'enrolled')
             ->pluck('student_id');
 
@@ -107,7 +108,8 @@ class GradebookController extends Controller
         // Is the displayed quarter the one faculty can currently edit?
         $isActiveQuarter = $quarter && $activeQuarter && $quarter->id === $activeQuarter->id;
 
-        $enrollments = Enrollment::where('section_id', $ss->section_id)
+        $enrollments = Enrollment::forActiveAcademicYear()
+            ->where('section_id', $ss->section_id)
             ->where('status', 'enrolled')
             ->with('student')
             ->orderBy('student_id')
@@ -165,7 +167,8 @@ class GradebookController extends Controller
             'grades.*.quarterly_assessment' => 'nullable|numeric|min:0|max:100',
         ]);
 
-        $validEnrollmentIds = Enrollment::where('section_id', $ss->section_id)
+        $validEnrollmentIds = Enrollment::forActiveAcademicYear()
+            ->where('section_id', $ss->section_id)
             ->where('status', 'enrolled')
             ->pluck('id')
             ->flip();
@@ -288,7 +291,9 @@ class GradebookController extends Controller
             'Quarter ' . $quarter->quarter_number,
         );
         User::whereHas('enrollments', fn($q) =>
-            $q->where('section_id', $ss->section_id)->where('status', 'enrolled')
+            $q->forActiveAcademicYear()
+              ->where('section_id', $ss->section_id)
+              ->where('status', 'enrolled')
         )->each(fn($s) => $s->notify($gradeFinalized));
 
         return redirect()->back()

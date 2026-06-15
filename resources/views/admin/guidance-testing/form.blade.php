@@ -77,16 +77,21 @@
               {{-- Non-Verbal --}}
               <div>
                 <div style="font-size:.73rem;font-weight:700;color:var(--gray-400);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.45rem;">Non-Verbal (NV)</div>
-                <div style="display:grid;grid-template-columns:110px 100px 1fr;gap:.55rem;align-items:start;">
+                <div style="display:grid;grid-template-columns:100px 90px 90px 1fr;gap:.55rem;align-items:start;">
                   <div>
                     <label class="gt-label">Score</label>
-                    <input type="number" name="nv_score" class="gt-input" step="0.01" min="0"
+                    <input type="number" id="nvScore" name="nv_score" class="gt-input" step="0.01" min="0"
                       value="{{ old('nv_score', $result?->nv_score ?? '') }}" placeholder="—">
                   </div>
                   <div>
+                    <label class="gt-label">Max</label>
+                    <input type="number" id="nvMax" name="nv_max" class="gt-input" step="0.01" min="1"
+                      value="{{ old('nv_max', $result?->nv_max ?? 50) }}" placeholder="50">
+                  </div>
+                  <div>
                     <label class="gt-label">Percentage (%)</label>
-                    <input type="number" name="nv_pct" class="gt-input" step="0.01" min="0" max="100"
-                      value="{{ old('nv_pct', $result?->nv_pct ?? '') }}" placeholder="—">
+                    <input type="number" id="nvPct" name="nv_pct" class="gt-input gt-input--computed" step="0.01" min="0" max="100"
+                      value="{{ old('nv_pct', $result?->nv_pct ?? '') }}" placeholder="auto">
                   </div>
                   <div>
                     <label class="gt-label">Descriptive Equivalent</label>
@@ -105,16 +110,21 @@
               {{-- Verbal --}}
               <div>
                 <div style="font-size:.73rem;font-weight:700;color:var(--gray-400);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.45rem;">Verbal (V)</div>
-                <div style="display:grid;grid-template-columns:110px 100px 1fr;gap:.55rem;align-items:start;">
+                <div style="display:grid;grid-template-columns:100px 90px 90px 1fr;gap:.55rem;align-items:start;">
                   <div>
                     <label class="gt-label">Score</label>
-                    <input type="number" name="v_score" class="gt-input" step="0.01" min="0"
+                    <input type="number" id="vScore" name="v_score" class="gt-input" step="0.01" min="0"
                       value="{{ old('v_score', $result?->v_score ?? '') }}" placeholder="—">
                   </div>
                   <div>
+                    <label class="gt-label">Max</label>
+                    <input type="number" id="vMax" name="v_max" class="gt-input" step="0.01" min="1"
+                      value="{{ old('v_max', $result?->v_max ?? 50) }}" placeholder="50">
+                  </div>
+                  <div>
                     <label class="gt-label">Percentage (%)</label>
-                    <input type="number" name="v_pct" class="gt-input" step="0.01" min="0" max="100"
-                      value="{{ old('v_pct', $result?->v_pct ?? '') }}" placeholder="—">
+                    <input type="number" id="vPct" name="v_pct" class="gt-input gt-input--computed" step="0.01" min="0" max="100"
+                      value="{{ old('v_pct', $result?->v_pct ?? '') }}" placeholder="auto">
                   </div>
                   <div>
                     <label class="gt-label">Descriptive Equivalent</label>
@@ -174,6 +184,13 @@
           <span class="enc-card__meta">Leave blank if not applicable</span>
         </div>
         <div class="enc-card__body">
+          {{-- Max score per subject (used for auto-pct calculation) --}}
+          <div style="display:flex;align-items:center;gap:.65rem;margin-bottom:.85rem;padding:.55rem .75rem;background:#f8fafc;border-radius:8px;border:1px solid rgba(15,23,42,.07);">
+            <label class="gt-label" style="margin:0;white-space:nowrap;">Max Score per Subject:</label>
+            <input type="number" id="acadMax" name="acad_max" class="gt-input" style="width:90px;" step="1" min="1"
+              value="{{ old('acad_max', 100) }}" placeholder="100">
+            <span style="font-size:.75rem;color:var(--gray-400);">Percentages auto-calculate when you enter scores.</span>
+          </div>
           <table style="width:100%;border-collapse:collapse;font-size:.875rem;">
             <thead>
               <tr style="background:#f8fafc;border-bottom:1px solid rgba(15,23,42,.07);">
@@ -195,16 +212,16 @@
                   <span style="font-weight:700;color:{{ $subj['color'] }};font-size:.83rem;">{{ $subj['label'] }}</span>
                 </td>
                 <td style="padding:9px 10px;">
-                  <input type="number" name="acad_{{ $subj['key'] }}_score" class="gt-input" step="0.01" min="0"
+                  <input type="number" id="acad_{{ $subj['key'] }}_score" name="acad_{{ $subj['key'] }}_score" class="gt-input acad-score" step="0.01" min="0"
                     style="text-align:center;"
                     value="{{ old('acad_'.$subj['key'].'_score', $result?->{'acad_'.$subj['key'].'_score'} ?? '') }}"
                     placeholder="—">
                 </td>
                 <td style="padding:9px 10px;">
-                  <input type="number" name="acad_{{ $subj['key'] }}_pct" class="gt-input" step="0.01" min="0" max="100"
+                  <input type="number" id="acad_{{ $subj['key'] }}_pct" name="acad_{{ $subj['key'] }}_pct" class="gt-input gt-input--computed acad-pct" step="0.01" min="0" max="100"
                     style="text-align:center;"
                     value="{{ old('acad_'.$subj['key'].'_pct', $result?->{'acad_'.$subj['key'].'_pct'} ?? '') }}"
-                    placeholder="—">
+                    placeholder="auto">
                 </td>
                 <td style="padding:9px 10px;">
                   <select name="acad_{{ $subj['key'] }}_desc" class="gt-input">
@@ -346,6 +363,7 @@ textarea.gt-input { resize:vertical; }
 .gt-section-icon { display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px; border-radius:7px; margin-right:.35rem; flex-shrink:0; }
 .gt-section-icon svg { width:14px; height:14px; }
 .enc-card__title { display:flex; align-items:center; }
+.gt-input--computed { background:#f0f9ff !important; color:#0369a1; font-weight:600; }
 .status-chip { display:inline-block; padding:.22rem .65rem; border-radius:999px; font-size:.73rem; font-weight:700; }
 .status-pending                 { background:#fef9c3; color:#854d0e; }
 .status-under_review            { background:#dbeafe; color:#1e40af; }
@@ -360,35 +378,92 @@ textarea.gt-input { resize:vertical; }
 <script>
 (function () {
   const total   = document.getElementById('totalScore');
-  const max     = document.getElementById('maxScore');
+  const maxEl   = document.getElementById('maxScore');
   const passing = document.getElementById('passingScore');
   const box     = document.getElementById('liveResult');
   const eligWrap= document.getElementById('eligibleWrap');
 
-  function update() {
+  // Admission test components
+  const nvScore = document.getElementById('nvScore');
+  const nvMax   = document.getElementById('nvMax');
+  const nvPct   = document.getElementById('nvPct');
+  const vScore  = document.getElementById('vScore');
+  const vMax    = document.getElementById('vMax');
+  const vPct    = document.getElementById('vPct');
+
+  // Academic components
+  const acadMax   = document.getElementById('acadMax');
+  const acadKeys  = ['filipino', 'english', 'math', 'science'];
+
+  function toPct(score, max) {
+    const s = parseFloat(score), m = parseFloat(max);
+    if (isNaN(s) || isNaN(m) || m <= 0) return '';
+    return Math.min(100, (s / m) * 100).toFixed(2);
+  }
+
+  function syncAdmission() {
+    // Auto-calc NV %
+    nvPct.value = toPct(nvScore.value, nvMax.value);
+
+    // Auto-calc Verbal %
+    vPct.value = toPct(vScore.value, vMax.value);
+
+    // Auto-compute total and max from NV + Verbal
+    const nS = parseFloat(nvScore.value) || 0;
+    const nM = parseFloat(nvMax.value)   || 0;
+    const vS = parseFloat(vScore.value)  || 0;
+    const vM = parseFloat(vMax.value)    || 0;
+
+    if (nS > 0 || vS > 0) {
+      total.value  = (nS + vS).toFixed(0);
+      maxEl.value  = (nM + vM).toFixed(0);
+    }
+    updatePassFail();
+  }
+
+  function syncAcademic() {
+    const m = parseFloat(acadMax.value) || 100;
+    acadKeys.forEach(key => {
+      const scoreEl = document.getElementById('acad_' + key + '_score');
+      const pctEl   = document.getElementById('acad_' + key + '_pct');
+      if (scoreEl && pctEl) pctEl.value = toPct(scoreEl.value, m);
+    });
+  }
+
+  function updatePassFail() {
     const t = parseFloat(total.value);
-    const m = parseFloat(max.value)     || 100;
+    const m = parseFloat(maxEl.value)   || 100;
     const p = parseFloat(passing.value) || 75;
     if (isNaN(t)) { box.style.display = 'none'; eligWrap.style.display = 'none'; return; }
     const passed = t >= p;
-    const pct = m > 0 ? ((t / m) * 100).toFixed(1) : '—';
-    box.style.display = 'block';
-    box.style.background  = passed ? '#f0fdf4' : '#fef2f2';
-    box.style.border      = '1px solid ' + (passed ? '#bbf7d0' : '#fca5a5');
-    box.style.color       = passed ? '#15803d' : '#dc2626';
-    box.style.fontWeight  = '800';
-    box.style.fontSize    = '.95rem';
-    box.style.borderRadius= '12px';
-    box.style.padding     = '.75rem 1rem';
+    const pct    = m > 0 ? ((t / m) * 100).toFixed(1) : '—';
+    box.style.cssText = 'display:block;border-radius:12px;padding:.75rem 1rem;text-align:center;font-weight:800;font-size:.95rem;' +
+      'background:' + (passed ? '#f0fdf4' : '#fef2f2') + ';' +
+      'border:1px solid ' + (passed ? '#bbf7d0' : '#fca5a5') + ';' +
+      'color:' + (passed ? '#15803d' : '#dc2626') + ';';
     box.textContent = (passed ? '✓ PASSED' : '✗ FAILED') + '  —  ' + t.toFixed(0) + ' / ' + m.toFixed(0) + ' (' + pct + '%)';
-    // Show eligible checkbox only when passed
     @if($applicant->status !== 'eligible_for_enrollment')
     eligWrap.style.display = passed ? 'block' : 'none';
     @endif
   }
 
-  [total, max, passing].forEach(el => el.addEventListener('input', update));
-  update();
+  // Bind admission inputs
+  [nvScore, nvMax].forEach(el => el && el.addEventListener('input', syncAdmission));
+  [vScore, vMax].forEach(el => el && el.addEventListener('input', syncAdmission));
+
+  // Bind academic inputs
+  acadKeys.forEach(key => {
+    const el = document.getElementById('acad_' + key + '_score');
+    if (el) el.addEventListener('input', syncAcademic);
+  });
+  acadMax && acadMax.addEventListener('input', syncAcademic);
+
+  // Manual total/max/passing also update the pass/fail banner
+  [total, maxEl, passing].forEach(el => el && el.addEventListener('input', updatePassFail));
+
+  // Run on load
+  syncAdmission();
+  syncAcademic();
 })();
 </script>
 @endpush

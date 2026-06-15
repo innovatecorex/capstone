@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\AcademicYear;
 use App\Models\Applicant;
 use App\Models\AuditLog;
 use App\Models\EntranceTestResult;
@@ -27,18 +28,28 @@ class GuidanceTestingController extends Controller
 
     public function index(Request $request): View
     {
-        $statuses = ['under_review', 'accepted', 'rejected', 'enrolled', 'eligible_for_enrollment'];
+        $activeYear = AcademicYear::where('status', 'active')->first();
+        $statuses   = ['under_review', 'accepted', 'rejected', 'enrolled', 'eligible_for_enrollment'];
 
-        $query = Applicant::with(['entranceTestResult'])
-            ->whereIn('status', $statuses)
-            ->latest();
+        $base = Applicant::with(['entranceTestResult'])
+            ->whereIn('status', $statuses);
+
+        // Scope to active academic year (include null for legacy records without a year stamp)
+        if ($activeYear) {
+            $base->where(function ($q) use ($activeYear) {
+                $q->where('applying_for_year', $activeYear->year_label)
+                  ->orWhereNull('applying_for_year');
+            });
+        }
+
+        $query = clone $base;
 
         $filter = $request->input('result');
         if ($filter === 'passed') {
             $query->whereHas('entranceTestResult', fn($q) => $q->where('passed', true));
         } elseif ($filter === 'failed') {
             $query->whereHas('entranceTestResult', fn($q) => $q->where('passed', false));
-        } elseif ($filter === 'pending') {
+        } elseif ($filter === 'not_tested') {
             $query->whereDoesntHave('entranceTestResult');
         }
 
@@ -46,18 +57,25 @@ class GuidanceTestingController extends Controller
             $query->where('applying_for_grade', $request->input('grade'));
         }
 
-        $applicants = $query->paginate(25)->withQueryString();
-        $grades     = Applicant::distinct()->orderBy('applying_for_grade')->pluck('applying_for_grade');
+        $applicants = $query->latest()->paginate(25)->withQueryString();
+
+        $grades = (clone $base)->distinct()
+            ->orderBy('applying_for_grade')
+            ->whereNotNull('applying_for_grade')
+            ->pluck('applying_for_grade');
+
+        // Counts scoped to active year
+        $yearApplicantIds = (clone $base)->pluck('id');
 
         $counts = [
-            'total'    => Applicant::whereIn('status', $statuses)->count(),
-            'tested'   => EntranceTestResult::count(),
-            'passed'   => EntranceTestResult::where('passed', true)->count(),
-            'failed'   => EntranceTestResult::where('passed', false)->count(),
-            'eligible' => Applicant::where('status', 'eligible_for_enrollment')->count(),
+            'total'    => $yearApplicantIds->count(),
+            'tested'   => EntranceTestResult::whereIn('applicant_id', $yearApplicantIds)->count(),
+            'passed'   => EntranceTestResult::whereIn('applicant_id', $yearApplicantIds)->where('passed', true)->count(),
+            'failed'   => EntranceTestResult::whereIn('applicant_id', $yearApplicantIds)->where('passed', false)->count(),
+            'eligible' => (clone $base)->where('status', 'eligible_for_enrollment')->count(),
         ];
 
-        return view('admin.guidance-testing.index', compact('applicants', 'grades', 'counts'));
+        return view('admin.guidance-testing.index', compact('applicants', 'grades', 'counts', 'activeYear'));
     }
 
     // ── Create/Edit form ────────────────────────────────────────────────────
@@ -87,12 +105,16 @@ class GuidanceTestingController extends Controller
             'passing_score'       => ['nullable', 'numeric', 'min:0', 'max:9999'],
             // NV
             'nv_score'            => ['nullable', 'numeric', 'min:0', 'max:9999'],
+            'nv_max'              => ['nullable', 'numeric', 'min:1', 'max:9999'],
             'nv_pct'              => ['nullable', 'numeric', 'min:0', 'max:100'],
             'nv_descriptive'      => ['nullable', 'string', 'max:100'],
             // Verbal
             'v_score'             => ['nullable', 'numeric', 'min:0', 'max:9999'],
+            'v_max'               => ['nullable', 'numeric', 'min:1', 'max:9999'],
             'v_pct'               => ['nullable', 'numeric', 'min:0', 'max:100'],
             'v_descriptive'       => ['nullable', 'string', 'max:100'],
+            // UI-only — not persisted
+            'acad_max'            => ['nullable', 'numeric'],
             // Academic
             'acad_filipino_score' => ['nullable', 'numeric', 'min:0', 'max:9999'],
             'acad_filipino_pct'   => ['nullable', 'numeric', 'min:0', 'max:100'],
@@ -129,9 +151,11 @@ class GuidanceTestingController extends Controller
                 'passing_score'       => $passing,
                 'passed'              => $passed,
                 'nv_score'            => $validated['nv_score'] ?? null,
+                'nv_max'              => $validated['nv_max'] ?? null,
                 'nv_pct'              => $validated['nv_pct'] ?? null,
                 'nv_descriptive'      => $validated['nv_descriptive'] ?? null,
                 'v_score'             => $validated['v_score'] ?? null,
+                'v_max'               => $validated['v_max'] ?? null,
                 'v_pct'               => $validated['v_pct'] ?? null,
                 'v_descriptive'       => $validated['v_descriptive'] ?? null,
                 'acad_filipino_score' => $validated['acad_filipino_score'] ?? null,
