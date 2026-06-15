@@ -19,9 +19,12 @@ use App\Http\Controllers\Admin\GradingQuarterController;
 use App\Http\Controllers\Admin\SubjectController;
 use App\Http\Controllers\Admin\CurriculumMappingController;
 use App\Http\Controllers\Admin\EntranceTestController;
+use App\Http\Controllers\Admin\GuidanceTestingController;
 use App\Http\Controllers\Admin\ApplicantManagementController;
 use App\Http\Controllers\ApplicantController;
 use App\Http\Controllers\Dashboard\RegistrarApplicantController;
+use App\Http\Controllers\Dashboard\AdvisingController;
+use App\Http\Controllers\Dashboard\EnrollmentFinalizationController;
 use App\Http\Controllers\Settings\AdminSettingsController;
 use App\Http\Controllers\Settings\StudentSettingsController;
 use App\Http\Controllers\Settings\FacultySettingsController;
@@ -147,11 +150,18 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
         Route::post('/{applicant}/create-account',   [ApplicantManagementController::class, 'createAccount'])->name('create-account');
     });
 
-    // ── Entrance Test Results ─────────────────────────────────────────────
+    // ── Entrance Test Results (legacy, kept for backward compat) ─────────
     Route::prefix('entrance-tests')->name('entrance-tests.')->group(function () {
         Route::get('/',                    [EntranceTestController::class, 'index'])  ->name('index');
         Route::get('/{applicant}/record',  [EntranceTestController::class, 'create']) ->name('create');
         Route::post('/{applicant}/record', [EntranceTestController::class, 'store'])  ->name('store');
+    });
+
+    // ── Guidance & Testing Interface ──────────────────────────────────────
+    Route::prefix('guidance-testing')->name('guidance-testing.')->group(function () {
+        Route::get('/',                    [GuidanceTestingController::class, 'index'])  ->name('index');
+        Route::get('/{applicant}/record',  [GuidanceTestingController::class, 'create']) ->name('create');
+        Route::post('/{applicant}/record', [GuidanceTestingController::class, 'store'])  ->name('store');
     });
 
     // ── Academic Years Management ─────────────────────────────────────────
@@ -288,9 +298,10 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/registrar/enroll',          [App\Http\Controllers\Dashboard\RegistrarUserDashboardController::class, 'enroll'])->name('registrar.enroll');
         Route::post('/registrar/drop-enrollment', [App\Http\Controllers\Dashboard\RegistrarUserDashboardController::class, 'dropEnrollment'])->name('registrar.drop-enrollment');
         // AJAX helpers for cascading dropdowns
-        Route::get('/registrar/ajax/sections',    [App\Http\Controllers\Dashboard\RegistrarUserDashboardController::class, 'ajaxSections'])->name('registrar.ajax.sections');
-        Route::get('/registrar/ajax/students',    [App\Http\Controllers\Dashboard\RegistrarUserDashboardController::class, 'ajaxStudents'])->name('registrar.ajax.students');
-        Route::get('/registrar/ajax/section-info',[App\Http\Controllers\Dashboard\RegistrarUserDashboardController::class, 'ajaxSectionInfo'])->name('registrar.ajax.section-info');
+        Route::get('/registrar/ajax/sections',     [App\Http\Controllers\Dashboard\RegistrarUserDashboardController::class, 'ajaxSections'])  ->name('registrar.ajax.sections');
+        Route::get('/registrar/ajax/students',     [App\Http\Controllers\Dashboard\RegistrarUserDashboardController::class, 'ajaxStudents'])  ->name('registrar.ajax.students');
+        Route::get('/registrar/ajax/section-info', [App\Http\Controllers\Dashboard\RegistrarUserDashboardController::class, 'ajaxSectionInfo'])->name('registrar.ajax.section-info');
+        Route::get('/registrar/ajax/prereq-check', [App\Http\Controllers\Dashboard\RegistrarUserDashboardController::class, 'prereqCheck'])   ->name('registrar.ajax.prereq-check');
 
         // Grade finalization
         Route::post('/registrar/gradebook/{sectionSubject}/finalize', [App\Http\Controllers\Dashboard\GradebookController::class, 'finalize'])->name('registrar.gradebook.finalize');
@@ -327,6 +338,19 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/{applicant}',                 [RegistrarApplicantController::class, 'show'])         ->name('show');
             Route::patch('/{applicant}/status',        [RegistrarApplicantController::class, 'updateStatus']) ->name('update-status');
             Route::post('/{applicant}/create-account', [RegistrarApplicantController::class, 'createAccount'])->name('create-account');
+        });
+
+        // ── Enrollment Finalization ────────────────────────────────────────
+        Route::get( '/registrar/enrollment/finalize/{student}', [EnrollmentFinalizationController::class, 'show'])    ->name('registrar.enrollment.finalize');
+        Route::post('/registrar/enrollment/finalize/{student}', [EnrollmentFinalizationController::class, 'confirm']) ->name('registrar.enrollment.confirm');
+
+        // ── Enrollment Advising ────────────────────────────────────────────
+        Route::prefix('registrar/advising')->name('registrar.advising.')->group(function () {
+            Route::get('/',                              [AdvisingController::class, 'index'])        ->name('index');
+            Route::get('/{student}',                     [AdvisingController::class, 'show'])         ->name('show');
+            Route::post('/{student}/add-subject',        [AdvisingController::class, 'addSubject'])   ->name('add-subject');
+            Route::post('/{student}/remove-subject',     [AdvisingController::class, 'removeSubject'])->name('remove-subject');
+            Route::post('/{student}/confirm',            [AdvisingController::class, 'confirmPlan'])  ->name('confirm');
         });
     });
 

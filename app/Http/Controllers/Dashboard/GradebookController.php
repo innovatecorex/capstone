@@ -83,12 +83,29 @@ class GradebookController extends Controller
         );
     }
 
-    public function show(SectionSubject $sectionSubject): View
+    public function show(SectionSubject $sectionSubject, Request $request): View
     {
         $ss = $sectionSubject->load(['section', 'subject']);
         $this->assertFacultyOwns($ss);
 
-        $quarter = $this->activeQuarter();
+        $activeYear = AcademicYear::where('status', 'active')->first();
+
+        // All quarters for the toggle dropdown
+        $allQuarters = $activeYear
+            ? GradingQuarter::where('academic_year_id', $activeYear->id)
+                ->orderBy('quarter_number')
+                ->get()
+            : collect();
+
+        // Resolve which quarter to display (requested or active fallback)
+        $activeQuarter   = $this->activeQuarter();
+        $requestedId     = $request->integer('quarter_id');
+        $quarter         = $requestedId && $allQuarters->contains('id', $requestedId)
+                           ? $allQuarters->firstWhere('id', $requestedId)
+                           : $activeQuarter;
+
+        // Is the displayed quarter the one faculty can currently edit?
+        $isActiveQuarter = $quarter && $activeQuarter && $quarter->id === $activeQuarter->id;
 
         $enrollments = Enrollment::where('section_id', $ss->section_id)
             ->where('status', 'enrolled')
@@ -110,8 +127,6 @@ class GradebookController extends Controller
         $anyLocked    = $grades->some(fn($g) => $g->status === 'locked');
         $anyFinalized = $grades->some(fn($g) => in_array($g->status, ['finalized', 'locked']));
 
-        // Grade weights for this subject, normalized to the ww/pt/qa keys the
-        // view's script expects.
         $rawWeights = $ss->subject?->getGradeWeights()
             ?? config('academic.grade_weights')
             ?? ['written_work' => 0.30, 'performance_task' => 0.50, 'quarterly_assessment' => 0.20];
@@ -122,14 +137,14 @@ class GradebookController extends Controller
             'qa' => $rawWeights['quarterly_assessment'] ?? $rawWeights['qa'] ?? 0.20,
         ];
 
-        // Announcements this faculty has posted to THIS section (newest first).
         $sectionAnnouncements = \App\Models\Announcement::where('section_id', $ss->section_id)
             ->where('created_by', auth()->id())
             ->orderByDesc('created_at')
             ->get();
 
         return view('dashboard.faculty-gradebook-entry', compact(
-            'ss', 'quarter', 'enrollments', 'grades',
+            'ss', 'quarter', 'allQuarters', 'activeQuarter', 'isActiveQuarter',
+            'enrollments', 'grades',
             'allDraft', 'allSubmitted', 'anyLocked', 'anyFinalized',
             'subjectWeights', 'sectionAnnouncements'
         ));
