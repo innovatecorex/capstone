@@ -7,13 +7,14 @@ use App\Models\AcademicYear;
 use App\Models\AuditLog;
 use App\Models\Grade;
 use App\Models\GradingQuarter;
+use App\Models\GradeUnlockRequest;
 use App\Models\Notification;
 use App\Models\SectionSubject;
 use App\Models\User;
 use App\Notifications\GradeVerifiedNotification;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
-use Redirect;
 
 class GradeVerificationController extends Controller
 {
@@ -29,45 +30,62 @@ class GradeVerificationController extends Controller
 
     public function index(Request $request): View
     {
-        $activeYear = AcademicYear::where('status', 'active')->first();
+        $activeYear    = AcademicYear::where('status', 'active')->first();
         $activeQuarter = $this->activeQuarter();
 
-        $submittedGrades = collect();
-        $stats = [
-            'total_submitted' => 0,
-            'total_finalized' => 0,
-            'total_locked' => 0,
-            'pending_review' => 0,
-        ];
+        $quarters = $activeYear
+            ? GradingQuarter::where('academic_year_id', $activeYear->id)->orderBy('quarter_number')->get()
+            : collect();
 
-        if ($activeYear && $activeQuarter) {
-            // Get all submitted grades for the active quarter
-            $submittedGrades = Grade::with([
+        $selectedQuarterId = $request->input('quarter_id')
+            ?? optional($activeQuarter)->id
+            ?? optional($quarters->first())->id;
+
+        $sectionSubjects = $activeYear
+            ? SectionSubject::where('academic_year_id', $activeYear->id)
+                ->with(['section', 'subject', 'faculty'])->get()
+            : collect();
+
+        $selectedSectionSubjectId = $request->input('section_subject_id');
+        $statusFilter             = $request->input('status', 'submitted');
+
+        // Counts always scoped to the active quarter
+        $stats = ['pending_review' => 0, 'total_finalized' => 0, 'total_locked' => 0];
+        $pendingUnlockCount = 0;
+
+        if ($activeQuarter) {
+            $stats['pending_review']  = Grade::where('grading_quarter_id', $activeQuarter->id)->where('status', 'submitted')->count();
+            $stats['total_finalized'] = Grade::where('grading_quarter_id', $activeQuarter->id)->where('status', 'finalized')->count();
+            $stats['total_locked']    = Grade::where('grading_quarter_id', $activeQuarter->id)->where('status', 'locked')->count();
+            $pendingUnlockCount       = GradeUnlockRequest::where('grading_quarter_id', $activeQuarter->id)->pending()->count();
+        }
+
+        // Grade rows (filtered by selected quarter + optional section + status)
+        $grades = collect();
+        if ($selectedQuarterId) {
+            $query = Grade::with([
                 'enrollment.student',
                 'sectionSubject.section',
                 'sectionSubject.subject',
+                'sectionSubject.faculty',
                 'submittedBy',
-            ])
-                ->where('grading_quarter_id', $activeQuarter->id)
-                ->where('status', 'submitted')
-                ->orderByDesc('submitted_at')
-                ->paginate(50);
+            ])->where('grading_quarter_id', $selectedQuarterId);
 
-            // Calculate stats
-            $stats['total_submitted'] = Grade::where('grading_quarter_id', $activeQuarter->id)
-                ->where('status', 'submitted')->count();
-            $stats['total_finalized'] = Grade::where('grading_quarter_id', $activeQuarter->id)
-                ->where('status', 'finalized')->count();
-            $stats['total_locked'] = Grade::where('grading_quarter_id', $activeQuarter->id)
-                ->where('status', 'locked')->count();
-            $stats['pending_review'] = $stats['total_submitted'];
+            if ($statusFilter && $statusFilter !== 'all') {
+                $query->where('status', $statusFilter);
+            }
+            if ($selectedSectionSubjectId) {
+                $query->where('section_subject_id', $selectedSectionSubjectId);
+            }
+
+            $grades = $query->orderByDesc('submitted_at')->paginate(50)->withQueryString();
         }
 
         return view('dashboard.registrar-grades', compact(
-            'submittedGrades',
-            'activeYear',
-            'activeQuarter',
-            'stats'
+            'grades', 'activeYear', 'activeQuarter',
+            'quarters', 'selectedQuarterId', 'statusFilter',
+            'sectionSubjects', 'selectedSectionSubjectId',
+            'stats', 'pendingUnlockCount'
         ));
     }
 
@@ -75,10 +93,20 @@ class GradeVerificationController extends Controller
     {
         $this->authorize('view', $grade);
 
+        $grade->loadMissing([
+            'enrollment.student',
+            'sectionSubject.section',
+            'sectionSubject.subject',
+            'sectionSubject.faculty',
+            'gradingQuarter',
+            'submittedBy',
+            'finalizedBy',
+        ]);
+
         return view('dashboard.registrar-grade-detail', compact('grade'));
     }
 
-    public function finalize(Request $request, Grade $grade): Redirect
+    public function finalize(Request $request, Grade $grade): RedirectResponse
     {
         $this->authorize('update', $grade);
 
@@ -132,7 +160,7 @@ class GradeVerificationController extends Controller
         return back()->with('success', "Grade finalized for {$grade->enrollment->student?->full_name}.");
     }
 
-    public function bulkFinalize(Request $request): Redirect
+    public function bulkFinalize(Request $request): RedirectResponse
     {
         $request->validate([
             'grade_ids' => 'required|array|min:1',
@@ -177,7 +205,7 @@ class GradeVerificationController extends Controller
         return back()->with('success', "{$count} grade(s) finalized.");
     }
 
-    public function lock(Request $request, Grade $grade): Redirect
+    public function lock(Request $request, Grade $grade): RedirectResponse
     {
         $this->authorize('update', $grade);
 
@@ -210,7 +238,7 @@ class GradeVerificationController extends Controller
         return back()->with('success', 'Grade locked successfully.');
     }
 
-    public function unlock(Request $request, Grade $grade): Redirect
+    public function unlock(Request $request, Grade $grade): RedirectResponse
     {
         $this->authorize('update', $grade);
 

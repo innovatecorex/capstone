@@ -289,7 +289,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/registrar/enrollment',     [App\Http\Controllers\Dashboard\RegistrarUserDashboardController::class, 'enrollment'])    ->name('registrar.enrollment');
         Route::get('/registrar/requests',       [App\Http\Controllers\Dashboard\RegistrarUserDashboardController::class, 'requests'])      ->name('registrar.requests');
         Route::get('/registrar/report-cards',   [App\Http\Controllers\Dashboard\RegistrarUserDashboardController::class, 'reportCards'])   ->name('registrar.report-cards');
-        Route::get('/registrar/grades',         [App\Http\Controllers\Dashboard\RegistrarUserDashboardController::class, 'grades'])        ->name('registrar.grades');
+        Route::get('/registrar/grades',           [App\Http\Controllers\Dashboard\GradeVerificationController::class, 'index']) ->name('registrar.grades');
+        Route::get('/registrar/grades/{grade}',   [App\Http\Controllers\Dashboard\GradeVerificationController::class, 'show'])  ->name('registrar.grades.show');
         Route::get('/registrar/calendar',       [App\Http\Controllers\Dashboard\RegistrarUserDashboardController::class, 'calendar'])      ->name('registrar.calendar');
         Route::get('/registrar/announcements',  [App\Http\Controllers\Dashboard\RegistrarUserDashboardController::class, 'announcements']) ->name('registrar.announcements');
         Route::post('/registrar/announcements', [App\Http\Controllers\Dashboard\RegistrarUserDashboardController::class, 'postAnnouncement'])->name('registrar.announcements.store');
