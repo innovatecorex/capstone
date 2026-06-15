@@ -1,23 +1,30 @@
-SECTION EDIT — FIXED (replaces the broken section-edit.zip)
-===========================================================
+GRADE COMPLAINT — SUBMIT VISIBILITY + NOT SAVING FIX
+====================================================
 
-PROBLEM
-  The earlier section-edit used @json([...]) with PHP => syntax inline in an
-  onclick attribute, which Blade could not parse — causing a 500 ParseError
-  on /admin/sections.
+PROBLEMS
+  1. Submit button text was white-on-white (only visible on hover).
+  2. Submitting a complaint failed silently: it used Laravel's ->notify()
+     database channel, which expects the OLD notifications table shape
+     (UUID id + notifiable + data). The notifications table was rebuilt with
+     an auto-increment id + custom columns, so notify() errored and the whole
+     submit rolled back — student saw nothing, teacher got nothing.
 
-FIX
-  Rebuilt from the clean original. The row data is now built in a @php block
-  and passed via Js::from() (Laravel's safe JS encoder). Adds the Edit button
-  + modal correctly. Editable: grade level, section name, adviser, capacity,
-  status.
+FIXES
+  - Submit button given explicit navy background + white text (always visible).
+  - Complaint submit AND teacher/registrar response now create notifications
+    using the app's standard Notification::create() (matches the rebuilt
+    table), so the complaint saves, the student sees it, and the faculty +
+    registrars are notified.
+  - Migration adds Laravel notification columns (nullable) for safety/back-compat.
 
 STEPS (PowerShell) — stop server (Ctrl+C) first, then:
   cd D:\xampp\htdocs\capstone
-  Expand-Archive -Path "$HOME\Downloads\sec2.zip" -DestinationPath . -Force
-  php artisan view:clear
+  Expand-Archive -Path "$HOME\Downloads\comp-fix.zip" -DestinationPath . -Force
+  php artisan migrate
+  php artisan optimize:clear
   php artisan serve
 
 TEST
-  /admin/sections should load again. Click "Edit" on a section -> modal opens
-  pre-filled -> change adviser/capacity/status -> Save.
+  - Student: file a complaint -> Submit button is readable -> after submit it
+    appears in the student's complaints list.
+  - Faculty of that subject (and registrars) should get a notification.

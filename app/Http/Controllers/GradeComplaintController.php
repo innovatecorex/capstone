@@ -7,6 +7,7 @@ use App\Models\Enrollment;
 use App\Models\Grade;
 use App\Models\GradeComplaint;
 use App\Models\GradingQuarter;
+use App\Models\Notification;
 use App\Models\SectionSubject;
 use App\Models\User;
 use App\Notifications\ComplaintReceivedNotification;
@@ -116,15 +117,29 @@ class GradeComplaintController extends Controller
         ]);
 
         $ss->loadMissing('faculty');
-        $complaintNotif = new ComplaintReceivedNotification(
-            $user->full_name,
-            $ss->subject?->subject_name ?? 'Unknown Subject',
-            mb_substr($validated['reason'], 0, 80) . (mb_strlen($validated['reason']) > 80 ? '…' : ''),
-        );
+        $excerpt = mb_substr($validated['reason'], 0, 80) . (mb_strlen($validated['reason']) > 80 ? '…' : '');
+        $notifTitle = 'Grade Complaint Received';
+        $notifBody  = "{$user->full_name} filed a complaint about " .
+                      ($ss->subject?->subject_name ?? 'a subject') . ": \"{$excerpt}\"";
+
+        // Notify the subject's faculty
         if ($ss->faculty) {
-            $ss->faculty->notify($complaintNotif);
+            Notification::create([
+                'user_id' => $ss->faculty->id,
+                'type'    => 'complaint_received',
+                'title'   => $notifTitle,
+                'body'    => $notifBody,
+            ]);
         }
-        User::where('role_id', '03')->each(fn($r) => $r->notify($complaintNotif));
+        // Notify all registrars
+        User::where('role_id', '03')->where('status', 'active')->get()->each(function ($r) use ($notifTitle, $notifBody) {
+            Notification::create([
+                'user_id' => $r->id,
+                'type'    => 'complaint_received',
+                'title'   => $notifTitle,
+                'body'    => $notifBody,
+            ]);
+        });
 
         return redirect()->route('complaints.index')
             ->with('success', 'Your complaint has been submitted and will be reviewed.');
@@ -209,11 +224,17 @@ class GradeComplaintController extends Controller
         ]);
 
         $complaint->load(['student', 'sectionSubject.subject']);
-        $complaint->student?->notify(new ComplaintRespondedNotification(
-            $complaint->sectionSubject?->subject?->subject_name ?? 'Unknown Subject',
-            $validated['status'],
-            mb_substr($validated['response'], 0, 100) . (mb_strlen($validated['response']) > 100 ? '…' : ''),
-        ));
+        if ($complaint->student) {
+            $respExcerpt = mb_substr($validated['response'], 0, 100) . (mb_strlen($validated['response']) > 100 ? '…' : '');
+            Notification::create([
+                'user_id' => $complaint->student->id,
+                'type'    => 'complaint_responded',
+                'title'   => 'Complaint ' . ucfirst(str_replace('_', ' ', $validated['status'])),
+                'body'    => 'Your complaint about ' .
+                             ($complaint->sectionSubject?->subject?->subject_name ?? 'a subject') .
+                             " was reviewed: \"{$respExcerpt}\"",
+            ]);
+        }
 
         return back()->with('success', 'Response saved.');
     }

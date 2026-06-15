@@ -35,7 +35,7 @@
 @section('content')
 
 <div class="lv-hero">
-  <h2>🏖️ Faculty Leave Management</h2>
+  <h2>🏖️ My Leave Requests</h2>
   <p>Submit leave requests for approval. Allow 1–2 business days for processing.</p>
 </div>
 

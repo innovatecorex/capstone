@@ -77,7 +77,7 @@
   </div>
 
   <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
-    <button type="submit" class="enc-btn enc-btn--primary">Submit Complaint</button>
+    <button type="submit" class="enc-btn enc-btn--primary" style="background:#1e293b;color:#ffffff;border:1px solid #1e293b;">Submit Complaint</button>
     <a href="{{ route('complaints.index') }}" class="enc-btn enc-btn--ghost">Cancel</a>
   </div>
 </form>
