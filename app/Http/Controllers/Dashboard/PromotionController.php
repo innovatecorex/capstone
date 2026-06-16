@@ -7,6 +7,7 @@ use App\Models\AcademicYear;
 use App\Models\AuditLog;
 use App\Models\Enrollment;
 use App\Models\Section;
+use App\Models\SectionSubject;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -40,10 +41,22 @@ class PromotionController extends Controller
                 ->get();
         }
 
+        $totalSubjects   = 0;
+        $gradeSummary    = ['submitted' => 0, 'finalized' => 0, 'locked' => 0];
+
         if ($yearId && $sectionId) {
             $selectedSection = Section::find($sectionId);
             if ($selectedSection) {
-                $students = $this->buildStudentList($selectedSection, (int) $yearId);
+                $totalSubjects = SectionSubject::where('section_id', $sectionId)
+                    ->where('academic_year_id', $yearId)
+                    ->count();
+                $students = $this->buildStudentList($selectedSection, (int) $yearId, $totalSubjects);
+
+                foreach ($students as $row) {
+                    $gradeSummary['submitted']  += $row->submitted_count;
+                    $gradeSummary['finalized']  += $row->finalized_count;
+                    $gradeSummary['locked']     += $row->locked_count;
+                }
             }
         }
 
@@ -55,7 +68,9 @@ class PromotionController extends Controller
             'students',
             'selectedYear',
             'selectedSection',
-            'activeYear'
+            'activeYear',
+            'totalSubjects',
+            'gradeSummary'
         ));
     }
 
@@ -128,32 +143,40 @@ class PromotionController extends Controller
 
     // ── Private helpers ────────────────────────────────────────────────────
 
-    private function buildStudentList(Section $section, int $yearId): \Illuminate\Support\Collection
+    private function buildStudentList(Section $section, int $yearId, int $totalSubjects = 0): \Illuminate\Support\Collection
     {
         $passingGrade = config('academic.passing_grade', 75);
 
         $enrollments = Enrollment::where('section_id', $section->id)
             ->where('academic_year_id', $yearId)
             ->where('status', 'enrolled')
-            ->with([
-                'student',
-                'grades' => fn($q) => $q->where('status', 'locked'),
-            ])
+            ->with(['student', 'grades'])
             ->get();
 
-        return $enrollments->map(function (Enrollment $enrollment) use ($passingGrade) {
-            $grades  = $enrollment->grades;
-            $avg     = $grades->isNotEmpty()
-                ? round($grades->avg('final_grade'), 2)
+        return $enrollments->map(function (Enrollment $enrollment) use ($passingGrade, $totalSubjects) {
+            $all           = $enrollment->grades;
+            $locked        = $all->where('status', 'locked');
+            $finalized     = $all->where('status', 'finalized');
+            $submitted     = $all->where('status', 'submitted');
+
+            $avg = $locked->isNotEmpty()
+                ? round($locked->avg('final_grade'), 2)
                 : null;
+
+            $allLocked = $totalSubjects > 0 && $locked->count() >= $totalSubjects;
 
             return (object) [
                 'student'           => $enrollment->student,
                 'enrollment'        => $enrollment,
                 'average'           => $avg,
-                'grades_count'      => $grades->count(),
+                'total_subjects'    => $totalSubjects,
+                'locked_count'      => $locked->count(),
+                'finalized_count'   => $finalized->count(),
+                'submitted_count'   => $submitted->count(),
+                'all_grades_count'  => $all->count(),
+                'all_locked'        => $allLocked,
+                'has_locked_grades' => $locked->isNotEmpty(),
                 'is_promotable'     => $avg !== null && $avg >= $passingGrade,
-                'has_locked_grades' => $grades->isNotEmpty(),
             ];
         })->sortBy(fn($row) => optional($row->student)->last_name);
     }
