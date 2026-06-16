@@ -221,10 +221,11 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
         Route::get('/',                        [CurriculumMappingController::class, 'index'])        ->name('index');
         Route::get('/create',                  [CurriculumMappingController::class, 'create'])       ->name('create');
         Route::post('/',                       [CurriculumMappingController::class, 'store'])        ->name('store');
+        Route::post('/bulk-action',            [CurriculumMappingController::class, 'bulkAction'])   ->name('bulk-action');
+        Route::post('/copy-from-year',         [CurriculumMappingController::class, 'copyFromYear']) ->name('copy-from-year');
         Route::get('/{mapping}/edit',          [CurriculumMappingController::class, 'edit'])         ->name('edit');
         Route::put('/{mapping}',               [CurriculumMappingController::class, 'update'])       ->name('update');
         Route::delete('/{mapping}',            [CurriculumMappingController::class, 'destroy'])      ->name('destroy');
-        Route::post('/bulk-action',            [CurriculumMappingController::class, 'bulkAction'])   ->name('bulk-action');
     });
 
     // ── Locked Accounts Management ────────────────────────────────────────
