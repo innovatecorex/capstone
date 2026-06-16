@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\AcademicYear;
 use App\Models\Announcement;
 use App\Models\AuditLog;
+use App\Models\Enrollment;
+use App\Models\Grade;
+use App\Models\GradingQuarter;
 use App\Models\Notification;
 use App\Models\SectionSubject;
 use App\Models\User;
@@ -74,10 +77,58 @@ class FacultyDashboardController extends Controller
 
     public function gradebook(Request $request)
     {
-        $user         = auth()->user();
-        $allSchedules = $this->loadSchedules($user->id);
+        $user          = auth()->user();
+        $allSchedules  = $this->loadSchedules($user->id);
+        $activeYear    = AcademicYear::where('status', 'active')->first();
+        $activeQuarter = $activeYear
+            ? GradingQuarter::where('academic_year_id', $activeYear->id)
+                ->where('status', 'active')->first()
+            : null;
 
-        return view('dashboard.faculty-gradebook', compact('user', 'allSchedules'));
+        if ($activeQuarter && $allSchedules->isNotEmpty()) {
+            $ssIds      = $allSchedules->pluck('id');
+            $sectionIds = $allSchedules->pluck('section_id')->unique();
+
+            // Grade counts per section-subject grouped by status
+            $gradeRows = Grade::whereIn('section_subject_id', $ssIds)
+                ->where('grading_quarter_id', $activeQuarter->id)
+                ->selectRaw('section_subject_id, status, count(*) as cnt')
+                ->groupBy('section_subject_id', 'status')
+                ->get()
+                ->groupBy('section_subject_id');
+
+            // Student counts per section
+            $studentCounts = Enrollment::forActiveAcademicYear()
+                ->whereIn('section_id', $sectionIds)
+                ->where('status', 'enrolled')
+                ->selectRaw('section_id, count(*) as cnt')
+                ->groupBy('section_id')
+                ->pluck('cnt', 'section_id');
+
+            $allSchedules->each(function ($ss) use ($gradeRows, $studentCounts) {
+                $ss->student_count = (int) ($studentCounts->get($ss->section_id) ?? 0);
+
+                $stats = $gradeRows->get($ss->id, collect());
+                $ss->graded_count = (int) $stats->sum('cnt');
+
+                $statuses = $stats->pluck('status');
+                $ss->grade_status = $statuses->contains('locked')    ? 'locked'
+                    : ($statuses->contains('finalized') ? 'finalized'
+                    : ($statuses->contains('submitted') ? 'submitted'
+                    : ($statuses->contains('draft')     ? 'draft'
+                    : 'none')));
+            });
+        } else {
+            $allSchedules->each(function ($ss) {
+                $ss->student_count = 0;
+                $ss->graded_count  = 0;
+                $ss->grade_status  = 'none';
+            });
+        }
+
+        return view('dashboard.faculty-gradebook', compact(
+            'user', 'allSchedules', 'activeYear', 'activeQuarter'
+        ));
     }
 
     public function mySchedule(Request $request)
