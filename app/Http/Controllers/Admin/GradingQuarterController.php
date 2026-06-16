@@ -142,6 +142,24 @@ class GradingQuarterController extends Controller
     }
 
     /**
+     * Quick-activate: set this quarter to active, deactivate siblings.
+     */
+    public function activate(GradingQuarter $quarter)
+    {
+        $quarter->update(['status' => 'active', 'is_active' => true]);
+
+        AuditLog::record('grading_quarter.activated', [
+            'target'       => $quarter->id,
+            'quarter_name' => $quarter->quarter_name,
+            'year_id'      => $quarter->academic_year_id,
+        ]);
+
+        return redirect()
+            ->route('admin.grading-quarters.index', ['academic_year_id' => $quarter->academic_year_id])
+            ->with('success', "'{$quarter->quarter_name}' is now the active grading period.");
+    }
+
+    /**
      * Delete grading quarter
      */
     public function destroy(GradingQuarter $quarter)
