@@ -15,6 +15,7 @@ use App\Models\Notification;
 use App\Models\Payment;
 use App\Models\Section;
 use App\Models\AuditLog;
+use App\Models\ReportCardToken;
 use App\Models\User;
 use App\Services\PrerequisiteService;
 use Illuminate\Http\Request;
@@ -356,7 +357,76 @@ class RegistrarUserDashboardController extends Controller
 
     public function reportCards(Request $request)
     {
-        return view('dashboard.registrar-report-cards');
+        $activeYear    = AcademicYear::where('status', 'active')->first();
+        $academicYears = AcademicYear::orderByDesc('id')->get();
+        $selectedYear  = null;
+        $sections      = collect();
+        $selectedSection = null;
+        $students      = collect();
+        $search        = trim((string) $request->input('search', ''));
+
+        $yearId    = $request->input('academic_year_id') ?? ($activeYear?->id ?? AcademicYear::currentId());
+        $sectionId = $request->input('section_id');
+
+        if ($yearId) {
+            $selectedYear = AcademicYear::find($yearId);
+            $sections = Section::where('academic_year_id', $yearId)
+                ->orderBy('grade_level')->orderBy('section_name')->get();
+        }
+
+        if ($yearId && ($sectionId || $search)) {
+            $query = Enrollment::where('academic_year_id', $yearId)
+                ->where('status', 'enrolled')
+                ->with(['student', 'section',
+                    'grades' => fn($q) => $q->whereIn('status', ['finalized', 'locked']),
+                ]);
+
+            if ($sectionId) {
+                $selectedSection = Section::find($sectionId);
+                $query->where('section_id', $sectionId);
+            }
+
+            if ($search) {
+                $query->whereHas('student', fn($q) =>
+                    $q->where('first_name', 'like', "%{$search}%")
+                      ->orWhere('last_name',  'like', "%{$search}%")
+                      ->orWhere('lrn',        'like', "%{$search}%")
+                );
+            }
+
+            $students = $query->take(100)->get()->map(function ($enrollment) {
+                $grades   = $enrollment->grades;
+                $locked   = $grades->where('status', 'locked');
+                $finalized = $grades->where('status', 'finalized');
+                $avg = $grades->isNotEmpty() ? round($grades->avg('final_grade'), 2) : null;
+
+                return (object) [
+                    'student'          => $enrollment->student,
+                    'enrollment'       => $enrollment,
+                    'section'          => $enrollment->section,
+                    'locked_count'     => $locked->count(),
+                    'finalized_count'  => $finalized->count(),
+                    'total_grades'     => $grades->count(),
+                    'general_avg'      => $avg,
+                    'can_generate'     => $grades->count() > 0,
+                ];
+            })->sortBy(fn($r) => optional($r->student)->last_name)->values();
+        }
+
+        // Stats for the active year
+        $stats = ['total_enrolled' => 0, 'with_grades' => 0, 'tokens_generated' => 0];
+        if ($activeYear) {
+            $stats['total_enrolled']   = Enrollment::where('academic_year_id', $activeYear->id)->where('status', 'enrolled')->count();
+            $stats['with_grades']      = Enrollment::where('academic_year_id', $activeYear->id)->where('status', 'enrolled')
+                ->whereHas('grades', fn($q) => $q->whereIn('status', ['finalized', 'locked']))->count();
+            $stats['tokens_generated'] = ReportCardToken::where('academic_year_id', $activeYear->id)->count();
+        }
+
+        return view('dashboard.registrar-report-cards', compact(
+            'activeYear', 'academicYears',
+            'selectedYear', 'sections', 'selectedSection',
+            'students', 'search', 'stats'
+        ));
     }
 
     public function grades(Request $request)

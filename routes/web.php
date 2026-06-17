@@ -196,12 +196,13 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
 
     // ── Grading Quarters Management ───────────────────────────────────────
     Route::prefix('grading-quarters')->name('grading-quarters.')->group(function () {
-        Route::get('/',                [GradingQuarterController::class, 'index'])   ->name('index');
-        Route::get('/create',          [GradingQuarterController::class, 'create'])  ->name('create');
-        Route::post('/',               [GradingQuarterController::class, 'store'])   ->name('store');
-        Route::get('/{quarter}/edit',  [GradingQuarterController::class, 'edit'])    ->name('edit');
-        Route::put('/{quarter}',       [GradingQuarterController::class, 'update'])  ->name('update');
-        Route::delete('/{quarter}',    [GradingQuarterController::class, 'destroy']) ->name('destroy');
+        Route::get('/',                    [GradingQuarterController::class, 'index'])    ->name('index');
+        Route::get('/create',              [GradingQuarterController::class, 'create'])   ->name('create');
+        Route::post('/',                   [GradingQuarterController::class, 'store'])    ->name('store');
+        Route::get('/{quarter}/edit',      [GradingQuarterController::class, 'edit'])     ->name('edit');
+        Route::put('/{quarter}',           [GradingQuarterController::class, 'update'])   ->name('update');
+        Route::patch('/{quarter}/activate',[GradingQuarterController::class, 'activate']) ->name('activate');
+        Route::delete('/{quarter}',        [GradingQuarterController::class, 'destroy'])  ->name('destroy');
     });
 
     // ── Subjects Registry Management ──────────────────────────────────────
@@ -220,10 +221,11 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
         Route::get('/',                        [CurriculumMappingController::class, 'index'])        ->name('index');
         Route::get('/create',                  [CurriculumMappingController::class, 'create'])       ->name('create');
         Route::post('/',                       [CurriculumMappingController::class, 'store'])        ->name('store');
+        Route::post('/bulk-action',            [CurriculumMappingController::class, 'bulkAction'])   ->name('bulk-action');
+        Route::post('/copy-from-year',         [CurriculumMappingController::class, 'copyFromYear']) ->name('copy-from-year');
         Route::get('/{mapping}/edit',          [CurriculumMappingController::class, 'edit'])         ->name('edit');
         Route::put('/{mapping}',               [CurriculumMappingController::class, 'update'])       ->name('update');
         Route::delete('/{mapping}',            [CurriculumMappingController::class, 'destroy'])      ->name('destroy');
-        Route::post('/bulk-action',            [CurriculumMappingController::class, 'bulkAction'])   ->name('bulk-action');
     });
 
     // ── Locked Accounts Management ────────────────────────────────────────

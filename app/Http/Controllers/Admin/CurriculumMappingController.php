@@ -17,42 +17,99 @@ use Illuminate\Http\Request;
 class CurriculumMappingController extends Controller
 {
     /**
-     * List curriculum mappings
+     * List curriculum mappings grouped by grade level with prerequisite stats.
      */
     public function index(Request $request)
     {
         $academicYearId = $request->input('academic_year_id') ?? AcademicYear::currentId();
-        $gradeLevel = $request->input('grade_level');
-        $status = $request->input('status');
-        
-        $query = CurriculumMapping::with(['academicYear', 'subject', 'prerequisiteSubject']);
-        
+        $gradeLevel     = $request->input('grade_level');
+        $status         = $request->input('status');
+        $prereqOnly     = $request->boolean('prereq_only');
+
+        $query = CurriculumMapping::with(['subject', 'prerequisiteSubject']);
+
         if ($academicYearId) {
             $query->where('academic_year_id', $academicYearId);
         }
-        
         if ($gradeLevel) {
             $query->where('grade_level', $gradeLevel);
         }
-        
         if ($status) {
             $query->where('status', $status);
         }
-        
-        $mappings = $query->orderBy('academic_year_id', 'desc')
-                         ->orderBy('grade_level', 'asc')
-                         ->orderBy('sequence_order', 'asc')
-                         ->paginate(50);
-        
+        if ($prereqOnly) {
+            $query->whereNotNull('prerequisite_subject_id');
+        }
+
+        $mappings    = $query->orderBy('grade_level')->orderBy('sequence_order')->orderBy('created_at')->get();
+        $grouped     = $mappings->groupBy('grade_level');
         $academicYears = AcademicYear::orderBy('year_label', 'desc')->get();
-        
-        // Get distinct grade levels
-        $gradeLevels = CurriculumMapping::distinct()
-            ->pluck('grade_level')
-            ->sort()
-            ->values();
-        
-        return view('admin.registrars.curriculum-mappings.index', compact('mappings', 'academicYears', 'gradeLevels'));
+        $selectedYear  = $academicYearId ? AcademicYear::find($academicYearId) : null;
+
+        $gradeLevels = CurriculumMapping::distinct()->pluck('grade_level')->sort()->values();
+
+        // Stats scoped to the selected year (ignoring other active filters)
+        $base = CurriculumMapping::query();
+        if ($academicYearId) {
+            $base->where('academic_year_id', $academicYearId);
+        }
+        $stats = [
+            'total'             => (clone $base)->count(),
+            'active'            => (clone $base)->where('status', 'active')->count(),
+            'with_prerequisite' => (clone $base)->whereNotNull('prerequisite_subject_id')->count(),
+            'required'          => (clone $base)->where('is_required', true)->where('status', 'active')->count(),
+            'elective'          => (clone $base)->where('is_required', false)->where('status', 'active')->count(),
+        ];
+
+        return view('admin.registrars.curriculum-mappings.index', compact(
+            'grouped', 'mappings', 'academicYears', 'selectedYear',
+            'gradeLevels', 'stats', 'academicYearId', 'gradeLevel', 'status', 'prereqOnly'
+        ));
+    }
+
+    /**
+     * Copy all mappings from one academic year to another (skip duplicates).
+     */
+    public function copyFromYear(Request $request)
+    {
+        $validated = $request->validate([
+            'source_year_id' => ['required', 'exists:academic_years,id'],
+            'target_year_id' => ['required', 'exists:academic_years,id', 'different:source_year_id'],
+        ]);
+
+        $source  = CurriculumMapping::where('academic_year_id', $validated['source_year_id'])->get();
+        $copied  = 0;
+        $skipped = 0;
+
+        foreach ($source as $m) {
+            $exists = CurriculumMapping::where('academic_year_id', $validated['target_year_id'])
+                ->where('grade_level', $m->grade_level)
+                ->where('subject_id', $m->subject_id)
+                ->exists();
+
+            if ($exists) { $skipped++; continue; }
+
+            CurriculumMapping::create([
+                'academic_year_id'        => $validated['target_year_id'],
+                'grade_level'             => $m->grade_level,
+                'subject_id'              => $m->subject_id,
+                'prerequisite_subject_id' => $m->prerequisite_subject_id,
+                'prerequisite_min_grade'  => $m->prerequisite_min_grade,
+                'is_required'             => $m->is_required,
+                'sequence_order'          => $m->sequence_order,
+                'status'                  => $m->status,
+            ]);
+            $copied++;
+        }
+
+        $msg = "Copied {$copied} mapping(s) to the target year.";
+        if ($skipped > 0) {
+            $msg .= " {$skipped} duplicate(s) were skipped.";
+        }
+
+        return redirect()
+            ->route('admin.curriculum-mappings.index', ['academic_year_id' => $validated['target_year_id']])
+            ->with('success', $msg);
     }
 
     /**

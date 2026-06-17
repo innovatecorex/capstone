@@ -25,6 +25,10 @@ class RegistrarApplicantController extends Controller
             $query->where('applying_for_grade', $request->input('grade'));
         }
 
+        if ($request->filled('year')) {
+            $query->where('applying_for_year', $request->input('year'));
+        }
+
         if ($request->filled('search')) {
             $s = $request->input('search');
             $query->where(function ($q) use ($s) {
@@ -39,13 +43,17 @@ class RegistrarApplicantController extends Controller
         $grades     = Applicant::distinct()->orderBy('applying_for_grade')->pluck('applying_for_grade');
 
         $counts = [
-            'pending'      => Applicant::where('status', 'pending')->count(),
-            'under_review' => Applicant::where('status', 'under_review')->count(),
-            'accepted'     => Applicant::where('status', 'accepted')->count(),
-            'rejected'     => Applicant::where('status', 'rejected')->count(),
+            'pending'                => Applicant::where('status', 'pending')->count(),
+            'under_review'           => Applicant::where('status', 'under_review')->count(),
+            'accepted'               => Applicant::where('status', 'accepted')->count(),
+            'rejected'               => Applicant::where('status', 'rejected')->count(),
+            'eligible_for_enrollment'=> Applicant::where('status', 'eligible_for_enrollment')->count(),
+            'enrolled'               => Applicant::where('status', 'enrolled')->count(),
         ];
 
-        return view('registrar.applicants.index', compact('applicants', 'grades', 'counts'));
+        $years = Applicant::distinct()->orderByDesc('applying_for_year')->pluck('applying_for_year')->filter();
+
+        return view('registrar.applicants.index', compact('applicants', 'grades', 'counts', 'years'));
     }
 
     public function show(Applicant $applicant): View
@@ -57,7 +65,7 @@ class RegistrarApplicantController extends Controller
     public function updateStatus(Request $request, Applicant $applicant): RedirectResponse
     {
         $validated = $request->validate([
-            'status'  => ['required', 'in:pending,under_review,accepted,rejected,enrolled'],
+            'status'  => ['required', 'in:pending,under_review,accepted,rejected,eligible_for_enrollment,enrolled'],
             'remarks' => ['nullable', 'string', 'max:1000'],
         ]);
 
