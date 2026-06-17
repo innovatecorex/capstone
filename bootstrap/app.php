@@ -15,7 +15,26 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
 
-        // ── Global middleware (runs on every request) ──────────────────────
+       // ── Trust the Nginx reverse proxy (so HTTPS is detected) ───────────
+        $middleware->trustProxies(at: '*', headers:
+            \Illuminate\Http\Request::HEADER_X_FORWARDED_FOR |
+            \Illuminate\Http\Request::HEADER_X_FORWARDED_HOST |
+            \Illuminate\Http\Request::HEADER_X_FORWARDED_PORT |
+            \Illuminate\Http\Request::HEADER_X_FORWARDED_PROTO
+        );
+// ── Where to send already-authenticated users who hit guest routes ──
+        // (Prevents the /login -> / -> /login redirect loop for logged-in users.)
+        $middleware->redirectUsersTo(function ($request) {
+            $user = $request->user();
+            return match ($user?->role_id) {
+                '04' => route('admin.dashboard'),
+                '03' => route('registrar.dashboard'),
+                '02' => route('faculty.dashboard'),
+                '01' => route('student.dashboard'),
+                default => route('admin.dashboard'),
+            };
+        });
+ // ── Global middleware (runs on every request) ──────────────────────
         $middleware->web(append: [
             SecurityHeaders::class,         // outermost — headers apply to ALL responses
             InjectionDefenseMiddleware::class,

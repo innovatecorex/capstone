@@ -63,6 +63,18 @@
   </style>
 </head>
 <body>
+  @php
+    $dashboardUrl = url('/login');
+    if (auth()->check()) {
+        $dashboardUrl = match (auth()->user()->role_id) {
+            '04'    => url('/admin/dashboard'),
+            '03'    => url('/registrar/dashboard'),
+            '02'    => url('/faculty/dashboard'),
+            '01'    => url('/student/dashboard'),
+            default => url('/'),
+        };
+    }
+  @endphp
   <div class="err-card">
     <div class="err-code">403</div>
     <div class="err-title">Access Denied</div>
@@ -71,9 +83,9 @@
       {{ $message ?? 'You do not have permission to access this resource.' }}
       This incident has been recorded in the audit trail.
     </div>
-    <a href="{{ url()->previous() }}" class="enc-btn enc-btn--outline"
+    <a href="{{ $dashboardUrl }}" class="enc-btn enc-btn--outline"
        style="display:inline-flex;background:transparent;color:rgba(255,255,255,.6);border-color:rgba(255,255,255,.15);">
-      ← Go Back
+      ← Back to Dashboard
     </a>
   </div>
 </body>
