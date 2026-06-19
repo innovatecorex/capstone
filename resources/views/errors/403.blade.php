@@ -78,7 +78,13 @@
   <div class="err-card">
     <div class="err-code">403</div>
     <div class="err-title">Access Denied</div>
-    <div class="err-badge">PRIVILEGE_VIOLATION · LOGGED</div>
+    <div class="err-badge">
+      @if(isset($message) && str_contains($message, 'forbidden characters'))
+        INJECTION_BLOCKED · LOGGED
+      @else
+        PRIVILEGE_VIOLATION · LOGGED
+      @endif
+    </div>
     <div class="err-msg">
       {{ $message ?? 'You do not have permission to access this resource.' }}
       This incident has been recorded in the audit trail.
