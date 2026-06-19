@@ -455,6 +455,16 @@
 
       <div class="lp-card-body">
 
+        {{-- Session-expired / info notice --}}
+        @if(session('status'))
+        <div class="lp-alert lp-alert--warn">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#d97706" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <span>{{ session('status') }}</span>
+        </div>
+        @endif
+
         {{-- Error --}}
         @if(session('error'))
         <div class="lp-alert lp-alert--error">

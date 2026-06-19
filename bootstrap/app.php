@@ -6,6 +6,7 @@ use Illuminate\Foundation\Configuration\Middleware;
 use App\Http\Middleware\RoleMiddleware;
 use App\Http\Middleware\InjectionDefenseMiddleware;
 use App\Http\Middleware\SecurityHeaders;
+use App\Http\Middleware\SessionTimeout;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -38,6 +39,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             SecurityHeaders::class,         // outermost — headers apply to ALL responses
             InjectionDefenseMiddleware::class,
+            SessionTimeout::class,          // idle-timeout: logs out after SESSION_LIFETIME minutes
         ]);
 
         // ── Route-level aliases ────────────────────────────────────────────
