@@ -288,6 +288,8 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware('role:registrar')->group(function () {
         Route::get('/registrar/dashboard',      [App\Http\Controllers\Dashboard\RegistrarUserDashboardController::class, 'index'])        ->name('registrar.dashboard');
         Route::get('/registrar/students',       [App\Http\Controllers\Dashboard\RegistrarUserDashboardController::class, 'students'])      ->name('registrar.students');
+        Route::get( '/registrar/students/import/template', [App\Http\Controllers\Dashboard\StudentImportController::class, 'template'])->name('registrar.students.import.template');
+        Route::post('/registrar/students/import',          [App\Http\Controllers\Dashboard\StudentImportController::class, 'import'])  ->name('registrar.students.import');
         Route::get('/registrar/enrollment',     [App\Http\Controllers\Dashboard\RegistrarUserDashboardController::class, 'enrollment'])    ->name('registrar.enrollment');
         Route::get('/registrar/requests',       [App\Http\Controllers\Dashboard\RegistrarUserDashboardController::class, 'requests'])      ->name('registrar.requests');
         Route::get('/registrar/report-cards',   [App\Http\Controllers\Dashboard\RegistrarUserDashboardController::class, 'reportCards'])   ->name('registrar.report-cards');

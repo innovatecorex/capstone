@@ -337,8 +337,12 @@
   </div>
   @endif
 
-  <form method="POST" action="{{ route('faculty.gradebook.save-draft', $ss) }}" id="grade-form">
-  @csrf
+  {{-- Standalone grade form (kept OUT of the table to avoid invalid nested
+       forms — the drop/reinstate row forms live inside the table). Grade
+       inputs link to it via form="grade-form". --}}
+  <form method="POST" action="{{ route('faculty.gradebook.save-draft', $ss) }}" id="grade-form"></form>
+  <input type="hidden" name="_token" value="{{ csrf_token() }}" form="grade-form">
+
   <div class="gb-card">
     <div style="overflow-x:auto;">
       <table class="gb-table">
@@ -407,7 +411,7 @@
             <td style="text-align:center;">
               <div>
                 <input type="number"
-                       name="grades[{{ $enrollment->id }}][written_work]"
+                       name="grades[{{ $enrollment->id }}][written_work]" form="grade-form"
                        class="gb-score-input ww-input"
                        value="{{ old("grades.{$enrollment->id}.written_work", $grade?->written_work) }}"
                        min="0" max="100" step="0.01"
@@ -422,7 +426,7 @@
             <td style="text-align:center;">
               <div>
                 <input type="number"
-                       name="grades[{{ $enrollment->id }}][performance_task]"
+                       name="grades[{{ $enrollment->id }}][performance_task]" form="grade-form"
                        class="gb-score-input pt-input"
                        value="{{ old("grades.{$enrollment->id}.performance_task", $grade?->performance_task) }}"
                        min="0" max="100" step="0.01"
@@ -437,7 +441,7 @@
             <td style="text-align:center;">
               <div>
                 <input type="number"
-                       name="grades[{{ $enrollment->id }}][quarterly_assessment]"
+                       name="grades[{{ $enrollment->id }}][quarterly_assessment]" form="grade-form"
                        class="gb-score-input qa-input"
                        value="{{ old("grades.{$enrollment->id}.quarterly_assessment", $grade?->quarterly_assessment) }}"
                        min="0" max="100" step="0.01"
@@ -663,7 +667,6 @@
     @endif
 
   </div>{{-- /.gb-card --}}
-  </form>
 
   {{-- Hidden submit-grades form --}}
   <form id="submit-form" method="POST" action="{{ route('faculty.gradebook.submit', $ss) }}" style="display:none;">

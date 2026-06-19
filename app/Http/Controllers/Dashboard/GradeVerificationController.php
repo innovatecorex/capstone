@@ -150,11 +150,14 @@ class GradeVerificationController extends Controller
 
         // Notify the faculty who submitted
         if ($grade->submittedBy) {
-            $grade->submittedBy->notify(new GradeVerifiedNotification(
-                $grade->enrollment->student?->full_name ?? 'Unknown',
-                $grade->sectionSubject?->subject?->subject_name ?? 'Unknown Subject',
-                'finalized',
-            ));
+            Notification::create([
+                'user_id' => $grade->submittedBy->id,
+                'type'    => 'grade_verified',
+                'title'   => 'Grade Finalized',
+                'body'    => 'Grades you submitted for ' .
+                             ($grade->sectionSubject?->subject?->subject_name ?? 'a subject') .
+                             ' have been finalized by the registrar.',
+            ]);
         }
 
         return back()->with('success', "Grade finalized for {$grade->enrollment->student?->full_name}.");
@@ -188,11 +191,14 @@ class GradeVerificationController extends Controller
 
                 // Notify faculty
                 if ($grade->submittedBy) {
-                    $grade->submittedBy->notify(new GradeVerifiedNotification(
-                        $grade->enrollment->student?->full_name ?? 'Unknown',
-                        $grade->sectionSubject?->subject?->subject_name ?? 'Unknown Subject',
-                        'finalized',
-                    ));
+                    Notification::create([
+                        'user_id' => $grade->submittedBy->id,
+                        'type'    => 'grade_verified',
+                        'title'   => 'Grade Finalized',
+                        'body'    => 'Grades you submitted for ' .
+                                     ($grade->sectionSubject?->subject?->subject_name ?? 'a subject') .
+                                     ' have been finalized by the registrar.',
+                    ]);
                 }
             }
         }

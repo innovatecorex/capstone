@@ -22,6 +22,22 @@
 
 @section('content')
 
+@if(session('success'))
+<div style="margin-bottom:16px;padding:12px 16px;background:#f0fdf4;border:1px solid #86efac;border-left:4px solid #16a34a;border-radius:8px;color:#166534;font-size:.85rem;font-weight:600;">
+  {{ session('success') }}
+</div>
+@endif
+@if(session('error'))
+<div style="margin-bottom:16px;padding:12px 16px;background:#fef2f2;border:1px solid #fca5a5;border-left:4px solid #dc2626;border-radius:8px;color:#991b1b;font-size:.85rem;font-weight:600;">
+  {{ session('error') }}
+</div>
+@endif
+@if($errors->any())
+<div style="margin-bottom:16px;padding:12px 16px;background:#fef2f2;border:1px solid #fca5a5;border-left:4px solid #dc2626;border-radius:8px;color:#991b1b;font-size:.85rem;">
+  @foreach($errors->all() as $e)<div>{{ $e }}</div>@endforeach
+</div>
+@endif
+
 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
   <div>
     <h1 style="font-size:1.2rem;font-weight:800;color:var(--sd-navy);margin:0 0 3px;">Student Records</h1>
@@ -30,6 +46,14 @@
   <span style="font-size:.8rem;font-weight:600;color:var(--sd-muted);background:#f1f5f9;padding:.35rem .9rem;border-radius:999px;">
     {{ $students->total() }} {{ Str::plural('student', $students->total()) }}
   </span>
+  <button type="button" onclick="document.getElementById('importModal').style.display='flex'"
+          class="enc-button enc-button--primary enc-button--sm"
+          style="display:inline-flex;align-items:center;gap:6px;">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/>
+    </svg>
+    Import Master List
+  </button>
 </div>
 
 {{-- Search --}}
@@ -96,5 +120,53 @@
     @endif
   </div>
 </div>
+
+{{-- ── Import Master List Modal ─────────────────────────────────────── --}}
+<div id="importModal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:1000;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:#fff;border-radius:14px;max-width:520px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.25);overflow:hidden;">
+    <div style="padding:18px 22px;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;">
+      <h3 style="margin:0;font-size:1.05rem;font-weight:800;color:#0f172a;">Import Student Master List</h3>
+      <button type="button" onclick="document.getElementById('importModal').style.display='none'"
+              style="background:none;border:none;font-size:1.4rem;line-height:1;color:#94a3b8;cursor:pointer;">&times;</button>
+    </div>
+
+    <form method="POST" action="{{ route('registrar.students.import') }}" enctype="multipart/form-data" style="padding:22px;">
+      @csrf
+
+      <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:14px 16px;margin-bottom:18px;font-size:.82rem;color:#1e40af;line-height:1.55;">
+        Upload a <strong>.csv</strong> file using the institutional template. Required columns:
+        <strong>LRN, First Name, Last Name, Email</strong>. The system checks each LRN and email
+        against existing records — if any duplicate is found, the entire import is halted to
+        prevent overwriting.
+      </div>
+
+      <a href="{{ route('registrar.students.import.template') }}"
+         style="display:inline-flex;align-items:center;gap:6px;font-size:.82rem;font-weight:700;color:#1d4ed8;text-decoration:none;margin-bottom:16px;">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v13.5m0 0l-4.5-4.5M12 16.5l4.5-4.5M3.75 21h16.5"/>
+        </svg>
+        Download CSV Template
+      </a>
+
+      <div style="margin-bottom:20px;">
+        <label style="display:block;font-size:.78rem;font-weight:700;color:#475569;margin-bottom:6px;">CSV File</label>
+        <input type="file" name="master_list" accept=".csv,text/csv" required
+               style="width:100%;font-size:.85rem;padding:8px;border:1px solid #cbd5e1;border-radius:8px;background:#f8fafc;">
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;gap:10px;">
+        <button type="button" onclick="document.getElementById('importModal').style.display='none'"
+                style="padding:.5rem 1rem;border:1px solid #cbd5e1;border-radius:8px;background:#fff;color:#475569;font-size:.85rem;font-weight:700;cursor:pointer;">Cancel</button>
+        <button type="submit"
+                style="padding:.5rem 1.2rem;border:none;border-radius:8px;background:#1d4ed8;color:#fff;font-size:.85rem;font-weight:700;cursor:pointer;">Import</button>
+      </div>
+    </form>
+  </div>
+</div>
+<script>
+  document.getElementById('importModal').addEventListener('click', function(e){
+    if (e.target === this) this.style.display='none';
+  });
+</script>
 
 @endsection
