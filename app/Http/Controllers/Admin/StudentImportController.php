@@ -23,147 +23,155 @@ class StudentImportController extends Controller
 
     public function import(Request $request): View|RedirectResponse
     {
-        $request->validate([
-            'csv_file' => 'required|file|mimes:csv,txt|max:2048',
-        ]);
-
-        $path   = $request->file('csv_file')->getRealPath();
-        $handle = fopen($path, 'r');
-
-        if (!$handle) {
-            return back()->withErrors(['csv_file' => 'Could not open the uploaded file.']);
-        }
-
-        // Read header row
-        $header = fgetcsv($handle);
-        if (!$header) {
-            fclose($handle);
-            return back()->withErrors(['csv_file' => 'The CSV file is empty.']);
-        }
-
-        // Normalize header names
-        $header = array_map(fn($h) => strtolower(trim($h)), $header);
-
-        $required = ['first_name', 'last_name', 'email', 'lrn'];
-        $missing  = array_diff($required, $header);
-        if ($missing) {
-            fclose($handle);
-            return back()->withErrors([
-                'csv_file' => 'Missing required columns: ' . implode(', ', $missing),
+        try {
+            $request->validate([
+                'csv_file' => 'required|file|mimes:csv,txt|max:2048',
             ]);
-        }
 
-        $activeYear = AcademicYear::where('status', 'active')->first();
+            $path   = $request->file('csv_file')->getRealPath();
+            $handle = fopen($path, 'r');
 
-        $imported = 0;
-        $skipped  = 0;
-        $errors   = [];
-        $row      = 1;
-
-        while (($data = fgetcsv($handle)) !== false) {
-            $row++;
-
-            if (count($data) < count($header)) {
-                $errors[] = "Row {$row}: too few columns — skipped.";
-                $skipped++;
-                continue;
+            if (!$handle) {
+                return back()->withErrors(['csv_file' => 'Could not open the uploaded file.']);
             }
 
-            $fields = array_combine($header, $data);
-            $fields = array_map('trim', $fields);
-
-            // ── Per-row validation ─────────────────────────────────────────
-            $rowErrors = $this->validateRow($fields, $row);
-            if ($rowErrors) {
-                $errors = array_merge($errors, $rowErrors);
-                $skipped++;
-                continue;
+            $header = fgetcsv($handle);
+            if (!$header) {
+                fclose($handle);
+                return back()->withErrors(['csv_file' => 'The CSV file is empty.']);
             }
 
-            // ── Duplicate checks ───────────────────────────────────────────
-            $emailHash = hash('sha256', strtolower($fields['email']));
+            $header = array_map(fn($h) => strtolower(trim($h)), $header);
 
-            if (User::where('lrn', $fields['lrn'])->exists()) {
-                $errors[] = "Row {$row}: LRN {$fields['lrn']} already exists — skipped.";
-                $skipped++;
-                continue;
+            $required = ['first_name', 'last_name', 'email', 'lrn'];
+            $missing  = array_diff($required, $header);
+            if ($missing) {
+                fclose($handle);
+                return back()->withErrors([
+                    'csv_file' => 'Missing required columns: ' . implode(', ', $missing),
+                ]);
             }
 
-            if (User::where('email_hash', $emailHash)->exists()) {
-                $errors[] = "Row {$row}: Email already registered — skipped.";
-                $skipped++;
-                continue;
-            }
+            $activeYear = AcademicYear::where('status', 'active')->first();
 
-            // ── Create user ────────────────────────────────────────────────
-            try {
-                DB::transaction(function () use ($fields, $emailHash, $activeYear, &$imported) {
-                    $username = $this->uniqueUsername($fields['lrn']);
+            $imported = 0;
+            $skipped  = 0;
+            $errors   = [];
+            $row      = 1;
 
-                    $user = User::create([
-                        'first_name'             => $fields['first_name'],
-                        'last_name'              => $fields['last_name'],
-                        'email'                  => $fields['email'],
-                        'username'               => $username,
-                        'password'               => $fields['lrn'],  // LRN as temp password
-                        'role_id'                => '01',
-                        'lrn'                    => $fields['lrn'],
-                        'gender'                 => $fields['gender'] ?? null,
-                        'grade_level'            => $fields['grade_level'] ?? null,
-                        'address'                => $fields['address'] ?? null,
-                        'phone'                  => $fields['phone'] ?? null,
-                        'status'                 => 'active',
-                        'password_reset_required'=> true,
-                        'enrollment_date'        => now()->toDateString(),
-                    ]);
+            while (($data = fgetcsv($handle)) !== false) {
+                $row++;
 
-                    // Optional: auto-enroll in section if provided
-                    if (!empty($fields['section_name']) && $activeYear) {
-                        $section = Section::where('section_name', $fields['section_name'])->first();
-                        if ($section && !Enrollment::existsForStudentAndYear($user->id, $activeYear->id)) {
-                            $gradeLevel   = $fields['grade_level'] ?? null;
-                            $unmetPrereqs = $gradeLevel
-                                ? app(\App\Services\PrerequisiteService::class)
-                                    ->getUnmet($user, $gradeLevel, $activeYear->id)
-                                : [];
+                if (count($data) < count($header)) {
+                    $errors[] = "Row {$row}: too few columns — skipped.";
+                    $skipped++;
+                    continue;
+                }
 
-                            if (!empty($unmetPrereqs)) {
-                                $unmetNames = collect($unmetPrereqs)
-                                    ->pluck('requires')
-                                    ->unique()
-                                    ->implode(', ');
-                                throw new \RuntimeException(
-                                    "Student {$user->lrn} cannot be enrolled in {$gradeLevel} — unmet prerequisites: {$unmetNames}."
-                                );
+                $fields = array_combine($header, $data);
+                $fields = array_map('trim', $fields);
+
+                $rowErrors = $this->validateRow($fields, $row);
+                if ($rowErrors) {
+                    $errors = array_merge($errors, $rowErrors);
+                    $skipped++;
+                    continue;
+                }
+
+                $emailHash = hash('sha256', strtolower($fields['email']));
+
+                if (User::where('lrn', $fields['lrn'])->exists()) {
+                    $errors[] = "Row {$row}: LRN {$fields['lrn']} already exists — skipped.";
+                    $skipped++;
+                    continue;
+                }
+
+                if (User::where('email_hash', $emailHash)->exists()) {
+                    $errors[] = "Row {$row}: Email already registered — skipped.";
+                    $skipped++;
+                    continue;
+                }
+
+                try {
+                    DB::transaction(function () use ($fields, $emailHash, $activeYear, &$imported) {
+                        $username = $this->uniqueUsername($fields['lrn']);
+
+                        $user = User::create([
+                            'first_name'             => $fields['first_name'],
+                            'last_name'              => $fields['last_name'],
+                            'email'                  => $fields['email'],
+                            'username'               => $username,
+                            'password'               => $fields['lrn'],
+                            'role_id'                => '01',
+                            'lrn'                    => $fields['lrn'],
+                            'gender'                 => $fields['gender'] ?? null,
+                            'grade_level'            => $fields['grade_level'] ?? null,
+                            'address'                => $fields['address'] ?? null,
+                            'phone'                  => $fields['phone'] ?? null,
+                            'status'                 => 'active',
+                            'password_reset_required'=> true,
+                            'enrollment_date'        => now()->toDateString(),
+                        ]);
+
+                        if (!empty($fields['section_name']) && $activeYear) {
+                            $section = Section::where('section_name', $fields['section_name'])->first();
+                            if ($section && !Enrollment::existsForStudentAndYear($user->id, $activeYear->id)) {
+                                $gradeLevel   = $fields['grade_level'] ?? null;
+                                $unmetPrereqs = $gradeLevel
+                                    ? app(\App\Services\PrerequisiteService::class)
+                                        ->getUnmet($user, $gradeLevel, $activeYear->id)
+                                    : [];
+
+                                if (!empty($unmetPrereqs)) {
+                                    $unmetNames = collect($unmetPrereqs)
+                                        ->pluck('requires')
+                                        ->unique()
+                                        ->implode(', ');
+                                    throw new \RuntimeException(
+                                        "Student {$user->lrn} cannot be enrolled in {$gradeLevel} — unmet prerequisites: {$unmetNames}."
+                                    );
+                                }
+
+                                Enrollment::create([
+                                    'student_id'       => $user->id,
+                                    'section_id'       => $section->id,
+                                    'academic_year_id' => $activeYear->id,
+                                    'status'           => 'enrolled',
+                                ]);
+                                $user->update(['section_id' => $section->id]);
                             }
-
-                            Enrollment::create([
-                                'student_id'       => $user->id,
-                                'section_id'       => $section->id,
-                                'academic_year_id' => $activeYear->id,
-                                'status'           => 'enrolled',
-                            ]);
-                            $user->update(['section_id' => $section->id]);
                         }
-                    }
 
-                    $imported++;
-                });
-            } catch (\Exception $e) {
-                $errors[] = "Row {$row}: Database error — " . $e->getMessage();
-                $skipped++;
+                        $imported++;
+                    });
+                } catch (\Exception $e) {
+                    $errors[] = "Row {$row}: Database error — " . $e->getMessage();
+                    $skipped++;
+                }
             }
+
+            fclose($handle);
+
+            AuditLog::record(AuditLog::CREATE_USER, [
+                'action'   => 'bulk_csv_import',
+                'imported' => $imported,
+                'skipped'  => $skipped,
+            ]);
+
+            return view('admin.students.import', compact('imported', 'skipped', 'errors'));
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            throw $e; // Let Laravel handle validation redirects normally
+        } catch (\Throwable $e) {
+            file_put_contents(
+                storage_path('logs/import_debug.txt'),
+                date('Y-m-d H:i:s') . ' | ' . get_class($e) . ': ' . $e->getMessage()
+                . ' in ' . $e->getFile() . ':' . $e->getLine() . "\n"
+                . $e->getTraceAsString() . "\n\n",
+                FILE_APPEND
+            );
+            throw $e;
         }
-
-        fclose($handle);
-
-        AuditLog::record(AuditLog::CREATE_USER, [
-            'action'   => 'bulk_csv_import',
-            'imported' => $imported,
-            'skipped'  => $skipped,
-        ]);
-
-        return view('admin.students.import', compact('imported', 'skipped', 'errors'));
     }
 
     private function validateRow(array $fields, int $row): array

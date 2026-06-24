@@ -12,6 +12,16 @@
       <h1 class="enc-page__title">Students Management</h1>
       <p class="enc-page__subtitle">View and manage all active students with detailed information</p>
     </div>
+    <div style="display:flex;gap:10px;align-items:center;">
+      <a href="{{ route('admin.students.import') }}"
+         style="display:inline-flex;align-items:center;gap:7px;padding:.55rem 1.1rem;background:#6366f1;color:#fff;border-radius:10px;font-size:.82rem;font-weight:700;text-decoration:none;transition:background .15s;"
+         onmouseover="this.style.background='#4f46e5'" onmouseout="this.style.background='#6366f1'">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
+        </svg>
+        Import Students
+      </a>
+    </div>
   </div>
 </div>
 
