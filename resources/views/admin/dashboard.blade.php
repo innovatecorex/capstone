@@ -125,16 +125,16 @@
   overflow: hidden;
   flex-shrink: 0;
 }
-.enc-stat-illus-emoji {
-  font-size: 3.8rem;
-  line-height: 1;
-  filter: drop-shadow(0 4px 10px rgba(0,0,0,.18));
+.enc-stat-svg {
+  width: 82px;
+  height: 82px;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,.22));
   transition: transform .25s cubic-bezier(.34,1.56,.64,1);
   position: relative;
   z-index: 1;
 }
-.enc-stat-card:hover .enc-stat-illus-emoji {
-  transform: scale(1.18) translateY(-4px);
+.enc-stat-card:hover .enc-stat-svg {
+  transform: scale(1.14) translateY(-4px);
 }
 /* Subtle sheen overlay */
 .enc-stat-illus::after {
@@ -226,9 +226,29 @@
 
 {{-- ── Stat strip ───────────────────────────────────────────────────── --}}
 <div class="enc-stats">
+
+  {{-- Total Students --}}
   <a href="{{ route('admin.students.index') }}" class="enc-stat-card" data-label="Total Students">
     <div class="enc-stat-illus enc-stat-illus--blue">
-      <span class="enc-stat-illus-emoji">🎓</span>
+      <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="enc-stat-svg">
+        {{-- Mortarboard cap --}}
+        <polygon points="50,14 84,30 50,46 16,30" fill="white" opacity="0.95"/>
+        <rect x="46" y="46" width="8" height="14" rx="2" fill="white" opacity="0.75"/>
+        {{-- Tassel --}}
+        <line x1="84" y1="30" x2="84" y2="46" stroke="rgba(255,255,255,0.7)" stroke-width="2.5"/>
+        <circle cx="84" cy="46" r="4" fill="#fbbf24"/>
+        <line x1="81" y1="50" x2="79" y2="60" stroke="#fbbf24" stroke-width="2" stroke-linecap="round"/>
+        <line x1="84" y1="50" x2="84" y2="62" stroke="#fbbf24" stroke-width="2" stroke-linecap="round"/>
+        <line x1="87" y1="50" x2="89" y2="60" stroke="#fbbf24" stroke-width="2" stroke-linecap="round"/>
+        {{-- Open book --}}
+        <path d="M22 64 Q22 60 28 60 L50 62 L50 86 L28 84 Q22 84 22 80 Z" fill="white" opacity="0.82"/>
+        <path d="M78 64 Q78 60 72 60 L50 62 L50 86 L72 84 Q78 84 78 80 Z" fill="white" opacity="0.68"/>
+        <line x1="34" y1="68" x2="46" y2="68" stroke="rgba(29,78,216,0.25)" stroke-width="1.5"/>
+        <line x1="34" y1="74" x2="46" y2="74" stroke="rgba(29,78,216,0.2)" stroke-width="1.5"/>
+        <line x1="34" y1="80" x2="46" y2="80" stroke="rgba(29,78,216,0.15)" stroke-width="1.5"/>
+        <line x1="54" y1="68" x2="66" y2="68" stroke="rgba(29,78,216,0.2)" stroke-width="1.5"/>
+        <line x1="54" y1="74" x2="66" y2="74" stroke="rgba(29,78,216,0.15)" stroke-width="1.5"/>
+      </svg>
     </div>
     <div class="enc-stat-body">
       <div class="enc-stat-value">{{ $studentCount }}</div>
@@ -236,9 +256,26 @@
     </div>
   </a>
 
+  {{-- Faculty --}}
   <a href="{{ route('admin.faculty.index') }}" class="enc-stat-card" data-label="Faculty Members">
     <div class="enc-stat-illus enc-stat-illus--green">
-      <span class="enc-stat-illus-emoji">👨‍🏫</span>
+      <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="enc-stat-svg">
+        {{-- Whiteboard --}}
+        <rect x="6" y="24" width="60" height="44" rx="5" fill="white" opacity="0.88"/>
+        <rect x="6" y="24" width="60" height="8" rx="5" fill="rgba(255,255,255,0.5)"/>
+        <line x1="12" y1="40" x2="60" y2="40" stroke="rgba(22,163,74,0.18)" stroke-width="1.5"/>
+        <line x1="12" y1="50" x2="52" y2="50" stroke="rgba(22,163,74,0.14)" stroke-width="1.5"/>
+        <line x1="12" y1="60" x2="44" y2="60" stroke="rgba(22,163,74,0.14)" stroke-width="1.5"/>
+        {{-- Board stand --}}
+        <line x1="20" y1="68" x2="16" y2="82" stroke="rgba(255,255,255,0.65)" stroke-width="3" stroke-linecap="round"/>
+        <line x1="46" y1="68" x2="50" y2="82" stroke="rgba(255,255,255,0.65)" stroke-width="3" stroke-linecap="round"/>
+        {{-- Teacher head --}}
+        <circle cx="82" cy="30" r="12" fill="white" opacity="0.92"/>
+        {{-- Teacher body --}}
+        <path d="M68 48 Q68 42 82 42 Q96 42 96 48 L96 74 L68 74 Z" fill="white" opacity="0.78"/>
+        {{-- Pointer arm --}}
+        <line x1="68" y1="56" x2="44" y2="44" stroke="white" stroke-width="3" stroke-linecap="round" opacity="0.9"/>
+      </svg>
     </div>
     <div class="enc-stat-body">
       <div class="enc-stat-value">{{ $facultyCount }}</div>
@@ -246,9 +283,22 @@
     </div>
   </a>
 
+  {{-- Registrars --}}
   <a href="{{ route('admin.registrars.index') }}" class="enc-stat-card" data-label="Registrar Staff">
     <div class="enc-stat-illus enc-stat-illus--teal">
-      <span class="enc-stat-illus-emoji">🗂️</span>
+      <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="enc-stat-svg">
+        {{-- Bottom folder --}}
+        <rect x="12" y="52" width="76" height="34" rx="5" fill="white" opacity="0.6"/>
+        <path d="M12 58 Q12 52 18 52 L38 52 L44 46 L82 46 Q88 46 88 52 L88 86 Q88 86 82 86 L18 86 Q12 86 12 80 Z" fill="white" opacity="0.72"/>
+        {{-- Middle folder --}}
+        <path d="M18 42 Q18 36 24 36 L44 36 L50 30 L76 30 Q82 30 82 36 L82 70 Q82 70 76 70 L24 70 Q18 70 18 64 Z" fill="white" opacity="0.84"/>
+        {{-- Top folder --}}
+        <path d="M24 30 Q24 24 30 24 L50 24 L56 18 L70 18 Q76 18 76 24 L76 58 Q76 58 70 58 L30 58 Q24 58 24 52 Z" fill="white" opacity="0.95"/>
+        {{-- Paper lines --}}
+        <line x1="32" y1="34" x2="68" y2="34" stroke="rgba(8,145,178,0.3)" stroke-width="1.5"/>
+        <line x1="32" y1="40" x2="60" y2="40" stroke="rgba(8,145,178,0.22)" stroke-width="1.5"/>
+        <line x1="32" y1="46" x2="54" y2="46" stroke="rgba(8,145,178,0.18)" stroke-width="1.5"/>
+      </svg>
     </div>
     <div class="enc-stat-body">
       <div class="enc-stat-value">{{ $registrarCount }}</div>
@@ -256,9 +306,20 @@
     </div>
   </a>
 
+  {{-- Announcements --}}
   <a href="{{ route('admin.announcements.index') }}" class="enc-stat-card" data-label="Active Announcements">
     <div class="enc-stat-illus enc-stat-illus--indigo">
-      <span class="enc-stat-illus-emoji">📢</span>
+      <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="enc-stat-svg">
+        {{-- Megaphone body --}}
+        <path d="M18 36 L18 64 L38 64 L72 80 L72 20 Z" fill="white" opacity="0.92"/>
+        {{-- Megaphone cone highlight --}}
+        <path d="M38 38 L72 22 L72 30 L38 48 Z" fill="rgba(255,255,255,0.3)"/>
+        {{-- Handle --}}
+        <rect x="10" y="36" width="10" height="28" rx="5" fill="white" opacity="0.75"/>
+        {{-- Sound waves --}}
+        <path d="M78 34 Q86 42 86 50 Q86 58 78 66" stroke="white" stroke-width="3" stroke-linecap="round" opacity="0.8"/>
+        <path d="M82 28 Q94 38 94 50 Q94 62 82 72" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity="0.5"/>
+      </svg>
     </div>
     <div class="enc-stat-body">
       <div class="enc-stat-value">{{ $activeAnnouncements }}</div>
@@ -266,9 +327,30 @@
     </div>
   </a>
 
+  {{-- Faculty Schedules --}}
   <a href="{{ route('admin.schedules.index') }}" class="enc-stat-card" data-label="Faculty Schedules">
     <div class="enc-stat-illus enc-stat-illus--emerald">
-      <span class="enc-stat-illus-emoji">📅</span>
+      <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="enc-stat-svg">
+        {{-- Calendar body --}}
+        <rect x="10" y="22" width="80" height="68" rx="8" fill="white" opacity="0.9"/>
+        {{-- Header bar --}}
+        <rect x="10" y="22" width="80" height="22" rx="8" fill="rgba(4,120,87,0.35)"/>
+        <rect x="10" y="36" width="80" height="8" fill="rgba(4,120,87,0.35)"/>
+        {{-- Ring hangers --}}
+        <rect x="28" y="14" width="8" height="16" rx="4" fill="white" opacity="0.9"/>
+        <rect x="64" y="14" width="8" height="16" rx="4" fill="white" opacity="0.9"/>
+        {{-- Grid cells --}}
+        <rect x="16" y="50" width="16" height="12" rx="3" fill="rgba(4,120,87,0.18)"/>
+        <rect x="36" y="50" width="16" height="12" rx="3" fill="rgba(4,120,87,0.18)"/>
+        <rect x="56" y="50" width="16" height="12" rx="3" fill="rgba(4,120,87,0.25)"/>
+        <rect x="76" y="50" width="10" height="12" rx="3" fill="rgba(4,120,87,0.15)"/>
+        <rect x="16" y="66" width="16" height="12" rx="3" fill="rgba(4,120,87,0.18)"/>
+        <rect x="36" y="66" width="16" height="12" rx="3" fill="rgba(4,120,87,0.25)"/>
+        <rect x="56" y="66" width="16" height="12" rx="3" fill="rgba(4,120,87,0.15)"/>
+        {{-- Checkmark on highlighted cell --}}
+        <path d="M58 55 L62 59 L70 53" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M38 71 L42 75 L50 68" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
     </div>
     <div class="enc-stat-body">
       <div class="enc-stat-value">{{ $totalSchedules }}</div>
@@ -276,9 +358,28 @@
     </div>
   </a>
 
+  {{-- Active Threats --}}
   <a href="{{ route('admin.threat.index') }}" class="enc-stat-card" data-label="Active Threats">
     <div class="enc-stat-illus enc-stat-illus--red">
-      <span class="enc-stat-illus-emoji">🚨</span>
+      <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="enc-stat-svg">
+        {{-- Speedometer arc background --}}
+        <path d="M18 72 A34 34 0 1 1 82 72" stroke="rgba(255,255,255,0.25)" stroke-width="10" stroke-linecap="round"/>
+        {{-- Danger zone arc --}}
+        <path d="M60 26 A34 34 0 0 1 82 72" stroke="rgba(255,255,255,0.7)" stroke-width="10" stroke-linecap="round"/>
+        {{-- Safe zone arc --}}
+        <path d="M18 72 A34 34 0 0 1 40 26" stroke="rgba(255,255,255,0.35)" stroke-width="10" stroke-linecap="round"/>
+        {{-- Center hub --}}
+        <circle cx="50" cy="72" r="8" fill="white" opacity="0.95"/>
+        {{-- Needle pointing to danger --}}
+        <line x1="50" y1="72" x2="72" y2="38" stroke="white" stroke-width="4" stroke-linecap="round"/>
+        <circle cx="50" cy="72" r="5" fill="rgba(220,38,38,0.8)"/>
+        {{-- Tick marks --}}
+        <line x1="18" y1="72" x2="24" y2="72" stroke="white" stroke-width="2" opacity="0.5"/>
+        <line x1="50" y1="38" x2="50" y2="44" stroke="white" stroke-width="2" opacity="0.5"/>
+        <line x1="82" y1="72" x2="76" y2="72" stroke="white" stroke-width="2" opacity="0.5"/>
+        {{-- Warning label --}}
+        <text x="50" y="90" text-anchor="middle" fill="white" font-size="9" font-weight="700" opacity="0.8" font-family="sans-serif">HIGH</text>
+      </svg>
     </div>
     <div class="enc-stat-body">
       <div class="enc-stat-value">{{ $activeThreats }}</div>
@@ -286,9 +387,23 @@
     </div>
   </a>
 
+  {{-- Locked Accounts --}}
   <a href="{{ route('admin.locked-accounts.index') }}" class="enc-stat-card" data-label="Locked Accounts">
     <div class="enc-stat-illus enc-stat-illus--amber">
-      <span class="enc-stat-illus-emoji">🔒</span>
+      <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="enc-stat-svg">
+        {{-- Lock body --}}
+        <rect x="18" y="46" width="64" height="46" rx="10" fill="white" opacity="0.92"/>
+        {{-- Lock body shine --}}
+        <rect x="18" y="46" width="64" height="14" rx="10" fill="rgba(255,255,255,0.4)"/>
+        <rect x="18" y="52" width="64" height="8" fill="rgba(255,255,255,0.4)"/>
+        {{-- Shackle --}}
+        <path d="M32 46 L32 30 Q32 14 50 14 Q68 14 68 30 L68 46" stroke="white" stroke-width="9" stroke-linecap="round" fill="none" opacity="0.9"/>
+        {{-- Shackle inner cutout for realism --}}
+        <path d="M38 46 L38 30 Q38 20 50 20 Q62 20 62 30 L62 46" stroke="rgba(217,119,6,0.55)" stroke-width="4" stroke-linecap="round" fill="none"/>
+        {{-- Keyhole --}}
+        <circle cx="50" cy="65" r="8" fill="rgba(217,119,6,0.4)"/>
+        <rect x="47" y="65" width="6" height="10" rx="2" fill="rgba(217,119,6,0.4)"/>
+      </svg>
     </div>
     <div class="enc-stat-body">
       <div class="enc-stat-value">{{ $lockedAccounts }}</div>
