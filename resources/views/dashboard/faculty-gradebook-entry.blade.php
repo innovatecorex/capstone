@@ -268,6 +268,15 @@
 
     {{-- Status badge --}}
     <span class="gb-status-badge gb-status--{{ $overallStatus }}">{{ $overallLabel }}</span>
+
+    {{-- Download class list --}}
+    <a href="{{ route('faculty.gradebook.classlist', $ss) }}"
+       style="display:inline-flex;align-items:center;gap:5px;padding:.35rem .85rem;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc;color:#475569;font-size:.78rem;font-weight:600;text-decoration:none;white-space:nowrap;">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;flex-shrink:0;">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/>
+      </svg>
+      Download Class List
+    </a>
   </div>
 </div>
 
