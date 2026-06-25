@@ -23,6 +23,53 @@
 </div>
 @endif
 
+<div style="margin-bottom:24px;">
+
+  <div class="enc-card">
+    <div class="enc-card__header"><div class="enc-card__title">+ Add Section</div></div>
+    <div class="enc-card__body" style="padding:20px;">
+      <form method="POST" action="{{ route('admin.sections.store') }}" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        @csrf
+        <input type="hidden" name="academic_year_id" value="{{ $yearId }}">
+
+        <select name="grade_level" id="grade_level" required onchange="loadSectionNames()" style="padding:8px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:.88rem;">
+          <option value="">— Grade Level —</option>
+          @foreach(['Grade 7','Grade 8','Grade 9','Grade 10','Grade 11','Grade 12'] as $gl)
+            <option value="{{ $gl }}" {{ old('grade_level') === $gl ? 'selected' : '' }}>{{ $gl }}</option>
+          @endforeach
+        </select>
+
+        <div>
+          <select name="section_name" id="section_name_select" required onchange="toggleCustomName()" style="width:100%;padding:8px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:.88rem;">
+            <option value="">— Select grade level first —</option>
+          </select>
+          <input type="text" name="section_name_custom" id="section_name_custom" placeholder="Type section name" maxlength="100" style="display:none;width:100%;margin-top:8px;padding:8px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:.88rem;">
+        </div>
+
+        <select name="adviser_id" style="padding:8px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:.88rem;">
+          <option value="">— Adviser (optional) —</option>
+          @foreach($faculty as $f)
+            <option value="{{ $f->id }}">{{ $f->last_name }}, {{ $f->first_name }}</option>
+          @endforeach
+        </select>
+
+        <input type="number" name="capacity" placeholder="Capacity" required min="1" max="200" value="40" style="padding:8px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:.88rem;">
+
+        <select name="status" style="padding:8px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:.88rem;">
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+
+        <button type="submit" {{ !$yearId ? 'disabled' : '' }} style="padding:.5rem 1rem;border:none;border-radius:8px;background:{{ $yearId ? '#1d4ed8' : '#94a3b8' }};color:#fff;font-size:.875rem;font-weight:700;cursor:{{ $yearId ? 'pointer' : 'not-allowed' }};">Add Section</button>
+
+        @if(!$yearId)
+          <p style="font-size:.75rem;color:#92400e;margin:0;grid-column:1/-1;">Pick an academic year first.</p>
+        @endif
+      </form>
+    </div>
+  </div>
+</div>
+
 {{-- ── Filter Bar ──────────────────────────────────────────────────────── --}}
 <div class="enc-card" style="margin-bottom:20px;">
   <div class="enc-card__body" style="padding:16px 20px;">
@@ -95,53 +142,6 @@
       </div>
 
     </form>
-  </div>
-</div>
-
-<div style="margin-bottom:24px;">
-
-  <div class="enc-card">
-    <div class="enc-card__header"><div class="enc-card__title">+ Add Section</div></div>
-    <div class="enc-card__body" style="padding:20px;">
-      <form method="POST" action="{{ route('admin.sections.store') }}" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-        @csrf
-        <input type="hidden" name="academic_year_id" value="{{ $yearId }}">
-
-        <select name="grade_level" id="grade_level" required onchange="loadSectionNames()" style="padding:8px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:.88rem;">
-          <option value="">— Grade Level —</option>
-          @foreach(['Grade 7','Grade 8','Grade 9','Grade 10','Grade 11','Grade 12'] as $gl)
-            <option value="{{ $gl }}" {{ old('grade_level') === $gl ? 'selected' : '' }}>{{ $gl }}</option>
-          @endforeach
-        </select>
-
-        <div>
-          <select name="section_name" id="section_name_select" required onchange="toggleCustomName()" style="width:100%;padding:8px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:.88rem;">
-            <option value="">— Select grade level first —</option>
-          </select>
-          <input type="text" name="section_name_custom" id="section_name_custom" placeholder="Type section name" maxlength="100" style="display:none;width:100%;margin-top:8px;padding:8px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:.88rem;">
-        </div>
-
-        <select name="adviser_id" style="padding:8px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:.88rem;">
-          <option value="">— Adviser (optional) —</option>
-          @foreach($faculty as $f)
-            <option value="{{ $f->id }}">{{ $f->last_name }}, {{ $f->first_name }}</option>
-          @endforeach
-        </select>
-
-        <input type="number" name="capacity" placeholder="Capacity" required min="1" max="200" value="40" style="padding:8px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:.88rem;">
-
-        <select name="status" style="padding:8px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:.88rem;">
-          <option value="active">Active</option>
-          <option value="inactive">Inactive</option>
-        </select>
-
-        <button type="submit" {{ !$yearId ? 'disabled' : '' }} style="padding:.5rem 1rem;border:none;border-radius:8px;background:{{ $yearId ? '#1d4ed8' : '#94a3b8' }};color:#fff;font-size:.875rem;font-weight:700;cursor:{{ $yearId ? 'pointer' : 'not-allowed' }};">Add Section</button>
-
-        @if(!$yearId)
-          <p style="font-size:.75rem;color:#92400e;margin:0;grid-column:1/-1;">Pick an academic year first.</p>
-        @endif
-      </form>
-    </div>
   </div>
 </div>
 

@@ -72,7 +72,7 @@ class AttendanceController extends Controller
                 $sessionDates = Attendance::where('section_subject_id', $selectedSchedule->id)
                     ->select('date')
                     ->distinct()
-                    ->orderBy('date', 'desc')
+                    ->orderBy('date', 'asc')
                     ->limit(60)
                     ->pluck('date')
                     ->map(fn($d) => \Carbon\Carbon::parse($d));

@@ -21,6 +21,9 @@ jobs:
             cd ${{ secrets.PROJECT_PATH }}
             git pull origin master
 
+            # Run any pending database migrations
+            php artisan migrate --force
+
             # Clear all Laravel caches
             php artisan view:clear
             php artisan cache:clear
