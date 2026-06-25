@@ -481,6 +481,10 @@ Route::middleware(['auth'])->group(function () {
         Route::patch('/complaints/{complaint}/respond', [\App\Http\Controllers\GradeComplaintController::class, 'respond']) ->name('complaints.respond');
     });
 
+    // Attachment download — accessible by owner (student) or staff
+    Route::get('/complaint-attachments/{attachment}', [\App\Http\Controllers\GradeComplaintController::class, 'downloadAttachment'])
+        ->name('complaints.attachment.download');
+
     // ── School Calendar ───────────────────────────────────────────────────
     Route::get('/calendar', [\App\Http\Controllers\CalendarController::class, 'index'])->name('calendar.index');
     Route::post('/calendar', [\App\Http\Controllers\CalendarController::class, 'store'])->name('calendar.store')->middleware('role:registrar,admin');

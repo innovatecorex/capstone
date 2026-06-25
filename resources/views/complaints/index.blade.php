@@ -62,10 +62,27 @@
           </td>
         </tr>
 
-        {{-- Expandable reason row --}}
+        {{-- Expandable reason + attachments row --}}
         <tr style="border-bottom:1px solid rgba(15,23,42,.06);">
-          <td colspan="5" style="padding:.5rem 1rem .9rem 1rem;font-size:.8rem;color:var(--gray-500);background:#f9fafb;">
-            <strong>Your concern:</strong> {{ Str::limit($c->reason, 200) }}
+          <td colspan="5" style="padding:.5rem 1rem .9rem 1rem;background:#f9fafb;">
+            <div style="font-size:.8rem;color:var(--gray-500);">
+              <strong>Your concern:</strong> {{ Str::limit($c->reason, 200) }}
+            </div>
+            @if($c->attachments->isNotEmpty())
+            <div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.45rem;">
+              @foreach($c->attachments as $att)
+              <a href="{{ route('complaints.attachment.download', $att->id) }}" target="_blank"
+                 style="font-size:.75rem;color:var(--primary);text-decoration:none;padding:.2rem .5rem;background:#eff6ff;border-radius:5px;border:1px solid #bfdbfe;">
+                {{ $att->isImage() ? '🖼️' : '📄' }} {{ Str::limit($att->original_name, 24) }}
+              </a>
+              @endforeach
+            </div>
+            @endif
+            @if($c->corrected_grade)
+            <div style="margin-top:.4rem;font-size:.78rem;color:#166534;font-weight:600;">
+              ✓ Grade corrected to {{ number_format($c->corrected_grade, 0) }}
+            </div>
+            @endif
           </td>
         </tr>
         @endforeach
@@ -88,10 +105,11 @@
 .ctable-td { padding:12px 14px; border-bottom:1px solid rgba(15,23,42,.04); vertical-align:top; }
 .ctable-row:hover td { background:rgba(15,23,42,.015); }
 .status-badge { display:inline-block; padding:.25rem .7rem; border-radius:999px; font-size:.74rem; font-weight:700; }
-.status-pending      { background:#fef9c3; color:#854d0e; }
-.status-under_review { background:#dbeafe; color:#1e40af; }
-.status-resolved     { background:#dcfce7; color:#166534; }
-.status-dismissed    { background:#f3f4f6; color:#6b7280; }
+.status-pending               { background:#fef9c3; color:#854d0e; }
+.status-under_review          { background:#dbeafe; color:#1e40af; }
+.status-forwarded_to_teacher  { background:#ede9fe; color:#5b21b6; }
+.status-resolved              { background:#dcfce7; color:#166534; }
+.status-dismissed             { background:#f3f4f6; color:#6b7280; }
 .enc-btn { display:inline-flex; align-items:center; justify-content:center; padding:.6rem 1.25rem; border-radius:999px; font-weight:700; font-size:.87rem; text-decoration:none; border:none; cursor:pointer; }
 .enc-btn--primary { background:var(--primary); color:#fff; }
 .enc-alert--success { background:#f0fdf4; border:1px solid #86efac; border-radius:10px; padding:.85rem 1rem; font-size:.87rem; color:#166534; }

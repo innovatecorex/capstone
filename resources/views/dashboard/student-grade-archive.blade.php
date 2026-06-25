@@ -69,6 +69,7 @@
                 <th style="padding:11px 14px;text-align:left;font-size:.72rem;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em;">Faculty</th>
                 <th style="padding:11px 14px;text-align:center;font-size:.72rem;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em;">Grade</th>
                 <th style="padding:11px 14px;text-align:center;font-size:.72rem;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em;">Remark</th>
+                <th style="padding:11px 14px;text-align:center;font-size:.72rem;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em;"></th>
               </tr>
             </thead>
             <tbody>
@@ -80,6 +81,18 @@
                 <td style="padding:11px 14px;text-align:center;">
                   @php $c = $subj['passing'] ? ['#166534','#86efac','#f0fdf4'] : ['#991b1b','#fca5a5','#fef2f2']; @endphp
                   <span style="display:inline-block;padding:.2rem .6rem;border-radius:6px;font-size:.72rem;font-weight:700;color:{{ $c[0] }};background:{{ $c[2] }};border:1px solid {{ $c[1] }};">{{ $subj['remark'] }}</span>
+                </td>
+                <td style="padding:11px 14px;text-align:center;">
+                  @if(!empty($subj['section_subject_id']))
+                  <a href="{{ route('complaints.create', [
+                       'section_subject_id' => $subj['section_subject_id'],
+                       'quarter'            => $subj['quarter_id'] ?? '',
+                     ]) }}"
+                     style="font-size:.74rem;font-weight:700;color:#dc2626;text-decoration:none;padding:.22rem .6rem;border:1px solid #fca5a5;border-radius:6px;white-space:nowrap;display:inline-block;"
+                     title="File a grade complaint for this subject">
+                    File Complaint
+                  </a>
+                  @endif
                 </td>
               </tr>
               @endforeach

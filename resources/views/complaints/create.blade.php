@@ -26,7 +26,7 @@
   You are not currently enrolled in an active academic year. Please contact your registrar.
 </div>
 @else
-<form method="POST" action="{{ route('complaints.store') }}">
+<form method="POST" action="{{ route('complaints.store') }}" enctype="multipart/form-data">
   @csrf
   <div class="enc-card" style="padding:1.5rem;margin-bottom:1.25rem;">
     <div class="enc-card__header"><div class="enc-card__title">Complaint Details</div></div>
@@ -73,6 +73,27 @@
         </div>
       </div>
 
+      {{-- Attachments --}}
+      <div>
+        <label class="enc-label">Proof / Attachments <span style="color:var(--gray-400);font-weight:400;">(optional — up to 5 files)</span></label>
+        <div style="border:2px dashed rgba(15,23,42,.14);border-radius:10px;padding:1rem 1.25rem;background:#fafafa;">
+          <input type="file" name="attachments[]" id="gc-attachments" multiple
+            accept=".jpg,.jpeg,.png,.gif,.webp,.pdf"
+            onchange="previewAttachments(this)"
+            style="font-size:.85rem;color:var(--navy);">
+          <div style="font-size:.76rem;color:var(--gray-400);margin-top:.4rem;">
+            Images (JPG, PNG, GIF, WebP) or PDF · Max 5 MB each · Up to 5 files
+          </div>
+          <div id="gc-attach-preview" style="display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.6rem;"></div>
+        </div>
+        @error('attachments')
+          <div style="color:#dc2626;font-size:.8rem;margin-top:.25rem;">{{ $message }}</div>
+        @enderror
+        @error('attachments.*')
+          <div style="color:#dc2626;font-size:.8rem;margin-top:.25rem;">{{ $message }}</div>
+        @enderror
+      </div>
+
     </div>
   </div>
 
@@ -95,4 +116,19 @@ textarea.enc-input { resize:vertical; font-family:inherit; }
 .enc-btn--ghost { background:rgba(15,23,42,.07); color:var(--navy); }
 .enc-alert--error { background:#fef2f2; border:1px solid #fca5a5; border-radius:10px; padding:.85rem 1rem; font-size:.87rem; color:#991b1b; }
 </style>
+<script>
+function previewAttachments(input) {
+  const box = document.getElementById('gc-attach-preview');
+  box.innerHTML = '';
+  if (!input.files || !input.files.length) return;
+  Array.from(input.files).slice(0, 5).forEach(file => {
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'display:flex;align-items:center;gap:.4rem;padding:.3rem .6rem;background:#f1f5f9;border-radius:6px;font-size:.78rem;color:#374151;';
+    const icon = file.type.startsWith('image/') ? '🖼️' : '📄';
+    const size = file.size > 1048576 ? (file.size/1048576).toFixed(1)+' MB' : Math.round(file.size/1024)+' KB';
+    wrap.textContent = icon + ' ' + file.name + ' (' + size + ')';
+    box.appendChild(wrap);
+  });
+}
+</script>
 @endpush

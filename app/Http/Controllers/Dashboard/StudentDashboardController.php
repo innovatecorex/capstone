@@ -375,13 +375,15 @@ class StudentDashboardController extends Controller
                     ->map(function ($quarterGrades) {
                         return [
                             'subjects' => $quarterGrades->map(fn($g) => [
-                                'name'    => $g->sectionSubject?->subject?->subject_name ?? '—',
-                                'faculty' => $g->sectionSubject?->faculty
+                                'name'               => $g->sectionSubject?->subject?->subject_name ?? '—',
+                                'faculty'            => $g->sectionSubject?->faculty
                                     ? $g->sectionSubject->faculty->last_name . ', ' . $g->sectionSubject->faculty->first_name
                                     : 'TBA',
-                                'grade'   => number_format($g->final_grade, 0),
-                                'remark'  => $g->isPassing() ? 'Passed' : 'Failed',
-                                'passing' => $g->isPassing(),
+                                'grade'              => number_format($g->final_grade, 0),
+                                'remark'             => $g->isPassing() ? 'Passed' : 'Failed',
+                                'passing'            => $g->isPassing(),
+                                'section_subject_id' => $g->section_subject_id,
+                                'quarter_id'         => $g->grading_quarter_id,
                             ])->values()->toArray(),
                             'average' => number_format($quarterGrades->avg('final_grade') ?? 0, 2),
                         ];

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class GradeComplaint extends Model
 {
@@ -12,15 +13,19 @@ class GradeComplaint extends Model
         'section_subject_id',
         'grading_quarter_id',
         'grade_id',
+        'corrected_grade',
         'reason',
         'status',
         'response',
         'responded_by',
         'responded_at',
+        'grade_corrected_at',
     ];
 
     protected $casts = [
-        'responded_at' => 'datetime',
+        'responded_at'      => 'datetime',
+        'grade_corrected_at'=> 'datetime',
+        'corrected_grade'   => 'decimal:2',
     ];
 
     // ── Relationships ───────────────────────────────────────────────────────
@@ -50,6 +55,11 @@ class GradeComplaint extends Model
         return $this->belongsTo(User::class, 'responded_by');
     }
 
+    public function attachments(): HasMany
+    {
+        return $this->hasMany(ComplaintAttachment::class, 'complaint_id');
+    }
+
     // ── Scopes ──────────────────────────────────────────────────────────────
 
     public function scopePending($query)
@@ -59,7 +69,7 @@ class GradeComplaint extends Model
 
     public function scopeOpen($query)
     {
-        return $query->whereIn('status', ['pending', 'under_review']);
+        return $query->whereIn('status', ['pending', 'under_review', 'forwarded_to_teacher']);
     }
 
     public function scopeForStudent($query, int $studentId)
@@ -76,11 +86,11 @@ class GradeComplaint extends Model
 
     public function isOpen(): bool
     {
-        return in_array($this->status, ['pending', 'under_review']);
+        return \in_array($this->status, ['pending', 'under_review', 'forwarded_to_teacher']);
     }
 
     public function isResolved(): bool
     {
-        return in_array($this->status, ['resolved', 'dismissed']);
+        return \in_array($this->status, ['resolved', 'dismissed']);
     }
 }
