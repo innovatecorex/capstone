@@ -27,8 +27,13 @@ jobs:
             php artisan route:clear
             php artisan config:clear
 
-            # Reset PHP OPcache via a temporary web-accessible script
-            # so the web server process (FPM) picks up file changes immediately
-            echo '<?php if(function_exists("opcache_reset")){opcache_reset();} echo "ok";' > public/opcache_reset.php
-            curl -s http://127.0.0.1/opcache_reset.php || true
-            rm -f public/opcache_reset.php
+            # Reset PHP OPcache — write script, hit it via the real domain, delete it
+            echo '<?php opcache_reset(); echo "ok";' > public/opc.php
+            curl -sk https://sakya.academy/opc.php || curl -sk http://sakya.academy/opc.php || true
+            rm -f public/opc.php
+
+            # Also try restarting PHP-FPM (works if the SSH user has sudo access)
+            sudo systemctl restart php8.2-fpm 2>/dev/null || \
+            sudo systemctl restart php8.1-fpm 2>/dev/null || \
+            sudo systemctl restart php8.3-fpm 2>/dev/null || \
+            sudo service php8.2-fpm restart 2>/dev/null || true
