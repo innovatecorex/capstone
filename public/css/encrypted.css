@@ -1932,3 +1932,56 @@ body.dark-mode .notif-item--unread { background: rgba(59,130,246,.12); }
 body.dark-mode .notif-title { color: #f1f5f9; }
 body.dark-mode .notif-text { color: #94a3b8; }
 body.dark-mode .notif-dropdown__title { color: #f1f5f9; }
+
+/* ════════════════════════════════════════════════════════════════════════
+   Gradient Illustrated Stat Cards  (.enc-stat-illus variant)
+   Used on all management index pages for the gradient-panel card design.
+   ════════════════════════════════════════════════════════════════════════ */
+.enc-stat-card:has(.enc-stat-illus) {
+  padding: 0 !important;
+  border-radius: 18px !important;
+  gap: 0;
+  align-items: stretch;
+}
+.enc-stat-card:has(.enc-stat-illus)::before { display: none; }
+.enc-stat-illus {
+  width: 100%; height: 110px;
+  display: flex; align-items: center; justify-content: center;
+  position: relative; overflow: hidden; flex-shrink: 0;
+}
+.enc-stat-svg {
+  width: 82px; height: 82px;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,.22));
+  transition: transform .25s cubic-bezier(.34,1.56,.64,1);
+  position: relative; z-index: 1;
+}
+.enc-stat-card:hover .enc-stat-svg { transform: scale(1.14) translateY(-4px); }
+.enc-stat-illus::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+.enc-stat-illus--blue    { background: linear-gradient(145deg, #1e40af 0%, #3b82f6 60%, #60a5fa 100%); }
+.enc-stat-illus--green   { background: linear-gradient(145deg, #14532d 0%, #16a34a 60%, #4ade80 100%); }
+.enc-stat-illus--teal    { background: linear-gradient(145deg, #0e7490 0%, #0891b2 60%, #22d3ee 100%); }
+.enc-stat-illus--indigo  { background: linear-gradient(145deg, #3730a3 0%, #6366f1 60%, #a5b4fc 100%); }
+.enc-stat-illus--emerald { background: linear-gradient(145deg, #065f46 0%, #059669 60%, #34d399 100%); }
+.enc-stat-illus--red     { background: linear-gradient(145deg, #7f1d1d 0%, #dc2626 60%, #f87171 100%); }
+.enc-stat-illus--amber   { background: linear-gradient(145deg, #78350f 0%, #d97706 60%, #fbbf24 100%); }
+.enc-stat-illus--pink    { background: linear-gradient(145deg, #9d174d 0%, #db2777 60%, #f472b6 100%); }
+.enc-stat-illus--purple  { background: linear-gradient(145deg, #4c1d95 0%, #7c3aed 60%, #a78bfa 100%); }
+.enc-stat-illus--orange  { background: linear-gradient(145deg, #7c2d12 0%, #ea580c 60%, #fb923c 100%); }
+.enc-stat-illus--cyan    { background: linear-gradient(145deg, #164e63 0%, #0e7490 60%, #22d3ee 100%); }
+.enc-stat-card:has(.enc-stat-illus) .enc-stat-body {
+  padding: 14px 16px 16px;
+  display: flex; flex-direction: column; align-items: center;
+  text-align: center; background: #fff; flex: 1;
+}
+.enc-stat-card:has(.enc-stat-illus) .enc-stat-value {
+  font-size: 1.85rem; font-weight: 800; color: #0a1f44;
+  line-height: 1; letter-spacing: -.03em;
+}
+.enc-stat-card:has(.enc-stat-illus) .enc-stat-label {
+  font-size: .67rem; font-weight: 700; color: #94a3b8;
+  text-transform: uppercase; letter-spacing: .08em; margin-top: 5px; line-height: 1.3;
+}

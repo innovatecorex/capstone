@@ -60,12 +60,22 @@ class AttendanceController extends Controller
             $dateObj = now();
         }
 
+        $sessionDates = collect();
+
         if ($sectionSubjectId) {
             $selectedSchedule = $allSchedules->firstWhere('id', (int) $sectionSubjectId);
 
-            // Authorization guard: faculty can only mark their own assigned classes
             if ($selectedSchedule) {
                 $roster = $this->buildRoster($selectedSchedule, $dateObj);
+
+                // Fetch all dates that have at least one attendance record for this class
+                $sessionDates = Attendance::where('section_subject_id', $selectedSchedule->id)
+                    ->select('date')
+                    ->distinct()
+                    ->orderBy('date', 'desc')
+                    ->limit(60)
+                    ->pluck('date')
+                    ->map(fn($d) => \Carbon\Carbon::parse($d));
             }
         }
 
@@ -75,7 +85,8 @@ class AttendanceController extends Controller
             'selectedSchedule',
             'roster',
             'date',
-            'activeYear'
+            'activeYear',
+            'sessionDates'
         ));
     }
 
@@ -92,8 +103,18 @@ class AttendanceController extends Controller
             'date'               => ['required', 'date', 'before_or_equal:today'],
             'attendance'         => ['required', 'array', 'min:1'],
             'attendance.*.enrollment_id' => ['required', 'exists:enrollments,id'],
-            'attendance.*.status'        => ['required', Rule::in(['present', 'absent', 'late', 'excused'])],
-            'attendance.*.remarks'       => ['nullable', 'string', 'max:255'],
+            'attendance.*.status'        => ['nullable', Rule::in(['present', 'absent', 'late', 'excused', ''])],
+            'attendance.*.remarks'       => [
+                'nullable', 'string', 'max:255',
+                function ($attribute, $value, $fail) use ($request) {
+                    preg_match('/attendance\.(\d+)\.remarks/', $attribute, $m);
+                    $idx    = $m[1] ?? null;
+                    $status = $idx !== null ? $request->input("attendance.{$idx}.status") : null;
+                    if (in_array($status, ['absent', 'late', 'excused']) && empty(trim((string) $value))) {
+                        $fail('Remarks are required when status is absent, late, or excused.');
+                    }
+                },
+            ],
         ]);
 
         $user = auth()->user();
@@ -108,12 +129,14 @@ class AttendanceController extends Controller
         $created = 0;
         $updated = 0;
 
-        DB::transaction(function () use ($validated, $sectionSubject, $date, $user, &$created, &$updated) {
+        $deleted = 0;
+
+        DB::transaction(function () use ($validated, $sectionSubject, $date, $user, &$created, &$updated, &$deleted) {
             foreach ($validated['attendance'] as $row) {
                 // Verify the enrollment is actually for the same section as this section-subject
                 $enrollment = Enrollment::find($row['enrollment_id']);
                 if (!$enrollment || (int) $enrollment->section_id !== (int) $sectionSubject->section_id) {
-                    continue; // silently skip mismatches — defense-in-depth
+                    continue;
                 }
 
                 $existing = Attendance::where('enrollment_id', $enrollment->id)
@@ -121,10 +144,27 @@ class AttendanceController extends Controller
                     ->where('date', $date)
                     ->first();
 
+                $status = $row['status'] ?? '';
+
+                // Empty status = clear/remove the record
+                if ($status === '' || $status === null) {
+                    if ($existing) {
+                        $existing->delete();
+                        AuditLog::record(AuditLog::ATTENDANCE_UPDATED, [
+                            'enrollment_id'      => $enrollment->id,
+                            'section_subject_id' => $sectionSubject->id,
+                            'date'               => $date,
+                            'action'             => 'cleared',
+                        ]);
+                        $deleted++;
+                    }
+                    continue;
+                }
+
                 if ($existing) {
                     $before = ['status' => $existing->status, 'remarks' => $existing->remarks];
                     $existing->update([
-                        'status'      => $row['status'],
+                        'status'      => $status,
                         'remarks'     => $row['remarks'] ?? null,
                         'recorded_by' => $user->id,
                     ]);
@@ -133,7 +173,7 @@ class AttendanceController extends Controller
                         'section_subject_id' => $sectionSubject->id,
                         'date'               => $date,
                         'before'             => $before,
-                        'after'              => ['status' => $row['status'], 'remarks' => $row['remarks'] ?? null],
+                        'after'              => ['status' => $status, 'remarks' => $row['remarks'] ?? null],
                     ]);
                     $updated++;
                 } else {
@@ -141,7 +181,7 @@ class AttendanceController extends Controller
                         'enrollment_id'      => $enrollment->id,
                         'section_subject_id' => $sectionSubject->id,
                         'date'               => $date,
-                        'status'             => $row['status'],
+                        'status'             => $status,
                         'remarks'            => $row['remarks'] ?? null,
                         'recorded_by'        => $user->id,
                     ]);
@@ -149,7 +189,7 @@ class AttendanceController extends Controller
                         'enrollment_id'      => $enrollment->id,
                         'section_subject_id' => $sectionSubject->id,
                         'date'               => $date,
-                        'status'             => $row['status'],
+                        'status'             => $status,
                     ]);
                     $created++;
                 }
@@ -157,8 +197,9 @@ class AttendanceController extends Controller
         });
 
         $parts = [];
-        if ($created > 0) $parts[] = "{$created} attendance record(s) saved.";
+        if ($created > 0) $parts[] = "{$created} record(s) saved.";
         if ($updated > 0) $parts[] = "{$updated} record(s) updated.";
+        if ($deleted > 0) $parts[] = "{$deleted} record(s) cleared.";
 
         return redirect()
             ->route('faculty.attendance', [

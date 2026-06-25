@@ -19,55 +19,78 @@
 {{-- Status stat cards --}}
 <div class="enc-stats">
 
-  <div class="enc-stat-card">
-    <div class="enc-stat-icon enc-stat-icon--amber">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+  <a href="{{ route('admin.applicants.index', ['status' => 'pending']) }}" class="enc-stat-card">
+    <div class="enc-stat-illus enc-stat-illus--amber">
+      <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="enc-stat-svg">
+        <circle cx="50" cy="50" r="34" stroke="rgba(255,255,255,.8)" stroke-width="5" fill="none"/>
+        <line x1="50" y1="28" x2="50" y2="52" stroke="rgba(255,255,255,.9)" stroke-width="6" stroke-linecap="round"/>
+        <line x1="50" y1="52" x2="64" y2="63" stroke="rgba(255,255,255,.9)" stroke-width="6" stroke-linecap="round"/>
+        <circle cx="50" cy="50" r="4" fill="rgba(255,255,255,.9)"/>
+      </svg>
     </div>
     <div class="enc-stat-body">
       <div class="enc-stat-value">{{ $counts['pending'] }}</div>
       <div class="enc-stat-label">Pending</div>
     </div>
-  </div>
+  </a>
 
-  <div class="enc-stat-card">
-    <div class="enc-stat-icon enc-stat-icon--blue">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.964-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+  <a href="{{ route('admin.applicants.index', ['status' => 'under_review']) }}" class="enc-stat-card">
+    <div class="enc-stat-illus enc-stat-illus--blue">
+      <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="enc-stat-svg">
+        <circle cx="44" cy="44" r="22" stroke="rgba(255,255,255,.85)" stroke-width="6" fill="none"/>
+        <line x1="60" y1="60" x2="78" y2="78" stroke="rgba(255,255,255,.85)" stroke-width="7" stroke-linecap="round"/>
+        <circle cx="44" cy="44" r="12" fill="rgba(255,255,255,.2)"/>
+      </svg>
     </div>
     <div class="enc-stat-body">
       <div class="enc-stat-value">{{ $counts['under_review'] }}</div>
       <div class="enc-stat-label">Under Review</div>
     </div>
-  </div>
+  </a>
 
-  <div class="enc-stat-card">
-    <div class="enc-stat-icon enc-stat-icon--amber">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+  <a href="{{ route('admin.applicants.index', ['status' => 'waitlisted']) }}" class="enc-stat-card">
+    <div class="enc-stat-illus enc-stat-illus--purple">
+      <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="enc-stat-svg">
+        <rect x="22" y="25" width="56" height="8" rx="4" fill="rgba(255,255,255,.85)"/>
+        <rect x="22" y="43" width="56" height="8" rx="4" fill="rgba(255,255,255,.7)"/>
+        <rect x="22" y="61" width="40" height="8" rx="4" fill="rgba(255,255,255,.55)"/>
+        <circle cx="78" cy="72" r="12" fill="rgba(255,255,255,.85)" stroke="rgba(255,255,255,.4)" stroke-width="2"/>
+        <line x1="78" y1="66" x2="78" y2="72" stroke="#7c3aed" stroke-width="3" stroke-linecap="round"/>
+        <line x1="78" y1="72" x2="82" y2="75" stroke="#7c3aed" stroke-width="3" stroke-linecap="round"/>
+      </svg>
     </div>
     <div class="enc-stat-body">
       <div class="enc-stat-value">{{ $counts['waitlisted'] }}</div>
       <div class="enc-stat-label">Waitlisted</div>
     </div>
-  </div>
+  </a>
 
-  <div class="enc-stat-card">
-    <div class="enc-stat-icon enc-stat-icon--green">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+  <a href="{{ route('admin.applicants.index', ['status' => 'accepted']) }}" class="enc-stat-card">
+    <div class="enc-stat-illus enc-stat-illus--emerald">
+      <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="enc-stat-svg">
+        <circle cx="50" cy="50" r="34" fill="rgba(255,255,255,.15)" stroke="rgba(255,255,255,.6)" stroke-width="4"/>
+        <polyline points="32,50 45,63 68,37" stroke="rgba(255,255,255,.95)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
     </div>
     <div class="enc-stat-body">
       <div class="enc-stat-value">{{ $counts['accepted'] }}</div>
       <div class="enc-stat-label">Accepted</div>
     </div>
-  </div>
+  </a>
 
-  <div class="enc-stat-card">
-    <div class="enc-stat-icon enc-stat-icon--red">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+  <a href="{{ route('admin.applicants.index', ['status' => 'rejected']) }}" class="enc-stat-card">
+    <div class="enc-stat-illus enc-stat-illus--red">
+      <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="enc-stat-svg">
+        <circle cx="50" cy="50" r="34" fill="rgba(255,255,255,.15)" stroke="rgba(255,255,255,.6)" stroke-width="4"/>
+        <line x1="35" y1="35" x2="65" y2="65" stroke="rgba(255,255,255,.95)" stroke-width="8" stroke-linecap="round"/>
+        <line x1="65" y1="35" x2="35" y2="65" stroke="rgba(255,255,255,.95)" stroke-width="8" stroke-linecap="round"/>
+      </svg>
     </div>
     <div class="enc-stat-body">
       <div class="enc-stat-value">{{ $counts['rejected'] }}</div>
       <div class="enc-stat-label">Rejected</div>
     </div>
-  </div>
+  </a>
 
 </div>
 

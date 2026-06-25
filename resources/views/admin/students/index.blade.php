@@ -27,41 +27,53 @@
 
 {{-- Stats Row --}}
 <div class="enc-stats" style="margin-bottom:20px;">
-  <div class="enc-stat-card">
-    <div class="enc-stat-icon enc-stat-icon--blue">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5"/>
+  {{-- Total Students --}}
+  <a href="{{ route('admin.students.index') }}" class="enc-stat-card">
+    <div class="enc-stat-illus enc-stat-illus--blue">
+      <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="enc-stat-svg">
+        <path d="M50 10 L90 30 L50 50 L10 30 Z" fill="rgba(255,255,255,.9)" stroke="rgba(255,255,255,.5)" stroke-width="1.5"/>
+        <path d="M25 38 L25 62 C25 72 36 80 50 80 C64 80 75 72 75 62 L75 38" stroke="rgba(255,255,255,.85)" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <circle cx="85" cy="30" r="5" fill="rgba(255,255,255,.7)"/>
+        <line x1="85" y1="35" x2="85" y2="55" stroke="rgba(255,255,255,.7)" stroke-width="4" stroke-linecap="round"/>
       </svg>
     </div>
     <div class="enc-stat-body">
       <div class="enc-stat-value">{{ $stats['total_students'] }}</div>
       <div class="enc-stat-label">Total Students</div>
     </div>
-  </div>
+  </a>
 
-  <div class="enc-stat-card">
-    <div class="enc-stat-icon enc-stat-icon--green">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292m0-5.292a4 4 0 110 5.292m0-5.292A4.353 4.353 0 005.364 9M12 4.354L5.364 9m0 0a1 1 0 11-1.414 1.414m1.414-1.414a4 4 0 015.656 5.656m-5.656-5.656a4.353 4.353 0 00-1.414 5.656M9 20.354a4 4 0 110-5.292m0 5.292a4 4 0 110-5.292m0 5.292A4.353 4.353 0 0112 20.354m0-10a4 4 0 014.243-3.999"/>
+  {{-- Male Students --}}
+  <a href="{{ route('admin.students.index', ['gender' => 'male']) }}" class="enc-stat-card">
+    <div class="enc-stat-illus enc-stat-illus--teal">
+      <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="enc-stat-svg">
+        <circle cx="50" cy="38" r="18" fill="rgba(255,255,255,.85)" stroke="rgba(255,255,255,.5)" stroke-width="2"/>
+        <path d="M26 82 C26 66 74 66 74 82" stroke="rgba(255,255,255,.85)" stroke-width="6" fill="none" stroke-linecap="round"/>
+        <line x1="72" y1="22" x2="84" y2="10" stroke="rgba(255,255,255,.7)" stroke-width="4" stroke-linecap="round"/>
+        <polyline points="75,10 84,10 84,19" stroke="rgba(255,255,255,.7)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
       </svg>
     </div>
     <div class="enc-stat-body">
       <div class="enc-stat-value">{{ $stats['male_students'] }}</div>
       <div class="enc-stat-label">Male Students</div>
     </div>
-  </div>
+  </a>
 
-  <div class="enc-stat-card">
-    <div class="enc-stat-icon enc-stat-icon--pink">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292m0-5.292a4 4 0 110 5.292m0-5.292A4.353 4.353 0 005.364 9M12 4.354L5.364 9m0 0a1 1 0 11-1.414 1.414m1.414-1.414a4 4 0 015.656 5.656m-5.656-5.656a4.353 4.353 0 00-1.414 5.656M9 20.354a4 4 0 110-5.292m0 5.292a4 4 0 110-5.292m0 5.292A4.353 4.353 0 0112 20.354m0-10a4 4 0 014.243-3.999"/>
+  {{-- Female Students --}}
+  <a href="{{ route('admin.students.index', ['gender' => 'female']) }}" class="enc-stat-card">
+    <div class="enc-stat-illus enc-stat-illus--pink">
+      <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="enc-stat-svg">
+        <circle cx="50" cy="36" r="18" fill="rgba(255,255,255,.85)" stroke="rgba(255,255,255,.5)" stroke-width="2"/>
+        <line x1="50" y1="54" x2="50" y2="76" stroke="rgba(255,255,255,.8)" stroke-width="5" stroke-linecap="round"/>
+        <line x1="36" y1="66" x2="64" y2="66" stroke="rgba(255,255,255,.8)" stroke-width="5" stroke-linecap="round"/>
+        <path d="M28 80 C28 68 72 68 72 80" stroke="rgba(255,255,255,.6)" stroke-width="4" fill="none" stroke-linecap="round"/>
       </svg>
     </div>
     <div class="enc-stat-body">
       <div class="enc-stat-value">{{ $stats['female_students'] }}</div>
       <div class="enc-stat-label">Female Students</div>
     </div>
-  </div>
+  </a>
 </div>
 
 {{-- Students Table --}}
@@ -219,11 +231,5 @@
   @endif
 </div>
 
-<style>
-  .enc-stat-icon--pink {
-    background-color: rgba(236, 72, 153, 0.1);
-    color: #ec4899;
-  }
-</style>
 
 @endsection

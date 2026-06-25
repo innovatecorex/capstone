@@ -160,22 +160,35 @@
 
     {{-- Response form (shown for open complaints) --}}
     @if($c->isOpen())
+    @php $formStatus = (old('complaint_id') == $c->id) ? old('status', $c->status) : $c->status; @endphp
     <form method="POST" action="{{ route('complaints.respond', $c->id) }}"
+          data-response-form
           style="border-top:1px solid rgba(15,23,42,.06);padding-top:.9rem;display:grid;gap:.75rem;">
       @csrf
       @method('PATCH')
+      <input type="hidden" name="complaint_id" value="{{ $c->id }}">
+
+      {{-- Inline validation errors (only for this specific form) --}}
+      @if($errors->any() && old('complaint_id') == $c->id)
+      <div class="enc-alert enc-alert--error">
+        <ul style="margin:0;padding-left:1.2rem;">
+          @foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach
+        </ul>
+      </div>
+      @endif
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;">
         <div>
           <label class="enc-label">Update Status</label>
           <select name="status" class="enc-input" required
+                  data-cg-target="cg-{{ $c->id }}"
                   onchange="toggleCorrectedGrade(this, 'cg-{{ $c->id }}')">
-            <option value="under_review">Under Review</option>
+            <option value="under_review" {{ $formStatus === 'under_review' ? 'selected' : '' }}>Under Review</option>
             @if(auth()->user()->role_id !== '02')
-            <option value="forwarded_to_teacher">Forwarded to Teacher</option>
+            <option value="forwarded_to_teacher" {{ $formStatus === 'forwarded_to_teacher' ? 'selected' : '' }}>Forwarded to Teacher</option>
             @endif
-            <option value="resolved">Resolved</option>
-            <option value="dismissed">Dismissed</option>
+            <option value="resolved" {{ $formStatus === 'resolved' ? 'selected' : '' }}>Resolved</option>
+            <option value="dismissed" {{ $formStatus === 'dismissed' ? 'selected' : '' }}>Dismissed</option>
           </select>
         </div>
 
@@ -185,7 +198,7 @@
           <label class="enc-label">Corrected Final Grade <span style="color:var(--gray-400);font-weight:400;">(optional — applies to grade record)</span></label>
           <input type="number" name="corrected_grade" class="enc-input"
                  min="0" max="100" step="1" placeholder="e.g. 85"
-                 value="{{ old('corrected_grade') }}">
+                 value="{{ (old('complaint_id') == $c->id) ? old('corrected_grade', $c->corrected_grade) : $c->corrected_grade }}">
         </div>
         @endif
       </div>
@@ -194,11 +207,11 @@
         <label class="enc-label">Response / Remarks</label>
         <textarea name="response" class="enc-input" rows="3"
           placeholder="Provide a clear explanation or resolution…"
-          required minlength="10" maxlength="2000">{{ old('response') }}</textarea>
+          required minlength="10" maxlength="2000">{{ (old('complaint_id') == $c->id) ? old('response', $c->response) : $c->response }}</textarea>
       </div>
 
       <div>
-        <button type="submit" class="enc-btn enc-btn--primary">Save Response</button>
+        <button type="submit" class="enc-btn enc-btn--primary" data-save-btn>Save Response</button>
       </div>
     </form>
     @endif
@@ -245,12 +258,31 @@ textarea.enc-input { resize:vertical; }
 .status-dismissed             { background:#f3f4f6; color:#6b7280; }
 
 .enc-alert--success { background:#f0fdf4; border:1px solid #86efac; border-radius:10px; padding:.85rem 1rem; font-size:.87rem; color:#166534; }
+.enc-alert--error   { background:#fef2f2; border:1px solid #fca5a5; border-radius:10px; padding:.75rem 1rem; font-size:.85rem; color:#991b1b; }
 </style>
+@endpush
+
+@push('scripts')
 <script>
 function toggleCorrectedGrade(select, boxId) {
   const box = document.getElementById(boxId);
   if (!box) return;
   box.style.display = select.value === 'resolved' ? '' : 'none';
 }
+
+document.addEventListener('DOMContentLoaded', function () {
+  // Initialise corrected-grade visibility based on current dropdown value
+  document.querySelectorAll('select[data-cg-target]').forEach(function (sel) {
+    toggleCorrectedGrade(sel, sel.dataset.cgTarget);
+  });
+
+  // Show loading state on submit to prevent double-clicks
+  document.querySelectorAll('form[data-response-form]').forEach(function (form) {
+    form.addEventListener('submit', function () {
+      var btn = form.querySelector('[data-save-btn]');
+      if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+    });
+  });
+});
 </script>
 @endpush
