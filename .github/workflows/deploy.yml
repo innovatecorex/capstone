@@ -20,7 +20,15 @@ jobs:
           script: |
             cd ${{ secrets.PROJECT_PATH }}
             git pull origin master
+
+            # Clear all Laravel caches
             php artisan view:clear
             php artisan cache:clear
             php artisan route:clear
             php artisan config:clear
+
+            # Reset PHP OPcache via a temporary web-accessible script
+            # so the web server process (FPM) picks up file changes immediately
+            echo '<?php if(function_exists("opcache_reset")){opcache_reset();} echo "ok";' > public/opcache_reset.php
+            curl -s http://127.0.0.1/opcache_reset.php || true
+            rm -f public/opcache_reset.php
