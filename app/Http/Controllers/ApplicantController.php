@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\AcademicYear;
 use App\Models\Applicant;
+use App\Models\ApplicantDocument;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class ApplicantController extends Controller
@@ -15,16 +18,19 @@ class ApplicantController extends Controller
         'Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12',
     ];
 
-    // ── Public: show the application form ──────────────────────────────────
+    public const DOCUMENT_TYPES = [
+        'birth_certificate' => ['label' => 'Birth Certificate (PSA)', 'required' => true],
+        'report_card'       => ['label' => 'Previous Report Card / Form 138', 'required' => true],
+        'good_moral'        => ['label' => 'Good Moral Certificate', 'required' => false],
+    ];
 
     public function create(): View
     {
         return view('applicant.create', [
-            'gradeLevels' => self::GRADE_LEVELS,
+            'gradeLevels'   => self::GRADE_LEVELS,
+            'documentTypes' => self::DOCUMENT_TYPES,
         ]);
     }
-
-    // ── Public: handle submission ───────────────────────────────────────────
 
     public function store(Request $request): RedirectResponse
     {
@@ -51,26 +57,76 @@ class ApplicantController extends Controller
             'relationship'           => ['required', 'string', 'max:50'],
             'parent_contact'         => ['required', 'string', 'max:20'],
             'parent_email'           => ['nullable', 'email', 'max:180'],
+            'docs.birth_certificate' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
+            'docs.report_card'       => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
+            'docs.good_moral'        => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
+        ], [
+            'docs.birth_certificate.required' => 'Please upload your Birth Certificate (PSA).',
+            'docs.report_card.required'       => 'Please upload your Previous Report Card / Form 138.',
+            'docs.birth_certificate.mimes'    => 'Birth Certificate must be a PDF, JPG, or PNG file.',
+            'docs.report_card.mimes'          => 'Report Card must be a PDF, JPG, or PNG file.',
+            'docs.good_moral.mimes'           => 'Good Moral Certificate must be a PDF, JPG, or PNG file.',
+            'docs.birth_certificate.max'      => 'Birth Certificate must not exceed 5MB.',
+            'docs.report_card.max'            => 'Report Card must not exceed 5MB.',
+            'docs.good_moral.max'             => 'Good Moral Certificate must not exceed 5MB.',
         ]);
 
         $validated['nationality'] = $validated['nationality'] ?? 'Filipino';
 
-        // Always stamp the active academic year so guidance/testing queries work correctly
         $activeYear = AcademicYear::where('status', 'active')->first();
         if ($activeYear) {
             $validated['applying_for_year'] = $activeYear->year_label;
         }
 
-        $applicant = Applicant::create($validated);
+        $applicant = Applicant::create(collect($validated)->except('docs')->toArray());
+
+        $folder = 'applicant-documents/' . $applicant->reference_number;
+
+        foreach (self::DOCUMENT_TYPES as $type => $meta) {
+            if ($request->hasFile("docs.{$type}")) {
+                $file = $request->file("docs.{$type}");
+                $path = $file->storeAs(
+                    $folder,
+                    $type . '_' . time() . '.' . $file->getClientOriginalExtension(),
+                    'private'
+                );
+
+                ApplicantDocument::create([
+                    'applicant_id'  => $applicant->id,
+                    'document_type' => $type,
+                    'file_path'     => $path,
+                    'original_name' => $file->getClientOriginalName(),
+                    'mime_type'     => $file->getMimeType(),
+                    'file_size'     => $file->getSize(),
+                ]);
+            }
+        }
 
         return redirect()->route('apply.thanks', $applicant->reference_number);
     }
-
-    // ── Public: thank-you / confirmation page ──────────────────────────────
 
     public function thanks(string $reference): View
     {
         $applicant = Applicant::where('reference_number', $reference)->firstOrFail();
         return view('applicant.thanks', compact('applicant'));
+    }
+
+    public function downloadDocument(ApplicantDocument $document): Response
+    {
+        abort_unless(
+            auth()->check() && in_array(auth()->user()->role_id, ['02', '03', '04']),
+            403
+        );
+
+        abort_unless(Storage::disk('private')->exists($document->file_path), 404);
+
+        return response(
+            Storage::disk('private')->get($document->file_path),
+            200,
+            [
+                'Content-Type'        => $document->mime_type ?? 'application/octet-stream',
+                'Content-Disposition' => 'inline; filename="' . $document->original_name . '"',
+            ]
+        );
     }
 }

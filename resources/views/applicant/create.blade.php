@@ -537,6 +537,7 @@ body {
       <li><a href="#sec-school"><span class="ap-nav-num">3</span> Previous School</a></li>
       <li><a href="#sec-applying"><span class="ap-nav-num">4</span> Applying For</a></li>
       <li><a href="#sec-parent"><span class="ap-nav-num">5</span> Parent / Guardian</a></li>
+      <li><a href="#sec-documents"><span class="ap-nav-num">6</span> Documents</a></li>
     </ul>
 
     <div class="ap-right-footer">
@@ -573,7 +574,7 @@ body {
         </svg>
         Back to Login
       </a>
-      <span class="ap-topbar-hint">5 sections · All required fields must be filled</span>
+      <span class="ap-topbar-hint">6 sections · All required fields must be filled</span>
     </div>
 
     @if($errors->any())
@@ -583,7 +584,7 @@ body {
     </div>
     @endif
 
-    <form method="POST" action="{{ route('apply.store') }}" novalidate>
+    <form method="POST" action="{{ route('apply.store') }}" enctype="multipart/form-data" novalidate>
       @csrf
 
       {{-- 1. Personal Information --}}
@@ -893,6 +894,80 @@ body {
         </div>
       </div>
 
+      {{-- 6. Documents --}}
+      <div class="ap-card" id="sec-documents">
+        <div class="ap-card-bar"></div>
+        <div class="ap-card-head">
+          <div class="ap-card-icon" style="background:#f0fdf4;">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#15803d" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13"/>
+            </svg>
+          </div>
+          <div>
+            <div class="ap-card-section-num">Section 6</div>
+            <h2 class="ap-card-title">Required Documents</h2>
+          </div>
+        </div>
+
+        <div class="ap-fields">
+
+          <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:14px 18px;margin-bottom:20px;font-size:.85rem;color:#92400e;line-height:1.6;">
+            <strong>Upload digital copies of the following documents.</strong><br>
+            Accepted formats: PDF, JPG, JPEG, PNG &mdash; max 5 MB per file.<br>
+            Original copies will be verified upon enrollment.
+          </div>
+
+          {{-- Birth Certificate --}}
+          <div class="ap-field">
+            <label class="field-label">Birth Certificate (PSA) <span class="req">*</span></label>
+            <input type="file" name="docs[birth_certificate]" accept=".pdf,.jpg,.jpeg,.png"
+              class="{{ $errors->has('docs.birth_certificate') ? 'is-err' : '' }}"
+              onchange="previewFile(this, 'prev-birth')">
+            <div class="field-hint">Required. PSA-authenticated Birth Certificate (PDF or image).</div>
+            <div id="prev-birth" class="doc-preview" style="display:none;"></div>
+            @error('docs.birth_certificate')
+            <div class="field-err">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9.303 3.376c.866 1.5-.217 3.374-1.948 3.374H4.645c-1.73 0-2.813-1.874-1.948-3.374l7.547-13.015c.866-1.5 3.032-1.5 3.898 0l5.16 8.898z"/></svg>
+              {{ $message }}
+            </div>
+            @enderror
+          </div>
+
+          {{-- Report Card --}}
+          <div class="ap-field">
+            <label class="field-label">Previous Report Card / Form 138 <span class="req">*</span></label>
+            <input type="file" name="docs[report_card]" accept=".pdf,.jpg,.jpeg,.png"
+              class="{{ $errors->has('docs.report_card') ? 'is-err' : '' }}"
+              onchange="previewFile(this, 'prev-report')">
+            <div class="field-hint">Required. Most recent report card or Form 138.</div>
+            <div id="prev-report" class="doc-preview" style="display:none;"></div>
+            @error('docs.report_card')
+            <div class="field-err">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9.303 3.376c.866 1.5-.217 3.374-1.948 3.374H4.645c-1.73 0-2.813-1.874-1.948-3.374l7.547-13.015c.866-1.5 3.032-1.5 3.898 0l5.16 8.898z"/></svg>
+              {{ $message }}
+            </div>
+            @enderror
+          </div>
+
+          {{-- Good Moral --}}
+          <div class="ap-field">
+            <label class="field-label">Good Moral Certificate <span class="opt">(optional)</span></label>
+            <input type="file" name="docs[good_moral]" accept=".pdf,.jpg,.jpeg,.png"
+              class="{{ $errors->has('docs.good_moral') ? 'is-err' : '' }}"
+              onchange="previewFile(this, 'prev-moral')">
+            <div class="field-hint">If available, issued by your previous school.</div>
+            <div id="prev-moral" class="doc-preview" style="display:none;"></div>
+            @error('docs.good_moral')
+            <div class="field-err">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9.303 3.376c.866 1.5-.217 3.374-1.948 3.374H4.645c-1.73 0-2.813-1.874-1.948-3.374l7.547-13.015c.866-1.5 3.032-1.5 3.898 0l5.16 8.898z"/></svg>
+              {{ $message }}
+            </div>
+            @enderror
+          </div>
+
+        </div>
+      </div>
+
       {{-- Submit --}}
       <div class="ap-submit-card">
         <div class="ap-card-bar"></div>
@@ -934,6 +1009,25 @@ body {
   }, { rootMargin: '-20% 0px -70% 0px' });
 
   sections.forEach(s => observer.observe(s));
+
+  function previewFile(input, previewId) {
+    const box = document.getElementById(previewId);
+    if (!input.files || !input.files[0]) { box.style.display = 'none'; return; }
+    const file = input.files[0];
+    const sizeMB = (file.size / 1048576).toFixed(2);
+    if (file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        box.innerHTML = '<img src="' + e.target.result + '" style="max-width:100%;max-height:160px;border-radius:8px;border:1px solid #e2e8f0;margin-top:8px;">'
+          + '<p style="font-size:.78rem;color:#64748b;margin-top:4px;">' + file.name + ' (' + sizeMB + ' MB)</p>';
+        box.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    } else {
+      box.innerHTML = '<p style="font-size:.82rem;color:#374151;margin-top:8px;">📄 ' + file.name + ' (' + sizeMB + ' MB)</p>';
+      box.style.display = 'block';
+    }
+  }
 </script>
 
 </body>

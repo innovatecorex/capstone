@@ -40,6 +40,16 @@
   </div>
 
   <div class="enc-stat-card">
+    <div class="enc-stat-icon enc-stat-icon--amber">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+    </div>
+    <div class="enc-stat-body">
+      <div class="enc-stat-value">{{ $counts['waitlisted'] }}</div>
+      <div class="enc-stat-label">Waitlisted</div>
+    </div>
+  </div>
+
+  <div class="enc-stat-card">
     <div class="enc-stat-icon enc-stat-icon--green">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
     </div>
@@ -75,7 +85,7 @@
     <select name="status"
       style="padding:.5rem .85rem;border:1px solid rgba(15,23,42,.14);border-radius:8px;font-size:.87rem;background:#fff;">
       <option value="">All statuses</option>
-      @foreach(['pending','under_review','accepted','rejected','enrolled'] as $s)
+      @foreach(['pending','under_review','waitlisted','accepted','rejected','enrolled'] as $s)
       <option value="{{ $s }}" {{ request('status') === $s ? 'selected' : '' }}>{{ ucfirst(str_replace('_',' ',$s)) }}</option>
       @endforeach
     </select>
@@ -176,6 +186,7 @@
 .status-chip { display:inline-block; padding:.22rem .65rem; border-radius:999px; font-size:.73rem; font-weight:700; }
 .status-pending       { background:#fef9c3; color:#854d0e; }
 .status-under_review  { background:#dbeafe; color:#1e40af; }
+.status-waitlisted    { background:#fef3c7; color:#92400e; }
 .status-accepted      { background:#dcfce7; color:#166534; }
 .status-rejected      { background:#fee2e2; color:#991b1b; }
 .status-enrolled                { background:#e0f2fe; color:#0369a1; }

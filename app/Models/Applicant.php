@@ -113,6 +113,11 @@ class Applicant extends Model
         return $this->hasOne(EntranceTestResult::class, 'applicant_id');
     }
 
+    public function documents(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(ApplicantDocument::class, 'applicant_id');
+    }
+
     // ── Scopes ──────────────────────────────────────────────────────────────
 
     public function scopePending($query)
@@ -122,7 +127,7 @@ class Applicant extends Model
 
     public function scopeOpen($query)
     {
-        return $query->whereIn('status', ['pending', 'under_review']);
+        return $query->whereIn('status', ['pending', 'under_review', 'waitlisted']);
     }
 
     // ── Helpers ─────────────────────────────────────────────────────────────

@@ -16,7 +16,7 @@
 
 @if(session('success'))
 <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:.75rem 1rem;font-size:.87rem;color:#166534;margin-bottom:1rem;">
-  {{ session('success') }}
+  {!! session('success') !!}
 </div>
 @endif
 
@@ -116,6 +116,31 @@
       </div>
     </div>
 
+    {{-- Uploaded Documents --}}
+    <div class="enc-card" style="padding:1.25rem;">
+      <div class="enc-card__header"><div class="enc-card__title">Uploaded Documents</div></div>
+      <div class="enc-card__body">
+        @if($applicant->documents->isEmpty())
+          <p style="font-size:.85rem;color:var(--gray-400);">No documents uploaded with this application.</p>
+        @else
+          <div style="display:grid;gap:.65rem;">
+            @foreach($applicant->documents as $doc)
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:.65rem .9rem;background:#f8fafc;border-radius:8px;border:1px solid rgba(15,23,42,.08);">
+              <div>
+                <div style="font-size:.85rem;font-weight:700;color:var(--navy);">{{ $doc->label }}</div>
+                <div style="font-size:.76rem;color:var(--gray-400);">{{ $doc->original_name }} · {{ $doc->file_size_formatted }}</div>
+              </div>
+              <a href="{{ route('applicant.document.download', $doc->id) }}" target="_blank"
+                 style="font-size:.78rem;font-weight:700;color:var(--primary);text-decoration:none;white-space:nowrap;padding:.35rem .8rem;background:rgba(79,70,229,.08);border-radius:6px;">
+                View ↗
+              </a>
+            </div>
+            @endforeach
+          </div>
+        @endif
+      </div>
+    </div>
+
   </div>
 
   {{-- ── Right: status panel ───────────────────────────────────────── --}}
@@ -160,7 +185,7 @@
           <div>
             <label class="app-label">New Status</label>
             <select name="status" class="app-input" required>
-              @foreach(['pending','under_review','accepted','rejected'] as $s)
+              @foreach(['pending','under_review','waitlisted','accepted','rejected'] as $s)
               <option value="{{ $s }}" {{ $applicant->status === $s ? 'selected' : '' }}>
                 {{ ucfirst(str_replace('_',' ',$s)) }}
               </option>
@@ -228,6 +253,7 @@
 .status-chip { display:inline-block; padding:.22rem .65rem; border-radius:999px; font-size:.73rem; font-weight:700; }
 .status-pending      { background:#fef9c3; color:#854d0e; }
 .status-under_review { background:#dbeafe; color:#1e40af; }
+.status-waitlisted   { background:#fef3c7; color:#92400e; }
 .status-accepted     { background:#dcfce7; color:#166534; }
 .status-rejected     { background:#fee2e2; color:#991b1b; }
 .status-enrolled                { background:#e0f2fe; color:#0369a1; }

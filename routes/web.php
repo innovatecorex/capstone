@@ -69,6 +69,7 @@ Route::get('/verify/{token}', [\App\Http\Controllers\ReportCardController::class
 Route::get('/apply',                    [ApplicantController::class, 'create'])->name('apply');
 Route::post('/apply',                   [ApplicantController::class, 'store'])->name('apply.store')->middleware('throttle:10,1');
 Route::get('/apply/thanks/{reference}', [ApplicantController::class, 'thanks'])->name('apply.thanks');
+Route::get('/applicant-documents/{document}', [ApplicantController::class, 'downloadDocument'])->name('applicant.document.download')->middleware('auth');
 
 // ── Global Academic-Year Context (header selector, all roles) ──────────────
 Route::post('/academic-year/switch', [\App\Http\Controllers\AcademicYearContextController::class, 'switch'])

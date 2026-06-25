@@ -43,6 +43,7 @@
 .adm-status { display:inline-block; padding:.22rem .65rem; border-radius:999px; font-size:.73rem; font-weight:700; }
 .adm-status--pending                { background:#fef9c3; color:#854d0e; }
 .adm-status--under_review           { background:#dbeafe; color:#1e40af; }
+.adm-status--waitlisted             { background:#fef3c7; color:#92400e; }
 .adm-status--accepted               { background:#dcfce7; color:#166534; }
 .adm-status--rejected               { background:#fee2e2; color:#991b1b; }
 .adm-status--enrolled               { background:#e0f2fe; color:#0369a1; }
@@ -56,6 +57,7 @@ textarea.adm-input { resize:vertical; }
 .app-hint--green  { background:#f0fdf4; border:1px solid #86efac; border-left:3px solid #16a34a; color:#166534; }
 .app-hint--violet { background:#f5f3ff; border:1px solid #c4b5fd; border-left:3px solid #7c3aed; color:#5b21b6; }
 .app-hint--red    { background:#fef2f2; border:1px solid #fca5a5; border-left:3px solid #dc2626; color:#991b1b; }
+.app-hint--amber  { background:#fffbeb; border:1px solid #fde68a; border-left:3px solid #d97706; color:#92400e; }
 </style>
 @endpush
 
@@ -88,16 +90,16 @@ textarea.adm-input { resize:vertical; }
     return match($key) {
       'submitted' => 'done',
       'review'    => match($status) {
-        'pending'                             => 'active',
-        'under_review','accepted','rejected',
-        'eligible_for_enrollment','enrolled'  => 'done',
+        'pending'                                      => 'active',
+        'under_review','waitlisted','accepted',
+        'rejected','eligible_for_enrollment','enrolled' => 'done',
         default => 'pending',
       },
       'decision'  => match($status) {
-        'under_review'                        => 'active',
-        'accepted','eligible_for_enrollment',
-        'enrolled'                            => 'done',
-        'rejected'                            => 'rejected',
+        'under_review'                                 => 'active',
+        'waitlisted'                                   => 'active',
+        'accepted','eligible_for_enrollment','enrolled' => 'done',
+        'rejected'                                     => 'rejected',
         default => 'pending',
       },
       'account'   => match($status) {
@@ -112,7 +114,8 @@ textarea.adm-input { resize:vertical; }
 
   $hints = [
     'pending'                => ['blue',   'Move to <strong>Under Review</strong> to begin evaluating this application.'],
-    'under_review'           => ['blue',   'Review the applicant\'s details then set a decision: <strong>Accept</strong> or <strong>Reject</strong>.'],
+    'under_review'           => ['blue',   'Review the applicant\'s details then set a decision: <strong>Accept</strong>, <strong>Waitlist</strong>, or <strong>Reject</strong>.'],
+    'waitlisted'             => ['amber',  'This applicant is on the waitlist. A notification email was sent. Upgrade to <strong>Accepted</strong> when a slot opens.'],
     'accepted'               => ['green',  'Application accepted. Click <strong>Create Student Account</strong> below to finalize enrollment.'],
     'eligible_for_enrollment'=> ['violet', 'Applicant is eligible for enrollment. Confirm readiness before creating the student account.'],
     'rejected'               => ['red',    'This application was rejected. You may reopen it by updating the status.'],
@@ -205,6 +208,31 @@ textarea.adm-input { resize:vertical; }
       </div>
     </div>
 
+    {{-- Uploaded Documents --}}
+    <div class="enc-card" style="padding:1.25rem;">
+      <div class="enc-card__header"><div class="enc-card__title">Uploaded Documents</div></div>
+      <div class="enc-card__body">
+        @if($applicant->documents->isEmpty())
+          <p style="font-size:.85rem;color:var(--gray-400);">No documents uploaded with this application.</p>
+        @else
+          <div style="display:grid;gap:.65rem;">
+            @foreach($applicant->documents as $doc)
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:.65rem .9rem;background:#f8fafc;border-radius:8px;border:1px solid rgba(15,23,42,.08);">
+              <div>
+                <div style="font-size:.85rem;font-weight:700;color:var(--navy);">{{ $doc->label }}</div>
+                <div style="font-size:.76rem;color:var(--gray-400);">{{ $doc->original_name }} · {{ $doc->file_size_formatted }}</div>
+              </div>
+              <a href="{{ route('applicant.document.download', $doc->id) }}" target="_blank"
+                 style="font-size:.78rem;font-weight:700;color:var(--primary);text-decoration:none;white-space:nowrap;padding:.35rem .8rem;background:rgba(79,70,229,.08);border-radius:6px;">
+                View ↗
+              </a>
+            </div>
+            @endforeach
+          </div>
+        @endif
+      </div>
+    </div>
+
   </div>
 
   {{-- ── RIGHT: pipeline + actions ────────────────────────────────── --}}
@@ -283,7 +311,7 @@ textarea.adm-input { resize:vertical; }
           <div>
             <label class="adm-label">New Status</label>
             <select name="status" class="adm-input" required>
-              @foreach(['pending','under_review','accepted','rejected','eligible_for_enrollment','enrolled'] as $s)
+              @foreach(['pending','under_review','waitlisted','accepted','rejected','eligible_for_enrollment','enrolled'] as $s)
               <option value="{{ $s }}" {{ $applicant->status === $s ? 'selected' : '' }}>
                 {{ ucfirst(str_replace('_',' ',$s)) }}
               </option>

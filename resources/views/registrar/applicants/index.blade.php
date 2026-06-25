@@ -8,7 +8,7 @@
 /* ── Stat grid ────────────────────────────────────────────────── */
 .adm-stats {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: .75rem;
   margin-bottom: 1.25rem;
 }
@@ -86,6 +86,7 @@
 .adm-status { display: inline-block; padding: .2rem .6rem; border-radius: 999px; font-size: .68rem; font-weight: 700; white-space: nowrap; }
 .adm-status--pending                { background: #fef9c3; color: #854d0e; }
 .adm-status--under_review           { background: #dbeafe; color: #1e40af; }
+.adm-status--waitlisted             { background: #fef3c7; color: #92400e; }
 .adm-status--accepted               { background: #dcfce7; color: #166534; }
 .adm-status--rejected               { background: #fee2e2; color: #991b1b; }
 .adm-status--eligible_for_enrollment{ background: #ede9fe; color: #5b21b6; }
@@ -131,6 +132,13 @@
     <div><div class="adm-stat-val">{{ $counts['under_review'] }}</div><div class="adm-stat-label">Under Review</div></div>
   </a>
 
+  <a href="{{ route('registrar.applicants.index', ['status'=>'waitlisted'] + request()->except('status','page')) }}" class="adm-stat">
+    <div class="adm-stat-icon adm-stat-icon--amber">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+    </div>
+    <div><div class="adm-stat-val">{{ $counts['waitlisted'] }}</div><div class="adm-stat-label">Waitlisted</div></div>
+  </a>
+
   <a href="{{ route('registrar.applicants.index', ['status'=>'accepted'] + request()->except('status','page')) }}" class="adm-stat">
     <div class="adm-stat-icon adm-stat-icon--green">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
@@ -165,9 +173,9 @@
 @php $total = array_sum($counts); $pct = fn($n) => $total > 0 ? round($n/$total*100) : 0; @endphp
 <div class="adm-funnel">
   <div class="adm-funnel-step">
-    <strong>{{ $counts['pending'] + $counts['under_review'] }}</strong>
+    <strong>{{ $counts['pending'] + $counts['under_review'] + $counts['waitlisted'] }}</strong>
     <span>In Review</span>
-    <div style="font-size:.65rem;color:#94a3b8;">{{ $pct($counts['pending']+$counts['under_review']) }}%</div>
+    <div style="font-size:.65rem;color:#94a3b8;">{{ $pct($counts['pending']+$counts['under_review']+$counts['waitlisted']) }}%</div>
   </div>
   <div class="adm-funnel-arrow">›</div>
   <div class="adm-funnel-step">
@@ -206,7 +214,7 @@
     <span class="adm-filter-label">Status</span>
     <select name="status" class="adm-filter-ctrl" style="width:185px;">
       <option value="">All statuses</option>
-      @foreach(['pending','under_review','accepted','rejected','eligible_for_enrollment','enrolled'] as $s)
+      @foreach(['pending','under_review','waitlisted','accepted','rejected','eligible_for_enrollment','enrolled'] as $s)
       <option value="{{ $s }}" {{ request('status') === $s ? 'selected' : '' }}>{{ ucfirst(str_replace('_',' ',$s)) }}</option>
       @endforeach
     </select>

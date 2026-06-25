@@ -1,13 +1,17 @@
-<?php
+﻿<?php
 
 namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
+use App\Mail\AcceptanceNoticeMail;
+use App\Mail\WaitlistNoticeMail;
 use App\Models\Applicant;
 use App\Models\AuditLog;
 use App\Models\User;
+use App\Services\SectionAssignmentService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -32,10 +36,10 @@ class RegistrarApplicantController extends Controller
         if ($request->filled('search')) {
             $s = $request->input('search');
             $query->where(function ($q) use ($s) {
-                $q->where('first_name',       'like', "%{$s}%")
-                  ->orWhere('last_name',      'like', "%{$s}%")
+                $q->where('first_name',        'like', "%{$s}%")
+                  ->orWhere('last_name',       'like', "%{$s}%")
                   ->orWhere('reference_number','like', "%{$s}%")
-                  ->orWhere('lrn',            'like', "%{$s}%");
+                  ->orWhere('lrn',             'like', "%{$s}%");
             });
         }
 
@@ -43,12 +47,13 @@ class RegistrarApplicantController extends Controller
         $grades     = Applicant::distinct()->orderBy('applying_for_grade')->pluck('applying_for_grade');
 
         $counts = [
-            'pending'                => Applicant::where('status', 'pending')->count(),
-            'under_review'           => Applicant::where('status', 'under_review')->count(),
-            'accepted'               => Applicant::where('status', 'accepted')->count(),
-            'rejected'               => Applicant::where('status', 'rejected')->count(),
-            'eligible_for_enrollment'=> Applicant::where('status', 'eligible_for_enrollment')->count(),
-            'enrolled'               => Applicant::where('status', 'enrolled')->count(),
+            'pending'                 => Applicant::where('status', 'pending')->count(),
+            'under_review'            => Applicant::where('status', 'under_review')->count(),
+            'waitlisted'              => Applicant::where('status', 'waitlisted')->count(),
+            'accepted'                => Applicant::where('status', 'accepted')->count(),
+            'rejected'                => Applicant::where('status', 'rejected')->count(),
+            'eligible_for_enrollment' => Applicant::where('status', 'eligible_for_enrollment')->count(),
+            'enrolled'                => Applicant::where('status', 'enrolled')->count(),
         ];
 
         $years = Applicant::distinct()->orderByDesc('applying_for_year')->pluck('applying_for_year')->filter();
@@ -58,21 +63,22 @@ class RegistrarApplicantController extends Controller
 
     public function show(Applicant $applicant): View
     {
-        $applicant->load('reviewedBy');
+        $applicant->load(['reviewedBy', 'documents']);
         return view('registrar.applicants.show', compact('applicant'));
     }
 
     public function updateStatus(Request $request, Applicant $applicant): RedirectResponse
     {
         $validated = $request->validate([
-            'status'  => ['required', 'in:pending,under_review,accepted,rejected,eligible_for_enrollment,enrolled'],
+            'status'  => ['required', 'in:pending,under_review,waitlisted,accepted,rejected,eligible_for_enrollment,enrolled'],
             'remarks' => ['nullable', 'string', 'max:1000'],
         ]);
 
         $old = $applicant->status;
+        $new = $validated['status'];
 
         $applicant->update([
-            'status'      => $validated['status'],
+            'status'      => $new,
             'remarks'     => $validated['remarks'] ?? $applicant->remarks,
             'reviewed_by' => auth()->id(),
             'reviewed_at' => now(),
@@ -82,10 +88,26 @@ class RegistrarApplicantController extends Controller
             'applicant_id'     => $applicant->id,
             'reference_number' => $applicant->reference_number,
             'old_status'       => $old,
-            'new_status'       => $validated['status'],
+            'new_status'       => $new,
         ]);
 
-        return back()->with('success', "Application status updated to \"{$validated['status']}\".");
+        if ($new === 'accepted' && $old !== 'accepted' && $applicant->parent_email) {
+            try {
+                Mail::to($applicant->parent_email)->send(new AcceptanceNoticeMail($applicant));
+            } catch (\Exception $e) {
+                \Log::error('Acceptance notice email failed: ' . $e->getMessage());
+            }
+        }
+
+        if ($new === 'waitlisted' && $old !== 'waitlisted' && $applicant->parent_email) {
+            try {
+                Mail::to($applicant->parent_email)->send(new WaitlistNoticeMail($applicant));
+            } catch (\Exception $e) {
+                \Log::error('Waitlist notice email failed: ' . $e->getMessage());
+            }
+        }
+
+        return back()->with('success', "Application status updated to \"{$new}\".");
     }
 
     public function createAccount(Applicant $applicant): RedirectResponse
@@ -94,9 +116,8 @@ class RegistrarApplicantController extends Controller
             return back()->with('error', 'Only accepted applications can be converted to student accounts.');
         }
 
-        $gender = strtolower($applicant->sex);
-        $lrn    = $applicant->lrn ?: $this->generateStudentNumber();
-
+        $gender       = strtolower($applicant->sex);
+        $lrn          = $applicant->lrn ?: $this->generateStudentNumber();
         $username     = $this->generateUsername($applicant->first_name, $applicant->last_name);
         $tempPassword = $this->generateTempPassword();
 
@@ -112,6 +133,13 @@ class RegistrarApplicantController extends Controller
             'password_reset_required' => true,
             'status'                  => 'active',
         ]);
+
+        $assignedSection = null;
+        try {
+            $assignedSection = app(SectionAssignmentService::class)->assign($user, $applicant->applying_for_grade);
+        } catch (\Exception $e) {
+            \Log::error('Auto section assignment failed: ' . $e->getMessage());
+        }
 
         $applicant->update([
             'status'      => 'enrolled',
@@ -130,7 +158,7 @@ class RegistrarApplicantController extends Controller
         $mailSent = false;
         if ($applicant->parent_email) {
             try {
-                \Mail::to($applicant->parent_email)->send(
+                Mail::to($applicant->parent_email)->send(
                     new \App\Mail\WelcomeCredentialsMail($applicant->first_name, $username, $tempPassword)
                 );
                 $mailSent = true;
@@ -139,13 +167,20 @@ class RegistrarApplicantController extends Controller
             }
         }
 
-        $msg = "Student account created. LRN: <strong>{$lrn}</strong> · Username: <strong>{$username}</strong> · Temp password: <strong>{$tempPassword}</strong>.";
+        $msg = "Student account created. LRN: <strong>{$lrn}</strong> &middot; Username: <strong>{$username}</strong> &middot; Temp password: <strong>{$tempPassword}</strong>.";
+
+        if ($assignedSection) {
+            $msg .= ' Auto-assigned to section <strong>' . e($assignedSection->display_name ?? $assignedSection->name) . '</strong>.';
+        } else {
+            $msg .= ' No available section found &mdash; please assign one manually.';
+        }
+
         if ($mailSent) {
             $msg .= ' Credentials emailed to parent.';
         } elseif ($applicant->parent_email) {
-            $msg .= ' Email delivery failed — share credentials manually.';
+            $msg .= ' Email delivery failed &mdash; share credentials manually.';
         } else {
-            $msg .= ' No parent email on file — share credentials manually.';
+            $msg .= ' No parent email on file &mdash; share credentials manually.';
         }
 
         return back()->with('success', $msg);
@@ -159,8 +194,7 @@ class RegistrarApplicantController extends Controller
         $counter  = 1;
 
         while (User::where('username', $username)->exists()) {
-            $username = $base . $counter;
-            $counter++;
+            $username = $base . $counter++;
         }
 
         return $username;
@@ -172,10 +206,8 @@ class RegistrarApplicantController extends Controller
         $counter = 1;
 
         do {
-            $candidate = $prefix . str_pad($counter, 5, '0', STR_PAD_LEFT);
-            $exists    = User::where('lrn', $candidate)->exists();
-            $counter++;
-        } while ($exists);
+            $candidate = $prefix . str_pad($counter++, 5, '0', STR_PAD_LEFT);
+        } while (User::where('lrn', $candidate)->exists());
 
         return $candidate;
     }
@@ -197,9 +229,8 @@ class RegistrarApplicantController extends Controller
         $email   = $base . '@pas.edu.ph';
         $counter = 1;
 
-        while (User::where('email_hash', hash('sha256', $email))->exists()) {
-            $email = $base . $counter . '@pas.edu.ph';
-            $counter++;
+        while (User::where('email', $email)->exists()) {
+            $email = $base . $counter++ . '@pas.edu.ph';
         }
 
         return $email;
