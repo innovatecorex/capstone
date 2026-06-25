@@ -30,7 +30,7 @@
 
 {{-- Summary Stats --}}
 <div class="enc-stats">
-  <div class="enc-stat-card">
+  <a href="{{ route('admin.audit.index') }}" class="enc-stat-card" style="text-decoration:none;color:inherit;">
     <div class="enc-stat-icon enc-stat-icon--blue">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
         <path stroke-linecap="round" stroke-linejoin="round"
@@ -41,9 +41,9 @@
       <div class="enc-stat-value">{{ number_format($stats['total_events'] ?? 0) }}</div>
       <div class="enc-stat-label">Total Events</div>
     </div>
-  </div>
+  </a>
 
-  <div class="enc-stat-card">
+  <a href="{{ route('admin.audit.index', ['action_type' => 'LOGIN_FAILED']) }}" class="enc-stat-card" style="text-decoration:none;color:inherit;">
     <div class="enc-stat-icon enc-stat-icon--red">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
         <path stroke-linecap="round" stroke-linejoin="round"
@@ -55,9 +55,9 @@
       <div class="enc-stat-label">Failed Logins</div>
       <div class="enc-stat-delta enc-stat-delta--up">↑ Today</div>
     </div>
-  </div>
+  </a>
 
-  <div class="enc-stat-card">
+  <a href="{{ route('admin.audit.index', ['action_type' => 'PRIVILEGE_VIOLATION']) }}" class="enc-stat-card" style="text-decoration:none;color:inherit;">
     <div class="enc-stat-icon enc-stat-icon--amber">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
         <path stroke-linecap="round" stroke-linejoin="round"
@@ -68,9 +68,9 @@
       <div class="enc-stat-value">{{ $stats['privilege_violations'] ?? 0 }}</div>
       <div class="enc-stat-label">Violations</div>
     </div>
-  </div>
+  </a>
 
-  <div class="enc-stat-card">
+  <a href="{{ route('admin.audit.index', ['action_type' => 'GRADE_SUBMITTED']) }}" class="enc-stat-card" style="text-decoration:none;color:inherit;">
     <div class="enc-stat-icon enc-stat-icon--green">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
         <path stroke-linecap="round" stroke-linejoin="round"
@@ -81,9 +81,9 @@
       <div class="enc-stat-value">{{ $stats['grade_updates'] ?? 0 }}</div>
       <div class="enc-stat-label">Grade Changes</div>
     </div>
-  </div>
+  </a>
 
-  <div class="enc-stat-card">
+  <a href="{{ route('admin.locked-accounts.index') }}" class="enc-stat-card" style="text-decoration:none;color:inherit;">
     <div class="enc-stat-icon enc-stat-icon--teal">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
         <path stroke-linecap="round" stroke-linejoin="round"
@@ -94,7 +94,7 @@
       <div class="enc-stat-value">{{ $stats['locked_accounts'] ?? 0 }}</div>
       <div class="enc-stat-label">Locked Accounts</div>
     </div>
-  </div>
+  </a>
 </div>
 
 {{-- Audit Log Table --}}

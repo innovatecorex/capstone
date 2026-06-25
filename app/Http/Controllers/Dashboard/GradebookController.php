@@ -84,6 +84,49 @@ class GradebookController extends Controller
         );
     }
 
+    public function classlist(SectionSubject $sectionSubject): \Symfony\Component\HttpFoundation\StreamedResponse
+    {
+        $ss = $sectionSubject->load(['section', 'subject']);
+        $this->assertFacultyOwns($ss);
+
+        $enrollments = Enrollment::with('student')
+            ->where('section_id', $ss->section_id)
+            ->whereHas('academicYear', fn($q) => $q->where('status', 'active'))
+            ->where('status', 'enrolled')
+            ->get()
+            ->sortBy(fn($e) => $e->student?->last_name);
+
+        $subjectSlug = \Str::slug($ss->subject?->subject_name ?? 'class');
+        $sectionSlug = \Str::slug(($ss->section?->grade_level ?? '') . '-' . ($ss->section_name ?? ''));
+        $filename    = "classlist-{$subjectSlug}-{$sectionSlug}-" . now()->format('Y-m-d') . '.csv';
+
+        return response()->stream(function () use ($enrollments, $ss) {
+            $h = fopen('php://output', 'w');
+            fputcsv($h, ['Subject',  $ss->subject?->subject_name ?? '—']);
+            fputcsv($h, ['Section',  ($ss->section?->grade_level ? $ss->section->grade_level . ' — ' : '') . ($ss->section_name ?? '—')]);
+            fputcsv($h, ['Generated', now()->format('F d, Y H:i')]);
+            fputcsv($h, ['Total Students', $enrollments->count()]);
+            fputcsv($h, []);
+            fputcsv($h, ['#', 'LRN', 'Last Name', 'First Name', 'Middle Name', 'Gender', 'Email']);
+            foreach ($enrollments->values() as $i => $e) {
+                $s = $e->student;
+                fputcsv($h, [
+                    $i + 1,
+                    $s?->lrn        ?? '—',
+                    $s?->last_name  ?? '—',
+                    $s?->first_name ?? '—',
+                    $s?->middle_name ?? '—',
+                    $s?->gender ? ucfirst($s->gender) : '—',
+                    $s?->email      ?? '—',
+                ]);
+            }
+            fclose($h);
+        }, 200, [
+            'Content-Type'        => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+        ]);
+    }
+
     public function show(SectionSubject $sectionSubject, Request $request): View
     {
         $ss = $sectionSubject->load(['section', 'subject']);

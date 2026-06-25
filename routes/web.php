@@ -379,6 +379,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/faculty/classes/{sectionSubject}/request-unlock',      [App\Http\Controllers\Dashboard\GradebookController::class, 'requestUnlock'])  ->name('faculty.gradebook.request-unlock');
 
         // Dropped student workflow
+        Route::get( '/faculty/classes/{sectionSubject}/classlist',   [App\Http\Controllers\Dashboard\GradebookController::class, 'classlist'])       ->name('faculty.gradebook.classlist');
         Route::post('/faculty/classes/{sectionSubject}/drop',      [App\Http\Controllers\Dashboard\GradebookController::class, 'dropStudent'])      ->name('faculty.gradebook.drop');
         Route::post('/faculty/classes/{sectionSubject}/reinstate',  [App\Http\Controllers\Dashboard\GradebookController::class, 'reinstateStudent']) ->name('faculty.gradebook.reinstate');
 

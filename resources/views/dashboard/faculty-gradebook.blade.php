@@ -170,7 +170,7 @@
       default     => 'No Entry',
     };
   @endphp
-  <a href="{{ route('faculty.gradebook.show', $sched->id) }}" class="gb-class-card">
+  <div class="gb-class-card" onclick="location.href='{{ route('faculty.gradebook.show', $sched->id) }}';" style="cursor:pointer;">
     <div class="gb-card-bar gb-card-bar--{{ $i % 6 }}"></div>
 
     <div class="gb-card-body">
@@ -221,12 +221,23 @@
     </div>
 
     <div class="gb-card-cta">
-      <span>{{ $activeQuarter ? 'Enter / Review Grades' : 'View Grades' }}</span>
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#6366f1" stroke-width="2.5" style="width:15px;height:15px;">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
-      </svg>
+      <a href="{{ route('faculty.gradebook.show', $sched->id) }}" onclick="event.stopPropagation();"
+         style="display:inline-flex;align-items:center;gap:4px;color:#6366f1;font-weight:700;font-size:.8rem;text-decoration:none;">
+        {{ $activeQuarter ? 'Enter / Review Grades' : 'View Grades' }}
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#6366f1" stroke-width="2.5" style="width:15px;height:15px;">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+        </svg>
+      </a>
+      <a href="{{ route('faculty.gradebook.classlist', $sched->id) }}" onclick="event.stopPropagation();"
+         title="Download class list as CSV"
+         style="display:inline-flex;align-items:center;gap:4px;color:#475569;font-size:.75rem;font-weight:600;text-decoration:none;padding:4px 8px;border:1px solid #e2e8f0;border-radius:6px;background:#f8fafc;">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/>
+        </svg>
+        Class List
+      </a>
     </div>
-  </a>
+  </div>
   @endforeach
 </div>
 
