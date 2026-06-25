@@ -23,25 +23,82 @@
 </div>
 @endif
 
-<div style="display:grid;grid-template-columns:1fr 1.4fr;gap:24px;margin-bottom:24px;">
+{{-- ── Filter Bar ──────────────────────────────────────────────────────── --}}
+<div class="enc-card" style="margin-bottom:20px;">
+  <div class="enc-card__body" style="padding:16px 20px;">
+    <form method="GET" action="{{ route('admin.sections.index') }}"
+          style="display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;">
 
-  <div class="enc-card">
-    <div class="enc-card__header"><div class="enc-card__title">Filter by Academic Year</div></div>
-    <div class="enc-card__body" style="padding:20px;">
-      <form method="GET" style="display:flex;flex-direction:column;gap:6px;">
-        <label style="font-size:.78rem;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em;">Academic Year</label>
-        <select name="academic_year_id" onchange="this.form.submit()"
-                style="padding:10px 12px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;font-size:.9rem;">
-          <option value="">— Select Year —</option>
+      {{-- Search --}}
+      <div style="display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1;">
+        <label style="font-size:.68rem;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em;">Search</label>
+        <div style="position:relative;">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"
+               style="position:absolute;left:9px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:#94a3b8;pointer-events:none;">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/>
+          </svg>
+          <input type="text" name="search" value="{{ $search }}"
+                 placeholder="Section name…"
+                 style="width:100%;padding:7px 10px 7px 30px;border:1px solid #cbd5e1;border-radius:8px;font-size:.875rem;background:#fff;">
+        </div>
+      </div>
+
+      {{-- Academic Year --}}
+      <div style="display:flex;flex-direction:column;gap:4px;min-width:170px;">
+        <label style="font-size:.68rem;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em;">Academic Year</label>
+        <select name="academic_year_id"
+                style="padding:7px 10px;border:1px solid #cbd5e1;border-radius:8px;font-size:.875rem;background:#fff;">
+          <option value="">— All Years —</option>
           @foreach($academicYears as $yr)
             <option value="{{ $yr->id }}" {{ $yearId == $yr->id ? 'selected' : '' }}>
-              {{ $yr->year_label }} ({{ ucfirst($yr->status) }})
+              {{ $yr->year_label }} @if($yr->status === 'active')(Active)@endif
             </option>
           @endforeach
         </select>
-      </form>
-    </div>
+      </div>
+
+      {{-- Grade Level --}}
+      <div style="display:flex;flex-direction:column;gap:4px;min-width:130px;">
+        <label style="font-size:.68rem;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em;">Grade</label>
+        <select name="grade"
+                style="padding:7px 10px;border:1px solid #cbd5e1;border-radius:8px;font-size:.875rem;background:#fff;">
+          <option value="">All Grades</option>
+          @foreach(['Grade 7','Grade 8','Grade 9','Grade 10','Grade 11','Grade 12'] as $gl)
+            <option value="{{ $gl }}" {{ $grade === $gl ? 'selected' : '' }}>{{ $gl }}</option>
+          @endforeach
+        </select>
+      </div>
+
+      {{-- Status --}}
+      <div style="display:flex;flex-direction:column;gap:4px;min-width:120px;">
+        <label style="font-size:.68rem;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em;">Status</label>
+        <select name="status"
+                style="padding:7px 10px;border:1px solid #cbd5e1;border-radius:8px;font-size:.875rem;background:#fff;">
+          <option value="">All</option>
+          <option value="active"   {{ $status === 'active'   ? 'selected' : '' }}>Active</option>
+          <option value="inactive" {{ $status === 'inactive' ? 'selected' : '' }}>Inactive</option>
+        </select>
+      </div>
+
+      {{-- Buttons --}}
+      <div style="display:flex;gap:8px;align-items:flex-end;">
+        <button type="submit"
+                style="padding:.45rem 1.1rem;border:none;border-radius:8px;background:#1d4ed8;color:#fff;font-size:.85rem;font-weight:700;cursor:pointer;height:36px;">
+          Filter
+        </button>
+        @if($search || $grade || $status || $yearId)
+        <a href="{{ route('admin.sections.index') }}"
+           style="display:inline-flex;align-items:center;height:36px;padding:0 .85rem;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc;color:#64748b;font-size:.82rem;font-weight:600;text-decoration:none;">
+          Clear
+        </a>
+        @endif
+      </div>
+
+    </form>
   </div>
+</div>
+
+<div style="margin-bottom:24px;">
 
   <div class="enc-card">
     <div class="enc-card__header"><div class="enc-card__title">+ Add Section</div></div>
@@ -89,7 +146,15 @@
 </div>
 
 <div class="enc-card">
-  <div class="enc-card__header"><div class="enc-card__title">Sections List</div></div>
+  <div class="enc-card__header">
+    <div class="enc-card__title">Sections List</div>
+    <span class="enc-card__meta">
+      {{ $sections->total() }} section(s)
+      @if($grade) · {{ $grade }} @endif
+      @if($status) · {{ ucfirst($status) }} @endif
+      @if($search) · "{{ $search }}" @endif
+    </span>
+  </div>
   <div class="enc-card__body" style="padding:0;">
     <div style="overflow-x:auto;">
       <table style="width:100%;border-collapse:collapse;font-size:.875rem;">

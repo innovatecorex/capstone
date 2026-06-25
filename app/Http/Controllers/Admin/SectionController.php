@@ -24,11 +24,20 @@ class SectionController extends Controller
     {
         $academicYears = AcademicYear::orderByDesc('start_date')->get();
         $yearId = $request->input('academic_year_id') ?? AcademicYear::currentId();
+        $search = trim($request->input('search', ''));
+        $grade  = $request->input('grade', '');
+        $status = $request->input('status', '');
 
         $sections = Section::query()
             ->with(['academicYear', 'adviser'])
             ->when($yearId, fn($q) => $q->where('academic_year_id', $yearId))
-            ->orderBy('grade_level')
+            ->when($grade,  fn($q) => $q->where('grade_level', $grade))
+            ->when($status, fn($q) => $q->where('status', $status))
+            ->when($search, fn($q) => $q->where(function ($q2) use ($search) {
+                $q2->where('section_name', 'like', "%{$search}%")
+                   ->orWhere('grade_level', 'like', "%{$search}%");
+            }))
+            ->orderByRaw("FIELD(grade_level,'Grade 7','Grade 8','Grade 9','Grade 10','Grade 11','Grade 12')")
             ->orderBy('section_name')
             ->paginate(20)
             ->withQueryString();
@@ -38,7 +47,10 @@ class SectionController extends Controller
             ->orderBy('last_name')
             ->get();
 
-        return view('admin.sections.index', compact('sections', 'academicYears', 'yearId', 'faculty'));
+        return view('admin.sections.index', compact(
+            'sections', 'academicYears', 'yearId', 'faculty',
+            'search', 'grade', 'status'
+        ));
     }
 
     public function store(Request $request)
