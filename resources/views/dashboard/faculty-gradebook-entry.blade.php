@@ -269,14 +269,44 @@
     {{-- Status badge --}}
     <span class="gb-status-badge gb-status--{{ $overallStatus }}">{{ $overallLabel }}</span>
 
-    {{-- Download class list --}}
-    <a href="{{ route('faculty.gradebook.classlist', $ss) }}"
-       style="display:inline-flex;align-items:center;gap:5px;padding:.35rem .85rem;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc;color:#475569;font-size:.78rem;font-weight:600;text-decoration:none;white-space:nowrap;">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;flex-shrink:0;">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/>
-      </svg>
-      Download Class List
-    </a>
+    {{-- Download class list dropdown --}}
+    <div id="dl-wrap" style="position:relative;display:inline-block;">
+      <button type="button" onclick="var m=document.getElementById('dl-menu');m.style.display=m.style.display==='block'?'none':'block';"
+              style="display:inline-flex;align-items:center;gap:5px;padding:.35rem .85rem;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc;color:#475569;font-size:.78rem;font-weight:600;cursor:pointer;white-space:nowrap;">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;flex-shrink:0;">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/>
+        </svg>
+        Download Class List
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" style="width:11px;height:11px;flex-shrink:0;">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/>
+        </svg>
+      </button>
+      <div id="dl-menu" style="display:none;position:absolute;right:0;top:calc(100% + 4px);background:#fff;border:1px solid #e2e8f0;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,.1);min-width:210px;z-index:200;overflow:hidden;">
+        <a href="{{ route('faculty.gradebook.classlist', $ss) }}"
+           style="display:flex;align-items:center;gap:9px;padding:11px 16px;color:#374151;font-size:.82rem;font-weight:600;text-decoration:none;">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;color:#64748b;flex-shrink:0;">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/>
+          </svg>
+          Class List Only
+        </a>
+        <a href="{{ route('faculty.gradebook.classlist', $ss) }}?grades=1&quarter_id={{ $quarter?->id }}"
+           style="display:flex;align-items:center;gap:9px;padding:11px 16px;color:#374151;font-size:.82rem;font-weight:600;text-decoration:none;border-top:1px solid #f1f5f9;">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;color:#6366f1;flex-shrink:0;">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3.375 19.5h17.25m-17.25 0a1.125 1.125 0 01-1.125-1.125M3.375 19.5h7.5c.621 0 1.125-.504 1.125-1.125m-9.75 0V5.625m0 12.75v-1.5c0-.621.504-1.125 1.125-1.125m18.375 2.625V5.625m0 12.75c0 .621-.504 1.125-1.125 1.125m1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125m0 3.75h-7.5A1.125 1.125 0 0112 18.375m9.75-12.75c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125m19.5 0v1.5c0 .621-.504 1.125-1.125 1.125M2.25 5.625v1.5c0 .621.504 1.125 1.125 1.125m0 0h17.25m-17.25 0h7.5c.621 0 1.125.504 1.125 1.125M3.375 8.25c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125m17.25-3.75h.008v.008h-.008V8.25zm-16.125 0h.008v.008h-.008V8.25z"/>
+          </svg>
+          Class List with Grades
+          <span style="margin-left:auto;font-size:.68rem;color:#6366f1;font-weight:700;background:#eef2ff;padding:2px 6px;border-radius:4px;">{{ $quarter?->quarter_name ?? 'Current' }}</span>
+        </a>
+      </div>
+    </div>
+    <script>
+    document.addEventListener('click', function(e) {
+      var wrap = document.getElementById('dl-wrap');
+      if (wrap && !wrap.contains(e.target)) {
+        document.getElementById('dl-menu').style.display = 'none';
+      }
+    });
+    </script>
   </div>
 </div>
 

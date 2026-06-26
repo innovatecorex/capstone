@@ -84,10 +84,12 @@ class GradebookController extends Controller
         );
     }
 
-    public function classlist(SectionSubject $sectionSubject): \Symfony\Component\HttpFoundation\StreamedResponse
+    public function classlist(Request $request, SectionSubject $sectionSubject): \Symfony\Component\HttpFoundation\StreamedResponse
     {
         $ss = $sectionSubject->load(['section', 'subject']);
         $this->assertFacultyOwns($ss);
+
+        $includeGrades = $request->boolean('grades');
 
         $enrollments = Enrollment::with('student')
             ->where('section_id', $ss->section_id)
@@ -96,29 +98,97 @@ class GradebookController extends Controller
             ->get()
             ->sortBy(fn($e) => $e->student?->last_name);
 
+        $grades  = collect();
+        $quarter = null;
+        if ($includeGrades) {
+            $qId     = $request->integer('quarter_id');
+            $quarter = $qId ? GradingQuarter::find($qId) : $this->activeQuarter();
+
+            if ($quarter) {
+                $grades = Grade::where('section_subject_id', $ss->id)
+                    ->where('grading_quarter_id', $quarter->id)
+                    ->whereIn('enrollment_id', $enrollments->pluck('id'))
+                    ->get()
+                    ->keyBy('enrollment_id');
+            }
+        }
+
+        $weights = $ss->subject?->getGradeWeights()
+            ?? config('academic.grade_weights')
+            ?? ['written_work' => 0.30, 'performance_task' => 0.50, 'quarterly_assessment' => 0.20];
+
         $subjectSlug = \Str::slug($ss->subject?->subject_name ?? 'class');
         $sectionSlug = \Str::slug(($ss->section?->grade_level ?? '') . '-' . ($ss->section_name ?? ''));
-        $filename    = "classlist-{$subjectSlug}-{$sectionSlug}-" . now()->format('Y-m-d') . '.csv';
+        $suffix      = $includeGrades ? '-with-grades' : '';
+        $filename    = "classlist-{$subjectSlug}-{$sectionSlug}{$suffix}-" . now()->format('Y-m-d') . '.csv';
 
-        return response()->stream(function () use ($enrollments, $ss) {
+        return response()->stream(function () use ($enrollments, $ss, $includeGrades, $grades, $quarter, $weights) {
             $h = fopen('php://output', 'w');
+
+            // Header info rows
             fputcsv($h, ['Subject',  $ss->subject?->subject_name ?? '—']);
             fputcsv($h, ['Section',  ($ss->section?->grade_level ? $ss->section->grade_level . ' — ' : '') . ($ss->section_name ?? '—')]);
+            if ($includeGrades && $quarter) {
+                fputcsv($h, ['Quarter', $quarter->quarter_name]);
+            }
             fputcsv($h, ['Generated', now()->format('F d, Y H:i')]);
             fputcsv($h, ['Total Students', $enrollments->count()]);
             fputcsv($h, []);
-            fputcsv($h, ['#', 'LRN', 'Last Name', 'First Name', 'Middle Name', 'Gender', 'Email']);
+
+            // Column headers
+            $cols = ['#', 'LRN', 'Last Name', 'First Name', 'Middle Name', 'Gender', 'Email'];
+            if ($includeGrades) {
+                $wwPct  = round(($weights['written_work']         ?? 0.30) * 100);
+                $ptPct  = round(($weights['performance_task']     ?? 0.50) * 100);
+                $qaPct  = round(($weights['quarterly_assessment'] ?? 0.20) * 100);
+                $cols   = array_merge($cols, [
+                    "Written Work ({$wwPct}%)",
+                    "Performance Task ({$ptPct}%)",
+                    "Quarterly Assessment ({$qaPct}%)",
+                    'Initial Grade',
+                    'Transmuted Grade',
+                    'Descriptor',
+                    'Status',
+                ]);
+            }
+            fputcsv($h, $cols);
+
+            // Data rows
             foreach ($enrollments->values() as $i => $e) {
-                $s = $e->student;
-                fputcsv($h, [
+                $s    = $e->student;
+                $row  = [
                     $i + 1,
-                    $s?->lrn        ?? '—',
-                    $s?->last_name  ?? '—',
-                    $s?->first_name ?? '—',
+                    $s?->lrn         ?? '—',
+                    $s?->last_name   ?? '—',
+                    $s?->first_name  ?? '—',
                     $s?->middle_name ?? '—',
                     $s?->gender ? ucfirst($s->gender) : '—',
-                    $s?->email      ?? '—',
-                ]);
+                    $s?->email       ?? '—',
+                ];
+
+                if ($includeGrades) {
+                    $g = $grades->get($e->id);
+                    if ($g) {
+                        $ww = $weights['written_work']         ?? 0.30;
+                        $pt = $weights['performance_task']     ?? 0.50;
+                        $qa = $weights['quarterly_assessment'] ?? 0.20;
+                        $hasAll  = $g->written_work !== null && $g->performance_task !== null && $g->quarterly_assessment !== null;
+                        $initial = $hasAll ? round($g->written_work * $ww + $g->performance_task * $pt + $g->quarterly_assessment * $qa, 2) : null;
+                        $row = array_merge($row, [
+                            $g->written_work         !== null ? number_format($g->written_work, 0)         : '—',
+                            $g->performance_task     !== null ? number_format($g->performance_task, 0)     : '—',
+                            $g->quarterly_assessment !== null ? number_format($g->quarterly_assessment, 0) : '—',
+                            $initial !== null ? number_format($initial, 2) : '—',
+                            $g->final_grade          !== null ? number_format($g->final_grade, 0)          : '—',
+                            $g->descriptor           ?? '—',
+                            ucfirst($g->status       ?? '—'),
+                        ]);
+                    } else {
+                        $row = array_merge($row, ['—', '—', '—', '—', '—', '—', 'No Entry']);
+                    }
+                }
+
+                fputcsv($h, $row);
             }
             fclose($h);
         }, 200, [
