@@ -92,10 +92,14 @@
       @if($c->grade)
       <div style="display:inline-flex;align-items:center;gap:.5rem;background:rgba(15,23,42,.04);border-radius:8px;padding:.35rem .75rem;font-size:.82rem;">
         <span style="color:var(--gray-500);">Disputed grade:</span>
-        <strong style="color:var(--navy);font-size:.95rem;">{{ number_format($c->grade->final_grade, 0) }}</strong>
+        <strong style="color:var(--navy);font-size:.95rem;">
+          {{ $c->grade->final_grade !== null ? number_format($c->grade->final_grade, 0) : '—' }}
+        </strong>
+        @if($c->grade->final_grade !== null)
         <span style="color:{{ $c->grade->final_grade >= 75 ? '#166534' : '#991b1b' }};font-size:.78rem;">
           {{ $c->grade->descriptor ?? ($c->grade->final_grade >= 75 ? 'Passed' : 'Failed') }}
         </span>
+        @endif
       </div>
       @endif
       @if($c->corrected_grade)
