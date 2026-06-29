@@ -385,6 +385,14 @@
         Showing {{ $users->firstItem() ?? 0 }}–{{ $users->lastItem() ?? 0 }} of {{ $users->total() }} accounts
       </div>
       <div class="enc-pagination__pages">
+        {{-- First --}}
+        @if($users->onFirstPage())
+          <button class="enc-page-btn" disabled>First</button>
+        @else
+          <a href="{{ $users->url(1) }}" class="enc-page-btn">First</a>
+        @endif
+
+        {{-- Prev --}}
         @if($users->onFirstPage())
           <button class="enc-page-btn" disabled>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
@@ -394,9 +402,13 @@
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
           </a>
         @endif
+
+        {{-- Page numbers --}}
         @foreach($users->getUrlRange(max(1,$users->currentPage()-2), min($users->lastPage(),$users->currentPage()+2)) as $page => $url)
           <a href="{{ $url }}" class="enc-page-btn {{ $page == $users->currentPage() ? 'active' : '' }}">{{ $page }}</a>
         @endforeach
+
+        {{-- Next --}}
         @if($users->hasMorePages())
           <a href="{{ $users->nextPageUrl() }}" class="enc-page-btn">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
@@ -405,6 +417,13 @@
           <button class="enc-page-btn" disabled>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
           </button>
+        @endif
+
+        {{-- Last --}}
+        @if($users->currentPage() >= $users->lastPage())
+          <button class="enc-page-btn" disabled>Last</button>
+        @else
+          <a href="{{ $users->url($users->lastPage()) }}" class="enc-page-btn">Last</a>
         @endif
       </div>
     </div>
