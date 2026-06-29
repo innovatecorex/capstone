@@ -308,6 +308,22 @@ class UserManagementController extends Controller
             ->with('success', "Password reset. New temp password: <strong>{$tempPassword}</strong>. Share securely.");
     }
 
+    // ── Login history for a single account ───────────────────────────────
+    public function loginHistory(User $user)
+    {
+        $logs = AuditLog::whereIn('action_type', [
+                    AuditLog::LOGIN_SUCCESS,
+                    AuditLog::LOGIN_FAILED,
+                    AuditLog::LOGOUT,
+                    AuditLog::ACCOUNT_LOCKED,
+                ])
+                ->where('user_id', $user->id)
+                ->orderByDesc('created_at')
+                ->paginate(50);
+
+        return view('admin.users.login-history', compact('user', 'logs'));
+    }
+
     // ── Username generator ─────────────────────────────────────────────────
     private function generateUsername(string $firstName, string $lastName, string $roleId): string
     {
