@@ -107,7 +107,7 @@
           <tr>
             <td class="mono" style="font-size:.72rem;color:var(--gray-500);white-space:nowrap;">
               {{ $log->created_at->format('M d, Y') }}<br>
-              <span style="color:var(--gray-400);">{{ $log->created_at->format('H:i:s') }}</span>
+              <span style="color:var(--gray-400);">{{ $log->created_at->format('g:i:s A') }}</span>
             </td>
             <td>
               @if($isSuccess)
