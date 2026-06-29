@@ -271,8 +271,14 @@
               </td>
 
               {{-- Last Login --}}
-              <td class="mono" style="font-size:.72rem;">
-                {{ $user->last_login_at ? $user->last_login_at->format('m/d/Y H:i') : 'Never' }}
+              <td style="font-size:.72rem;">
+                @if($user->last_login_at)
+                  <span title="{{ $user->last_login_at->format('M d, Y H:i:s') }}">
+                    {{ $user->last_login_at->diffForHumans() }}
+                  </span>
+                @else
+                  <span style="color:var(--gray-300);">Never</span>
+                @endif
               </td>
 
               {{-- Actions --}}
