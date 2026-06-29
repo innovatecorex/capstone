@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Admin\StudentController;
 use App\Models\Announcement;
 use App\Models\FacultySchedule;
+use App\Models\Section;
 use App\Models\ThreatEvent;
 use App\Models\User;
 use Illuminate\View\View;
@@ -32,6 +34,25 @@ class AdminDashboardController extends Controller
                 ->take(4)
                 ->get(),
             'totalSchedules'      => FacultySchedule::count(),
+            'gradeBreakdown'      => $this->buildGradeBreakdown(),
+            'unassignedStudents'  => User::where('role_id', '01')->where('status', 'active')
+                                        ->whereNull('grade_level')->count(),
         ]);
+    }
+
+    private function buildGradeBreakdown(): \Illuminate\Support\Collection
+    {
+        return collect(StudentController::GRADE_LEVELS)->map(function ($grade) {
+            $count = User::where('role_id', '01')->where('status', 'active')
+                ->where('grade_level', $grade)->count();
+
+            $sections = Section::where('grade_level', $grade)
+                ->withCount(['students as enrolled_count' => fn ($q) =>
+                    $q->where('role_id', '01')->where('status', 'active')])
+                ->orderBy('section_name')
+                ->get(['id', 'section_name', 'grade_level']);
+
+            return compact('grade', 'count', 'sections');
+        });
     }
 }

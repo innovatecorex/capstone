@@ -14,7 +14,7 @@
     </div>
     <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
       {{-- Export CSV — passes current filters --}}
-      <a href="{{ route('admin.students.export', request()->only(['search','gender','address'])) }}"
+      <a href="{{ route('admin.students.export', request()->only(['search','gender','grade_level','section_id'])) }}"
          class="enc-btn enc-btn--outline" style="font-size:.82rem;">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;">
           <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/>
@@ -23,7 +23,7 @@
       </a>
 
       {{-- Print view — passes current filters --}}
-      <a href="{{ route('admin.students.print', request()->only(['search','gender','address'])) }}"
+      <a href="{{ route('admin.students.print', request()->only(['search','gender','grade_level','section_id'])) }}"
          target="_blank" class="enc-btn enc-btn--outline" style="font-size:.82rem;">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;">
           <path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0l.229 2.523a1.125 1.125 0 01-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0021 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 00-1.913-.247M6.34 18H5.25A2.25 2.25 0 013 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 011.913-.247m10.5 0a48.536 48.536 0 00-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5zm-3 0h.008v.008H15V10.5z"/>
@@ -96,14 +96,38 @@
 
 {{-- Students Table --}}
 <div class="enc-card">
-  <div class="enc-card__header">
+  @php $hasFilters = request()->hasAny(['search','gender','grade_level','section_id']); @endphp
+  <div class="enc-card__header" style="{{ $hasFilters ? 'flex-wrap:wrap;gap:8px;' : '' }}">
     <div class="enc-card__title">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
         <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C6.228 6.253 2.092 7.582 2.092 9s4.136 2.747 9.908 2.747c5.772 0 9.908-1.254 9.908-2.747 0-1.418-4.136-2.747-9.908-2.747zm13 0c.586.3.951.893.951 1.602 0 1.813-4.176 3.358-9.322 3.358-5.146 0-9.322-1.545-9.322-3.358 0-.709.365-1.302.951-1.602m16.694 12.286l-3.582-3.582m0 0l-2.16-3.97m-2.5 12.005A11.955 11.955 0 112.487 2.1"/>
       </svg>
       All Students
     </div>
-    <span class="enc-card__meta">{{ $students->total() }} total records</span>
+    @if($hasFilters)
+    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:5px;flex:1;">
+      <span style="font-size:.71rem;color:#94a3b8;font-weight:600;">Filtered:</span>
+      @if($search ?? null)
+        <span style="font-size:.71rem;background:#eef2ff;color:#4338ca;padding:2px 8px;border-radius:99px;font-weight:600;">Search: {{ $search }}</span>
+      @endif
+      @if($gender ?? null)
+        <span style="font-size:.71rem;background:#e0f2fe;color:#0369a1;padding:2px 8px;border-radius:99px;font-weight:600;">{{ ucfirst($gender) }}</span>
+      @endif
+      @if($gradeLevel ?? null)
+        <span style="font-size:.71rem;background:#f0fdf4;color:#15803d;padding:2px 8px;border-radius:99px;font-weight:600;">{{ $gradeLevel === 'unassigned' ? 'Unassigned' : $gradeLevel }}</span>
+      @endif
+      @if(($sectionId ?? null) && ($activeSection = $sections->firstWhere('id', (int)$sectionId)))
+        <span style="font-size:.71rem;background:#fdf4ff;color:#7e22ce;padding:2px 8px;border-radius:99px;font-weight:600;">{{ $activeSection->section_name }}</span>
+      @endif
+    </div>
+    @endif
+    <span class="enc-card__meta">
+      @if($hasFilters)
+        Showing {{ $students->total() }} of {{ $stats['total_students'] }} students
+      @else
+        {{ $students->total() }} students
+      @endif
+    </span>
   </div>
 
   {{-- Filters --}}
@@ -131,17 +155,30 @@
       </div>
       <div class="enc-filter-divider"></div>
       <div class="enc-filter-group">
-        <span class="enc-filter-label">Address</span>
-        <select name="address" class="enc-select">
-          <option value="">All Addresses</option>
-          @foreach($addresses as $addr)
-            <option value="{{ $addr }}" {{ $address === $addr ? 'selected' : '' }}>{{ $addr }}</option>
+        <span class="enc-filter-label">Grade Level</span>
+        <select name="grade_level" class="enc-select">
+          <option value="">All Grades</option>
+          @foreach($gradeLevels as $gl)
+            <option value="{{ $gl }}" {{ ($gradeLevel ?? '') === $gl ? 'selected' : '' }}>{{ $gl }}</option>
+          @endforeach
+          <option value="unassigned" {{ ($gradeLevel ?? '') === 'unassigned' ? 'selected' : '' }}>Unassigned</option>
+        </select>
+      </div>
+      <div class="enc-filter-divider"></div>
+      <div class="enc-filter-group">
+        <span class="enc-filter-label">Section</span>
+        <select name="section_id" class="enc-select">
+          <option value="">All Sections</option>
+          @foreach($sections as $sec)
+            <option value="{{ $sec->id }}" {{ ((int)($sectionId ?? 0)) === $sec->id ? 'selected' : '' }}>
+              {{ $sec->section_name }}@if($sec->grade_level) ({{ $sec->grade_level }})@endif
+            </option>
           @endforeach
         </select>
       </div>
       <div class="enc-filter-divider"></div>
       <button type="submit" class="enc-btn enc-btn--primary enc-btn--sm">Filter</button>
-      @if(request()->hasAny(['search','gender','address']))
+      @if(request()->hasAny(['search','gender','grade_level','section_id']))
         <a href="{{ route('admin.students.index') }}" class="enc-btn enc-btn--ghost enc-btn--sm">Clear</a>
       @endif
     </div>
@@ -157,7 +194,7 @@
             <th>LRN</th>
             <th>Username</th>
             <th>Gender</th>
-            <th>Address</th>
+            <th>Grade &amp; Section</th>
             <th>Email</th>
             <th>Registered</th>
           </tr>
@@ -207,10 +244,13 @@
                 @endif
               </td>
 
-              {{-- Address --}}
+              {{-- Grade & Section --}}
               <td style="font-size:.75rem;">
-                @if($student->address)
-                  <span style="color:var(--gray-600);">{{ $student->address }}</span>
+                @if($student->grade_level || $student->section)
+                  <div style="font-weight:600;color:var(--gray-600);">{{ $student->grade_level ?? '—' }}</div>
+                  @if($student->section)
+                    <div style="color:var(--gray-400);font-size:.72rem;">{{ $student->section->section_name }}</div>
+                  @endif
                 @else
                   <span style="color:var(--gray-200);">—</span>
                 @endif

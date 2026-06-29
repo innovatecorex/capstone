@@ -104,6 +104,9 @@
         @if($filters['address'])
           <div>Address: <span>{{ $filters['address'] }}</span></div>
         @endif
+        @if(!empty($filters['grade_level']))
+          <div>Grade Level: <span>{{ $filters['grade_level'] === 'unassigned' ? 'Unassigned' : $filters['grade_level'] }}</span></div>
+        @endif
       </div>
     </div>
 

@@ -412,6 +412,78 @@
   </a>
 </div>
 
+{{-- ── Grade Level Enrollment Breakdown ────────────────────────────── --}}
+<div class="adm-widget" style="margin-top:20px;">
+  <div class="adm-widget__head">
+    <div class="adm-widget__title">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/>
+      </svg>
+      Grade Level Enrollment
+      <span class="adm-chip">JHS</span>
+    </div>
+    <a href="{{ route('admin.students.index') }}" class="adm-widget__action">All Students →</a>
+  </div>
+  <div class="adm-widget__body" style="padding:0;">
+
+    {{-- Grade-level rows --}}
+    @foreach($gradeBreakdown as $row)
+    <div style="border-bottom:1px solid #f1f5f9;">
+      {{-- Grade header row --}}
+      <a href="{{ route('admin.students.index', ['grade_level' => $row['grade']]) }}"
+         style="display:flex;align-items:center;justify-content:space-between;padding:11px 18px;text-decoration:none;transition:background .12s;"
+         onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background=''">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:8px;height:8px;border-radius:50%;background:#4f46e5;flex-shrink:0;"></div>
+          <span style="font-size:.88rem;font-weight:700;color:#0f172a;">{{ $row['grade'] }}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:.82rem;font-weight:700;color:#4f46e5;">{{ $row['count'] }} student{{ $row['count'] === 1 ? '' : 's' }}</span>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;color:#94a3b8;">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/>
+          </svg>
+        </div>
+      </a>
+
+      {{-- Section sub-rows --}}
+      @foreach($row['sections'] as $sec)
+      <a href="{{ route('admin.students.index', ['grade_level' => $row['grade']]) }}"
+         style="display:flex;align-items:center;justify-content:space-between;padding:7px 18px 7px 36px;text-decoration:none;transition:background .12s;background:#fafafa;"
+         onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='#fafafa'">
+        <span style="font-size:.78rem;color:#475569;">{{ $sec->section_name }}</span>
+        <span style="font-size:.78rem;color:#64748b;font-weight:600;">{{ $sec->enrolled_count }}</span>
+      </a>
+      @endforeach
+
+      @if($row['sections']->isEmpty() && $row['count'] > 0)
+      <div style="padding:6px 18px 6px 36px;font-size:.75rem;color:#94a3b8;">
+        No sections assigned yet
+      </div>
+      @endif
+    </div>
+    @endforeach
+
+    {{-- Unassigned row --}}
+    @if($unassignedStudents > 0)
+    <a href="{{ route('admin.students.index', ['grade_level' => 'unassigned']) }}"
+       style="display:flex;align-items:center;justify-content:space-between;padding:11px 18px;text-decoration:none;transition:background .12s;"
+       onmouseover="this.style.background='#fff7ed'" onmouseout="this.style.background=''">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:8px;height:8px;border-radius:50%;background:#f59e0b;flex-shrink:0;"></div>
+        <span style="font-size:.88rem;font-weight:700;color:#92400e;">Unassigned</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="font-size:.82rem;font-weight:700;color:#d97706;">{{ $unassignedStudents }} student{{ $unassignedStudents === 1 ? '' : 's' }}</span>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;color:#94a3b8;">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/>
+        </svg>
+      </div>
+    </a>
+    @endif
+
+  </div>
+</div>
+
 {{-- ── Announcements + Schedules widgets ───────────────────────────── --}}
 <div class="adm-widget-row">
 

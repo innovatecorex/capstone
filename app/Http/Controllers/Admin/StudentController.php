@@ -4,12 +4,15 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
+use App\Models\Section;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class StudentController extends Controller
 {
+    public const GRADE_LEVELS = ['Grade 7', 'Grade 8', 'Grade 9', 'Grade 10'];
+
     // ── Shared filter builder ──────────────────────────────────────────────
     private function buildQuery(Request $request)
     {
@@ -30,8 +33,15 @@ class StudentController extends Controller
             }
         }
 
-        if ($address = $request->input('address')) {
-            $query->where('address', 'like', "%{$address}%");
+        $gradeLevel = $request->input('grade_level');
+        if ($gradeLevel === 'unassigned') {
+            $query->whereNull('grade_level');
+        } elseif ($gradeLevel) {
+            $query->where('grade_level', $gradeLevel);
+        }
+
+        if ($sectionId = $request->input('section_id')) {
+            $query->where('section_id', (int) $sectionId);
         }
 
         return $query;
@@ -40,13 +50,15 @@ class StudentController extends Controller
     // ── Index ──────────────────────────────────────────────────────────────
     public function index(Request $request)
     {
-        $search  = $request->input('search');
-        $gender  = $request->input('gender');
-        $address = $request->input('address');
-        $sort    = $request->input('sort', 'created_at');
-        $dir     = $request->input('dir', 'desc');
+        $search     = $request->input('search');
+        $gender     = $request->input('gender');
+        $gradeLevel = $request->input('grade_level');
+        $sectionId  = $request->input('section_id');
+        $sort       = $request->input('sort', 'created_at');
+        $dir        = $request->input('dir', 'desc');
 
         $students = $this->buildQuery($request)
+            ->with('section')
             ->orderBy($sort, $dir)
             ->paginate(50)
             ->withQueryString();
@@ -57,15 +69,19 @@ class StudentController extends Controller
             'female_students' => User::where('role_id', '01')->where('status', 'active')->where('gender', 'female')->count(),
         ];
 
-        $addresses = User::where('role_id', '01')
+        // grade_level is plain text — distinct/pluck is safe here
+        $gradeLevels = User::where('role_id', '01')
             ->where('status', 'active')
-            ->whereNotNull('address')
+            ->whereNotNull('grade_level')
             ->distinct()
-            ->orderBy('address')
-            ->pluck('address')
-            ->values();
+            ->orderBy('grade_level')
+            ->pluck('grade_level');
 
-        return view('admin.students.index', compact('students', 'stats', 'addresses', 'search', 'gender', 'address'));
+        $sections = Section::orderBy('section_name')->get(['id', 'section_name', 'grade_level']);
+
+        return view('admin.students.index', compact(
+            'students', 'stats', 'search', 'gender', 'gradeLevel', 'sectionId', 'gradeLevels', 'sections'
+        ));
     }
 
     // ── CSV Export ─────────────────────────────────────────────────────────
@@ -73,14 +89,16 @@ class StudentController extends Controller
     {
         // Respect the same filters as index() — no pagination, full result set
         $students = $this->buildQuery($request)
+            ->with('section')
             ->orderBy('last_name')
             ->orderBy('first_name')
             ->get();
 
         $filterDesc = collect([
-            $request->input('search')  ? 'search:'  . $request->input('search')  : null,
-            $request->input('gender')  ? 'gender:'  . $request->input('gender')  : null,
-            $request->input('address') ? 'address:' . $request->input('address') : null,
+            $request->input('search')      ? 'search:'   . $request->input('search')      : null,
+            $request->input('gender')      ? 'gender:'   . $request->input('gender')      : null,
+            $request->input('grade_level') ? 'grade:'    . $request->input('grade_level') : null,
+            $request->input('section_id')  ? 'section:'  . $request->input('section_id')  : null,
         ])->filter()->implode(', ') ?: 'none';
 
         AuditLog::record(AuditLog::EXPORT_REPORT, [
@@ -136,9 +154,10 @@ class StudentController extends Controller
             ->get();
 
         $filters = [
-            'search'  => $request->input('search'),
-            'gender'  => $request->input('gender'),
-            'address' => $request->input('address'),
+            'search'      => $request->input('search'),
+            'gender'      => $request->input('gender'),
+            'grade_level' => $request->input('grade_level'),
+            'section_id'  => $request->input('section_id'),
         ];
 
         return view('admin.students.print', compact('students', 'filters'));
