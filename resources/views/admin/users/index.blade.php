@@ -270,12 +270,16 @@
                 @endif
               </td>
 
-              {{-- Last Login --}}
+              {{-- Last Login — links to login history --}}
               <td style="font-size:.72rem;">
                 @if($user->last_login_at)
-                  <span title="{{ $user->last_login_at->format('M d, Y H:i:s') }}">
+                  <a href="{{ route('admin.users.login-history', $user) }}"
+                     title="{{ $user->last_login_at->format('M d, Y H:i:s') }}"
+                     style="color:var(--primary);text-decoration:none;"
+                     onmouseover="this.style.textDecoration='underline'"
+                     onmouseout="this.style.textDecoration='none'">
                     {{ $user->last_login_at->diffForHumans() }}
-                  </span>
+                  </a>
                 @else
                   <span style="color:var(--gray-300);">Never</span>
                 @endif
@@ -290,14 +294,6 @@
                       <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z"/>
                     </svg>
                     Edit
-                  </a>
-
-                  <a href="{{ route('admin.users.login-history', $user) }}"
-                     class="enc-btn enc-btn--ghost enc-btn--sm" title="Login History">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    History
                   </a>
 
                   <form method="POST" action="{{ route('admin.users.reset-password', $user) }}"
