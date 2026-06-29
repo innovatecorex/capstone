@@ -116,7 +116,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
 
     // ── Students Management ───────────────────────────────────────────────
     Route::prefix('students')->name('students.')->group(function () {
-        Route::get('/',          [StudentController::class,       'index'])    ->name('index');
+        Route::get('/',          [StudentController::class, 'index'])     ->name('index');
+        Route::get('/export',    [StudentController::class, 'export'])    ->name('export');
+        Route::get('/print',     [StudentController::class, 'printView'])->name('print');
         Route::get('/import',    [\App\Http\Controllers\Admin\StudentImportController::class, 'showForm'])->name('import');
         Route::post('/import',   [\App\Http\Controllers\Admin\StudentImportController::class, 'import'])  ->name('import.submit');
         Route::get('/import/template', function () {
