@@ -104,7 +104,7 @@ class StudentImportController extends Controller
                             'password'               => $fields['lrn'],
                             'role_id'                => '01',
                             'lrn'                    => $fields['lrn'],
-                            'gender'                 => $fields['gender'] ?? null,
+                            'gender'                 => $this->canonicalizeGender($fields['gender'] ?? null),
                             'grade_level'            => $fields['grade_level'] ?? null,
                             'address'                => $fields['address'] ?? null,
                             'phone'                  => $fields['phone'] ?? null,
@@ -197,6 +197,12 @@ class StudentImportController extends Controller
         }
 
         return $errors;
+    }
+
+    private function canonicalizeGender(?string $raw): ?string
+    {
+        $map = ['m' => 'male', 'male' => 'male', 'f' => 'female', 'female' => 'female'];
+        return $map[strtolower(trim((string) $raw))] ?? null;
     }
 
     private function uniqueUsername(string $lrn): string

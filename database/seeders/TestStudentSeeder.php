@@ -15,16 +15,16 @@ class TestStudentSeeder extends Seeder
         $activeYear = AcademicYear::where('status', 'active')->first();
 
         $students = [
-            ['first_name' => 'Maria',   'last_name' => 'Santos',    'lrn' => '202600101', 'grade_level' => 'Grade 7'],
-            ['first_name' => 'Jose',    'last_name' => 'Reyes',     'lrn' => '202600102', 'grade_level' => 'Grade 7'],
-            ['first_name' => 'Ana',     'last_name' => 'Cruz',      'lrn' => '202600103', 'grade_level' => 'Grade 8'],
-            ['first_name' => 'Miguel',  'last_name' => 'Garcia',    'lrn' => '202600104', 'grade_level' => 'Grade 8'],
-            ['first_name' => 'Sofia',   'last_name' => 'Ramos',     'lrn' => '202600105', 'grade_level' => 'Grade 9'],
-            ['first_name' => 'Carlos',  'last_name' => 'Diaz',      'lrn' => '202600106', 'grade_level' => 'Grade 9'],
-            ['first_name' => 'Isabella','last_name' => 'Lopez',     'lrn' => '202600107', 'grade_level' => 'Grade 10'],
-            ['first_name' => 'Marco',   'last_name' => 'Torres',    'lrn' => '202600108', 'grade_level' => 'Grade 10'],
-            ['first_name' => 'Camille', 'last_name' => 'Flores',    'lrn' => '202600109', 'grade_level' => 'Grade 11'],
-            ['first_name' => 'Luis',    'last_name' => 'Aquino',    'lrn' => '202600110', 'grade_level' => 'Grade 12'],
+            ['first_name' => 'Maria',    'last_name' => 'Santos',  'lrn' => '202600101', 'grade_level' => 'Grade 7',  'gender' => 'female'],
+            ['first_name' => 'Jose',     'last_name' => 'Reyes',   'lrn' => '202600102', 'grade_level' => 'Grade 7',  'gender' => 'male'],
+            ['first_name' => 'Ana',      'last_name' => 'Cruz',    'lrn' => '202600103', 'grade_level' => 'Grade 8',  'gender' => 'female'],
+            ['first_name' => 'Miguel',   'last_name' => 'Garcia',  'lrn' => '202600104', 'grade_level' => 'Grade 8',  'gender' => 'male'],
+            ['first_name' => 'Sofia',    'last_name' => 'Ramos',   'lrn' => '202600105', 'grade_level' => 'Grade 9',  'gender' => 'female'],
+            ['first_name' => 'Carlos',   'last_name' => 'Diaz',    'lrn' => '202600106', 'grade_level' => 'Grade 9',  'gender' => 'male'],
+            ['first_name' => 'Isabella', 'last_name' => 'Lopez',   'lrn' => '202600107', 'grade_level' => 'Grade 10', 'gender' => 'female'],
+            ['first_name' => 'Marco',    'last_name' => 'Torres',  'lrn' => '202600108', 'grade_level' => 'Grade 10', 'gender' => 'male'],
+            ['first_name' => 'Camille',  'last_name' => 'Flores',  'lrn' => '202600109', 'grade_level' => 'Grade 11', 'gender' => 'female'],
+            ['first_name' => 'Luis',     'last_name' => 'Aquino',  'lrn' => '202600110', 'grade_level' => 'Grade 12', 'gender' => 'male'],
         ];
 
         foreach ($students as $data) {
@@ -41,7 +41,7 @@ class TestStudentSeeder extends Seeder
                     'password'    => Hash::make('Password@123'),
                     'role_id'     => '01',
                     'grade_level' => $data['grade_level'],
-                    'gender'      => 'male',
+                    'gender'      => $data['gender'],
                     'status'      => 'active',
                     'password_reset_required' => false,
                 ]
