@@ -447,7 +447,7 @@
 
       {{-- Section sub-rows --}}
       @foreach($row['sections'] as $sec)
-      <a href="{{ route('admin.students.index', ['grade_level' => $row['grade']]) }}"
+      <a href="{{ route('admin.sections.roster', $sec) }}"
          style="display:flex;align-items:center;justify-content:space-between;padding:7px 18px 7px 36px;text-decoration:none;transition:background .12s;background:#fafafa;"
          onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='#fafafa'">
         <span style="font-size:.78rem;color:#475569;">{{ $sec->section_name }}</span>
