@@ -53,7 +53,7 @@ class UserManagementController extends Controller
             });
         }
 
-        $users = $query->orderBy('created_at', 'desc')->paginate(20);
+        $users = $query->orderBy('created_at', 'desc')->paginate(20)->withQueryString();
 
         return view('admin.users.index', compact('users'));
     }

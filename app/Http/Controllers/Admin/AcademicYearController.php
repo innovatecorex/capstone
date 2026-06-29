@@ -50,7 +50,7 @@ class AcademicYearController extends Controller
             $query->where('status', $status);
         }
 
-        $academicYears = $query->orderByDesc('start_date')->paginate(50);
+        $academicYears = $query->orderByDesc('start_date')->paginate(50)->withQueryString();
 
         return view('admin.registrars.academic-years.index', compact('academicYears'));
     }

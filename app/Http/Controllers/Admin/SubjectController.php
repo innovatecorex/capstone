@@ -32,7 +32,7 @@ class SubjectController extends Controller
             $query->where('status', $status);
         }
 
-        $subjects = $query->orderBy('subject_code', 'asc')->paginate(50);
+        $subjects = $query->orderBy('subject_code', 'asc')->paginate(50)->withQueryString();
 
         return view('admin.registrars.subjects.index', compact('subjects'));
     }

@@ -177,7 +177,7 @@ class GradeComplaintController extends Controller
         $complaints = GradeComplaint::forStudent($user->id)
             ->with(['sectionSubject.subject', 'gradingQuarter', 'respondedBy', 'attachments'])
             ->orderByDesc('created_at')
-            ->paginate(15);
+            ->paginate(15)->withQueryString();
 
         return view('complaints.index', compact('complaints'));
     }

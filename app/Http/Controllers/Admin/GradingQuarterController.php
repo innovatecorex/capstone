@@ -37,7 +37,7 @@ class GradingQuarterController extends Controller
         
         $quarters = $query->orderBy('academic_year_id', 'desc')
                           ->orderBy('quarter_number', 'asc')
-                          ->paginate(50);
+                          ->paginate(50)->withQueryString();
         
         $academicYears = AcademicYear::orderBy('year_label', 'desc')->get();
         

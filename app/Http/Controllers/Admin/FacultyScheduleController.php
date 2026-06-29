@@ -14,7 +14,7 @@ class FacultyScheduleController extends Controller
     {
         $schedules    = FacultySchedule::with(['faculty', 'academicYear'])
             ->orderByDesc('created_at')
-            ->paginate(15);
+            ->paginate(15)->withQueryString();
 
         $faculty      = User::where('role_id', '02')->where('status', 'active')->orderBy('last_name')->get();
         $academicYears = AcademicYear::orderByDesc('id')->get();

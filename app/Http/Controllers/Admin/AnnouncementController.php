@@ -12,7 +12,7 @@ class AnnouncementController extends Controller
     {
         $announcements = Announcement::with('author')
             ->orderByDesc('created_at')
-            ->paginate(15);
+            ->paginate(15)->withQueryString();
 
         return view('admin.announcements.index', compact('announcements'));
     }
