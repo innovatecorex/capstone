@@ -118,6 +118,11 @@ class Applicant extends Model
         return $this->hasMany(ApplicantDocument::class, 'applicant_id');
     }
 
+    public function requirementChecks(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(ApplicantRequirementCheck::class, 'applicant_id');
+    }
+
     // ── Scopes ──────────────────────────────────────────────────────────────
 
     public function scopePending($query)

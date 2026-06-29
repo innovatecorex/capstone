@@ -233,6 +233,77 @@ textarea.adm-input { resize:vertical; }
       </div>
     </div>
 
+    {{-- Required Documents Checklist --}}
+    @php
+      $allRequiredChecked = collect($requirements)
+        ->filter(fn($r) => $r['required'])
+        ->keys()
+        ->every(fn($k) => optional($requirementChecks->get($k))->is_submitted);
+      $anyRequired = collect($requirements)->contains(fn($r) => $r['required']);
+    @endphp
+    <div class="enc-card" style="padding:1.25rem;">
+      <div class="enc-card__header" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.85rem;">
+        <div class="enc-card__title">Required Documents Checklist</div>
+        @if($anyRequired)
+          @if($allRequiredChecked)
+          <span style="display:inline-flex;align-items:center;gap:.3rem;padding:.22rem .7rem;border-radius:999px;font-size:.72rem;font-weight:800;background:#dcfce7;color:#166534;">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" style="width:12px;height:12px;"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+            All Confirmed
+          </span>
+          @else
+          <span style="padding:.22rem .7rem;border-radius:999px;font-size:.72rem;font-weight:800;background:#fef9c3;color:#854d0e;">Incomplete</span>
+          @endif
+        @endif
+      </div>
+      <div class="enc-card__body">
+        <form method="POST" action="{{ route('registrar.applicants.save-requirements', $applicant->id) }}">
+          @csrf
+          <div style="display:grid;gap:.5rem;margin-bottom:.9rem;">
+            @foreach($requirements as $key => $req)
+            @php
+              $check     = $requirementChecks->get($key);
+              $ticked    = $check && $check->is_submitted;
+            @endphp
+            <label style="display:flex;align-items:flex-start;gap:.7rem;padding:.6rem .8rem;border-radius:8px;cursor:pointer;
+                          border:1px solid {{ $ticked ? '#86efac' : 'rgba(15,23,42,.1)' }};
+                          background:{{ $ticked ? '#f0fdf4' : '#fafafa' }};">
+              <input type="checkbox" name="requirements[{{ $key }}]" value="1"
+                     {{ $ticked ? 'checked' : '' }}
+                     style="margin-top:.18rem;flex-shrink:0;accent-color:#16a34a;width:15px;height:15px;">
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:.85rem;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:.4rem;">
+                  {{ $req['label'] }}
+                  @if($req['required'])
+                  <span style="font-size:.67rem;font-weight:800;color:#dc2626;letter-spacing:.03em;">REQUIRED</span>
+                  @endif
+                </div>
+                @if($ticked && $check->checkedBy)
+                <div style="font-size:.72rem;color:#16a34a;margin-top:.12rem;">
+                  Confirmed by {{ $check->checkedBy->full_name }} &middot; {{ $check->checked_at?->format('M d, Y g:i A') }}
+                </div>
+                @elseif($ticked)
+                <div style="font-size:.72rem;color:#16a34a;margin-top:.12rem;">Confirmed</div>
+                @endif
+              </div>
+            </label>
+            @endforeach
+          </div>
+
+          @if($applicant->status !== 'enrolled')
+          <button type="submit" class="enc-btn enc-btn--ghost" style="width:100%;font-size:.82rem;">
+            Save Checklist
+          </button>
+          @endif
+        </form>
+
+        @if(!$allRequiredChecked && in_array($applicant->status, ['pending','under_review','waitlisted']))
+        <div class="app-hint app-hint--amber" style="margin-top:.75rem;font-size:.79rem;">
+          All required documents must be confirmed before this applicant can be accepted.
+        </div>
+        @endif
+      </div>
+    </div>
+
   </div>
 
   {{-- ── RIGHT: pipeline + actions ────────────────────────────────── --}}

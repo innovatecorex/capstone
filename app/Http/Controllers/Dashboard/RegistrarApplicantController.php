@@ -7,6 +7,7 @@ use App\Mail\AcceptanceNoticeMail;
 use App\Mail\WaitlistNoticeMail;
 use App\Models\AcademicYear;
 use App\Models\Applicant;
+use App\Models\ApplicantRequirementCheck;
 use App\Models\AuditLog;
 use App\Models\Enrollment;
 use App\Models\User;
@@ -65,8 +66,10 @@ class RegistrarApplicantController extends Controller
 
     public function show(Applicant $applicant): View
     {
-        $applicant->load(['reviewedBy', 'documents']);
-        return view('registrar.applicants.show', compact('applicant'));
+        $applicant->load(['reviewedBy', 'documents', 'requirementChecks.checkedBy']);
+        $requirements      = config('admission.requirements', []);
+        $requirementChecks = $applicant->requirementChecks->keyBy('requirement_key');
+        return view('registrar.applicants.show', compact('applicant', 'requirements', 'requirementChecks'));
     }
 
     public function updateStatus(Request $request, Applicant $applicant): RedirectResponse
@@ -79,6 +82,24 @@ class RegistrarApplicantController extends Controller
         $old = $applicant->status;
         $new = $validated['status'];
 
+        // Gate: block Accept unless every required document is confirmed.
+        if ($new === 'accepted') {
+            $requirements = config('admission.requirements', []);
+            $requiredKeys = collect($requirements)->filter(fn ($r) => $r['required'])->keys();
+
+            $confirmedKeys = ApplicantRequirementCheck::where('applicant_id', $applicant->id)
+                ->whereIn('requirement_key', $requiredKeys->all())
+                ->where('is_submitted', true)
+                ->pluck('requirement_key');
+
+            $missingKeys = $requiredKeys->diff($confirmedKeys);
+
+            if ($missingKeys->isNotEmpty()) {
+                $missingLabels = $missingKeys->map(fn ($k) => $requirements[$k]['label'] ?? $k)->implode(', ');
+                return back()->with('error', "Cannot accept: the following required documents have not been confirmed — {$missingLabels}.");
+            }
+        }
+
         $applicant->update([
             'status'      => $new,
             'remarks'     => $validated['remarks'] ?? $applicant->remarks,
@@ -86,12 +107,19 @@ class RegistrarApplicantController extends Controller
             'reviewed_at' => now(),
         ]);
 
-        AuditLog::record(AuditLog::APPLICANT_STATUS_UPDATED, [
+        $auditContext = [
             'applicant_id'     => $applicant->id,
             'reference_number' => $applicant->reference_number,
             'old_status'       => $old,
             'new_status'       => $new,
-        ]);
+        ];
+
+        if ($new === 'accepted') {
+            $auditContext['requirements_confirmed'] = $confirmedKeys->all();
+            $auditContext['requirements_missing']   = [];
+        }
+
+        AuditLog::record(AuditLog::APPLICANT_STATUS_UPDATED, $auditContext);
 
         if ($new === 'accepted' && $old !== 'accepted' && $applicant->parent_email) {
             try {
@@ -210,6 +238,25 @@ class RegistrarApplicantController extends Controller
         }
 
         return back()->with('success', $msg);
+    }
+
+    public function saveRequirements(Request $request, Applicant $applicant): RedirectResponse
+    {
+        $requirements = config('admission.requirements', []);
+        $submitted    = $request->input('requirements', []);
+
+        foreach (array_keys($requirements) as $key) {
+            ApplicantRequirementCheck::updateOrCreate(
+                ['applicant_id' => $applicant->id, 'requirement_key' => $key],
+                [
+                    'is_submitted' => isset($submitted[$key]),
+                    'checked_by'   => auth()->id(),
+                    'checked_at'   => now(),
+                ]
+            );
+        }
+
+        return back()->with('success', 'Requirements checklist saved.');
     }
 
     private function generateUsername(string $firstName, string $lastName): string

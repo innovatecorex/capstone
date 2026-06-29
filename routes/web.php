@@ -348,6 +348,7 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/{applicant}',                 [RegistrarApplicantController::class, 'show'])         ->name('show');
             Route::patch('/{applicant}/status',        [RegistrarApplicantController::class, 'updateStatus']) ->name('update-status');
             Route::post('/{applicant}/create-account', [RegistrarApplicantController::class, 'createAccount'])->name('create-account');
+            Route::post('/{applicant}/requirements',   [RegistrarApplicantController::class, 'saveRequirements'])->name('save-requirements');
         });
 
         // ── Enrollment Finalization ────────────────────────────────────────
