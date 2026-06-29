@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Dashboard;
 use App\Http\Controllers\Controller;
 use App\Mail\AcceptanceNoticeMail;
 use App\Mail\WaitlistNoticeMail;
+use App\Models\AcademicYear;
 use App\Models\Applicant;
 use App\Models\AuditLog;
+use App\Models\Enrollment;
 use App\Models\User;
 use App\Services\SectionAssignmentService;
 use Illuminate\Http\RedirectResponse;
@@ -130,6 +132,11 @@ class RegistrarApplicantController extends Controller
             'role_id'                 => '01',
             'gender'                  => $gender,
             'lrn'                     => $lrn,
+            // Set grade_level immediately so the student appears in the correct
+            // grade bucket (not "Unassigned") even if no section has capacity.
+            // SectionAssignmentService will overwrite section_id + grade_level
+            // when a section is found, but grade_level must never be NULL.
+            'grade_level'             => $applicant->applying_for_grade,
             'password_reset_required' => true,
             'status'                  => 'active',
         ]);
@@ -154,6 +161,25 @@ class RegistrarApplicantController extends Controller
             'source_applicant' => $applicant->reference_number,
             'note'             => 'Student account created from admission application by registrar.',
         ]);
+
+        if ($assignedSection) {
+            // Look up the enrollment that SectionAssignmentService just created
+            $enrollment = Enrollment::where('student_id', $user->id)
+                ->where('section_id', $assignedSection->id)
+                ->latest()
+                ->first();
+
+            if ($enrollment) {
+                AuditLog::record(AuditLog::ENROLLMENT_CREATED, [
+                    'enrollment_id'    => $enrollment->id,
+                    'student_id'       => $user->id,
+                    'section_id'       => $assignedSection->id,
+                    'academic_year_id' => $enrollment->academic_year_id,
+                    'source'           => 'admission.createAccount',
+                    'source_applicant' => $applicant->reference_number,
+                ]);
+            }
+        }
 
         $mailSent = false;
         if ($applicant->parent_email) {

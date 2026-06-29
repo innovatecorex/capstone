@@ -311,7 +311,9 @@ textarea.adm-input { resize:vertical; }
           <div>
             <label class="adm-label">New Status</label>
             <select name="status" class="adm-input" required>
-              @foreach(['pending','under_review','waitlisted','accepted','rejected','eligible_for_enrollment','enrolled'] as $s)
+              {{-- 'enrolled' is intentionally excluded — it is set automatically
+                   by Create Student Account and must not be set manually here. --}}
+              @foreach(['pending','under_review','waitlisted','accepted','rejected','eligible_for_enrollment'] as $s)
               <option value="{{ $s }}" {{ $applicant->status === $s ? 'selected' : '' }}>
                 {{ ucfirst(str_replace('_',' ',$s)) }}
               </option>
