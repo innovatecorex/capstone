@@ -21,32 +21,63 @@ class NormalizeGender extends Command
         'female' => 'female',
     ];
 
-    /** Unambiguous Filipino/common first names — extend as needed. */
+    /** Curated Filipino/common first names — covers DevelopmentSeeder name pool + common variants. */
     private array $femaleNames = [
-        'maria','ana','sofia','isabella','camille','cherry','gabrielle','pia','rose',
-        'liza','grace','luz','gloria','maribel','jasmine','cristina','patricia',
-        'rosario','melissa','sandra','danielle','nicole','michelle','claire',
-        'christine','stephanie','jennifer','jessica','mary','elizabeth','sarah',
-        'emily','emma','carmela','maricel','marites','rowena','sheila','vanessa',
-        'angeline','precious','rachel','rebecca','diana','norma','dolores','evelyn',
-        'anna','anne','andrea','karen','kathleen','helen','angela','lisa',
-        'teresa','marianne','corazon','leonora','remedios','erlinda','rosalie',
-        'jennilyn','jessa','rhea','tricia','nica','alyssa','katrina','nina',
+        // DevelopmentSeeder firstNames pool (female)
+        'maria','ana','rosa','carmen','elena','luz','patricia','gloria',
+        'teresa','dolores','nena','carina',
+        // Common Filipino female names
+        'lourdes','concepcion','corazon','nimfa','maricel','maribel',
+        'rosario','erlinda','leonora','remedios','norma','evelyn',
+        'sofia','isabella','camille','cherry','gabrielle','pia','rose',
+        'liza','grace','marites','rowena','sheila','vanessa','angeline',
+        'precious','rachel','rebecca','diana','melissa','sandra',
+        'danielle','nicole','michelle','claire','christine','stephanie',
+        'jennifer','jessica','mary','elizabeth','sarah','emily','emma',
+        'carmela','anna','anne','andrea','karen','kathleen','helen',
+        'angela','lisa','marianne','rosalie','jennilyn','jessa','rhea',
+        'tricia','nica','alyssa','katrina','nina','roselyn','cristina',
+        'divina','florencia','milagros','felicidad','resurreccion',
+        'teresita','luzviminda','narcisa','natividad','purificacion',
+        'asuncion','encarnacion','adoracion','inmaculada','presentacion',
+        'soledad','trinidad','paz','esperanza','fe','caridad',
+        'yolanda','wilhelmina','florentina','flordeliza','floraida',
+        'eden','heaven','joy','lovely','princess','angel','heart',
+        'precious','star','sunshine','daisy','violet','ruby','pearl',
+        // Short/nickname forms
+        'marie','mary','ann','anne','lily','cris','tina','jane',
+        'jean','joan','june','may','faith','hope','charity',
     ];
 
     private array $maleNames = [
-        'jose','juan','pedro','ramon','roberto','eduardo','fernando','rodrigo',
-        'angelo','roel','jerome','randy','ronnie','allan','dennis','bernard',
-        'joel','mark','john','paul','mike','james','robert','david','william',
-        'joseph','charles','thomas','daniel','christopher','matthew','anthony',
-        'donald','richard','kenneth','steven','edward','brian','ronald','george',
-        'timothy','larry','jeffrey','gary','frank','eric','stephen','patrick',
-        'harold','raymond','walter','kyle','aaron','miguel','carlos','marco',
-        'luis','oggie','romeo','mario','antonio','manuel','rafael','alex',
-        'michael','ryan','kevin','jason','justin','brandon','adam','nicholas',
-        'samuel','benjamin','nathan','andrew','jonathan','christian','jerome',
-        'gilbert','renato','arnel','rodel','noel','romeo','danilo','alfredo',
-        'ernesto','oscar','felix','ruben','rogelio','larry','noel','elmer',
+        // DevelopmentSeeder firstNames pool (male)
+        'juan','maria','pedro','jose','antonio','ricardo','miguel',
+        'fernando','eduardo','ramon','alfredo','mario','ernesto','rodrigo',
+        // Common Filipino male names
+        'roberto','danilo','lourdes','alberto','emmanuel','manuel',
+        'carlos','marco','luis','angelo','romeo','rafael','alex',
+        'gilbert','renato','arnel','rodel','noel','danilo','alfredo',
+        'oscar','felix','ruben','rogelio','elmer','roel','jerome',
+        'randy','ronnie','allan','dennis','bernard','joel','mark',
+        'john','paul','mike','james','robert','david','william',
+        'joseph','charles','thomas','daniel','christopher','matthew',
+        'anthony','donald','richard','kenneth','steven','edward',
+        'brian','ronald','george','timothy','larry','jeffrey','gary',
+        'frank','eric','stephen','patrick','harold','raymond','walter',
+        'kyle','aaron','ryan','kevin','jason','justin','brandon',
+        'adam','nicholas','samuel','benjamin','nathan','andrew',
+        'jonathan','christian','michael','oggie','noel','rodel',
+        'aries','julius','julius','nestor','virgilio','rolando',
+        'reynaldo','wilfredo','armando','gregorio','celestino',
+        'victorino','florencio','maximiliano','ambrosio','crisanto',
+        'eugenio','faustino','gaudencio','hermenegildo','ildefonso',
+        'jacinto','leoncio','macario','nicanor','onesimo','panfilo',
+        'quirino','restituto','saturnino','teofilo','urduja','venancio',
+        'wenceslao','xenophon','ygnacio','zosimo',
+        // Short/nickname forms
+        'ben','bob','dan','dave','don','ed','fred','gene',
+        'hal','ian','joe','ken','leo','ned','pete','ray',
+        'ron','sam','ted','tim','tom','vic','will',
     ];
 
     public function handle(): int
@@ -70,9 +101,9 @@ class NormalizeGender extends Command
             return self::SUCCESS;
         }
 
-        $mapped  = 0;
+        $mapped   = 0;
         $inferred = 0;
-        $skipped = [];
+        $skipped  = [];
 
         foreach ($users as $user) {
             $raw        = $user->getAttributes()['gender'] ?? null;
@@ -81,7 +112,6 @@ class NormalizeGender extends Command
             if ($normalized !== null) {
                 $this->line(sprintf('  [map]    user %d (%s) — "%s" → "%s"',
                     $user->id, $user->username, $raw ?? 'NULL', $normalized));
-
                 if (!$dryRun) {
                     DB::table('users')->where('id', $user->id)->update(['gender' => $normalized]);
                 }
@@ -94,7 +124,6 @@ class NormalizeGender extends Command
                 if ($guessed !== null) {
                     $this->line(sprintf('  [name]   user %d (%s %s, %s) → "%s"',
                         $user->id, $user->first_name, $user->last_name, $user->username, $guessed));
-
                     if (!$dryRun) {
                         DB::table('users')->where('id', $user->id)->update(['gender' => $guessed]);
                     }
