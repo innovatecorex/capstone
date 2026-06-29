@@ -112,12 +112,53 @@
           </div>
           <div class="enc-form-group">
             <label class="enc-label">Account Status <span style="color:var(--danger)">*</span></label>
+            @if($user->status === 'locked')
+            {{-- Locked accounts are read-only here; use the Unlock panel below --}}
+            <div style="height:42px;display:flex;align-items:center;gap:8px;padding:0 .75rem;border:1px solid #fca5a5;border-radius:8px;background:#fef2f2;font-size:.85rem;font-weight:600;color:#991b1b;">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;flex-shrink:0;">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/>
+              </svg>
+              Locked (auto — failed logins)
+            </div>
+            {{-- Pass through a safe status so the form is valid --}}
+            <input type="hidden" name="status" value="active">
+            @else
             <select name="status" class="enc-select" style="height:42px;width:100%;">
               <option value="active"      {{ old('status', $user->status)=='active'      ? 'selected':'' }}>Active</option>
               <option value="deactivated" {{ old('status', $user->status)=='deactivated' ? 'selected':'' }}>Deactivated</option>
             </select>
+            @endif
           </div>
         </div>
+
+        {{-- Locked-account panel: shown only when status=locked --}}
+        @if($user->status === 'locked')
+        <div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:10px;padding:.85rem 1rem;margin-top:4px;margin-bottom:4px;">
+          <div style="font-size:.82rem;font-weight:700;color:#991b1b;margin-bottom:.25rem;">
+            This account is auto-locked due to too many failed login attempts.
+          </div>
+          @if($user->locked_until)
+          <div style="font-size:.75rem;color:#b91c1c;margin-bottom:.6rem;">
+            Locked until: {{ $user->locked_until->format('M d, Y \a\t H:i') }}
+            @if($user->locked_until->isFuture())
+              ({{ $user->locked_until->diffForHumans() }})
+            @else
+              — will auto-unlock on next login attempt
+            @endif
+          </div>
+          @endif
+          <form method="POST" action="{{ route('admin.users.unlock', $user) }}"
+                onsubmit="return confirm('Unlock {{ $user->username }}? This clears the lockout immediately.')">
+            @csrf
+            <button type="submit" class="enc-btn enc-btn--danger" style="font-size:.78rem;padding:.38rem .9rem;">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5V6.75a4.5 4.5 0 119 0v3.75M3.75 21.75h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H3.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/>
+              </svg>
+              Unlock Now
+            </button>
+          </form>
+        </div>
+        @endif
 
         <div style="height:1px;background:var(--gray-100);margin:20px 0 16px;"></div>
 

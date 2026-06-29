@@ -256,7 +256,12 @@
                 @if($user->status === 'active')
                   <span class="enc-badge enc-badge--success">Active</span>
                 @elseif($user->status === 'locked')
-                  <span class="enc-badge enc-badge--danger">Locked</span>
+                  <span class="enc-badge enc-badge--danger">Locked (auto)</span>
+                  @if($user->locked_until)
+                    <div style="font-size:.67rem;color:#b91c1c;margin-top:2px;white-space:nowrap;">
+                      Failed logins · until {{ $user->locked_until->format('H:i, M d') }}
+                    </div>
+                  @endif
                 @else
                   <span class="enc-badge enc-badge--neutral">Deactivated</span>
                 @endif
@@ -292,6 +297,20 @@
                     </button>
                   </form>
 
+                  @if($user->status === 'locked')
+                  {{-- Auto-locked: dedicated Unlock action, no toggle --}}
+                  <form method="POST" action="{{ route('admin.users.unlock', $user) }}"
+                        onsubmit="return confirm('Unlock {{ $user->username }}? This clears the failed-login lockout and resets the counter.')">
+                    @csrf
+                    <button type="submit" class="enc-btn enc-btn--outline enc-btn--sm" title="Unlock account"
+                            style="color:#166534;border-color:#86efac;">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5V6.75a4.5 4.5 0 119 0v3.75M3.75 21.75h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H3.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/>
+                      </svg>
+                      Unlock
+                    </button>
+                  </form>
+                  @else
                   <form method="POST" action="{{ route('admin.users.toggle-status', $user) }}"
                         onsubmit="return confirm('Change status for {{ $user->username }}?')">
                     @csrf
@@ -312,6 +331,7 @@
                       @endif
                     </button>
                   </form>
+                  @endif
 
                   {{-- Permanent Delete --}}
                   @if(auth()->id() !== $user->id)

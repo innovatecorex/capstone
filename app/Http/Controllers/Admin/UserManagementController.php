@@ -202,9 +202,16 @@ class UserManagementController extends Controller
             ->with('success', 'User account updated successfully.');
     }
 
-    // ── Toggle account status (AJAX-friendly) ─────────────────────────────
+    // ── Toggle account status (active ↔ deactivated only) ─────────────────
     public function toggleStatus(Request $request, User $user)
     {
+        // Locked accounts must go through unlockAccount — toggling would
+        // set status='active' without clearing failed_attempts/locked_until.
+        if ($user->status === 'locked') {
+            return redirect()->back()
+                ->with('error', 'This account is auto-locked due to failed logins. Use the Unlock button to clear it.');
+        }
+
         $newStatus = $user->status === 'active' ? 'deactivated' : 'active';
 
         $user->update(['status' => $newStatus]);
@@ -220,6 +227,33 @@ class UserManagementController extends Controller
 
         return redirect()->back()
             ->with('success', "Account {$newStatus} successfully.");
+    }
+
+    // ── Admin unlock: clears auto-lockout set by failed-login throttle ────
+    public function unlockAccount(User $user)
+    {
+        if ($user->status !== 'locked') {
+            return redirect()->back()
+                ->with('error', 'Account is not currently locked.');
+        }
+
+        $user->update([
+            'status'          => 'active',
+            'failed_attempts' => 0,
+            'locked_until'    => null,
+        ]);
+
+        AuditLog::record(
+            AuditLog::ACCOUNT_UNLOCKED,
+            [
+                'target_user_id' => $user->id,
+                'username'        => $user->username,
+                'note'            => 'Admin manually cleared failed-login lockout.',
+            ]
+        );
+
+        return redirect()->back()
+            ->with('success', "Account {$user->username} has been unlocked.");
     }
 
     // ── Permanently delete a user account ─────────────────────────────────

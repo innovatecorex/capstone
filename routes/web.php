@@ -110,6 +110,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
         Route::delete('/{user}',              [UserManagementController::class, 'destroy'])      ->name('destroy');
         Route::patch('/{user}/toggle-status', [UserManagementController::class, 'toggleStatus'])->name('toggle-status');
         Route::post('/{user}/reset-password', [UserManagementController::class, 'resetPassword'])->name('reset-password');
+        Route::post('/{user}/unlock',         [UserManagementController::class, 'unlockAccount'])->name('unlock');
     });
 
     // ── Students Management ───────────────────────────────────────────────

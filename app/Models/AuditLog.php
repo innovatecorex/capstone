@@ -38,6 +38,7 @@ class AuditLog extends Model
     public const LOGIN_FAILED              = 'LOGIN_FAILED';
     public const LOGOUT                    = 'LOGOUT';
     public const ACCOUNT_LOCKED            = 'ACCOUNT_LOCKED';
+    public const ACCOUNT_UNLOCKED          = 'ACCOUNT_UNLOCKED';
     public const PASSWORD_RESET            = 'PASSWORD_RESET';
     public const PASSWORD_CHANGED          = 'PASSWORD_CHANGED';
     public const CREATE_USER               = 'CREATE_USER';
