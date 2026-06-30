@@ -106,21 +106,23 @@
   box-shadow: 0 24px 60px rgba(15, 23, 42, 0.06);
 }
 .enc-button {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
+  text-align: center;
+  width: 100%;
   padding: 0.75rem 1.1rem;
   border-radius: 999px;
   font-weight: 700;
   text-decoration: none;
 }
 .enc-button--primary {
-  background: var(--primary);
+  background: #1e293b;
   color: #fff;
 }
 .enc-button--secondary {
   background: rgba(15, 23, 42, 0.08);
-  color: var(--navy);
+  color: #1e293b;
 }
 </style>
 @endpush
