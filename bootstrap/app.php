@@ -7,6 +7,7 @@ use App\Http\Middleware\RoleMiddleware;
 use App\Http\Middleware\InjectionDefenseMiddleware;
 use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\SessionTimeout;
+use App\Http\Middleware\ForcePasswordReset;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -40,6 +41,7 @@ return Application::configure(basePath: dirname(__DIR__))
             SecurityHeaders::class,         // outermost — headers apply to ALL responses
             InjectionDefenseMiddleware::class,
             SessionTimeout::class,          // idle-timeout: logs out after SESSION_LIFETIME minutes
+            ForcePasswordReset::class,      // force users with password_reset_required to reset before any access
         ]);
 
         // ── Route-level aliases ────────────────────────────────────────────
