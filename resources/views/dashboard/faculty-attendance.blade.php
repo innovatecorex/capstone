@@ -127,15 +127,15 @@
                   style="padding:.4rem .85rem;border:1px solid #86efac;border-radius:8px;background:#f0fdf4;color:#166534;font-size:.8rem;font-weight:600;cursor:pointer;">
             All Present
           </button>
-          <button type="button" onclick="markAll('absent')"
+          <button type="button" id="bulk-btn-absent" onclick="openBulkPopover('absent', this)"
                   style="padding:.4rem .85rem;border:1px solid #fca5a5;border-radius:8px;background:#fef2f2;color:#991b1b;font-size:.8rem;font-weight:600;cursor:pointer;">
             All Absent
           </button>
-          <button type="button" onclick="markAll('late')"
+          <button type="button" id="bulk-btn-late" onclick="openBulkPopover('late', this)"
                   style="padding:.4rem .85rem;border:1px solid #fcd34d;border-radius:8px;background:#fffbeb;color:#92400e;font-size:.8rem;font-weight:600;cursor:pointer;">
             All Late
           </button>
-          <button type="button" onclick="markAll('excused')"
+          <button type="button" id="bulk-btn-excused" onclick="openBulkPopover('excused', this)"
                   style="padding:.4rem .85rem;border:1px solid #93c5fd;border-radius:8px;background:#eff6ff;color:#1e40af;font-size:.8rem;font-weight:600;cursor:pointer;">
             All Excused
           </button>
@@ -164,7 +164,9 @@
             </thead>
             <tbody>
               @foreach($roster as $i => $row)
-              <tr style="border-bottom:1px solid #f1f5f9;" id="att-row-{{ $i }}">
+              <tr style="border-bottom:1px solid #f1f5f9;" id="att-row-{{ $i }}"
+                  data-initial-status="{{ $row->status ?? '' }}"
+                  data-initial-remarks="{{ $row->remarks ?? '' }}">
                 <td style="padding:12px 16px;color:#0f172a;font-weight:500;">
                   {{ $row->student->last_name }}, {{ $row->student->first_name }}
                   <input type="hidden" name="attendance[{{ $i }}][enrollment_id]" value="{{ $row->enrollment->id }}">
@@ -198,12 +200,17 @@
                   </div>
                 </td>
                 <td style="padding:12px 16px;">
-                  <input type="text" name="attendance[{{ $i }}][remarks]"
-                         id="remarks-{{ $i }}"
-                         value="{{ $row->remarks }}"
+                  <select name="attendance[{{ $i }}][remarks]"
+                          id="remarks-select-{{ $i }}"
+                          onchange="onRemarkSelectChange({{ $i }})"
+                          style="display:none;width:100%;padding:6px 10px;border:1px solid #e2e8f0;border-radius:6px;font-size:.82rem;background:#fff;cursor:pointer;transition:border-color .15s;">
+                  </select>
+                  <input type="text" name="attendance[{{ $i }}][remarks_other]"
+                         id="remarks-other-{{ $i }}"
                          maxlength="255"
-                         placeholder="e.g. doctor's note"
-                         style="width:100%;padding:6px 10px;border:1px solid #e2e8f0;border-radius:6px;font-size:.82rem;transition:border-color .15s;">
+                         placeholder="Specify reason…"
+                         oninput="onOtherInput({{ $i }})"
+                         style="display:none;width:100%;padding:6px 10px;border:1px solid #e2e8f0;border-radius:6px;font-size:.82rem;margin-top:4px;transition:border-color .15s;">
                   <div id="remarks-hint-{{ $i }}" style="font-size:.72rem;color:#e11d48;margin-top:3px;display:none;">
                     Remarks required for this status.
                   </div>
@@ -235,6 +242,28 @@
 
 @endif
 
+{{-- Bulk-reason popover (shared, position:fixed — rendered once, reused for all three bulk buttons) --}}
+<div id="bulk-popover"
+     style="position:fixed;z-index:9999;background:#fff;border:1px solid #e2e8f0;border-radius:10px;
+            box-shadow:0 4px 20px rgba(0,0,0,.13);padding:14px 16px;min-width:240px;display:none;">
+  <div id="bulk-popover-title"
+       style="font-size:.72rem;font-weight:800;color:#475569;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;"></div>
+  <div id="bulk-popover-opts" style="display:grid;gap:2px;margin-bottom:8px;"></div>
+  <input type="text" id="bulk-popover-other" placeholder="Specify reason…"
+         style="display:none;width:100%;padding:6px 10px;border:1px solid #e2e8f0;border-radius:6px;
+                font-size:.82rem;margin-bottom:8px;box-sizing:border-box;transition:border-color .15s;">
+  <div style="display:flex;gap:6px;">
+    <button type="button" onclick="applyBulkReason()"
+            style="flex:1;padding:.38rem .8rem;border:none;border-radius:6px;background:#1d4ed8;color:#fff;font-size:.8rem;font-weight:700;cursor:pointer;">
+      Apply to All
+    </button>
+    <button type="button" onclick="closeBulkPopover()"
+            style="padding:.38rem .8rem;border:1px solid #e2e8f0;border-radius:6px;background:#f8fafc;color:#64748b;font-size:.8rem;cursor:pointer;">
+      Cancel
+    </button>
+  </div>
+</div>
+
 @endsection
 
 @push('scripts')
@@ -246,82 +275,258 @@ const ATT_COLORS = {
   excused: ['#1e40af','#93c5fd','#eff6ff'],
 };
 const REMARKS_REQUIRED = ['absent','late','excused'];
+const REMARK_REASONS   = @json($remarkReasons ?? []);
 
-function markAll(status) {
-  document.querySelectorAll('.att-status').forEach(el => {
-    const m = el.name.match(/attendance\[(\d+)\]/);
-    if (!m) return;
-    const radio = document.querySelector(`input[name="${el.name}"][value="${status}"]`);
-    if (radio) {
-      radio.checked = true;
-      const idx = parseInt(m[1], 10);
-      updateLabel(idx);
-      updateRemarks(idx);
-    }
-  });
-}
-
-function clearAll() {
-  const rows = document.querySelectorAll('[id^="att-row-"]');
-  rows.forEach(row => {
-    const m = row.id.match(/att-row-(\d+)/);
-    if (m) clearRow(parseInt(m[1], 10));
-  });
-}
-
-function clearRow(rowIdx) {
-  document.querySelectorAll(`input[name="attendance[${rowIdx}][status]"]`).forEach(r => r.checked = false);
-  updateLabel(rowIdx);
-  updateRemarks(rowIdx);
-}
+// ── Label coloring ─────────────────────────────────────────────────────────
 
 function updateLabel(rowIdx) {
-  const checkedRadio = document.querySelector(`input[name="attendance[${rowIdx}][status]"]:checked`);
-  const selectedStatus = checkedRadio ? checkedRadio.value : null;
-
+  const checked = document.querySelector(`input[name="attendance[${rowIdx}][status]"]:checked`);
+  const sel = checked ? checked.value : null;
   ['present','absent','late','excused'].forEach(opt => {
-    const labels = document.querySelectorAll(`.att-label-${rowIdx}-${opt}`);
     const c = ATT_COLORS[opt];
-    labels.forEach(lbl => {
-      if (opt === selectedStatus) {
-        lbl.style.color       = c[0];
-        lbl.style.background  = c[2];
-        lbl.style.borderColor = c[1];
+    document.querySelectorAll(`.att-label-${rowIdx}-${opt}`).forEach(lbl => {
+      if (opt === sel) {
+        lbl.style.color = c[0]; lbl.style.background = c[2]; lbl.style.borderColor = c[1];
       } else {
-        lbl.style.color       = '#94a3b8';
-        lbl.style.background  = '#f8fafc';
-        lbl.style.borderColor = '#e2e8f0';
+        lbl.style.color = '#94a3b8'; lbl.style.background = '#f8fafc'; lbl.style.borderColor = '#e2e8f0';
       }
     });
   });
 }
 
-function updateRemarks(rowIdx) {
-  const checkedRadio = document.querySelector(`input[name="attendance[${rowIdx}][status]"]:checked`);
-  const status = checkedRadio ? checkedRadio.value : null;
-  const remarkInput = document.getElementById(`remarks-${rowIdx}`);
-  const hint = document.getElementById(`remarks-hint-${rowIdx}`);
-  if (!remarkInput) return;
-  const required = REMARKS_REQUIRED.includes(status);
-  remarkInput.required = required;
-  remarkInput.style.borderColor = required ? '#fca5a5' : '#e2e8f0';
-  if (hint) hint.style.display = required ? 'block' : 'none';
-  // If re-filled, remove red border
-  remarkInput.oninput = () => {
-    if (remarkInput.value.trim()) remarkInput.style.borderColor = '#86efac';
-    else if (required) remarkInput.style.borderColor = '#fca5a5';
-  };
+// ── Remark select helpers ──────────────────────────────────────────────────
+
+function populateRemarksSelect(rowIdx, status, currentValue) {
+  const select = document.getElementById(`remarks-select-${rowIdx}`);
+  const other  = document.getElementById(`remarks-other-${rowIdx}`);
+  if (!select) return;
+
+  const reasons = REMARK_REASONS[status] ?? [];
+  select.innerHTML = '<option value="">— Select reason —</option>';
+  reasons.forEach(r => {
+    const opt = document.createElement('option');
+    opt.value = r; opt.textContent = r;
+    select.appendChild(opt);
+  });
+
+  if (currentValue) {
+    if (reasons.includes(currentValue)) {
+      select.value = currentValue;
+      if (other) { other.value = ''; other.style.display = 'none'; }
+    } else if (reasons.includes('Other')) {
+      // Legacy free-text or custom — map to Other + text field
+      select.value = 'Other';
+      if (other) { other.value = currentValue; other.style.display = 'block'; }
+    }
+  }
 }
 
-// Initialise all rows on page load
+function _refreshRemarkValidation(rowIdx) {
+  const select = document.getElementById(`remarks-select-${rowIdx}`);
+  const other  = document.getElementById(`remarks-other-${rowIdx}`);
+  const hint   = document.getElementById(`remarks-hint-${rowIdx}`);
+  if (!select) return;
+
+  const hasValue = select.value !== '' &&
+    (select.value !== 'Other' || (other && other.value.trim() !== ''));
+
+  if (hint) {
+    hint.textContent = (select.value === 'Other' && (!other || !other.value.trim()))
+      ? 'Please specify the reason.'
+      : 'Remarks required for this status.';
+    hint.style.display = hasValue ? 'none' : 'block';
+  }
+  select.style.borderColor = hasValue ? '#86efac' : '#fca5a5';
+  if (other && select.value === 'Other') {
+    other.style.borderColor = other.value.trim() ? '#86efac' : '#fca5a5';
+  }
+}
+
+function updateRemarks(rowIdx) {
+  const checked = document.querySelector(`input[name="attendance[${rowIdx}][status]"]:checked`);
+  const status  = checked ? checked.value : null;
+  const select  = document.getElementById(`remarks-select-${rowIdx}`);
+  const other   = document.getElementById(`remarks-other-${rowIdx}`);
+  const hint    = document.getElementById(`remarks-hint-${rowIdx}`);
+  if (!select) return;
+
+  if (!REMARKS_REQUIRED.includes(status)) {
+    select.style.display = 'none';
+    if (other) other.style.display = 'none';
+    if (hint)  hint.style.display  = 'none';
+    return;
+  }
+
+  // Preserve the current logical value before repopulating options for the new status
+  const prevVal = (select.value === 'Other' && other)
+    ? (other.value || '') : (select.value || '');
+
+  populateRemarksSelect(rowIdx, status, prevVal);
+  select.style.display = 'block';
+  if (other) other.style.display = select.value === 'Other' ? 'block' : 'none';
+  _refreshRemarkValidation(rowIdx);
+}
+
+function onRemarkSelectChange(rowIdx) {
+  const select = document.getElementById(`remarks-select-${rowIdx}`);
+  const other  = document.getElementById(`remarks-other-${rowIdx}`);
+  if (other) {
+    const isOther = select && select.value === 'Other';
+    other.style.display = isOther ? 'block' : 'none';
+    if (isOther) { other.value = ''; other.focus(); }
+  }
+  _refreshRemarkValidation(rowIdx);
+}
+
+function onOtherInput(rowIdx) {
+  _refreshRemarkValidation(rowIdx);
+}
+
+// ── Row / bulk clear ───────────────────────────────────────────────────────
+
+function clearRow(rowIdx) {
+  document.querySelectorAll(`input[name="attendance[${rowIdx}][status]"]`).forEach(r => r.checked = false);
+  const select = document.getElementById(`remarks-select-${rowIdx}`);
+  const other  = document.getElementById(`remarks-other-${rowIdx}`);
+  if (select) { select.innerHTML = '<option value="">— Select reason —</option>'; select.style.display = 'none'; }
+  if (other)  { other.value = ''; other.style.display = 'none'; }
+  updateLabel(rowIdx);
+  updateRemarks(rowIdx);
+}
+
+function clearAll() {
+  document.querySelectorAll('[id^="att-row-"]').forEach(row => {
+    const m = row.id.match(/att-row-(\d+)/);
+    if (m) clearRow(parseInt(m[1], 10));
+  });
+}
+
+// ── Bulk mark helpers ──────────────────────────────────────────────────────
+
+function _allRowIdxs() {
+  const s = new Set();
+  document.querySelectorAll('.att-status').forEach(el => {
+    const m = el.name.match(/attendance\[(\d+)\]/);
+    if (m) s.add(parseInt(m[1], 10));
+  });
+  return s;
+}
+
+function markAll(status) {
+  _allRowIdxs().forEach(idx => {
+    const radio = document.querySelector(`input[name="attendance[${idx}][status]"][value="${status}"]`);
+    if (radio) { radio.checked = true; updateLabel(idx); updateRemarks(idx); }
+  });
+}
+
+function markAllWithReason(status, reason) {
+  _allRowIdxs().forEach(idx => {
+    const radio = document.querySelector(`input[name="attendance[${idx}][status]"][value="${status}"]`);
+    if (!radio) return;
+    radio.checked = true;
+    updateLabel(idx);
+    populateRemarksSelect(idx, status, reason);
+    const select = document.getElementById(`remarks-select-${idx}`);
+    const other  = document.getElementById(`remarks-other-${idx}`);
+    if (select) select.style.display = 'block';
+    if (other)  other.style.display  = select && select.value === 'Other' ? 'block' : 'none';
+    _refreshRemarkValidation(idx);
+  });
+}
+
+// ── Bulk popover ───────────────────────────────────────────────────────────
+
+let _bulkStatus = null;
+
+function openBulkPopover(status, btn) {
+  _bulkStatus = status;
+  const reasons  = REMARK_REASONS[status] ?? [];
+  const popover  = document.getElementById('bulk-popover');
+  const title    = document.getElementById('bulk-popover-title');
+  const opts     = document.getElementById('bulk-popover-opts');
+  const otherTxt = document.getElementById('bulk-popover-other');
+
+  title.textContent = `Reason — All ${status.charAt(0).toUpperCase() + status.slice(1)}`;
+
+  opts.innerHTML = '';
+  reasons.forEach((r, i) => {
+    const lbl   = document.createElement('label');
+    lbl.style.cssText = 'display:flex;align-items:center;gap:.5rem;cursor:pointer;padding:.28rem 0;font-size:.84rem;color:#0f172a;';
+    const radio = document.createElement('input');
+    radio.type = 'radio'; radio.name = 'bulk-reason-radio'; radio.value = r;
+    radio.style.accentColor = '#1d4ed8'; radio.style.cursor = 'pointer';
+    if (i === 0) radio.checked = true;
+    radio.addEventListener('change', () => {
+      otherTxt.style.display = r === 'Other' ? 'block' : 'none';
+      if (r !== 'Other') otherTxt.value = '';
+      otherTxt.style.borderColor = '#e2e8f0';
+    });
+    lbl.appendChild(radio);
+    lbl.appendChild(document.createTextNode(r));
+    opts.appendChild(lbl);
+  });
+
+  otherTxt.value = ''; otherTxt.style.display = 'none'; otherTxt.style.borderColor = '#e2e8f0';
+
+  const rect = btn.getBoundingClientRect();
+  popover.style.top   = (rect.bottom + 6) + 'px';
+  popover.style.left  = Math.max(4, rect.left) + 'px';
+  popover.style.right = 'auto';
+  popover.style.display = 'block';
+
+  // Defer outside-click listener so this very click doesn't immediately close it.
+  // Also guard against re-clicking a bulk button while one is already open.
+  setTimeout(() => document.addEventListener('click', _closeBulkOnOutside, { once: true }), 0);
+}
+
+function _closeBulkOnOutside(e) {
+  // If the click landed on one of our bulk buttons, openBulkPopover will re-open — don't fight it.
+  if (e.target.closest('[id^="bulk-btn-"]')) return;
+  const popover = document.getElementById('bulk-popover');
+  if (popover && !popover.contains(e.target)) closeBulkPopover();
+}
+
+function closeBulkPopover() {
+  const popover = document.getElementById('bulk-popover');
+  if (popover) popover.style.display = 'none';
+  document.removeEventListener('click', _closeBulkOnOutside);
+  _bulkStatus = null;
+}
+
+function applyBulkReason() {
+  if (!_bulkStatus) return;
+  const checked = document.querySelector('input[name="bulk-reason-radio"]:checked');
+  if (!checked) return;
+
+  let reason = checked.value;
+  if (reason === 'Other') {
+    const otherTxt = document.getElementById('bulk-popover-other');
+    const txt = otherTxt ? otherTxt.value.trim() : '';
+    if (!txt) {
+      if (otherTxt) otherTxt.style.borderColor = '#fca5a5';
+      return;
+    }
+    reason = txt; // store the human-readable text, never the literal "Other"
+  }
+
+  markAllWithReason(_bulkStatus, reason);
+  closeBulkPopover();
+}
+
+// ── Init ───────────────────────────────────────────────────────────────────
+
 document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('[id^="att-row-"]').forEach(row => {
     const m = row.id.match(/att-row-(\d+)/);
-    if (m) {
-      const idx = parseInt(m[1], 10);
-      updateLabel(idx);
-      updateRemarks(idx);
+    if (!m) return;
+    const idx     = parseInt(m[1], 10);
+    const status  = row.dataset.initialStatus;
+    const remarks = row.dataset.initialRemarks;
+    if (status && REMARKS_REQUIRED.includes(status)) {
+      populateRemarksSelect(idx, status, remarks || '');
     }
+    updateLabel(idx);
+    updateRemarks(idx);
   });
 });
 </script>

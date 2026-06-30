@@ -24,6 +24,13 @@ use Illuminate\Validation\Rule;
  */
 class AttendanceController extends Controller
 {
+    /** Reason options per status — edit here to update the dropdown school-wide. */
+    private static array $remarkReasons = [
+        'absent'  => ['Sick', 'Family emergency', 'Medical appointment', 'Bereavement', 'Unexcused', 'Other'],
+        'late'    => ['Traffic / transport', 'Medical appointment', 'Family reason', 'Other'],
+        'excused' => ['Sick (with note)', 'Medical appointment', 'Family emergency', 'School activity', 'Excused by parent', 'Other'],
+    ];
+
     /**
      * GET /faculty/attendance
      *
@@ -79,6 +86,8 @@ class AttendanceController extends Controller
             }
         }
 
+        $remarkReasons = self::$remarkReasons;
+
         return view('dashboard.faculty-attendance', compact(
             'user',
             'allSchedules',
@@ -86,7 +95,8 @@ class AttendanceController extends Controller
             'roster',
             'date',
             'activeYear',
-            'sessionDates'
+            'sessionDates',
+            'remarkReasons'
         ));
     }
 
@@ -110,11 +120,21 @@ class AttendanceController extends Controller
                     preg_match('/attendance\.(\d+)\.remarks/', $attribute, $m);
                     $idx    = $m[1] ?? null;
                     $status = $idx !== null ? $request->input("attendance.{$idx}.status") : null;
-                    if (in_array($status, ['absent', 'late', 'excused']) && empty(trim((string) $value))) {
-                        $fail('Remarks are required when status is absent, late, or excused.');
+                    if (in_array($status, ['absent', 'late', 'excused'])) {
+                        if (empty(trim((string) $value))) {
+                            $fail('Remarks are required when status is absent, late, or excused.');
+                        } elseif (trim((string) $value) === 'Other') {
+                            $other = $idx !== null
+                                ? trim((string) $request->input("attendance.{$idx}.remarks_other", ''))
+                                : '';
+                            if (empty($other)) {
+                                $fail('Please specify the reason.');
+                            }
+                        }
                     }
                 },
             ],
+            'attendance.*.remarks_other' => ['nullable', 'string', 'max:255'],
         ]);
 
         $user = auth()->user();
@@ -146,6 +166,12 @@ class AttendanceController extends Controller
 
                 $status = $row['status'] ?? '';
 
+                // Resolve final remarks: when the dropdown sent "Other", use the free-text field.
+                $rawRemarks   = trim((string) ($row['remarks'] ?? ''));
+                $finalRemarks = ($rawRemarks === 'Other')
+                    ? (trim((string) ($row['remarks_other'] ?? '')) ?: null)
+                    : ($rawRemarks ?: null);
+
                 // Empty status = clear/remove the record
                 if ($status === '' || $status === null) {
                     if ($existing) {
@@ -165,7 +191,7 @@ class AttendanceController extends Controller
                     $before = ['status' => $existing->status, 'remarks' => $existing->remarks];
                     $existing->update([
                         'status'      => $status,
-                        'remarks'     => $row['remarks'] ?? null,
+                        'remarks'     => $finalRemarks,
                         'recorded_by' => $user->id,
                     ]);
                     AuditLog::record(AuditLog::ATTENDANCE_UPDATED, [
@@ -173,7 +199,7 @@ class AttendanceController extends Controller
                         'section_subject_id' => $sectionSubject->id,
                         'date'               => $date,
                         'before'             => $before,
-                        'after'              => ['status' => $status, 'remarks' => $row['remarks'] ?? null],
+                        'after'              => ['status' => $status, 'remarks' => $finalRemarks],
                     ]);
                     $updated++;
                 } else {
@@ -182,7 +208,7 @@ class AttendanceController extends Controller
                         'section_subject_id' => $sectionSubject->id,
                         'date'               => $date,
                         'status'             => $status,
-                        'remarks'            => $row['remarks'] ?? null,
+                        'remarks'            => $finalRemarks,
                         'recorded_by'        => $user->id,
                     ]);
                     AuditLog::record(AuditLog::ATTENDANCE_RECORDED, [
