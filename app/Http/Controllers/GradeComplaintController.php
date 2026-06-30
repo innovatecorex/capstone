@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 namespace App\Http\Controllers;
 
@@ -219,7 +219,7 @@ class GradeComplaintController extends Controller
             $query->whereHas('student', fn($q) => $q
                 ->where('first_name', 'like', "%{$s}%")
                 ->orWhere('last_name',  'like', "%{$s}%")
-                ->orWhere('lrn',        'like', "%{$s}%")
+                ->orWhere('lrn_hash', hash('sha256', trim($s)))
             );
         }
 
@@ -280,18 +280,19 @@ class GradeComplaintController extends Controller
             \in_array($user->role_id, ['03', '04'])
         ) {
             $corrected = (float) $validated['corrected_grade'];
-            // Bypass Eloquent boot lock enforcement via direct DB update
-            \DB::table('grades')
-                ->where('id', $complaint->grade_id)
-                ->update([
-                    'final_grade' => $corrected,
-                    'status'      => 'locked',
-                    'updated_at'  => now(),
-                ]);
 
-            $updates['corrected_grade']    = $corrected;
-            $updates['grade_corrected_at'] = now();
-            $gradeWasCorrected = true;
+            // D2: route the correction through the model's sanctioned eratum
+            // method — preserves the original grade, records who/when/why, and
+            // is fully audited. No raw DB bypass of the immutability guard.
+            $grade = Grade::find($complaint->grade_id);
+            if ($grade) {
+                $reason = $validated['response'] ?? 'Grade correction via complaint resolution.';
+                $grade->applyCorrection($corrected, $user, $reason);
+
+                $updates['corrected_grade']    = $corrected;
+                $updates['grade_corrected_at'] = now();
+                $gradeWasCorrected = true;
+            }
         }
 
         $complaint->update($updates);

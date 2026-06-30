@@ -1,4 +1,4 @@
-﻿@extends('layouts.app')
+@extends('layouts.app')
 
 @section('title', 'Grade Complaints')
 @section('breadcrumb', 'Grade Complaints Management')
@@ -215,7 +215,7 @@
       </div>
 
       <div>
-        <button type="submit" class="enc-btn enc-btn--primary" data-save-btn>Save Response</button>
+        <button type="submit" class="enc-btn enc-btn--primary" data-save-btn style="background:#1e293b;color:#ffffff;border:1px solid #1e293b;">Save Response</button>
       </div>
     </form>
     @endif

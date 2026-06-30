@@ -42,6 +42,7 @@ class User extends Authenticatable
         'password',             // bcrypt hash
         'role_id',
         'lrn',
+        'lrn_hash',             // SHA-256 of LRN (for unique lookups / search)
         'employee_number',
         'gender',               // male or female
         'address',
@@ -67,6 +68,7 @@ class User extends Authenticatable
         'password',
         'remember_token',
         'email_hash',
+        'lrn_hash',
     ];
 
     protected $casts = [
@@ -104,6 +106,36 @@ class User extends Authenticatable
         $normalized = strtolower(trim($value));
         $this->attributes['email']      = Crypt::encryptString($normalized);
         $this->attributes['email_hash'] = hash('sha256', $normalized);
+    }
+
+    // ── lrn (AES-256, searchable via lrn_hash) ──────────────────────────────
+    public function getLrnAttribute(?string $value): ?string
+    {
+        if ($value === null || $value === '') {
+            return $value;
+        }
+        try {
+            return Crypt::decryptString($value);
+        } catch (\Exception $e) {
+            // Legacy plaintext LRN (not yet backfilled) — a 9-12 digit string.
+            if (preg_match('/^\d{9,12}$/', $value)) {
+                return $value;
+            }
+            // Cipher from a different APP_KEY — cannot display.
+            return '';
+        }
+    }
+
+    public function setLrnAttribute(?string $value): void
+    {
+        if ($value === null || $value === '') {
+            $this->attributes['lrn']      = null;
+            $this->attributes['lrn_hash'] = null;
+            return;
+        }
+        $normalized = trim($value);
+        $this->attributes['lrn']      = Crypt::encryptString($normalized);
+        $this->attributes['lrn_hash'] = hash('sha256', $normalized);
     }
 
     // ── parent_name (AES-256) ──────────────────────────────────────────────

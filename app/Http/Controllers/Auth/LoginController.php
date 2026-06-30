@@ -110,7 +110,7 @@ class LoginController extends Controller
         $user->clearFailedAttempts();
         $user->update(['last_login_at' => now(), 'last_login_ip' => $request->ip()]);
 
-        AuditLog::record(AuditLog::LOGIN_SUCCESS, null, $user->id, $user->full_name);
+        AuditLog::record(AuditLog::LOGIN_SUCCESS, ['location' => \App\Services\GeoLocator::describe($request->ip())], $user->id, $user->full_name);
 
         if ($user->password_reset_required) {
             return redirect()->route('password.force-reset')

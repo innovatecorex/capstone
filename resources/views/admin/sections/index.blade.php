@@ -280,8 +280,8 @@ document.addEventListener('DOMContentLoaded', loadSectionNames);
 @endpush
 
 {{-- ── Edit Section Modal ───────────────────────────────────────────── --}}
-<div id="editSectionOverlay" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:1000;align-items:center;justify-content:center;padding:20px;">
-  <div style="background:#fff;border-radius:14px;max-width:460px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.25);overflow:hidden;">
+<div id="editSectionOverlay" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:1000;overflow-y:auto;padding:20px;">
+  <div style="background:#fff;border-radius:14px;max-width:460px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.25);margin:40px auto;max-height:calc(100vh - 80px);overflow-y:auto;">
     <div style="padding:18px 22px;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;">
       <h3 style="margin:0;font-size:1.05rem;font-weight:800;color:#0f172a;">Edit Section</h3>
       <button type="button" onclick="closeEditSection()" style="background:none;border:none;font-size:1.4rem;line-height:1;color:#94a3b8;cursor:pointer;">&times;</button>
@@ -343,7 +343,7 @@ function openEditSection(data) {
   document.getElementById('edit_adviser_id').value   = data.adviser_id ?? '';
   document.getElementById('edit_capacity').value     = data.capacity;
   document.getElementById('edit_status').value       = data.status;
-  document.getElementById('editSectionOverlay').style.display = 'flex';
+  document.getElementById('editSectionOverlay').style.display = 'block';
 }
 function closeEditSection() {
   document.getElementById('editSectionOverlay').style.display = 'none';

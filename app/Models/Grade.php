@@ -39,6 +39,10 @@ class Grade extends Model
         'dropped_at',
         'drop_reason',
         'dropped_by',
+        'previous_final_grade',
+        'corrected_by',
+        'corrected_at',
+        'correction_reason',
     ];
 
     protected $casts = [
@@ -53,6 +57,12 @@ class Grade extends Model
 
     // ── Boot — immutability guard ──────────────────────────────────────────
 
+    /**
+     * Set true only by applyCorrection() so the lock guard permits exactly
+     * one sanctioned path to modify a locked grade.
+     */
+    public bool $allowCorrection = false;
+
     protected static function boot(): void
     {
         parent::boot();
@@ -63,10 +73,49 @@ class Grade extends Model
                 ->diff(['dropped_at', 'drop_reason', 'dropped_by'])
                 ->isEmpty();
 
-            if ($model->getOriginal('status') === 'locked' && !$onlyDropFields) {
+            if ($model->getOriginal('status') === 'locked' && !$onlyDropFields && !$model->allowCorrection) {
                 throw new RuntimeException('Locked grade records cannot be modified.');
             }
         });
+    }
+
+    /**
+     * Grade Eratum (D2): the ONLY sanctioned way to change a locked grade.
+     * Preserves the original value, records who/when/why, and logs the action.
+     * Must be performed by a registrar (03) or admin (04).
+     *
+     * @throws \RuntimeException if the actor is not authorized.
+     */
+    public function applyCorrection(float $newFinalGrade, \App\Models\User $actor, string $reason): void
+    {
+        if (!in_array($actor->role_id, ['03', '04'], true)) {
+            throw new RuntimeException('Only a registrar or admin may correct a grade.');
+        }
+
+        $original = $this->final_grade;
+
+        $this->allowCorrection = true;
+        $this->forceFill([
+            'previous_final_grade' => $original,
+            'final_grade'          => $newFinalGrade,
+            'corrected_by'         => $actor->id,
+            'corrected_at'         => now(),
+            'correction_reason'    => $reason,
+            'status'               => 'locked',
+        ])->save();
+        $this->allowCorrection = false;
+
+        \App\Models\AuditLog::record(
+            \App\Models\AuditLog::GRADE_CORRECTED,
+            [
+                'grade_id'             => $this->id,
+                'previous_final_grade' => $original,
+                'new_final_grade'      => $newFinalGrade,
+                'reason'               => $reason,
+            ],
+            $actor->id,
+            $actor->full_name
+        );
     }
 
     // ── Relationships ──────────────────────────────────────────────────────

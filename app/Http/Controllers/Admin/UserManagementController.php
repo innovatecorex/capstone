@@ -45,7 +45,7 @@ class UserManagementController extends Controller
             $s = $request->input('search');
             $query->where(function ($q) use ($s) {
                 $q->where('username', 'like', "%{$s}%")
-                  ->orWhere('lrn', 'like', "%{$s}%")
+                  ->orWhere('lrn_hash', hash('sha256', trim($s)))
                   ->orWhere('employee_number', 'like', "%{$s}%")
                   ->orWhere('first_name', 'like', "%{$s}%")
                   ->orWhere('last_name', 'like', "%{$s}%")
@@ -73,7 +73,11 @@ class UserManagementController extends Controller
             'email'           => ['required', 'email', 'max:200'],
             'gender'          => ['required', 'in:male,female'],
             'role_id'         => ['required', 'in:01,02,03,04'],
-            'lrn'             => ['nullable', 'string', 'digits:9', 'unique:users,lrn'],
+            'lrn'             => ['nullable', 'string', 'digits:9', function ($attribute, $value, $fail) {
+                if ($value && \App\Models\User::where('lrn_hash', hash('sha256', trim($value)))->exists()) {
+                    $fail('This LRN is already registered.');
+                }
+            }],
             'employee_number' => ['nullable', 'string', 'digits:9', 'unique:users,employee_number'],
         ]);
 
@@ -397,7 +401,7 @@ class UserManagementController extends Controller
 
         do {
             $candidate = $prefix . str_pad($counter, $sequenceLength, '0', STR_PAD_LEFT);
-            $exists = User::where('lrn', $candidate)
+            $exists = User::where('lrn_hash', hash('sha256', $candidate))
                 ->orWhere('employee_number', $candidate)
                 ->exists();
             $counter++;

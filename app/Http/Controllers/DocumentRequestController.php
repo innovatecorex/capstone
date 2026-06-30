@@ -41,7 +41,7 @@ class DocumentRequestController extends Controller
             ->when($search, fn($q) => $q->whereHas('student', fn($q2) =>
                 $q2->where('first_name','like',"%{$search}%")
                    ->orWhere('last_name','like',"%{$search}%")
-                   ->orWhere('lrn','like',"%{$search}%")
+                   ->orWhere('lrn_hash', hash('sha256', trim($search)))
             ))
             ->orderByDesc('created_at')
             ->paginate(20)->withQueryString();

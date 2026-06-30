@@ -334,6 +334,51 @@ class GradebookController extends Controller
         $quarter = $this->activeQuarter();
         abort_unless($quarter, 422, 'No active grading quarter.');
 
+        // ── C1: completeness gate ───────────────────────────────────────────
+        // Every enrolled, non-dropped student must have a complete grade before
+        // submission. A missing grade is a data-quality defect, not a default —
+        // so we hard-block and name the offenders rather than silently skipping.
+        $enrollments = Enrollment::forActiveAcademicYear()
+            ->where('section_id', $ss->section_id)
+            ->where('status', 'enrolled')
+            ->with('student')
+            ->get();
+
+        $grades = Grade::where('section_subject_id', $ss->id)
+            ->where('grading_quarter_id', $quarter->id)
+            ->whereIn('enrollment_id', $enrollments->pluck('id'))
+            ->get()
+            ->keyBy('enrollment_id');
+
+        $incomplete = [];
+        foreach ($enrollments as $enrollment) {
+            $grade = $grades->get($enrollment->id);
+
+            // Dropped students are excluded from the requirement.
+            if ($grade && $grade->isDropped()) {
+                continue;
+            }
+
+            // No grade row, or a grade with no final value = incomplete.
+            if (!$grade || $grade->final_grade === null) {
+                $incomplete[] = trim(
+                    ($enrollment->student->first_name ?? '')
+                    . ' ' .
+                    ($enrollment->student->last_name ?? '')
+                ) ?: ('Student #' . $enrollment->student_id);
+            }
+        }
+
+        if (!empty($incomplete)) {
+            $names = implode(', ', $incomplete);
+            return redirect()->route('faculty.gradebook.show', $sectionSubject)
+                ->withErrors([
+                    'submit' => 'Cannot submit — these students have no complete grade yet: '
+                        . $names
+                        . '. Enter a grade for each, or drop the student, then submit.',
+                ]);
+        }
+
         $draftGrades = Grade::where('section_subject_id', $ss->id)
             ->where('grading_quarter_id', $quarter->id)
             ->where('status', 'draft')
