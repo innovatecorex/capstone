@@ -80,7 +80,7 @@ class StudentImportController extends Controller
 
                 $emailHash = hash('sha256', strtolower($fields['email']));
 
-                if (User::where('lrn', $fields['lrn'])->exists()) {
+                if (User::where('lrn_hash', hash('sha256', trim($fields['lrn'])))->exists()) {
                     $errors[] = "Row {$row}: LRN {$fields['lrn']} already exists — skipped.";
                     $skipped++;
                     continue;

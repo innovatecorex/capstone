@@ -23,7 +23,7 @@ class StudentController extends Controller
                 $q->where('first_name', 'like', "%{$search}%")
                   ->orWhere('last_name',  'like', "%{$search}%")
                   ->orWhere('username',   'like', "%{$search}%")
-                  ->orWhere('lrn',        'like', "%{$search}%");
+                  ->orWhere('lrn_hash', hash('sha256', trim($search)));
             });
         }
 

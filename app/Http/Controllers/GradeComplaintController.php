@@ -219,7 +219,7 @@ class GradeComplaintController extends Controller
             $query->whereHas('student', fn($q) => $q
                 ->where('first_name', 'like', "%{$s}%")
                 ->orWhere('last_name',  'like', "%{$s}%")
-                ->orWhere('lrn',        'like', "%{$s}%")
+                ->orWhere('lrn_hash', hash('sha256', trim($s)))
             );
         }
 

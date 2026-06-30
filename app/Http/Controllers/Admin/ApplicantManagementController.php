@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 namespace App\Http\Controllers\Admin;
 
@@ -203,7 +203,7 @@ class ApplicantManagementController extends Controller
 
         do {
             $candidate = $prefix . str_pad($counter++, 5, '0', STR_PAD_LEFT);
-        } while (User::where('lrn', $candidate)->exists());
+        } while (User::where('lrn_hash', hash('sha256', trim($candidate)))->exists());
 
         return $candidate;
     }

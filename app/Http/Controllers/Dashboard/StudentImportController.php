@@ -122,7 +122,7 @@ class StudentImportController extends Controller
             if ($email !== '') $seenEmail[$email] = true;
 
             // Duplicate against the DATABASE — LRN
-            if (User::where('lrn', $lrn)->exists()) {
+            if (User::where('lrn_hash', hash('sha256', trim($lrn)))->exists()) {
                 return back()->with('error', 'Duplicate Record Detected. Operation Halted to Prevent Overwriting.');
             }
             // Duplicate against the DATABASE — Email (via email_hash)

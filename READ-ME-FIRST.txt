@@ -1,0 +1,64 @@
+F1 — ENCRYPT LRN AT REST (with searchable hash)  ** TEST LOCAL FIRST **
+=======================================================================
+
+WHAT THIS DOES
+  Encrypts the student LRN at rest (AES-256, via Crypt) exactly like email,
+  with an lrn_hash (SHA-256) column for equality lookups, uniqueness, and
+  search. Raw DB now shows ciphertext for LRN — matching your Chapter 3 claim.
+
+FILES
+  - database/migrations/2026_06_26_000002_encrypt_lrn_add_hash.php   (new)
+        widens lrn -> TEXT, drops users_lrn_unique, adds unique lrn_hash
+  - app/Models/User.php                  get/setLrnAttribute + lrn_hash fillable/hidden
+  - app/Console/Commands/BackfillLrn.php  php artisan lrn:backfill (dry-runnable)
+  - app/Http/Controllers/Admin/StudentImportController.php       dup-check -> lrn_hash
+  - app/Http/Controllers/Dashboard/StudentImportController.php   dup-check -> lrn_hash
+  - app/Http/Controllers/Admin/ApplicantManagementController.php uniqueness -> lrn_hash
+  - app/Http/Controllers/Dashboard/RegistrarApplicantController.php uniqueness -> lrn_hash
+  - app/Http/Controllers/Admin/UserManagementController.php      rule + search + gen -> lrn_hash
+  - app/Http/Controllers/Admin/StudentController.php             search -> exact lrn_hash
+  - app/Http/Controllers/DocumentRequestController.php           search -> exact lrn_hash
+  - app/Http/Controllers/GradeComplaintController.php            search -> exact lrn_hash
+        (this file ALSO contains the D2 applyCorrection fix — unchanged here)
+
+IMPORTANT BEHAVIOR CHANGE
+  LRN search is now EXACT (by hash), not partial. Typing a full LRN finds the
+  student; partial LRN no longer matches (you cannot substring-search encrypted
+  data). Name/username search is unchanged. Applicant-table LRN search (a
+  different table, not encrypted) is intentionally left as partial.
+
+  Defense line: "LRN is AES-256 encrypted at rest using the same searchable-hash
+  pattern as email; equality and duplicate checks run against the SHA-256 hash,
+  never plaintext — so partial-text search on LRN is intentionally unavailable,
+  exactly as you couldn't substring-search a hashed password."
+
+DEPLOY — *** DO LOCAL XAMPP FIRST *** (this alters the live users table)
+  1) cd D:\xampp\htdocs\capstone
+     Expand-Archive -Path "$HOME\Downloads\f1fix.zip" -DestinationPath . -Force
+  2) Start XAMPP MySQL. Then:
+     php artisan migrate
+     php artisan lrn:backfill --dry-run      (review what it will change)
+     php artisan lrn:backfill                (apply)
+     php artisan optimize:clear
+  3) TEST locally (see below). If all good, deploy live.
+
+DEPLOY — LIVE (only after local test passes; backup already taken)
+  Backup (already done): ~/backup_before_lrn.sql
+  Restore if needed:  mysql -u sakya_user -p sakya_academy < ~/backup_before_lrn.sql
+
+  scp each file (from LOCAL PowerShell), then on the server:
+     cd /var/www/encrypted
+     php artisan migrate
+     php artisan lrn:backfill --dry-run
+     php artisan lrn:backfill
+     php artisan optimize:clear
+
+TEST CHECKLIST
+  [ ] A student's LRN still displays correctly in lists / report card.
+  [ ] Raw DB shows ciphertext:
+        SELECT id, lrn, lrn_hash FROM users WHERE lrn IS NOT NULL LIMIT 3;
+      -> lrn is a long base64-ish blob, lrn_hash is 64 hex chars.
+  [ ] Bulk CSV import: a duplicate LRN is still detected and halts.
+  [ ] Admin student search by FULL lrn finds the student.
+  [ ] Creating a user with an existing LRN is rejected ("already registered").
+  [ ] Grade-complaint search by full LRN works.
