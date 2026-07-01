@@ -114,6 +114,7 @@ class AttendanceController extends Controller
             'attendance'         => ['required', 'array', 'min:1'],
             'attendance.*.enrollment_id' => ['required', 'exists:enrollments,id'],
             'attendance.*.status'        => ['nullable', Rule::in(['present', 'absent', 'late', 'excused', ''])],
+            'attendance.*.clear'         => ['nullable', Rule::in(['0', '1'])],
             'attendance.*.remarks'       => [
                 'nullable', 'string', 'max:255',
                 function ($attribute, $value, $fail) use ($request) {
@@ -136,6 +137,28 @@ class AttendanceController extends Controller
             ],
             'attendance.*.remarks_other' => ['nullable', 'string', 'max:255'],
         ]);
+
+        // Completeness check — block if any row has no status and no explicit clear flag.
+        // An empty status is only accepted when the faculty actively clicked ✕ (clear=1).
+        $blanks = [];
+        foreach ($validated['attendance'] as $row) {
+            if (($row['status'] ?? '') === '' && (int) ($row['clear'] ?? 0) !== 1) {
+                $enrollment = Enrollment::find($row['enrollment_id']);
+                if ($enrollment?->student) {
+                    $blanks[] = $enrollment->student->last_name . ', ' . $enrollment->student->first_name;
+                }
+            }
+        }
+        if (!empty($blanks)) {
+            $count = count($blanks);
+            return back()
+                ->withErrors([
+                    'attendance' => $count . ' student' . ($count > 1 ? 's have' : ' has') . ' no status set: '
+                        . implode('; ', $blanks)
+                        . '. Mark each student or click ✕ to explicitly clear their record.',
+                ])
+                ->withInput();
+        }
 
         $user = auth()->user();
         $sectionSubject = SectionSubject::findOrFail($validated['section_subject_id']);
@@ -165,6 +188,7 @@ class AttendanceController extends Controller
                     ->first();
 
                 $status = $row['status'] ?? '';
+                $clear  = (int) ($row['clear'] ?? 0);
 
                 // Resolve final remarks: when the dropdown sent "Other", use the free-text field.
                 $rawRemarks   = trim((string) ($row['remarks'] ?? ''));
@@ -172,9 +196,10 @@ class AttendanceController extends Controller
                     ? (trim((string) ($row['remarks_other'] ?? '')) ?: null)
                     : ($rawRemarks ?: null);
 
-                // Empty status = clear/remove the record
+                // Empty status with explicit clear=1 → delete the existing record.
+                // Empty without the flag cannot reach here (blocked by completeness check above).
                 if ($status === '' || $status === null) {
-                    if ($existing) {
+                    if ($clear === 1 && $existing) {
                         $existing->delete();
                         AuditLog::record(AuditLog::ATTENDANCE_UPDATED, [
                             'enrollment_id'      => $enrollment->id,

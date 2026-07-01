@@ -170,6 +170,11 @@
                 <td style="padding:12px 16px;color:#0f172a;font-weight:500;">
                   {{ $row->student->last_name }}, {{ $row->student->first_name }}
                   <input type="hidden" name="attendance[{{ $i }}][enrollment_id]" value="{{ $row->enrollment->id }}">
+                  <input type="hidden" name="attendance[{{ $i }}][clear]" id="att-clear-{{ $i }}" value="{{ old('attendance.'.$i.'.clear', '0') }}">
+                  <span id="clear-badge-{{ $i }}"
+                        style="display:none;margin-left:8px;font-size:.65rem;font-weight:700;color:#dc2626;
+                               padding:2px 7px;background:#fef2f2;border:1px solid #fca5a5;border-radius:4px;
+                               vertical-align:middle;letter-spacing:.04em;">CLEARING</span>
                 </td>
                 <td style="padding:12px 16px;color:#64748b;font-family:monospace;font-size:.82rem;">
                   {{ $row->student->lrn }}
@@ -192,9 +197,9 @@
                       </label>
                     @endforeach
 
-                    {{-- Clear/remove button --}}
-                    <button type="button" onclick="clearRow({{ $i }})"
-                            title="Remove attendance for this student"
+                    {{-- Explicit clear/undo button --}}
+                    <button type="button" onclick="toggleClearRow({{ $i }})"
+                            title="Explicitly clear this student's attendance record"
                             style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:6px;border:1px solid #e2e8f0;background:#f8fafc;color:#94a3b8;font-size:.85rem;cursor:pointer;line-height:1;padding:0;"
                             id="clear-btn-{{ $i }}">✕</button>
                   </div>
@@ -277,11 +282,61 @@ const ATT_COLORS = {
 const REMARKS_REQUIRED = ['absent','late','excused'];
 const REMARK_REASONS   = @json($remarkReasons ?? []);
 
+// ── Clear-flag helpers ─────────────────────────────────────────────────────
+
+function _setClearVisual(rowIdx, clearing) {
+  const row   = document.getElementById(`att-row-${rowIdx}`);
+  const btn   = document.getElementById(`clear-btn-${rowIdx}`);
+  const badge = document.getElementById(`clear-badge-${rowIdx}`);
+  if (row)   row.style.background    = clearing ? '#fff5f5' : '';
+  if (badge) badge.style.display     = clearing ? 'inline'  : 'none';
+  if (btn) {
+    btn.innerHTML           = clearing ? '↩' : '✕';
+    btn.title               = clearing ? 'Undo — restore status for this student' : 'Explicitly clear this student\'s attendance record';
+    btn.style.borderColor   = clearing ? '#fca5a5' : '#e2e8f0';
+    btn.style.color         = clearing ? '#dc2626'  : '#94a3b8';
+    btn.style.background    = clearing ? '#fef2f2' : '#f8fafc';
+  }
+}
+
+function toggleClearRow(rowIdx) {
+  const clearInp  = document.getElementById(`att-clear-${rowIdx}`);
+  const isClearing = clearInp && clearInp.value === '1';
+
+  if (isClearing) {
+    // Undo: remove the clear flag, restore unselected state
+    if (clearInp) clearInp.value = '0';
+    _setClearVisual(rowIdx, false);
+  } else {
+    // Mark for explicit clear: uncheck radios + set flag
+    document.querySelectorAll(`input[name="attendance[${rowIdx}][status]"]`).forEach(r => r.checked = false);
+    if (clearInp) clearInp.value = '1';
+    const select = document.getElementById(`remarks-select-${rowIdx}`);
+    const other  = document.getElementById(`remarks-other-${rowIdx}`);
+    const hint   = document.getElementById(`remarks-hint-${rowIdx}`);
+    if (select) { select.innerHTML = '<option value="">— Select reason —</option>'; select.style.display = 'none'; }
+    if (other)  { other.value = ''; other.style.display = 'none'; }
+    if (hint)   hint.style.display = 'none';
+    updateLabel(rowIdx);
+    _setClearVisual(rowIdx, true);
+  }
+}
+
 // ── Label coloring ─────────────────────────────────────────────────────────
 
 function updateLabel(rowIdx) {
   const checked = document.querySelector(`input[name="attendance[${rowIdx}][status]"]:checked`);
   const sel = checked ? checked.value : null;
+
+  // Selecting a status cancels any pending explicit clear on this row
+  if (sel) {
+    const clearInp = document.getElementById(`att-clear-${rowIdx}`);
+    if (clearInp && clearInp.value === '1') {
+      clearInp.value = '0';
+      _setClearVisual(rowIdx, false);
+    }
+  }
+
   ['present','absent','late','excused'].forEach(opt => {
     const c = ATT_COLORS[opt];
     document.querySelectorAll(`.att-label-${rowIdx}-${opt}`).forEach(lbl => {
@@ -384,20 +439,23 @@ function onOtherInput(rowIdx) {
 
 // ── Row / bulk clear ───────────────────────────────────────────────────────
 
-function clearRow(rowIdx) {
-  document.querySelectorAll(`input[name="attendance[${rowIdx}][status]"]`).forEach(r => r.checked = false);
-  const select = document.getElementById(`remarks-select-${rowIdx}`);
-  const other  = document.getElementById(`remarks-other-${rowIdx}`);
-  if (select) { select.innerHTML = '<option value="">— Select reason —</option>'; select.style.display = 'none'; }
-  if (other)  { other.value = ''; other.style.display = 'none'; }
-  updateLabel(rowIdx);
-  updateRemarks(rowIdx);
-}
-
 function clearAll() {
+  // "Clear All" is an intentional action — set the explicit clear flag on every row.
   document.querySelectorAll('[id^="att-row-"]').forEach(row => {
     const m = row.id.match(/att-row-(\d+)/);
-    if (m) clearRow(parseInt(m[1], 10));
+    if (!m) return;
+    const idx      = parseInt(m[1], 10);
+    const clearInp = document.getElementById(`att-clear-${idx}`);
+    if (clearInp) clearInp.value = '1';
+    document.querySelectorAll(`input[name="attendance[${idx}][status]"]`).forEach(r => r.checked = false);
+    const select = document.getElementById(`remarks-select-${idx}`);
+    const other  = document.getElementById(`remarks-other-${idx}`);
+    const hint   = document.getElementById(`remarks-hint-${idx}`);
+    if (select) { select.innerHTML = '<option value="">— Select reason —</option>'; select.style.display = 'none'; }
+    if (other)  { other.value = ''; other.style.display = 'none'; }
+    if (hint)   hint.style.display = 'none';
+    updateLabel(idx);
+    _setClearVisual(idx, true);
   });
 }
 
@@ -414,6 +472,10 @@ function _allRowIdxs() {
 
 function markAll(status) {
   _allRowIdxs().forEach(idx => {
+    // Reset any pending clear when marking a status
+    const clearInp = document.getElementById(`att-clear-${idx}`);
+    if (clearInp) clearInp.value = '0';
+    _setClearVisual(idx, false);
     const radio = document.querySelector(`input[name="attendance[${idx}][status]"][value="${status}"]`);
     if (radio) { radio.checked = true; updateLabel(idx); updateRemarks(idx); }
   });
@@ -421,6 +483,10 @@ function markAll(status) {
 
 function markAllWithReason(status, reason) {
   _allRowIdxs().forEach(idx => {
+    // Reset any pending clear when marking a status
+    const clearInp = document.getElementById(`att-clear-${idx}`);
+    if (clearInp) clearInp.value = '0';
+    _setClearVisual(idx, false);
     const radio = document.querySelector(`input[name="attendance[${idx}][status]"][value="${status}"]`);
     if (!radio) return;
     radio.checked = true;
@@ -522,6 +588,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const idx     = parseInt(m[1], 10);
     const status  = row.dataset.initialStatus;
     const remarks = row.dataset.initialRemarks;
+
+    // Restore explicit-clear visual if old() repopulated the flag after a blocked submit
+    const clearInp = document.getElementById(`att-clear-${idx}`);
+    if (clearInp && clearInp.value === '1') {
+      _setClearVisual(idx, true);
+    }
+
     if (status && REMARKS_REQUIRED.includes(status)) {
       populateRemarksSelect(idx, status, remarks || '');
     }
