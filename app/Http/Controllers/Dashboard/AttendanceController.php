@@ -67,7 +67,8 @@ class AttendanceController extends Controller
             $dateObj = now();
         }
 
-        $sessionDates = collect();
+        $sessionDates       = collect();
+        $offScheduleWarning = null;
 
         if ($sectionSubjectId) {
             $selectedSchedule = $allSchedules->firstWhere('id', (int) $sectionSubjectId);
@@ -83,6 +84,16 @@ class AttendanceController extends Controller
                     ->limit(60)
                     ->pluck('date')
                     ->map(fn($d) => \Carbon\Carbon::parse($d));
+
+                // Warn (but don't block) if the chosen date isn't a scheduled meeting day.
+                if (!$selectedSchedule->meetsOn(strtolower($dateObj->format('l')))) {
+                    $offScheduleWarning = $dateObj->format('l, F j Y')
+                        . ' is not a regular meeting day for this class'
+                        . ($selectedSchedule->schedule_days_label
+                            ? ' (scheduled: ' . $selectedSchedule->schedule_days_label . ')'
+                            : '')
+                        . '. You can still save — use this for make-up or suspended classes.';
+                }
             }
         }
 
@@ -96,7 +107,8 @@ class AttendanceController extends Controller
             'date',
             'activeYear',
             'sessionDates',
-            'remarkReasons'
+            'remarkReasons',
+            'offScheduleWarning'
         ));
     }
 
@@ -168,13 +180,13 @@ class AttendanceController extends Controller
             abort(403, 'You can only record attendance for classes assigned to you.');
         }
 
-        $date = Carbon::parse($validated['date'])->toDateString();
+        $date          = Carbon::parse($validated['date'])->toDateString();
+        $isOffSchedule = !$sectionSubject->meetsOn(strtolower(Carbon::parse($date)->format('l')));
         $created = 0;
         $updated = 0;
-
         $deleted = 0;
 
-        DB::transaction(function () use ($validated, $sectionSubject, $date, $user, &$created, &$updated, &$deleted) {
+        DB::transaction(function () use ($validated, $sectionSubject, $date, $user, $isOffSchedule, &$created, &$updated, &$deleted) {
             foreach ($validated['attendance'] as $row) {
                 // Verify the enrollment is actually for the same section as this section-subject
                 $enrollment = Enrollment::find($row['enrollment_id']);
@@ -236,12 +248,13 @@ class AttendanceController extends Controller
                         'remarks'            => $finalRemarks,
                         'recorded_by'        => $user->id,
                     ]);
-                    AuditLog::record(AuditLog::ATTENDANCE_RECORDED, [
+                    AuditLog::record(AuditLog::ATTENDANCE_RECORDED, array_filter([
                         'enrollment_id'      => $enrollment->id,
                         'section_subject_id' => $sectionSubject->id,
                         'date'               => $date,
                         'status'             => $status,
-                    ]);
+                        'off_schedule'       => $isOffSchedule ?: null,
+                    ]));
                     $created++;
                 }
             }

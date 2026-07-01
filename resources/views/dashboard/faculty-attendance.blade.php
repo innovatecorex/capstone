@@ -110,6 +110,19 @@
     <input type="hidden" name="section_subject_id" value="{{ $selectedSchedule->id }}">
     <input type="hidden" name="date" value="{{ $date }}">
 
+    @if($offScheduleWarning ?? null)
+    <div style="margin-bottom:16px;padding:12px 16px;background:#fffbeb;border:1px solid #fde68a;
+                border-left:3px solid #f59e0b;border-radius:8px;font-size:.84rem;color:#92400e;
+                display:flex;align-items:flex-start;gap:10px;">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+           stroke-width="2" style="width:16px;height:16px;flex-shrink:0;margin-top:1px;">
+        <path stroke-linecap="round" stroke-linejoin="round"
+              d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
+      </svg>
+      <span>{{ $offScheduleWarning }}</span>
+    </div>
+    @endif
+
     <div class="enc-card">
       <div class="enc-card__header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
         <div>
