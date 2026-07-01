@@ -235,16 +235,17 @@ body {
 .upload-zone {
   border: 1.5px dashed #cbd5e1;
   border-radius: 10px;
-  padding: 10px 14px;
+  padding: 0 12px;
+  height: 44px;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   cursor: pointer;
-  transition: border-color .2s, background .2s, box-shadow .2s;
+  transition: border-color .15s, background .15s, box-shadow .15s;
   background: #f8fafc;
   user-select: none;
   margin-top: 6px;
-  min-height: 52px;
+  overflow: hidden;
 }
 .upload-zone:hover, .upload-zone.uz-drag {
   border-color: #2563eb;
@@ -254,32 +255,31 @@ body {
 .upload-zone.uz-ok {
   border: 1.5px solid #86efac;
   background: #f0fdf4;
-  cursor: pointer;
 }
 .upload-zone.uz-err {
   border-color: #fca5a5;
   background: #fef2f2;
 }
 .upload-zone svg.uz-icon {
-  width: 22px; height: 22px;
+  width: 15px; height: 15px;
   color: #94a3b8;
   flex-shrink: 0;
-  transition: color .2s;
+  transition: color .15s;
 }
 .upload-zone:hover svg.uz-icon, .upload-zone.uz-drag svg.uz-icon { color: #2563eb; }
 .upload-zone.uz-err svg.uz-icon { color: #fca5a5; }
-.uz-body { flex: 1; min-width: 0; }
-.uz-title { font-size: .78rem; font-weight: 600; color: #334155; line-height: 1.3; }
-.uz-title strong { color: #2563eb; font-weight: 700; }
-.uz-sub { font-size: .67rem; color: #94a3b8; margin-top: 1px; }
-.uz-preview { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
-.uz-preview img { width: 38px; height: 38px; object-fit: cover; border-radius: 6px; border: 1px solid #bbf7d0; flex-shrink: 0; }
-.uz-file-icon { width: 28px; height: 28px; background: #dcfce7; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.uz-file-icon svg { width: 14px; height: 14px; color: #16a34a; }
+.uz-body { flex: 1; min-width: 0; display: flex; align-items: center; gap: 6px; }
+.uz-title { font-size: .78rem; font-weight: 500; color: #475569; white-space: nowrap; }
+.uz-title strong { color: #2563eb; font-weight: 600; }
+.uz-sub { font-size: .67rem; color: #94a3b8; }
+.uz-preview { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
+.uz-preview img { width: 28px; height: 28px; object-fit: cover; border-radius: 4px; border: 1px solid #bbf7d0; flex-shrink: 0; }
+.uz-file-icon { width: 24px; height: 24px; background: #dcfce7; border-radius: 5px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.uz-file-icon svg { width: 12px; height: 12px; color: #16a34a; }
 .uz-file-text { min-width: 0; flex: 1; }
-.uz-file-name { font-size: .77rem; font-weight: 600; color: #15803d; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.uz-file-size { font-size: .67rem; color: #6b928e; }
-.uz-change { font-size: .68rem; color: #2563eb; font-weight: 600; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+.uz-file-name { font-size: .75rem; font-weight: 600; color: #15803d; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.2; }
+.uz-file-size { font-size: .64rem; color: #6b928e; line-height: 1.2; }
+.uz-change { font-size: .67rem; color: #2563eb; font-weight: 600; cursor: pointer; white-space: nowrap; flex-shrink: 0; margin-left: 4px; }
 .uz-change:hover { text-decoration: underline; }
 
 /* Submit card */
@@ -1062,7 +1062,7 @@ body {
 
           {{-- Good Moral --}}
           <div class="ap-field">
-            <label class="field-label">Good Moral Certificate <span class="opt">(optional)</span></label>
+            <label class="field-label">Certificate of Good Moral Character <span class="req">*</span></label>
             <div class="upload-zone{{ $errors->has('docs.good_moral') ? ' uz-err' : '' }}"
                  id="zone-moral"
                  onclick="triggerUpload('file-moral',event)"
@@ -1092,7 +1092,7 @@ body {
 
           {{-- 2x2 Picture --}}
           <div class="ap-field">
-            <label class="field-label">2&times;2 ID Picture <span class="req">*</span></label>
+            <label class="field-label">2&times;2 ID Picture <span class="opt">(optional)</span></label>
             <div class="upload-zone{{ $errors->has('docs.picture_2x2') ? ' uz-err' : '' }}"
                  id="zone-pic2x2"
                  onclick="triggerUpload('file-pic2x2',event)"

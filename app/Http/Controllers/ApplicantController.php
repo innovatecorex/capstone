@@ -63,7 +63,7 @@ class ApplicantController extends Controller
             'docs.form_137'          => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
             'docs.report_card'       => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
             'docs.good_moral'        => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
-            'docs.picture_2x2'       => ['required', 'file', 'mimes:jpg,jpeg,png', 'max:5120'],
+            'docs.picture_2x2'       => ['nullable', 'file', 'mimes:jpg,jpeg,png', 'max:5120'],
         ], [
             'docs.birth_certificate.required' => 'Please upload your PSA Birth Certificate.',
             'docs.form_137.required'          => 'Please upload your Form 137 (Permanent Record).',
