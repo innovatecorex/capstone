@@ -19,9 +19,11 @@ class ApplicantController extends Controller
     ];
 
     public const DOCUMENT_TYPES = [
-        'birth_certificate' => ['label' => 'Birth Certificate (PSA)', 'required' => true],
-        'report_card'       => ['label' => 'Previous Report Card / Form 138', 'required' => true],
-        'good_moral'        => ['label' => 'Good Moral Certificate', 'required' => false],
+        'birth_certificate' => ['label' => 'PSA Birth Certificate',               'required' => true],
+        'form_137'          => ['label' => 'Form 137 (Permanent Record)',          'required' => true],
+        'report_card'       => ['label' => 'Previous Report Card / Form 138',     'required' => true],
+        'good_moral'        => ['label' => 'Certificate of Good Moral Character', 'required' => true],
+        'picture_2x2'       => ['label' => '2×2 ID Picture',                     'required' => true],
     ];
 
     public function create(): View
@@ -58,17 +60,26 @@ class ApplicantController extends Controller
             'parent_contact'         => ['required', 'string', 'max:20'],
             'parent_email'           => ['nullable', 'email', 'max:180'],
             'docs.birth_certificate' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
+            'docs.form_137'          => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
             'docs.report_card'       => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
-            'docs.good_moral'        => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
+            'docs.good_moral'        => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
+            'docs.picture_2x2'       => ['required', 'file', 'mimes:jpg,jpeg,png', 'max:5120'],
         ], [
-            'docs.birth_certificate.required' => 'Please upload your Birth Certificate (PSA).',
+            'docs.birth_certificate.required' => 'Please upload your PSA Birth Certificate.',
+            'docs.form_137.required'          => 'Please upload your Form 137 (Permanent Record).',
             'docs.report_card.required'       => 'Please upload your Previous Report Card / Form 138.',
+            'docs.good_moral.required'        => 'Please upload your Certificate of Good Moral Character.',
+            'docs.picture_2x2.required'       => 'Please upload your 2×2 ID Picture.',
             'docs.birth_certificate.mimes'    => 'Birth Certificate must be a PDF, JPG, or PNG file.',
+            'docs.form_137.mimes'             => 'Form 137 must be a PDF, JPG, or PNG file.',
             'docs.report_card.mimes'          => 'Report Card must be a PDF, JPG, or PNG file.',
             'docs.good_moral.mimes'           => 'Good Moral Certificate must be a PDF, JPG, or PNG file.',
+            'docs.picture_2x2.mimes'          => '2×2 Picture must be a JPG or PNG image.',
             'docs.birth_certificate.max'      => 'Birth Certificate must not exceed 5MB.',
+            'docs.form_137.max'               => 'Form 137 must not exceed 5MB.',
             'docs.report_card.max'            => 'Report Card must not exceed 5MB.',
             'docs.good_moral.max'             => 'Good Moral Certificate must not exceed 5MB.',
+            'docs.picture_2x2.max'            => '2×2 Picture must not exceed 5MB.',
         ]);
 
         $validated['nationality'] = $validated['nationality'] ?? 'Filipino';

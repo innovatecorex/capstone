@@ -233,24 +233,26 @@ body {
    UPLOAD ZONES
 ══════════════════════════════════════ */
 .upload-zone {
-  border: 2px dashed #cbd5e1;
-  border-radius: 14px;
-  padding: 26px 20px 20px;
-  text-align: center;
+  border: 1.5px dashed #cbd5e1;
+  border-radius: 10px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
   cursor: pointer;
   transition: border-color .2s, background .2s, box-shadow .2s;
   background: #f8fafc;
   user-select: none;
-  position: relative;
   margin-top: 6px;
+  min-height: 52px;
 }
 .upload-zone:hover, .upload-zone.uz-drag {
   border-color: #2563eb;
   background: #eff6ff;
-  box-shadow: 0 0 0 4px rgba(37,99,235,.08);
+  box-shadow: 0 0 0 3px rgba(37,99,235,.08);
 }
 .upload-zone.uz-ok {
-  border: 2px solid #86efac;
+  border: 1.5px solid #86efac;
   background: #f0fdf4;
   cursor: pointer;
 }
@@ -259,26 +261,25 @@ body {
   background: #fef2f2;
 }
 .upload-zone svg.uz-icon {
-  width: 40px; height: 40px;
-  color: #cbd5e1;
+  width: 22px; height: 22px;
+  color: #94a3b8;
+  flex-shrink: 0;
   transition: color .2s;
-  margin: 0 auto;
-  display: block;
 }
 .upload-zone:hover svg.uz-icon, .upload-zone.uz-drag svg.uz-icon { color: #2563eb; }
 .upload-zone.uz-err svg.uz-icon { color: #fca5a5; }
-.uz-body { margin-top: 10px; }
-.uz-title { font-size: .83rem; font-weight: 600; color: #334155; }
+.uz-body { flex: 1; min-width: 0; }
+.uz-title { font-size: .78rem; font-weight: 600; color: #334155; line-height: 1.3; }
 .uz-title strong { color: #2563eb; font-weight: 700; }
-.uz-sub { font-size: .71rem; color: #94a3b8; margin-top: 3px; }
-.uz-preview { margin-top: 12px; }
-.uz-preview img { max-width: 100%; max-height: 130px; border-radius: 8px; border: 1px solid #bbf7d0; display: block; margin: 0 auto 10px; }
-.uz-file-info { display: inline-flex; align-items: center; gap: 10px; background: #fff; border: 1px solid #d1fae5; border-radius: 10px; padding: 8px 14px; text-align: left; }
-.uz-file-icon { width: 30px; height: 30px; background: #dcfce7; border-radius: 7px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.uz-file-icon svg { width: 15px; height: 15px; color: #16a34a; }
-.uz-file-name { font-size: .79rem; font-weight: 600; color: #15803d; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.uz-file-size { font-size: .69rem; color: #6b928e; margin-top: 1px; }
-.uz-change { display: inline-block; margin-top: 8px; font-size: .71rem; color: #2563eb; font-weight: 600; cursor: pointer; }
+.uz-sub { font-size: .67rem; color: #94a3b8; margin-top: 1px; }
+.uz-preview { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; }
+.uz-preview img { width: 38px; height: 38px; object-fit: cover; border-radius: 6px; border: 1px solid #bbf7d0; flex-shrink: 0; }
+.uz-file-icon { width: 28px; height: 28px; background: #dcfce7; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.uz-file-icon svg { width: 14px; height: 14px; color: #16a34a; }
+.uz-file-text { min-width: 0; flex: 1; }
+.uz-file-name { font-size: .77rem; font-weight: 600; color: #15803d; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.uz-file-size { font-size: .67rem; color: #6b928e; }
+.uz-change { font-size: .68rem; color: #2563eb; font-weight: 600; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
 .uz-change:hover { text-decoration: underline; }
 
 /* Submit card */
@@ -999,6 +1000,36 @@ body {
             @enderror
           </div>
 
+          {{-- Form 137 --}}
+          <div class="ap-field" style="margin-bottom:18px;">
+            <label class="field-label">Form 137 (Permanent Record) <span class="req">*</span></label>
+            <div class="upload-zone{{ $errors->has('docs.form_137') ? ' uz-err' : '' }}"
+                 id="zone-form137"
+                 onclick="triggerUpload('file-form137',event)"
+                 ondragover="event.preventDefault();uzDragOn('zone-form137')"
+                 ondragleave="uzDragOff('zone-form137')"
+                 ondrop="uzDrop(event,'file-form137','prev-form137','zone-form137')">
+              <input type="file" id="file-form137" name="docs[form_137]"
+                     accept=".pdf,.jpg,.jpeg,.png" style="display:none"
+                     onchange="uzPreview(this,'prev-form137','zone-form137')">
+              <svg class="uz-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.338-2.32 5.75 5.75 0 011.344 11.095"/>
+              </svg>
+              <div class="uz-body">
+                <p class="uz-title"><strong>Click to upload</strong> or drag &amp; drop</p>
+                <p class="uz-sub">PDF, JPG, JPEG, PNG &mdash; max 5 MB</p>
+              </div>
+              <div id="prev-form137" class="uz-preview" style="display:none"></div>
+            </div>
+            <div class="field-hint">Required. Form 137 issued and signed by your previous school.</div>
+            @error('docs.form_137')
+            <div class="field-err">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9.303 3.376c.866 1.5-.217 3.374-1.948 3.374H4.645c-1.73 0-2.813-1.874-1.948-3.374l7.547-13.015c.866-1.5 3.032-1.5 3.898 0l5.16 8.898z"/></svg>
+              {{ $message }}
+            </div>
+            @enderror
+          </div>
+
           {{-- Report Card --}}
           <div class="ap-field" style="margin-bottom:18px;">
             <label class="field-label">Previous Report Card / Form 138 <span class="req">*</span></label>
@@ -1050,8 +1081,38 @@ body {
               </div>
               <div id="prev-moral" class="uz-preview" style="display:none"></div>
             </div>
-            <div class="field-hint">Optional. Certificate of Good Moral issued by your previous school.</div>
+            <div class="field-hint">Required. Certificate of Good Moral Character issued by your previous school.</div>
             @error('docs.good_moral')
+            <div class="field-err">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9.303 3.376c.866 1.5-.217 3.374-1.948 3.374H4.645c-1.73 0-2.813-1.874-1.948-3.374l7.547-13.015c.866-1.5 3.032-1.5 3.898 0l5.16 8.898z"/></svg>
+              {{ $message }}
+            </div>
+            @enderror
+          </div>
+
+          {{-- 2x2 Picture --}}
+          <div class="ap-field">
+            <label class="field-label">2&times;2 ID Picture <span class="req">*</span></label>
+            <div class="upload-zone{{ $errors->has('docs.picture_2x2') ? ' uz-err' : '' }}"
+                 id="zone-pic2x2"
+                 onclick="triggerUpload('file-pic2x2',event)"
+                 ondragover="event.preventDefault();uzDragOn('zone-pic2x2')"
+                 ondragleave="uzDragOff('zone-pic2x2')"
+                 ondrop="uzDrop(event,'file-pic2x2','prev-pic2x2','zone-pic2x2')">
+              <input type="file" id="file-pic2x2" name="docs[picture_2x2]"
+                     accept=".jpg,.jpeg,.png" style="display:none"
+                     onchange="uzPreview(this,'prev-pic2x2','zone-pic2x2')">
+              <svg class="uz-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/>
+              </svg>
+              <div class="uz-body">
+                <p class="uz-title"><strong>Click to upload</strong> or drag &amp; drop</p>
+                <p class="uz-sub">JPG, JPEG, PNG &mdash; max 5 MB</p>
+              </div>
+              <div id="prev-pic2x2" class="uz-preview" style="display:none"></div>
+            </div>
+            <div class="field-hint">Required. Recent 2&times;2 photo with white background, in plain clothes.</div>
+            @error('docs.picture_2x2')
             <div class="field-err">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9.303 3.376c.866 1.5-.217 3.374-1.948 3.374H4.645c-1.73 0-2.813-1.874-1.948-3.374l7.547-13.015c.866-1.5 3.032-1.5 3.898 0l5.16 8.898z"/></svg>
               {{ $message }}
@@ -1140,25 +1201,23 @@ body {
     zone.querySelector('.uz-body').style.display = 'none';
 
     const pdfIconSvg = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>';
-    const imgIconSvg = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3 20.25h18M3.75 4.5h16.5a.75.75 0 01.75.75v13.5a.75.75 0 01-.75.75H3.75a.75.75 0 01-.75-.75V5.25a.75.75 0 01.75-.75z"/></svg>';
-    const changeBtn = '<br><span class="uz-change" onclick="event.stopPropagation();uzChange(\''+input.id+'\',\''+previewId+'\',\''+zoneId+'\')">Change file</span>';
+    const changeBtn = '<span class="uz-change" onclick="event.stopPropagation();uzChange(\''+input.id+'\',\''+previewId+'\',\''+zoneId+'\')">Change</span>';
 
-    const fileInfo = (icon) =>
-      '<div class="uz-file-info">'
-      + '<div class="uz-file-icon">'+icon+'</div>'
-      + '<div><div class="uz-file-name">'+file.name+'</div><div class="uz-file-size">'+sizeMB+' MB</div></div>'
-      + '</div>';
+    const buildPreview = (thumbHtml) =>
+      (thumbHtml ? thumbHtml : '<div class="uz-file-icon">'+pdfIconSvg+'</div>')
+      + '<div class="uz-file-text"><div class="uz-file-name">'+file.name+'</div><div class="uz-file-size">'+sizeMB+' MB</div></div>'
+      + changeBtn;
 
     if (file.type.startsWith('image/')) {
       const reader = new FileReader();
       reader.onload = ev => {
-        box.innerHTML = '<img src="'+ev.target.result+'">' + fileInfo(imgIconSvg) + changeBtn;
-        box.style.display = 'block';
+        box.innerHTML = buildPreview('<img src="'+ev.target.result+'">');
+        box.style.display = 'flex';
       };
       reader.readAsDataURL(file);
     } else {
-      box.innerHTML = fileInfo(pdfIconSvg) + changeBtn;
-      box.style.display = 'block';
+      box.innerHTML = buildPreview(null);
+      box.style.display = 'flex';
     }
   }
   function uzChange(inputId, previewId, zoneId) {
