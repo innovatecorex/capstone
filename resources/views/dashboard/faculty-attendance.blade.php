@@ -403,18 +403,26 @@ function updateRemarks(rowIdx) {
   const select  = document.getElementById(`remarks-select-${rowIdx}`);
   const other   = document.getElementById(`remarks-other-${rowIdx}`);
   const hint    = document.getElementById(`remarks-hint-${rowIdx}`);
+  const row     = document.getElementById(`att-row-${rowIdx}`);
   if (!select) return;
 
   if (!REMARKS_REQUIRED.includes(status)) {
     select.style.display = 'none';
     if (other) other.style.display = 'none';
     if (hint)  hint.style.display  = 'none';
+    if (row) row.dataset.lastRemarksStatus = '';
     return;
   }
 
-  // Preserve the current logical value before repopulating options for the new status
-  const prevVal = (select.value === 'Other' && other)
-    ? (other.value || '') : (select.value || '');
+  // Only preserve the current select value when the status hasn't changed.
+  // When the status changes (e.g. absent→excused), start fresh — otherwise
+  // the previous status's reason bleeds into the Other field of the new one.
+  const prevStatus  = row ? (row.dataset.lastRemarksStatus || '') : '';
+  const statusSame  = prevStatus === status;
+  const prevVal     = statusSame
+    ? ((select.value === 'Other' && other) ? (other.value || '') : (select.value || ''))
+    : '';
+  if (row) row.dataset.lastRemarksStatus = status;
 
   populateRemarksSelect(rowIdx, status, prevVal);
   select.style.display = 'block';
@@ -491,6 +499,8 @@ function markAllWithReason(status, reason) {
     if (!radio) return;
     radio.checked = true;
     updateLabel(idx);
+    const row = document.getElementById(`att-row-${idx}`);
+    if (row) row.dataset.lastRemarksStatus = status;
     populateRemarksSelect(idx, status, reason);
     const select = document.getElementById(`remarks-select-${idx}`);
     const other  = document.getElementById(`remarks-other-${idx}`);
@@ -597,6 +607,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (status && REMARKS_REQUIRED.includes(status)) {
       populateRemarksSelect(idx, status, remarks || '');
+      // Stamp the tracking attr so updateRemarks below treats this as same-status
+      // and preserves the value we just loaded from the database.
+      row.dataset.lastRemarksStatus = status;
     }
     updateLabel(idx);
     updateRemarks(idx);
