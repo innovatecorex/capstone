@@ -129,6 +129,7 @@ class ScheduleController extends Controller
     {
         $data = $request->validate([
             'academic_year_id' => ['required'],
+            'subject_id'       => ['nullable', 'exists:subjects,id'],
             'faculty_id'       => ['nullable'],
             'classroom_id'     => ['nullable'],
             'schedule_days'    => ['required', 'array'],

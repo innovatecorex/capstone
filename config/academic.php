@@ -37,7 +37,11 @@ return [
     // ── Audit log retention in years (used by audit:prune command) ────────
     'audit_retention_years' => env('AUDIT_RETENTION_YEARS', 2),
 
-    // ── Schedule duration rule (per adviser feedback) ──────────────────────
-    // Minimum block length only — there is intentionally no maximum.
-    'schedule_min_hours' => env('SCHEDULE_MIN_HOURS', 2.0),
+    // ── Schedule duration rules ────────────────────────────────────────────
+    // Global floor used when a subject has no per-subject min_minutes set.
+    // Set a subject's min_minutes column to override for that subject only.
+    'schedule_min_minutes' => env('SCHEDULE_MIN_MINUTES', 60),
+
+    // Hard upper bound — blocks a typo like 07:00–17:00 for a 1-period class.
+    'schedule_max_minutes' => env('SCHEDULE_MAX_MINUTES', 480),
 ];

@@ -79,6 +79,7 @@ class AuditLog extends Model
     public const ATTENDANCE_UPDATED        = 'ATTENDANCE_UPDATED';
     public const AUDIT_LOG_EXPORTED        = 'AUDIT_LOG_EXPORTED';
     public const RATE_LIMIT_EXCEEDED       = 'RATE_LIMIT_EXCEEDED';
+    public const ANNOUNCEMENT_POSTED       = 'ANNOUNCEMENT_POSTED';
 
     // ══════════════════════════════════════════════════════════════════════
     // STATIC HELPER — use this everywhere instead of ::create() directly

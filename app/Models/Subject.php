@@ -36,6 +36,7 @@ class Subject extends Model
         'year_level',
         'description',
         'credits',
+        'min_minutes',
         'status',
         'ww_weight',
         'pt_weight',
@@ -43,10 +44,11 @@ class Subject extends Model
     ];
 
     protected $casts = [
-        'credits'   => 'integer',
-        'ww_weight' => 'float',
-        'pt_weight' => 'float',
-        'qa_weight' => 'float',
+        'credits'     => 'integer',
+        'min_minutes' => 'integer',
+        'ww_weight'   => 'float',
+        'pt_weight'   => 'float',
+        'qa_weight'   => 'float',
     ];
 
     // ── Relationships ──────────────────────────────────────────────────────

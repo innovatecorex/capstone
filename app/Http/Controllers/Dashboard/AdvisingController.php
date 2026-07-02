@@ -27,7 +27,7 @@ class AdvisingController extends Controller
             ->when($search, fn($q) => $q->where(function ($q2) use ($search) {
                 $q2->where('first_name', 'like', "%{$search}%")
                    ->orWhere('last_name',  'like', "%{$search}%")
-                   ->orWhere('lrn',        'like', "%{$search}%");
+                   ->orWhere('lrn_hash',   hash('sha256', trim($search)));
             }))
             ->orderBy('last_name')
             ->paginate(25)

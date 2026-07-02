@@ -70,6 +70,15 @@ class GradebookController extends Controller
             ]);
         }
 
+        AuditLog::record(AuditLog::ANNOUNCEMENT_POSTED, [
+            'announcement_id' => $announcement->id,
+            'title'           => $announcement->title,
+            'scope'           => 'section',
+            'section_id'      => $ss->section_id,
+            'section_name'    => $ss->section?->section_name ?? 'Unknown',
+            'recipient_count' => $studentIds->count(),
+        ]);
+
         return redirect()
             ->route('faculty.gradebook.show', $ss)
             ->with('success', 'Announcement posted to ' . ($ss->section_name ?? 'your section') . '.');

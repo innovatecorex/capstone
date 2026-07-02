@@ -52,6 +52,35 @@ class Announcement extends Model
         });
     }
 
+    /**
+     * Scope for student recipients, enforcing section isolation.
+     *
+     * Returns:
+     *   - all-audience broadcasts (admin)
+     *   - 'both' broadcasts (registrar student+faculty)
+     *   - 'student' announcements with no section (global)
+     *   - 'student' announcements scoped to $sectionId (faculty section announce)
+     *
+     * Faculty section-scoped announcements (section_id set) are excluded for
+     * students outside that section, fixing the cross-section visibility bug.
+     */
+    public function scopeForStudent($query, ?int $sectionId = null)
+    {
+        return $query->where(function ($q) use ($sectionId) {
+            $q->where('target_audience', 'all')
+              ->orWhere('target_audience', 'both')
+              ->orWhere(function ($inner) use ($sectionId) {
+                  $inner->where('target_audience', 'student')
+                        ->where(function ($sect) use ($sectionId) {
+                            $sect->whereNull('section_id');
+                            if ($sectionId) {
+                                $sect->orWhere('section_id', $sectionId);
+                            }
+                        });
+              });
+        });
+    }
+
     public function getPriorityLabelAttribute(): string
     {
         return ucfirst($this->priority);

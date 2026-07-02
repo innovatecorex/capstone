@@ -259,7 +259,7 @@
       <select id="gb-q-select" name="quarter_id" class="gb-quarter-select" onchange="this.form.submit()">
         @foreach($allQuarters as $q)
           <option value="{{ $q->id }}" @selected($quarter && $q->id === $quarter->id)>
-            {{ $q->quarter_name }}{{ $q->id === ($activeQuarter?->id) ? ' (active)' : '' }}
+            {{ $q->quarter_name }}{{ $q->id === $activeQuarter?->id ? ' (active)' : '' }}
           </option>
         @endforeach
       </select>
@@ -425,7 +425,10 @@
             $studentNameJs = addslashes($student?->full_name ?? '');
           @endphp
 
-          <tr class="grade-row{{ $dropped ? ' dropped-row' : '' }}" data-enrollment="{{ $enrollment->id }}">
+          <tr class="grade-row{{ $dropped ? ' dropped-row' : '' }}"
+              data-enrollment="{{ $enrollment->id }}"
+              data-student="{{ e($student?->full_name ?? '') }}"
+              data-dropped="{{ $dropped ? 'true' : 'false' }}">
 
             {{-- # --}}
             <td style="padding-left:16px;color:#94a3b8;font-size:.8rem;">{{ $i + 1 }}</td>
@@ -496,7 +499,8 @@
               @if($dropped)
                 <span style="font-size:.78rem;font-weight:600;color:#dc2626;">Dropped</span>
               @else
-                <span class="gb-grade-cell">
+                <span class="gb-grade-cell"
+                      style="{{ $grade?->final_grade === null ? 'color:#94a3b8;' : '' }}">
                   {{ $grade?->final_grade !== null ? number_format($grade->final_grade, 2) : '—' }}
                 </span>
               @endif
@@ -851,7 +855,9 @@
     const qa = parseFloat(qaIn?.value);
 
     if (isNaN(ww) || isNaN(pt) || isNaN(qa)) {
-      igEl.textContent  = '—';
+      // At least one component is empty (NULL = not yet graded). Show greyed "—".
+      igEl.textContent = '—';
+      igEl.style.color = '#94a3b8';
       if (tgEl)  { tgEl.textContent = '—'; tgEl.style.color = '#94a3b8'; }
       if (descEl) {
         descEl.textContent = '—';
@@ -864,7 +870,9 @@
     const tg     = transmuteGrade(ig);
     const desc   = getDescriptor(tg);
 
+    // All three components present (including a real 0.0 score). Show computed grade.
     igEl.textContent = ig.toFixed(2);
+    igEl.style.color = '';
 
     if (tgEl) {
       tgEl.textContent = tg !== null ? tg : '—';
@@ -930,12 +938,38 @@
 
   /* ── Submit grades confirmation ─────────────────────── */
   window.submitGrades = function () {
-    // Check for any validation errors first
+    // Step 1: block on range errors
     const hasErrors = document.querySelectorAll('.gb-score-input.error').length > 0;
     if (hasErrors) {
       alert('Please fix the highlighted input errors before submitting grades.');
       return;
     }
+
+    // Step 2: C1 completeness gate — mirror the server-side check so faculty
+    // sees the list of incomplete students before the round-trip.
+    // Dropped rows and fully-disabled rows (locked) are excluded, matching
+    // the server-side logic in GradebookController::submit().
+    const incompleteNames = [];
+    document.querySelectorAll('.grade-row').forEach(function (row) {
+      if (row.dataset.dropped === 'true') return;
+      const inputs = Array.from(row.querySelectorAll('.gb-score-input'));
+      if (inputs.length === 0 || inputs.every(function (i) { return i.disabled; })) return;
+      const anyEmpty = inputs.some(function (i) { return i.value.trim() === ''; });
+      if (anyEmpty) {
+        const name = row.dataset.student || ('Enrollment #' + row.dataset.enrollment);
+        incompleteNames.push(name);
+      }
+    });
+
+    if (incompleteNames.length > 0) {
+      alert(
+        'Cannot submit — these students have incomplete grades:\n\n• ' +
+        incompleteNames.join('\n• ') +
+        '\n\nEnter all three scores for each student, or drop the student, then submit.'
+      );
+      return;
+    }
+
     if (confirm('Submit all graded students for registrar review?\n\nThis cannot be undone. Make sure all scores are final.')) {
       document.getElementById('submit-form').submit();
     }

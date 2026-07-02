@@ -12,13 +12,15 @@ class Applicant extends Model
 {
     protected $fillable = [
         'first_name', 'middle_name', 'last_name', 'suffix',
-        'date_of_birth', 'sex', 'lrn', 'nationality',
+        'date_of_birth', 'sex', 'lrn', 'lrn_hash', 'nationality',
         'address', 'barangay', 'municipality', 'province', 'zip_code',
         'previous_school', 'previous_grade_level', 'school_year_completed',
         'applying_for_grade', 'applying_for_year',
         'parent_guardian_name', 'relationship', 'parent_contact', 'parent_email',
         'reference_number', 'status', 'remarks', 'reviewed_by', 'reviewed_at',
     ];
+
+    protected $hidden = ['lrn_hash'];
 
     protected $casts = [
         // date_of_birth is handled by encrypted accessor — no cast here
@@ -40,8 +42,7 @@ class Applicant extends Model
 
     // ══════════════════════════════════════════════════════════════════════
     // AES-256 ENCRYPTED ACCESSORS & MUTATORS  (RA 10173 sensitive PII)
-    // Searchable fields (first_name, last_name, lrn, reference_number)
-    // are left as plain text so LIKE queries continue to work.
+    // lrn is encrypted; exact-match search uses lrn_hash (SHA-256).
     // ══════════════════════════════════════════════════════════════════════
 
     private function decrypt(?string $value): ?string
@@ -53,6 +54,35 @@ class Applicant extends Model
     private function encrypt(?string $value): ?string
     {
         return $value ? Crypt::encryptString($value) : null;
+    }
+
+    // ── lrn (AES-256, searchable via lrn_hash) ──────────────────────────────
+    public function getLrnAttribute(?string $value): ?string
+    {
+        if ($value === null || $value === '') {
+            return $value;
+        }
+        try {
+            return Crypt::decryptString($value);
+        } catch (\Exception $e) {
+            // Legacy plaintext LRN (not yet backfilled) — a 9-12 digit string.
+            if (preg_match('/^\d{9,12}$/', $value)) {
+                return $value;
+            }
+            return '';
+        }
+    }
+
+    public function setLrnAttribute(?string $value): void
+    {
+        if ($value === null || $value === '') {
+            $this->attributes['lrn']      = null;
+            $this->attributes['lrn_hash'] = null;
+            return;
+        }
+        $normalized                   = trim($value);
+        $this->attributes['lrn']      = Crypt::encryptString($normalized);
+        $this->attributes['lrn_hash'] = hash('sha256', $normalized);
     }
 
     // ── date_of_birth ──────────────────────────────────────────────────────

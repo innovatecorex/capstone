@@ -75,12 +75,56 @@
     </div>
   </div>
 
-  {{-- ── Right panel prompt ──────────────────────────────────────── --}}
-  <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:16px;padding:40px;text-align:center;color:#94a3b8;">
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" style="width:40px;height:40px;margin:0 auto 12px;display:block;color:#cbd5e1;">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/>
-    </svg>
-    <p style="font-size:.84rem;">Select a message on the left to read and reply.</p>
+  {{-- ── Right panel: compose + prompt ─────────────────────────── --}}
+  <div>
+    {{-- Compose new message --}}
+    @if($recipients->isNotEmpty())
+    <div style="background:#fff;border:1px solid #e2e8f0;border-radius:16px;margin-bottom:16px;overflow:hidden;">
+      <button onclick="toggleCompose()" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:none;border:none;cursor:pointer;font-size:.875rem;font-weight:700;color:#0f172a;">
+        <span>New Message</span>
+        <svg id="compose-chevron" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;transition:transform .2s;">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+        </svg>
+      </button>
+      <div id="compose-form" style="display:none;padding:0 18px 18px;">
+        @if($errors->has('recipient_id'))
+          <div style="margin-bottom:10px;padding:8px 12px;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;color:#991b1b;font-size:.8rem;">{{ $errors->first('recipient_id') }}</div>
+        @endif
+        <form method="POST" action="{{ route('faculty.inbox.store') }}">
+          @csrf
+          <div style="margin-bottom:12px;">
+            <label style="display:block;font-size:.75rem;font-weight:600;color:#64748b;margin-bottom:4px;">To (Student)</label>
+            <select name="recipient_id" required style="width:100%;padding:.5rem .75rem;border:1px solid #e2e8f0;border-radius:8px;font-size:.84rem;color:#0f172a;background:#f8fafc;">
+              <option value="">Select a student…</option>
+              @foreach($recipients as $r)
+                <option value="{{ $r->id }}" {{ old('recipient_id') == $r->id ? 'selected' : '' }}>
+                  {{ $r->last_name }}, {{ $r->first_name }}
+                </option>
+              @endforeach
+            </select>
+          </div>
+          <div style="margin-bottom:12px;">
+            <label style="display:block;font-size:.75rem;font-weight:600;color:#64748b;margin-bottom:4px;">Subject</label>
+            <input type="text" name="subject" maxlength="255" required value="{{ old('subject') }}"
+              style="width:100%;padding:.5rem .75rem;border:1px solid #e2e8f0;border-radius:8px;font-size:.84rem;color:#0f172a;background:#f8fafc;box-sizing:border-box;">
+          </div>
+          <div style="margin-bottom:14px;">
+            <label style="display:block;font-size:.75rem;font-weight:600;color:#64748b;margin-bottom:4px;">Message</label>
+            <textarea name="body" rows="5" maxlength="3000" required
+              style="width:100%;padding:.5rem .75rem;border:1px solid #e2e8f0;border-radius:8px;font-size:.84rem;color:#0f172a;background:#f8fafc;resize:vertical;box-sizing:border-box;">{{ old('body') }}</textarea>
+          </div>
+          <button type="submit" style="padding:.55rem 1.25rem;background:#1d4ed8;color:#fff;border:none;border-radius:8px;font-size:.84rem;font-weight:700;cursor:pointer;">Send Message</button>
+        </form>
+      </div>
+    </div>
+    @endif
+
+    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:16px;padding:40px;text-align:center;color:#94a3b8;">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" style="width:40px;height:40px;margin:0 auto 12px;display:block;color:#cbd5e1;">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/>
+      </svg>
+      <p style="font-size:.84rem;">Select a message on the left to read and reply.</p>
+    </div>
   </div>
 
 </div>
@@ -93,6 +137,17 @@ function switchTab(name, el) {
   document.getElementById('pane-inbox').style.display = name === 'inbox' ? '' : 'none';
   document.getElementById('pane-sent').style.display  = name === 'sent'  ? '' : 'none';
 }
+function toggleCompose() {
+  var form    = document.getElementById('compose-form');
+  var chevron = document.getElementById('compose-chevron');
+  var open    = form.style.display === 'none';
+  form.style.display    = open ? '' : 'none';
+  chevron.style.transform = open ? 'rotate(180deg)' : '';
+}
+// Auto-open compose if there was a validation error on recipient_id
+@if($errors->has('recipient_id') || $errors->has('subject') || $errors->has('body'))
+document.addEventListener('DOMContentLoaded', function(){ toggleCompose(); });
+@endif
 </script>
 @endpush
 

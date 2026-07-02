@@ -45,6 +45,25 @@
     </div>
   @endforeach
 
+  {{-- Reply form: only shown while the other party is still a valid teacher --}}
+  @php
+    $otherPartyId = $message->sender_id === auth()->id() ? $message->recipient_id : $message->sender_id;
+    $canReply = $recipients->contains('id', $otherPartyId);
+  @endphp
+  @if($canReply)
+  <div style="background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:20px 22px;margin-top:4px;">
+    <div style="font-size:.8rem;font-weight:700;color:#0f172a;margin-bottom:12px;">Reply</div>
+    <form method="POST" action="{{ route('student.inbox.reply', $message) }}">
+      @csrf
+      <textarea name="body" rows="4" maxlength="3000" required placeholder="Write your reply…"
+        style="width:100%;padding:.5rem .75rem;border:1px solid #e2e8f0;border-radius:8px;font-size:.84rem;color:#0f172a;background:#f8fafc;resize:vertical;box-sizing:border-box;"></textarea>
+      <div style="margin-top:10px;text-align:right;">
+        <button type="submit" style="padding:.5rem 1.2rem;background:#1d4ed8;color:#fff;border:none;border-radius:8px;font-size:.84rem;font-weight:700;cursor:pointer;">Send Reply</button>
+      </div>
+    </form>
+  </div>
+  @endif
+
 </div>
 
 @endsection

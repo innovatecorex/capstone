@@ -131,8 +131,48 @@ class MessageController extends Controller
             ->get();
 
         $unreadCount = $inbox->filter(fn($m) => is_null($m->read_at))->count();
+        $recipients  = $this->getFacultyRecipients($user);
 
-        return view('dashboard.faculty-inbox', compact('inbox', 'sent', 'tab', 'unreadCount'));
+        return view('dashboard.faculty-inbox', compact('inbox', 'sent', 'tab', 'unreadCount', 'recipients'));
+    }
+
+    /**
+     * Faculty sends a new message to one of their section students.
+     */
+    public function facultyStore(Request $request)
+    {
+        $user = Auth::user();
+
+        $data = $request->validate([
+            'recipient_id' => ['required', 'exists:users,id'],
+            'subject'      => ['required', 'string', 'max:255'],
+            'body'         => ['required', 'string', 'max:3000'],
+        ]);
+
+        // Symmetric guard: faculty may only message students in their own sections.
+        $allowed = $this->getFacultyRecipients($user)->pluck('id')->all();
+        if (! in_array((int) $data['recipient_id'], $allowed)) {
+            return back()->withErrors(['recipient_id' => 'You can only message students in your assigned sections.']);
+        }
+
+        $message = Message::create([
+            'sender_id'    => $user->id,
+            'recipient_id' => $data['recipient_id'],
+            'subject'      => $data['subject'],
+            'body'         => $data['body'],
+        ]);
+
+        $recipient = User::find($data['recipient_id']);
+        if ($recipient) {
+            Notification::create([
+                'user_id' => $recipient->id,
+                'type'    => 'message',
+                'title'   => 'New Message from ' . $user->full_name,
+                'body'    => $data['subject'],
+            ]);
+        }
+
+        return redirect()->route('faculty.inbox.show', $message)->with('success', 'Message sent.');
     }
 
     /**
@@ -198,6 +238,53 @@ class MessageController extends Controller
         return back()->with('success', 'Reply sent.');
     }
 
+    /**
+     * Student replies within an existing thread.
+     */
+    public function studentReply(Request $request, Message $message)
+    {
+        $user = Auth::user();
+
+        // Only a thread participant may reply.
+        if ($message->sender_id !== $user->id && $message->recipient_id !== $user->id) {
+            abort(403);
+        }
+
+        $data = $request->validate([
+            'body' => ['required', 'string', 'max:3000'],
+        ]);
+
+        $recipientId = $message->sender_id === $user->id
+            ? $message->recipient_id
+            : $message->sender_id;
+
+        // Guard: recipient must still be one of the student's teachers.
+        $allowed = $this->getStudentRecipients($user)->pluck('id')->all();
+        if (! in_array((int) $recipientId, $allowed)) {
+            abort(403);
+        }
+
+        Message::create([
+            'sender_id'    => $user->id,
+            'recipient_id' => $recipientId,
+            'parent_id'    => $message->id,
+            'subject'      => 'Re: ' . $message->subject,
+            'body'         => $data['body'],
+        ]);
+
+        $recipient = User::find($recipientId);
+        if ($recipient) {
+            Notification::create([
+                'user_id' => $recipient->id,
+                'type'    => 'message',
+                'title'   => 'Reply from ' . $user->full_name,
+                'body'    => 'Re: ' . $message->subject,
+            ]);
+        }
+
+        return back()->with('success', 'Reply sent.');
+    }
+
     // ── HELPER ────────────────────────────────────────────────────────────
 
     /**
@@ -233,5 +320,34 @@ class MessageController extends Controller
         $ids = $ids->unique()->values();
 
         return User::whereIn('id', $ids)->where('status', 'active')->orderBy('last_name')->get();
+    }
+
+    /**
+     * Returns the distinct active students a faculty member is allowed to message:
+     * all students enrolled in any section where the faculty teaches this academic year.
+     */
+    private function getFacultyRecipients(User $faculty)
+    {
+        $sectionIds = SectionSubject::forFaculty($faculty->id)
+            ->forActiveAcademicYear()
+            ->pluck('section_id')
+            ->unique()
+            ->values();
+
+        if ($sectionIds->isEmpty()) {
+            return collect();
+        }
+
+        $studentIds = Enrollment::whereIn('section_id', $sectionIds)
+            ->where('status', 'enrolled')
+            ->pluck('student_id')
+            ->unique()
+            ->values();
+
+        return User::whereIn('id', $studentIds)
+            ->where('status', 'active')
+            ->orderBy('last_name')
+            ->orderBy('first_name')
+            ->get();
     }
 }

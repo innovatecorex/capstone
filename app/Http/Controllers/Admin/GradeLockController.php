@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\AcademicYear;
 use App\Models\AuditLog;
-use App\Models\Enrollment;
 use App\Models\Grade;
 use App\Models\GradingQuarter;
 use App\Models\GradeUnlockRequest;
@@ -76,26 +75,38 @@ class GradeLockController extends Controller
         ));
     }
 
-    public function lockSection(Request $request, SectionSubject $sectionSubject): RedirectResponse
+    public function lockSection(SectionSubject $sectionSubject): RedirectResponse
     {
         $quarter = $this->activeQuarter();
-        abort_unless($quarter, 422, 'No active grading quarter.');
+        abort_unless($quarter !== null, 422, 'No active grading quarter.');
+
+        $subjectName = $sectionSubject->subject?->subject_name ?? 'Unknown Subject';
+
+        // Count non-finalized grades so we can surface a meaningful message.
+        // Only finalized grades are eligible; draft/submitted must be finalized first.
+        $skipped = Grade::where('section_subject_id', $sectionSubject->id)
+            ->where('grading_quarter_id', $quarter->id)
+            ->whereIn('status', ['draft', 'submitted'])
+            ->count();
 
         $affected = Grade::where('section_subject_id', $sectionSubject->id)
             ->where('grading_quarter_id', $quarter->id)
             ->where('status', 'finalized')
             ->update(['status' => 'locked']);
 
-        AuditLog::record(AuditLog::GRADE_LOCKED, [
+        AuditLog::record(AuditLog::LOCK_SECTION, [
             'section_subject_id' => $sectionSubject->id,
             'quarter_id'         => $quarter->id,
+            'quarter_name'       => $quarter->quarter_name,
+            'scope'              => 'section',
             'grades_locked'      => $affected,
+            'grades_skipped'     => $skipped,
         ]);
 
         if ($affected > 0) {
             $sectionSubject->loadMissing(['section', 'subject']);
             $lockNotif = new GradeLockedNotification(
-                $sectionSubject->subject?->subject_name ?? 'Unknown Subject',
+                $subjectName,
                 $sectionSubject->section?->section_name ?? 'Unknown Section',
                 'Quarter ' . $quarter->quarter_number,
             );
@@ -104,34 +115,57 @@ class GradeLockController extends Controller
             )->each(fn($s) => $s->notify($lockNotif));
         }
 
+        if ($affected === 0 && $skipped === 0) {
+            $msg = "No grades found for {$subjectName} in {$quarter->quarter_name}.";
+        } elseif ($affected === 0) {
+            $msg = "No grades locked for {$subjectName} — {$skipped} grade(s) are still draft or submitted and must be finalized first.";
+        } else {
+            $msg = "{$affected} finalized grade(s) locked for {$subjectName}.";
+            if ($skipped > 0) {
+                $msg .= " {$skipped} draft/submitted grade(s) were not yet finalized and were skipped.";
+            }
+        }
+
         return redirect()->route('registrar.grade-lock.index')
-            ->with('success', "{$affected} grade(s) locked for {$sectionSubject->subject?->subject_name}.");
+            ->with($affected > 0 ? 'success' : 'error', $msg);
     }
 
     public function lockAll(): RedirectResponse
     {
         $quarter = $this->activeQuarter();
-        abort_unless($quarter, 422, 'No active grading quarter.');
+        abort_unless($quarter !== null, 422, 'No active grading quarter.');
+
+        // Count non-finalized grades so the operator knows what was skipped.
+        // Only FINALIZED grades transition to locked; drafts and submitted grades
+        // are intentionally excluded — faculty must finalize them first.
+        $skipped = Grade::where('grading_quarter_id', $quarter->id)
+            ->whereIn('status', ['draft', 'submitted'])
+            ->count();
 
         $affected = Grade::where('grading_quarter_id', $quarter->id)
             ->where('status', 'finalized')
             ->update(['status' => 'locked']);
 
-        AuditLog::record(AuditLog::GRADE_LOCKED, [
-            'quarter_id'    => $quarter->id,
-            'grades_locked' => $affected,
-            'scope'         => 'global',
+        AuditLog::record(AuditLog::LOCK_SECTION, [
+            'quarter_id'     => $quarter->id,
+            'quarter_name'   => $quarter->quarter_name,
+            'scope'          => 'global',
+            'grades_locked'  => $affected,
+            'grades_skipped' => $skipped,
         ]);
 
+        $msg = "Global lock applied for {$quarter->quarter_name} — {$affected} finalized grade(s) locked.";
+        if ($skipped > 0) {
+            $msg .= " {$skipped} draft/submitted grade(s) were not yet finalized and were not affected.";
+        }
+
         return redirect()->route('registrar.grade-lock.index')
-            ->with('success', "Global lock applied — {$affected} grade(s) locked.");
+            ->with('success', $msg);
     }
 
     public function approveUnlock(GradeUnlockRequest $unlockRequest): RedirectResponse
     {
         abort_unless($unlockRequest->isPending(), 422, 'Request already reviewed.');
-
-        $quarter = $unlockRequest->gradingQuarter;
 
         // Revert locked grades back to finalized so faculty can edit them again
         Grade::where('section_subject_id', $unlockRequest->section_subject_id)

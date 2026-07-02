@@ -4,6 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Announcement;
+use App\Models\AuditLog;
+use App\Models\Notification;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class AnnouncementController extends Controller
@@ -30,7 +33,29 @@ class AnnouncementController extends Controller
         $data['created_by'] = auth()->id();
         $data['is_active']  = true;
 
-        Announcement::create($data);
+        $announcement = Announcement::create($data);
+
+        // Notify targeted users (admin may target all / student / faculty / registrar).
+        $roleMap = ['student' => '01', 'faculty' => '02', 'registrar' => '03'];
+        $userQuery = User::where('status', 'active');
+        if ($announcement->target_audience !== 'all' && isset($roleMap[$announcement->target_audience])) {
+            $userQuery->where('role_id', $roleMap[$announcement->target_audience]);
+        }
+        $userQuery->each(function (User $u) use ($announcement) {
+            Notification::create([
+                'user_id' => $u->id,
+                'type'    => 'announcement',
+                'title'   => $announcement->title,
+                'body'    => substr($announcement->message, 0, 150),
+            ]);
+        });
+
+        AuditLog::record(AuditLog::ANNOUNCEMENT_POSTED, [
+            'announcement_id' => $announcement->id,
+            'title'           => $announcement->title,
+            'scope'           => 'admin',
+            'target_audience' => $announcement->target_audience,
+        ]);
 
         return back()->with('success', 'Announcement posted successfully.');
     }

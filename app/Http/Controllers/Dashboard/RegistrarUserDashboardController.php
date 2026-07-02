@@ -205,7 +205,7 @@ class RegistrarUserDashboardController extends Controller
         $unmetPrereqs = null;
 
         if ($request->filled('check_lrn') && $selectedYear) {
-            $checkStudent = User::where('lrn', $request->input('check_lrn'))
+            $checkStudent = User::where('lrn_hash', hash('sha256', trim($request->input('check_lrn', ''))))
                 ->where('role_id', '01')
                 ->first();
             $checkGrade = $request->input('check_grade_level');
@@ -338,7 +338,7 @@ class RegistrarUserDashboardController extends Controller
             $query->whereHas('student', function ($q) use ($search) {
                 $q->where('first_name', 'like', "%{$search}%")
                   ->orWhere('last_name',  'like', "%{$search}%")
-                  ->orWhere('lrn',        'like', "%{$search}%");
+                  ->orWhere('lrn_hash',   hash('sha256', trim($search)));
             });
         }
 
@@ -390,7 +390,7 @@ class RegistrarUserDashboardController extends Controller
                 $query->whereHas('student', fn($q) =>
                     $q->where('first_name', 'like', "%{$search}%")
                       ->orWhere('last_name',  'like', "%{$search}%")
-                      ->orWhere('lrn',        'like', "%{$search}%")
+                      ->orWhere('lrn_hash',   hash('sha256', trim($search)))
                 );
             }
 
@@ -530,6 +530,14 @@ class RegistrarUserDashboardController extends Controller
                 'body'    => substr($announcement->message, 0, 150),
             ]);
         }
+
+        AuditLog::record(AuditLog::ANNOUNCEMENT_POSTED, [
+            'announcement_id' => $announcement->id,
+            'title'           => $announcement->title,
+            'scope'           => 'role',
+            'target_audience' => $announcement->target_audience,
+            'recipient_count' => $users->count(),
+        ]);
 
         return redirect()->route('registrar.announcements')
             ->with('success', 'Announcement posted successfully.');

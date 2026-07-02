@@ -158,7 +158,7 @@ class SFFormController extends Controller
         $students = User::where('role_id', '01')
             ->when($search, fn($q) => $q->where('first_name', 'like', "%{$search}%")
                 ->orWhere('last_name', 'like', "%{$search}%")
-                ->orWhere('lrn', 'like', "%{$search}%"))
+                ->orWhere('lrn_hash', hash('sha256', trim($search))))
             ->orderBy('last_name')
             ->limit(50)
             ->get();

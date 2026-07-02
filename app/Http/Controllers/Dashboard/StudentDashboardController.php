@@ -217,8 +217,11 @@ class StudentDashboardController extends Controller
           ->toArray();
 
         // ── Announcements ────────────────────────────────────────────────────
+        // scopeForStudent filters section-scoped faculty announcements to only
+        // this student's own section; global student/all/both announcements
+        // are always included regardless of section_id.
         $announcements = Announcement::active()
-            ->forRole('student')
+            ->forStudent($enrollment?->section_id)
             ->orderByDesc('created_at')
             ->get()
             ->map(fn($a) => [
@@ -401,9 +404,10 @@ class StudentDashboardController extends Controller
         $enrollment  = $this->activeEnrollment($user->id);
         $studentInfo = $this->studentInfo($user, $enrollment);
 
-        $todaySchedule = $this->buildTodaySchedule($this->sectionSubjectsFor($enrollment));
+        $sectionSubjects = $this->sectionSubjectsFor($enrollment);
+        $todaySchedule   = $this->buildTodaySchedule($sectionSubjects);
 
-        return view('dashboard.student-schedule', compact('user', 'studentInfo', 'todaySchedule'));
+        return view('dashboard.student-schedule', compact('user', 'studentInfo', 'todaySchedule', 'sectionSubjects'));
     }
 
     public function courseOfferings()

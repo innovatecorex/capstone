@@ -771,16 +771,22 @@ body {
 
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.1rem;">
             <div class="field">
-              <label class="field-label">Barangay</label>
-              <input type="text" name="barangay" value="{{ old('barangay') }}" maxlength="100" placeholder="Barangay">
+              <label class="field-label">Province</label>
+              <select id="addr-province" name="province" onchange="addrOnProvince()">
+                <option value="">Loading…</option>
+              </select>
             </div>
             <div class="field">
               <label class="field-label">Municipality / City</label>
-              <input type="text" name="municipality" value="{{ old('municipality') }}" maxlength="100" placeholder="City / Municipality">
+              <select id="addr-city" name="municipality" disabled onchange="addrOnCity()">
+                <option value="">Select province first</option>
+              </select>
             </div>
             <div class="field">
-              <label class="field-label">Province</label>
-              <input type="text" name="province" value="{{ old('province') }}" maxlength="100" placeholder="Province">
+              <label class="field-label">Barangay</label>
+              <select id="addr-barangay" name="barangay" disabled>
+                <option value="">Select city first</option>
+              </select>
             </div>
           </div>
 
@@ -822,8 +828,14 @@ body {
 
           <div class="field">
             <label class="field-label">School Year Completed</label>
-            <input type="text" name="school_year_completed" value="{{ old('school_year_completed') }}"
-              placeholder="e.g. 2024-2025" maxlength="20">
+            <select name="school_year_completed">
+              <option value="">— Select school year —</option>
+              @php $curYear = (int) date('Y'); @endphp
+              @for($y = $curYear; $y >= $curYear - 15; $y--)
+                @php $sy = $y . '–' . ($y + 1); @endphp
+                <option value="{{ $sy }}" {{ old('school_year_completed') === $sy ? 'selected' : '' }}>{{ $sy }}</option>
+              @endfor
+            </select>
           </div>
 
         </div>
@@ -864,8 +876,14 @@ body {
 
           <div class="field">
             <label class="field-label">School Year <span class="opt">(optional)</span></label>
-            <input type="text" name="applying_for_year" value="{{ old('applying_for_year') }}"
-              placeholder="e.g. 2025-2026" maxlength="20">
+            <select name="applying_for_year">
+              <option value="">— Select school year —</option>
+              @php $curYear = (int) date('Y'); @endphp
+              @for($y = $curYear + 1; $y >= $curYear - 1; $y--)
+                @php $sy = $y . '–' . ($y + 1); @endphp
+                <option value="{{ $sy }}" {{ old('applying_for_year') === $sy ? 'selected' : '' }}>{{ $sy }}</option>
+              @endfor
+            </select>
           </div>
 
         </div>
@@ -1230,6 +1248,139 @@ body {
     zone.querySelector('.uz-body').style.display = '';
     document.getElementById(inputId).click();
   }
+
+  /* ── Philippine Address Cascade (PSGC API) ──────────────────────── */
+  const PSGC = 'https://psgc.gitlab.io/api';
+  const ADDR_OLD = {
+    province:     @json(old('province', '')),
+    municipality: @json(old('municipality', '')),
+    barangay:     @json(old('barangay', '')),
+  };
+
+  async function psgcGet(path) {
+    const r = await fetch(PSGC + path);
+    if (!r.ok) throw new Error(r.status);
+    return r.json();
+  }
+
+  function addrFill(sel, items, placeholder) {
+    sel.innerHTML = '<option value="">' + placeholder + '</option>';
+    items.slice().sort((a, b) => a.name.localeCompare(b.name)).forEach(function(item) {
+      const o = document.createElement('option');
+      o.value          = item.name;
+      o.dataset.code   = item.code;
+      o.textContent    = item.name;
+      sel.appendChild(o);
+    });
+    sel.disabled = false;
+  }
+
+  function addrLock(sel, msg) {
+    sel.innerHTML = '<option value="">' + msg + '</option>';
+    sel.disabled  = true;
+  }
+
+  /* Fallback: swap selects back to plain text inputs if API is unreachable */
+  function addrFallback() {
+    [['addr-province','province','Province'],
+     ['addr-city','municipality','City / Municipality'],
+     ['addr-barangay','barangay','Barangay']].forEach(function([id, name, ph]) {
+      const sel = document.getElementById(id);
+      if (!sel) return;
+      const inp = document.createElement('input');
+      inp.type = 'text'; inp.name = name; inp.maxLength = 100; inp.placeholder = ph;
+      sel.parentNode.replaceChild(inp, sel);
+    });
+  }
+
+  async function addrInit() {
+    const pSel = document.getElementById('addr-province');
+    try {
+      const provinces = await psgcGet('/provinces/');
+      pSel.innerHTML = '<option value="">— Select Province —</option>';
+
+      // Metro Manila (NCR) first — it's a region, not a province
+      const ncr = document.createElement('option');
+      ncr.value = 'Metro Manila'; ncr.dataset.code = '130000000'; ncr.dataset.type = 'region';
+      ncr.textContent = 'Metro Manila (NCR)';
+      pSel.appendChild(ncr);
+
+      provinces.slice().sort((a, b) => a.name.localeCompare(b.name)).forEach(function(p) {
+        const o = document.createElement('option');
+        o.value = p.name; o.dataset.code = p.code; o.dataset.type = 'province';
+        o.textContent = p.name;
+        pSel.appendChild(o);
+      });
+      pSel.disabled = false;
+
+      // Restore old() value after a validation error
+      if (ADDR_OLD.province) {
+        pSel.value = ADDR_OLD.province;
+        if (pSel.value) await addrOnProvince(true);
+      }
+    } catch(e) {
+      addrFallback();
+    }
+  }
+
+  async function addrOnProvince(restoring) {
+    const pSel   = document.getElementById('addr-province');
+    const cSel   = document.getElementById('addr-city');
+    const bSel   = document.getElementById('addr-barangay');
+    const opt    = pSel.options[pSel.selectedIndex];
+    const code   = opt && opt.dataset.code;
+    const type   = opt && opt.dataset.type;
+
+    addrLock(cSel, '— Loading cities… —');
+    addrLock(bSel, '— Select city first —');
+
+    if (!code) {
+      addrLock(cSel, '— Select province first —');
+      return;
+    }
+
+    try {
+      const path   = type === 'region'
+        ? '/regions/' + code + '/cities-municipalities/'
+        : '/provinces/' + code + '/cities-municipalities/';
+      const cities = await psgcGet(path);
+      addrFill(cSel, cities, '— Select City / Municipality —');
+
+      if (restoring && ADDR_OLD.municipality) {
+        cSel.value = ADDR_OLD.municipality;
+        if (cSel.value) await addrOnCity(true);
+      }
+    } catch(e) {
+      addrLock(cSel, '— Failed to load —');
+    }
+  }
+
+  async function addrOnCity(restoring) {
+    const cSel = document.getElementById('addr-city');
+    const bSel = document.getElementById('addr-barangay');
+    const opt  = cSel.options[cSel.selectedIndex];
+    const code = opt && opt.dataset.code;
+
+    addrLock(bSel, '— Loading barangays… —');
+
+    if (!code) {
+      addrLock(bSel, '— Select city first —');
+      return;
+    }
+
+    try {
+      const barangays = await psgcGet('/cities-municipalities/' + code + '/barangays/');
+      addrFill(bSel, barangays, '— Select Barangay —');
+
+      if (restoring && ADDR_OLD.barangay) {
+        bSel.value = ADDR_OLD.barangay;
+      }
+    } catch(e) {
+      addrLock(bSel, '— Failed to load —');
+    }
+  }
+
+  addrInit();
 </script>
 
 </body>

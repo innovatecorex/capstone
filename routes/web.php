@@ -374,7 +374,6 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/faculty/attendance',    [App\Http\Controllers\Dashboard\AttendanceController::class,        'store'])  ->name('faculty.attendance.store');
         Route::get('/faculty/my-schedule',    [App\Http\Controllers\Dashboard\FacultyDashboardController::class, 'mySchedule'])  ->name('faculty.my-schedule');
         Route::get('/faculty/announcements',  [App\Http\Controllers\Dashboard\FacultyDashboardController::class, 'announcements'])->name('faculty.announcements');
-        Route::post('/faculty/announcements', [App\Http\Controllers\Dashboard\FacultyDashboardController::class, 'postAnnouncement'])->name('faculty.announcements.store');
 
         // Grade entry workflow
         Route::get( '/faculty/classes/{sectionSubject}',                     [App\Http\Controllers\Dashboard\GradebookController::class, 'show'])          ->name('faculty.gradebook.show');
@@ -390,6 +389,7 @@ Route::middleware(['auth'])->group(function () {
 
         // Faculty Inbox / Messaging
         Route::get( '/faculty/inbox',                  [App\Http\Controllers\Dashboard\MessageController::class, 'facultyInbox']) ->name('faculty.inbox');
+        Route::post('/faculty/inbox',                  [App\Http\Controllers\Dashboard\MessageController::class, 'facultyStore']) ->name('faculty.inbox.store');
         Route::get( '/faculty/inbox/{message}',        [App\Http\Controllers\Dashboard\MessageController::class, 'facultyShow'])  ->name('faculty.inbox.show');
         Route::post('/faculty/inbox/{message}/reply',  [App\Http\Controllers\Dashboard\MessageController::class, 'facultyReply']) ->name('faculty.inbox.reply');
     });
@@ -443,9 +443,10 @@ Route::middleware(['auth'])->group(function () {
 
     // ── Student Inbox / Messaging ─────────────────────────────────────────
     Route::middleware('role:student')->prefix('student/inbox')->name('student.inbox')->group(function () {
-        Route::get('/',            [App\Http\Controllers\Dashboard\MessageController::class, 'studentInbox']) ->name('');
-        Route::post('/',           [App\Http\Controllers\Dashboard\MessageController::class, 'studentStore']) ->name('.store');
-        Route::get('/{message}',   [App\Http\Controllers\Dashboard\MessageController::class, 'studentShow'])  ->name('.show');
+        Route::get('/',                    [App\Http\Controllers\Dashboard\MessageController::class, 'studentInbox']) ->name('');
+        Route::post('/',                   [App\Http\Controllers\Dashboard\MessageController::class, 'studentStore']) ->name('.store');
+        Route::get('/{message}',           [App\Http\Controllers\Dashboard\MessageController::class, 'studentShow'])  ->name('.show');
+        Route::post('/{message}/reply',    [App\Http\Controllers\Dashboard\MessageController::class, 'studentReply']) ->name('.reply');
     });
 
     // ── Student Settings ──────────────────────────────────────────────────

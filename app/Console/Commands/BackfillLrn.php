@@ -25,39 +25,67 @@ class BackfillLrn extends Command
         $dry = (bool) $this->option('dry-run');
         $this->info($dry ? 'DRY RUN — no changes will be written.' : 'Backfilling LRNs…');
 
-        // Pull raw values straight from the table (no model accessor).
-        $rows = DB::table('users')
+        $this->newLine();
+        $this->line('<info>── users ──────────────────────────────────────</info>');
+        [$enc1, $hf1, $ok1, $sk1, $skIds1] = $this->processTable('users');
+
+        $this->newLine();
+        $this->line('<info>── applicants ─────────────────────────────────</info>');
+        [$enc2, $hf2, $ok2, $sk2, $skIds2] = $this->processTable('applicants');
+
+        $this->newLine();
+        $this->info('users      — Encrypted: ' . $enc1 . ' | Hash-fixed: ' . $hf1 . ' | Already OK: ' . $ok1 . ' | Skipped: ' . $sk1);
+        $this->info('applicants — Encrypted: ' . $enc2 . ' | Hash-fixed: ' . $hf2 . ' | Already OK: ' . $ok2 . ' | Skipped: ' . $sk2);
+
+        if ($sk1 > 0) {
+            $this->warn('Skipped invalid LRNs in users at ids: ' . implode(', ', $skIds1));
+        }
+        if ($sk2 > 0) {
+            $this->warn('Skipped invalid LRNs in applicants at ids: ' . implode(', ', $skIds2));
+        }
+        if ($sk1 > 0 || $sk2 > 0) {
+            $this->warn('Fix these manually (re-enter the correct LRN via admin), then re-run the backfill.');
+        }
+        if ($dry) {
+            $this->warn('Dry run only — re-run without --dry-run to apply.');
+        }
+
+        return self::SUCCESS;
+    }
+
+    /** @return array{int, int, int, int, list<int>} [encrypted, hashFixed, alreadyOk, skipped, skippedIds] */
+    private function processTable(string $table): array
+    {
+        $dry = (bool) $this->option('dry-run');
+
+        $rows = DB::table($table)
             ->whereNotNull('lrn')
             ->where('lrn', '!=', '')
             ->select('id', 'lrn', 'lrn_hash')
             ->get();
 
-        $encrypted = 0;
-        $alreadyOk = 0;
-        $hashFixed = 0;
-        $skipped   = 0;
+        $encrypted  = 0;
+        $alreadyOk  = 0;
+        $hashFixed  = 0;
+        $skipped    = 0;
         $skippedIds = [];
 
         foreach ($rows as $row) {
             $raw = $row->lrn;
 
-            // Is it already ciphertext?
             $isPlaintext = false;
             try {
-                $plain = Crypt::decryptString($raw);
-                // decrypts fine → already encrypted
-                $plainForHash = $plain;
+                $plainForHash = Crypt::decryptString($raw);
             } catch (\Exception $e) {
-                // can't decrypt → legacy plaintext
-                $isPlaintext = true;
+                $isPlaintext  = true;
                 $plainForHash = $raw;
             }
 
-            // For plaintext rows, only accept clean numeric LRNs (9–12 digits).
-            // Corrupted values (e.g. Excel scientific notation "1.2348E+11")
-            // are skipped so we never encrypt garbage.
             if ($isPlaintext && !preg_match('/^\d{9,12}$/', trim($plainForHash))) {
-                $this->warn("  id {$row->id}: SKIP invalid LRN '{$raw}' (not 9-12 digits)");
+                $hint = preg_match('/\d+\.?\d*[eE][+\-]\d+/', trim($plainForHash))
+                    ? 'Excel scientific-notation — precision lost, must be re-entered manually'
+                    : 'not 9-12 digits';
+                $this->warn("  [{$table}] id {$row->id}: SKIP invalid LRN '{$raw}' ({$hint})");
                 $skipped++;
                 $skippedIds[] = $row->id;
                 continue;
@@ -66,19 +94,18 @@ class BackfillLrn extends Command
             $expectedHash = hash('sha256', trim($plainForHash));
 
             if ($isPlaintext) {
-                $this->line("  id {$row->id}: plaintext '{$raw}' → encrypt + hash");
+                $this->line("  [{$table}] id {$row->id}: plaintext → encrypt + hash");
                 if (!$dry) {
-                    DB::table('users')->where('id', $row->id)->update([
+                    DB::table($table)->where('id', $row->id)->update([
                         'lrn'      => Crypt::encryptString(trim($raw)),
                         'lrn_hash' => $expectedHash,
                     ]);
                 }
                 $encrypted++;
             } elseif ($row->lrn_hash !== $expectedHash) {
-                // Encrypted but hash missing/wrong — fix the hash only.
-                $this->line("  id {$row->id}: encrypted, hash mismatch → fix hash");
+                $this->line("  [{$table}] id {$row->id}: encrypted, hash mismatch → fix hash");
                 if (!$dry) {
-                    DB::table('users')->where('id', $row->id)->update([
+                    DB::table($table)->where('id', $row->id)->update([
                         'lrn_hash' => $expectedHash,
                     ]);
                 }
@@ -88,16 +115,6 @@ class BackfillLrn extends Command
             }
         }
 
-        $this->newLine();
-        $this->info("Encrypted: {$encrypted} | Hash-fixed: {$hashFixed} | Already OK: {$alreadyOk} | Skipped (invalid): {$skipped} | Total: " . $rows->count());
-        if ($skipped > 0) {
-            $this->warn('Skipped invalid LRNs at user ids: ' . implode(', ', $skippedIds));
-            $this->warn('Fix these manually (re-enter the correct LRN via admin), then re-run the backfill.');
-        }
-        if ($dry) {
-            $this->warn('Dry run only — re-run without --dry-run to apply.');
-        }
-
-        return self::SUCCESS;
+        return [$encrypted, $hashFixed, $alreadyOk, $skipped, $skippedIds];
     }
 }

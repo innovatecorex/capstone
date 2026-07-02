@@ -35,7 +35,7 @@ class ApplicantManagementController extends Controller
                 $q->where('first_name',         'like', "%{$s}%")
                   ->orWhere('last_name',        'like', "%{$s}%")
                   ->orWhere('reference_number', 'like', "%{$s}%")
-                  ->orWhere('lrn',              'like', "%{$s}%");
+                  ->orWhere('lrn_hash',         hash('sha256', trim($s)));
             });
         }
 

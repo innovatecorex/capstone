@@ -68,8 +68,24 @@ class Grade extends Model
         parent::boot();
 
         static::updating(function (Grade $model) {
+            $dirty = $model->getDirty();
+
+            // State-machine guard: "locked" can only be reached from "finalized".
+            // draft → locked and submitted → locked are invalid transitions.
+            // applyCorrection() sets $allowCorrection = true to bypass this for
+            // the one sanctioned path that keeps a grade locked after correction.
+            if (isset($dirty['status'])
+                && $dirty['status'] === 'locked'
+                && !$model->allowCorrection
+                && $model->getOriginal('status') !== 'finalized') {
+                throw new RuntimeException(
+                    'A grade can only be locked from the "finalized" state '
+                    . '(current status: "' . ($model->getOriginal('status') ?? 'none') . '").'
+                );
+            }
+
             // Allow drop/reinstate updates on locked grades but block all other edits
-            $onlyDropFields = collect($model->getDirty())->keys()
+            $onlyDropFields = collect($dirty)->keys()
                 ->diff(['dropped_at', 'drop_reason', 'dropped_by'])
                 ->isEmpty();
 
@@ -193,7 +209,17 @@ class Grade extends Model
 
     /**
      * Compute the DepEd final grade from the three components.
-     * Returns null if dropped, if any component is missing, or on error.
+     * Returns null when dropped or when any component has not been entered yet.
+     *
+     * NULL component  = faculty has not entered a score yet (not graded).
+     * Float 0.0       = a real score of zero (student genuinely scored zero).
+     *
+     * These two states are preserved exactly on every save: saveDraft()'s
+     * $toFloat closure maps empty-string → null and "0" → 0.0. No NULL is
+     * ever silently coerced to 0. The UI renders null final_grade as a
+     * greyed "—" and 0.0 as "0.00", so faculty and the panel can tell the
+     * difference at a glance.
+     *
      * Uses subject-specific weights when configured, otherwise the global config.
      */
     public function computeFinalGrade(): ?float

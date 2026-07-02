@@ -26,7 +26,7 @@
       </svg>
     </div>
     <div style="font-size:.95rem;font-weight:700;color:#374151;margin-bottom:6px;">No announcements yet</div>
-    <div style="font-size:.82rem;color:#94a3b8;">Click "Post Announcement" to create one.</div>
+    <div style="font-size:.82rem;color:#94a3b8;">No notices from administration or registrar at this time.</div>
   </div>
   @else
   <div style="display:flex;flex-direction:column;gap:12px;">

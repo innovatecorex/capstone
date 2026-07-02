@@ -102,6 +102,19 @@
         @error('credits')<div class="enc-field-error">{{ $message }}</div>@enderror
       </div>
 
+      {{-- Minimum Schedule Block --}}
+      <div style="margin-bottom:22px;">
+        <label class="enc-label" for="min_minutes">Minimum Block Length (minutes)</label>
+        <input type="number"
+               id="min_minutes" name="min_minutes"
+               value="{{ old('min_minutes') }}"
+               min="15" max="480" placeholder="e.g. 45, 60, 120"
+               class="enc-input {{ $errors->has('min_minutes') ? 'enc-input--error' : '' }}"
+               style="max-width:160px;">
+        <div class="enc-field-hint">Leave blank to use the school-wide default ({{ config('academic.schedule_min_minutes', 60) }} min). Home room: 45 · 1-period: 60 · Double: 120.</div>
+        @error('min_minutes')<div class="enc-field-error">{{ $message }}</div>@enderror
+      </div>
+
       {{-- Custom Grade Weights --}}
       <div style="margin-bottom:28px;border:1.5px solid var(--gray-200);border-radius:12px;padding:20px 22px;">
         <label style="display:flex;align-items:center;gap:10px;cursor:pointer;margin-bottom:0;">

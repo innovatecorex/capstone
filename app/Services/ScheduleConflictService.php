@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Schedule;
+use App\Models\Subject;
 
 /**
  * ScheduleConflictService
@@ -10,7 +11,9 @@ use App\Models\Schedule;
  * Detects rule violations when creating or updating a schedule:
  *   1. Faculty conflict — same teacher booked at overlapping times on the same day
  *   2. Room conflict    — same classroom booked at overlapping times on the same day
- *   3. Duration rule    — class block must be at least the configured minimum (default 2h)
+ *   3. Duration rule    — block must meet the per-subject minimum (falls back to
+ *                         config academic.schedule_min_minutes) and must not
+ *                         exceed config academic.schedule_max_minutes
  *
  * The "same subject twice in the same section" rule is enforced by a DB unique
  * constraint on the schedules table, not here.
@@ -25,8 +28,8 @@ class ScheduleConflictService
      * Empty array means no conflict.
      *
      * @param array $data {
-     *     academic_year_id, faculty_id?, classroom_id?, schedule_days[],
-     *     start_time, end_time
+     *     academic_year_id, subject_id?, faculty_id?, classroom_id?,
+     *     schedule_days[], start_time, end_time
      * }
      * @param int|null $ignoreId  When updating, the schedule row being edited
      */
@@ -34,19 +37,37 @@ class ScheduleConflictService
     {
         $errors = [];
 
-        // ── Duration: minimum only (no maximum per adviser) ───────────────
-        $minHours = (float) config('academic.schedule_min_hours', 2.0);
-        $duration = $this->durationInHours($data['start_time'], $data['end_time']);
+        // ── Duration: per-subject minimum + global upper bound ─────────────
+        $durationMins = $this->durationInMinutes($data['start_time'], $data['end_time']);
 
-        if ($duration <= 0) {
+        if ($durationMins <= 0) {
             $errors[] = 'End time must be after start time.';
             return $errors; // can't usefully check overlap without a valid range
         }
-        if ($duration < $minHours) {
+
+        // Resolve minimum: use subject's own min_minutes when set, otherwise global default.
+        $minMinutes = (int) config('academic.schedule_min_minutes', 60);
+        if (!empty($data['subject_id'])) {
+            $subjectMin = Subject::where('id', $data['subject_id'])->value('min_minutes');
+            if ($subjectMin !== null) {
+                $minMinutes = (int) $subjectMin;
+            }
+        }
+
+        if ($durationMins < $minMinutes) {
             $errors[] = sprintf(
-                'Schedule must be at least %.1f hour(s) long (this one is %.2f).',
-                $minHours,
-                $duration
+                'This subject requires a minimum block of %d minutes (block entered is %d min).',
+                $minMinutes,
+                $durationMins
+            );
+        }
+
+        $maxMinutes = (int) config('academic.schedule_max_minutes', 480);
+        if ($durationMins > $maxMinutes) {
+            $errors[] = sprintf(
+                'Schedule block cannot exceed %d hours (%.1f h entered). Check your start/end times.',
+                intdiv($maxMinutes, 60),
+                $durationMins / 60
             );
         }
 
@@ -111,14 +132,14 @@ class ScheduleConflictService
         return null;
     }
 
-    private function durationInHours(string $start, string $end): float
+    private function durationInMinutes(string $start, string $end): int
     {
         $s = strtotime($start);
         $e = strtotime($end);
         if ($s === false || $e === false) {
             return 0;
         }
-        return ($e - $s) / 3600;
+        return (int) round(($e - $s) / 60);
     }
 
     private function describeWindow(Schedule $s): string
