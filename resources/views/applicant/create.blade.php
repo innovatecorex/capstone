@@ -619,6 +619,144 @@ body {
 }
 .ap-sec-badge svg { width: 9px; height: 9px; }
 
+/* ── Colored badge variants (one per section) ─────── */
+.badge-green  { color: #15803d; background: #dcfce7; }
+.badge-purple { color: #7e22ce; background: #f3e8ff; }
+.badge-orange { color: #c2410c; background: #ffedd5; }
+.badge-rose   { color: #be123c; background: #ffe4e6; }
+.badge-teal   { color: #0f766e; background: #ccfbf1; }
+
+/* ── Form progress strip ─────────────────────────── */
+.ap-progress-strip {
+  background: #fff;
+  border-radius: 14px;
+  padding: 10px 16px;
+  margin-bottom: 1.1rem;
+  border: 1px solid rgba(226,232,240,.8);
+  box-shadow: 0 1px 4px rgba(15,23,42,.04);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.ap-progress-icon {
+  width: 30px; height: 30px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #dbeafe, #eff6ff);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.ap-progress-icon svg { width: 14px; height: 14px; color: #2563eb; }
+.ap-progress-info { flex: 1; min-width: 0; }
+.ap-progress-label {
+  font-size: .68rem; font-weight: 700; color: #475569;
+  margin-bottom: 5px;
+}
+.ap-progress-track {
+  height: 5px; background: #f1f5f9;
+  border-radius: 99px; overflow: hidden;
+}
+.ap-progress-fill {
+  height: 100%; width: 0%;
+  background: linear-gradient(90deg, #1e3a8a, #2563eb, #3ecfa0);
+  border-radius: 99px; transition: width .45s ease;
+}
+.ap-progress-pct {
+  font-size: .82rem; font-weight: 800; color: #2563eb; white-space: nowrap;
+}
+
+/* ── Document card grid ──────────────────────────── */
+.doc-notice {
+  margin: 1rem 1.5rem .8rem;
+  background: linear-gradient(135deg, #fffbeb, #fefce8);
+  border: 1px solid #fde68a;
+  border-left: 3px solid #f59e0b;
+  border-radius: 11px;
+  padding: 10px 14px;
+  font-size: .8rem; color: #92400e; line-height: 1.6;
+}
+.doc-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .85rem;
+  padding: 0 1.5rem 1.5rem;
+}
+.doc-card {
+  border: 1.5px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 1rem;
+  background: #fafbfd;
+  transition: border-color .15s, box-shadow .15s;
+}
+.doc-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 12px rgba(15,23,42,.07);
+}
+.doc-card-head {
+  display: flex; align-items: flex-start; gap: 10px;
+  margin-bottom: 10px;
+}
+.doc-card-icon {
+  width: 34px; height: 34px; border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.doc-card-icon svg { width: 17px; height: 17px; }
+.doc-card-meta { flex: 1; min-width: 0; }
+.doc-card-title {
+  font-size: .8rem; font-weight: 700; color: #0f172a;
+  line-height: 1.3; margin-bottom: 4px;
+}
+.doc-badge-req {
+  display: inline-block; font-size: .59rem; font-weight: 700;
+  padding: 1px 7px; border-radius: 99px;
+  background: #fee2e2; color: #b91c1c;
+}
+.doc-badge-opt {
+  display: inline-block; font-size: .59rem; font-weight: 700;
+  padding: 1px 7px; border-radius: 99px;
+  background: #f1f5f9; color: #64748b;
+}
+
+/* ── Nav completion dot ──────────────────────────── */
+.ap-nav-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  margin-left: auto; flex-shrink: 0;
+  background: rgba(255,255,255,.1);
+  transition: background .25s, box-shadow .25s;
+}
+.ap-nav a.done .ap-nav-dot {
+  background: #34d399;
+  box-shadow: 0 0 0 2px rgba(52,211,153,.22);
+}
+
+/* ── Left panel completion mini-widget ───────────── */
+.ap-comp-widget {
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 10px;
+  padding: 10px 13px;
+  margin-bottom: .9rem;
+}
+.ap-comp-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 7px;
+}
+.ap-comp-title {
+  font-size: .6rem; font-weight: 700;
+  color: rgba(255,255,255,.28);
+  text-transform: uppercase; letter-spacing: .08em;
+}
+.ap-comp-count { font-size: .68rem; font-weight: 800; color: #34d399; }
+.ap-comp-track {
+  height: 3px; background: rgba(255,255,255,.07);
+  border-radius: 99px; overflow: hidden;
+}
+.ap-comp-fill {
+  height: 100%; width: 0%;
+  background: linear-gradient(90deg, #2563eb, #34d399);
+  border-radius: 99px; transition: width .45s ease;
+}
+
 /* ── Responsive ── */
 @media (max-width: 860px) {
   .ap-wrap { grid-template-columns: 1fr; }
@@ -627,6 +765,8 @@ body {
   .ap-left::before { display: none; }
   .grid-2, .grid-3 { grid-template-columns: 1fr; }
   .span-2, .span-3 { grid-column: span 1; }
+  .doc-grid { grid-template-columns: 1fr; }
+  .doc-card[style*="grid-column:span 2"] { grid-column: span 1; }
 }
 </style>
 </head>
@@ -656,15 +796,24 @@ body {
 
     <div class="ap-nav-label">Sections</div>
     <ul class="ap-nav">
-      <li><a href="#sec-personal" class="active"><span class="ap-nav-num">1</span> Personal Info</a></li>
-      <li><a href="#sec-address"><span class="ap-nav-num">2</span> Home Address</a></li>
-      <li><a href="#sec-school"><span class="ap-nav-num">3</span> Previous School</a></li>
-      <li><a href="#sec-applying"><span class="ap-nav-num">4</span> Applying For</a></li>
-      <li><a href="#sec-parent"><span class="ap-nav-num">5</span> Parent / Guardian</a></li>
-      <li><a href="#sec-documents"><span class="ap-nav-num">6</span> Documents</a></li>
+      <li><a href="#sec-personal" class="active"><span class="ap-nav-num">1</span> Personal Info <span class="ap-nav-dot"></span></a></li>
+      <li><a href="#sec-address"><span class="ap-nav-num">2</span> Home Address <span class="ap-nav-dot"></span></a></li>
+      <li><a href="#sec-school"><span class="ap-nav-num">3</span> Previous School <span class="ap-nav-dot"></span></a></li>
+      <li><a href="#sec-applying"><span class="ap-nav-num">4</span> Applying For <span class="ap-nav-dot"></span></a></li>
+      <li><a href="#sec-parent"><span class="ap-nav-num">5</span> Parent / Guardian <span class="ap-nav-dot"></span></a></li>
+      <li><a href="#sec-documents"><span class="ap-nav-num">6</span> Documents <span class="ap-nav-dot"></span></a></li>
     </ul>
 
     <div class="ap-right-footer">
+      <div class="ap-comp-widget">
+        <div class="ap-comp-header">
+          <span class="ap-comp-title">Progress</span>
+          <span class="ap-comp-count" id="ap-comp-count">—</span>
+        </div>
+        <div class="ap-comp-track">
+          <div class="ap-comp-fill" id="ap-comp-fill"></div>
+        </div>
+      </div>
       <div class="ap-req-note">
         Fields marked <strong>*</strong> are required. Data is encrypted under <strong style="color:rgba(255,255,255,.5);">RA 10173</strong>.
       </div>
@@ -699,6 +848,19 @@ body {
         Back to Login
       </a>
       <span class="ap-topbar-hint">6 sections · All required fields must be filled</span>
+    </div>
+
+    <div class="ap-progress-strip">
+      <div class="ap-progress-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+      </div>
+      <div class="ap-progress-info">
+        <div class="ap-progress-label">Required fields completed</div>
+        <div class="ap-progress-track"><div class="ap-progress-fill" id="ap-prog-fill"></div></div>
+      </div>
+      <div class="ap-progress-pct" id="ap-prog-pct">0%</div>
     </div>
 
     @if($errors->any())
@@ -824,7 +986,7 @@ body {
             </svg>
           </div>
           <div>
-            <div class="ap-card-section-num">Section 2</div>
+            <div class="ap-card-section-badge badge-green">Section 2</div>
             <div class="ap-card-title">Home Address</div>
           </div>
         </div>
@@ -878,7 +1040,7 @@ body {
             </svg>
           </div>
           <div>
-            <div class="ap-card-section-num">Section 3</div>
+            <div class="ap-card-section-badge badge-purple">Section 3</div>
             <div class="ap-card-title">Previous School <span style="font-size:.76rem;font-weight:500;color:#94a3b8;">(if any)</span></div>
           </div>
         </div>
@@ -926,7 +1088,7 @@ body {
             </svg>
           </div>
           <div>
-            <div class="ap-card-section-num">Section 4</div>
+            <div class="ap-card-section-badge badge-orange">Section 4</div>
             <div class="ap-card-title">Applying For</div>
           </div>
         </div>
@@ -974,7 +1136,7 @@ body {
             </svg>
           </div>
           <div>
-            <div class="ap-card-section-num">Section 5</div>
+            <div class="ap-card-section-badge badge-rose">Section 5</div>
             <div class="ap-card-title">Parent / Guardian Information</div>
           </div>
         </div>
@@ -1050,22 +1212,31 @@ body {
             </svg>
           </div>
           <div>
-            <div class="ap-card-section-num">Section 6</div>
+            <div class="ap-card-section-badge badge-teal">Section 6</div>
             <h2 class="ap-card-title">Required Documents</h2>
           </div>
         </div>
 
-        <div class="ap-fields">
+        <div class="doc-notice">
+          <strong>Upload digital copies of the following documents.</strong><br>
+          Accepted formats: PDF, JPG, JPEG, PNG &mdash; max 5 MB per file. Original copies will be verified upon enrollment.
+        </div>
 
-          <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:14px 18px;margin-bottom:20px;font-size:.85rem;color:#92400e;line-height:1.6;">
-            <strong>Upload digital copies of the following documents.</strong><br>
-            Accepted formats: PDF, JPG, JPEG, PNG &mdash; max 5 MB per file.<br>
-            Original copies will be verified upon enrollment.
-          </div>
+        <div class="doc-grid">
 
           {{-- Birth Certificate --}}
-          <div class="ap-field" style="margin-bottom:18px;">
-            <label class="field-label">Birth Certificate (PSA) <span class="req">*</span></label>
+          <div class="doc-card">
+            <div class="doc-card-head">
+              <div class="doc-card-icon" style="background:#dbeafe;">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#1d4ed8" stroke-width="1.8">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
+                </svg>
+              </div>
+              <div class="doc-card-meta">
+                <div class="doc-card-title">Birth Certificate (PSA)</div>
+                <span class="doc-badge-req">Required</span>
+              </div>
+            </div>
             <div class="upload-zone{{ $errors->has('docs.birth_certificate') ? ' uz-err' : '' }}"
                  id="zone-birth"
                  onclick="triggerUpload('file-birth',event)"
@@ -1084,18 +1255,25 @@ body {
               </div>
               <div id="prev-birth" class="uz-preview" style="display:none"></div>
             </div>
-            <div class="field-hint">Required. PSA-authenticated Birth Certificate (PDF or image).</div>
+            <div class="field-hint" style="margin-top:6px;">PSA-authenticated Birth Certificate.</div>
             @error('docs.birth_certificate')
-            <div class="field-err">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9.303 3.376c.866 1.5-.217 3.374-1.948 3.374H4.645c-1.73 0-2.813-1.874-1.948-3.374l7.547-13.015c.866-1.5 3.032-1.5 3.898 0l5.16 8.898z"/></svg>
-              {{ $message }}
-            </div>
+            <div class="field-err"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9.303 3.376c.866 1.5-.217 3.374-1.948 3.374H4.645c-1.73 0-2.813-1.874-1.948-3.374l7.547-13.015c.866-1.5 3.032-1.5 3.898 0l5.16 8.898z"/></svg>{{ $message }}</div>
             @enderror
           </div>
 
           {{-- Form 137 --}}
-          <div class="ap-field" style="margin-bottom:18px;">
-            <label class="field-label">Form 137 (Permanent Record) <span class="req">*</span></label>
+          <div class="doc-card">
+            <div class="doc-card-head">
+              <div class="doc-card-icon" style="background:#f3e8ff;">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#7e22ce" stroke-width="1.8">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342"/>
+                </svg>
+              </div>
+              <div class="doc-card-meta">
+                <div class="doc-card-title">Form 137 (Permanent Record)</div>
+                <span class="doc-badge-req">Required</span>
+              </div>
+            </div>
             <div class="upload-zone{{ $errors->has('docs.form_137') ? ' uz-err' : '' }}"
                  id="zone-form137"
                  onclick="triggerUpload('file-form137',event)"
@@ -1114,18 +1292,25 @@ body {
               </div>
               <div id="prev-form137" class="uz-preview" style="display:none"></div>
             </div>
-            <div class="field-hint">Required. Form 137 issued and signed by your previous school.</div>
+            <div class="field-hint" style="margin-top:6px;">Issued and signed by your previous school.</div>
             @error('docs.form_137')
-            <div class="field-err">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9.303 3.376c.866 1.5-.217 3.374-1.948 3.374H4.645c-1.73 0-2.813-1.874-1.948-3.374l7.547-13.015c.866-1.5 3.032-1.5 3.898 0l5.16 8.898z"/></svg>
-              {{ $message }}
-            </div>
+            <div class="field-err"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9.303 3.376c.866 1.5-.217 3.374-1.948 3.374H4.645c-1.73 0-2.813-1.874-1.948-3.374l7.547-13.015c.866-1.5 3.032-1.5 3.898 0l5.16 8.898z"/></svg>{{ $message }}</div>
             @enderror
           </div>
 
           {{-- Report Card --}}
-          <div class="ap-field" style="margin-bottom:18px;">
-            <label class="field-label">Previous Report Card / Form 138 <span class="req">*</span></label>
+          <div class="doc-card">
+            <div class="doc-card-head">
+              <div class="doc-card-icon" style="background:#ffedd5;">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#c2410c" stroke-width="1.8">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z"/>
+                </svg>
+              </div>
+              <div class="doc-card-meta">
+                <div class="doc-card-title">Report Card / Form 138</div>
+                <span class="doc-badge-req">Required</span>
+              </div>
+            </div>
             <div class="upload-zone{{ $errors->has('docs.report_card') ? ' uz-err' : '' }}"
                  id="zone-report"
                  onclick="triggerUpload('file-report',event)"
@@ -1144,18 +1329,25 @@ body {
               </div>
               <div id="prev-report" class="uz-preview" style="display:none"></div>
             </div>
-            <div class="field-hint">Required. Most recent report card or Form 138.</div>
+            <div class="field-hint" style="margin-top:6px;">Most recent report card or Form 138.</div>
             @error('docs.report_card')
-            <div class="field-err">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9.303 3.376c.866 1.5-.217 3.374-1.948 3.374H4.645c-1.73 0-2.813-1.874-1.948-3.374l7.547-13.015c.866-1.5 3.032-1.5 3.898 0l5.16 8.898z"/></svg>
-              {{ $message }}
-            </div>
+            <div class="field-err"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9.303 3.376c.866 1.5-.217 3.374-1.948 3.374H4.645c-1.73 0-2.813-1.874-1.948-3.374l7.547-13.015c.866-1.5 3.032-1.5 3.898 0l5.16 8.898z"/></svg>{{ $message }}</div>
             @enderror
           </div>
 
           {{-- Good Moral --}}
-          <div class="ap-field">
-            <label class="field-label">Certificate of Good Moral Character <span class="req">*</span></label>
+          <div class="doc-card">
+            <div class="doc-card-head">
+              <div class="doc-card-icon" style="background:#d1fae5;">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#065f46" stroke-width="1.8">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/>
+                </svg>
+              </div>
+              <div class="doc-card-meta">
+                <div class="doc-card-title">Certificate of Good Moral Character</div>
+                <span class="doc-badge-req">Required</span>
+              </div>
+            </div>
             <div class="upload-zone{{ $errors->has('docs.good_moral') ? ' uz-err' : '' }}"
                  id="zone-moral"
                  onclick="triggerUpload('file-moral',event)"
@@ -1174,18 +1366,25 @@ body {
               </div>
               <div id="prev-moral" class="uz-preview" style="display:none"></div>
             </div>
-            <div class="field-hint">Required. Certificate of Good Moral Character issued by your previous school.</div>
+            <div class="field-hint" style="margin-top:6px;">Issued by your previous school.</div>
             @error('docs.good_moral')
-            <div class="field-err">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9.303 3.376c.866 1.5-.217 3.374-1.948 3.374H4.645c-1.73 0-2.813-1.874-1.948-3.374l7.547-13.015c.866-1.5 3.032-1.5 3.898 0l5.16 8.898z"/></svg>
-              {{ $message }}
-            </div>
+            <div class="field-err"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9.303 3.376c.866 1.5-.217 3.374-1.948 3.374H4.645c-1.73 0-2.813-1.874-1.948-3.374l7.547-13.015c.866-1.5 3.032-1.5 3.898 0l5.16 8.898z"/></svg>{{ $message }}</div>
             @enderror
           </div>
 
-          {{-- 2x2 Picture --}}
-          <div class="ap-field">
-            <label class="field-label">2&times;2 ID Picture <span class="opt">(optional)</span></label>
+          {{-- 2x2 Picture — spans both columns --}}
+          <div class="doc-card" style="grid-column:span 2;">
+            <div class="doc-card-head">
+              <div class="doc-card-icon" style="background:#f1f5f9;">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#475569" stroke-width="1.8">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/>
+                </svg>
+              </div>
+              <div class="doc-card-meta">
+                <div class="doc-card-title">2&times;2 ID Picture</div>
+                <span class="doc-badge-opt">Optional</span>
+              </div>
+            </div>
             <div class="upload-zone{{ $errors->has('docs.picture_2x2') ? ' uz-err' : '' }}"
                  id="zone-pic2x2"
                  onclick="triggerUpload('file-pic2x2',event)"
@@ -1204,12 +1403,9 @@ body {
               </div>
               <div id="prev-pic2x2" class="uz-preview" style="display:none"></div>
             </div>
-            <div class="field-hint">Required. Recent 2&times;2 photo with white background, in plain clothes.</div>
+            <div class="field-hint" style="margin-top:6px;">Recent 2&times;2 photo, white background, plain clothes.</div>
             @error('docs.picture_2x2')
-            <div class="field-err">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9.303 3.376c.866 1.5-.217 3.374-1.948 3.374H4.645c-1.73 0-2.813-1.874-1.948-3.374l7.547-13.015c.866-1.5 3.032-1.5 3.898 0l5.16 8.898z"/></svg>
-              {{ $message }}
-            </div>
+            <div class="field-err"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9.303 3.376c.866 1.5-.217 3.374-1.948 3.374H4.645c-1.73 0-2.813-1.874-1.948-3.374l7.547-13.015c.866-1.5 3.032-1.5 3.898 0l5.16 8.898z"/></svg>{{ $message }}</div>
             @enderror
           </div>
 
@@ -1426,6 +1622,32 @@ body {
   }
 
   addrInit();
+
+  /* ── Form progress tracker ──────────────────────────────────────── */
+  function updateProgress() {
+    const req    = Array.from(document.querySelectorAll(
+      'form input[required]:not([type=file]):not([type=checkbox]), form select[required]'
+    ));
+    const filled = req.filter(function(el) { return el.value && el.value.trim() !== ''; });
+    const pct    = req.length ? Math.round(filled.length / req.length * 100) : 0;
+
+    var fill  = document.getElementById('ap-prog-fill');
+    var lbl   = document.getElementById('ap-prog-pct');
+    var cfill = document.getElementById('ap-comp-fill');
+    var clbl  = document.getElementById('ap-comp-count');
+
+    if (fill)  fill.style.width  = pct + '%';
+    if (lbl)   lbl.textContent   = pct + '%';
+    if (cfill) cfill.style.width = pct + '%';
+    if (clbl)  clbl.textContent  = filled.length + ' / ' + req.length;
+  }
+
+  document.querySelectorAll('form input, form select').forEach(function(el) {
+    el.addEventListener('change', updateProgress);
+    el.addEventListener('input',  updateProgress);
+  });
+
+  updateProgress();
 </script>
 
 </body>
