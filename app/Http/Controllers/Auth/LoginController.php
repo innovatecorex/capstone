@@ -104,8 +104,12 @@ class LoginController extends Controller
         }
 
         // Success
-        Auth::login($user, $request->boolean('remember'));
+        $remember = $request->boolean('remember');
+        Auth::login($user, $remember);
         $request->session()->regenerate();
+
+        // Store remember flag so SessionTimeout can apply the extended idle window.
+        session(['user_remembered' => $remember]);
 
         $user->clearFailedAttempts();
         $user->update(['last_login_at' => now(), 'last_login_ip' => $request->ip()]);
