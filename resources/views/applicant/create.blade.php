@@ -148,86 +148,157 @@ body {
 /* Fields */
 .field { display: flex; flex-direction: column; }
 .field-label {
-  font-size: .68rem;
-  font-weight: 700;
-  color: #475569;
-  text-transform: uppercase;
-  letter-spacing: .07em;
-  margin-bottom: 6px;
-}
-.field-label .req { color: #dc2626; margin-left: 2px; }
-.field-label .opt {
-  font-size: .62rem;
-  font-weight: 500;
-  color: #94a3b8;
+  font-size: .75rem;
+  font-weight: 600;
+  color: #374151;
   text-transform: none;
   letter-spacing: 0;
-  margin-left: 5px;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.field-label .req {
+  color: #dc2626;
+  font-size: .65rem;
+  margin-left: 1px;
+}
+.field-label .opt {
+  font-size: .7rem;
+  font-weight: 400;
+  color: #9ca3af;
+  text-transform: none;
+  letter-spacing: 0;
+  margin-left: 2px;
 }
 
+/* ── Input base ────────────────────────────────────── */
 .field input,
 .field select,
 .field textarea {
   width: 100%;
-  height: 44px;
+  height: 46px;
   padding: 0 14px;
-  border: 1.5px solid #e2e8f0;
+  border: 1px solid #d1d5db;
   border-radius: 10px;
-  font-size: .875rem;
-  color: #0f172a;
-  background: #f8fafc;
+  font-size: .9rem;
+  color: #111827;
+  background: #ffffff;
   font-family: inherit;
   outline: none;
-  transition: border-color .15s, box-shadow .15s, background .15s;
+  box-shadow: 0 1px 2px rgba(0,0,0,.05), inset 0 1px 2px rgba(0,0,0,.03);
+  transition: border-color .15s, box-shadow .15s;
   -webkit-appearance: none;
   appearance: none;
 }
 .field select {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 12px center;
-  background-size: 16px;
+  background-size: 15px;
   padding-right: 38px;
   cursor: pointer;
+  color: #374151;
 }
+.field select option[value=""] { color: #9ca3af; }
 .field textarea {
   height: auto;
   padding: 11px 14px;
   resize: vertical;
   min-height: 72px;
-  line-height: 1.5;
+  line-height: 1.6;
+}
+.field input:hover, .field select:hover, .field textarea:hover {
+  border-color: #9ca3af;
 }
 .field input:focus,
 .field select:focus,
 .field textarea:focus {
   border-color: #2563eb;
-  background: #fff;
-  box-shadow: 0 0 0 3px rgba(37,99,235,.1);
+  box-shadow: 0 0 0 3px rgba(37,99,235,.12), 0 1px 2px rgba(0,0,0,.05);
 }
 .field input.is-err,
 .field select.is-err,
 .field textarea.is-err {
-  border-color: #dc2626;
-  box-shadow: 0 0 0 3px rgba(220,38,38,.08);
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239,68,68,.1);
+  background: #fff9f9;
 }
-.field input::placeholder { color: #94a3b8; }
+.field input::placeholder,
+.field textarea::placeholder { color: #9ca3af; font-size: .86rem; }
+
+/* ── Input with left icon ──────────────────────────── */
+.fi-wrap { position: relative; }
+.fi-wrap .fi-icon {
+  position: absolute;
+  left: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px; height: 16px;
+  color: #9ca3af;
+  pointer-events: none;
+  transition: color .15s;
+  flex-shrink: 0;
+}
+.fi-wrap input { padding-left: 40px; }
+.fi-wrap select { padding-left: 40px; padding-right: 38px; }
+.fi-wrap:focus-within .fi-icon { color: #2563eb; }
+.fi-wrap.fi-err .fi-icon { color: #ef4444; }
 
 .field-hint {
-  font-size: .7rem;
-  color: #94a3b8;
+  font-size: .72rem;
+  color: #9ca3af;
   margin-top: 5px;
-  line-height: 1.4;
+  line-height: 1.45;
 }
 .field-err {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   font-size: .72rem;
   color: #dc2626;
   font-weight: 600;
   margin-top: 5px;
 }
-.field-err svg { width: 12px; height: 12px; flex-shrink: 0; }
+.field-err svg { width: 13px; height: 13px; flex-shrink: 0; }
+
+/* ── Section card header upgrade ──────────────────── */
+.ap-card-head {
+  padding: 1.1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border-bottom: 1px solid #f1f5f9;
+  background: #fafbfd;
+}
+.ap-card-section-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: .62rem;
+  font-weight: 700;
+  color: #2563eb;
+  background: #dbeafe;
+  padding: 2px 8px;
+  border-radius: 99px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+.ap-card-title {
+  font-size: .95rem;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -.015em;
+}
+.ap-card-icon {
+  width: 40px; height: 40px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,.08);
+}
+.ap-card-icon svg { width: 19px; height: 19px; }
 
 /* ══════════════════════════════════════
    UPLOAD ZONES
@@ -644,96 +715,100 @@ body {
       <div class="ap-card" id="sec-personal">
         <div class="ap-card-bar"></div>
         <div class="ap-card-head">
-          <div class="ap-card-icon" style="background:#eff6ff;">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#1d4ed8" stroke-width="2">
+          <div class="ap-card-icon" style="background:linear-gradient(135deg,#dbeafe,#eff6ff);">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#1d4ed8" stroke-width="1.8">
               <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/>
             </svg>
           </div>
           <div>
-            <div class="ap-card-section-num">Section 1</div>
+            <div class="ap-card-section-badge">Section 1</div>
             <div class="ap-card-title">Personal Information</div>
           </div>
         </div>
 
         <div class="ap-card-body grid-2">
 
+          {{-- First Name --}}
           <div class="field">
             <label class="field-label">First Name <span class="req">*</span></label>
-            <input type="text" name="first_name" value="{{ old('first_name') }}" required maxlength="100"
-              class="{{ $errors->has('first_name') ? 'is-err' : '' }}" placeholder="e.g. Juan">
-            @error('first_name')
-            <div class="field-err">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9.303 3.376c.866 1.5-.217 3.374-1.948 3.374H4.645c-1.73 0-2.813-1.874-1.948-3.374l7.547-13.015c.866-1.5 3.032-1.5 3.898 0l5.16 8.898z"/></svg>
-              {{ $message }}
+            <div class="fi-wrap {{ $errors->has('first_name') ? 'fi-err' : '' }}">
+              <svg class="fi-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0"/></svg>
+              <input type="text" name="first_name" value="{{ old('first_name') }}" required maxlength="100"
+                class="{{ $errors->has('first_name') ? 'is-err' : '' }}" placeholder="e.g. Juan">
             </div>
-            @enderror
+            @error('first_name')<div class="field-err"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9.303 3.376c.866 1.5-.217 3.374-1.948 3.374H4.645c-1.73 0-2.813-1.874-1.948-3.374l7.547-13.015c.866-1.5 3.032-1.5 3.898 0l5.16 8.898z"/></svg>{{ $message }}</div>@enderror
           </div>
 
+          {{-- Last Name --}}
           <div class="field">
             <label class="field-label">Last Name <span class="req">*</span></label>
-            <input type="text" name="last_name" value="{{ old('last_name') }}" required maxlength="100"
-              class="{{ $errors->has('last_name') ? 'is-err' : '' }}" placeholder="e.g. dela Cruz">
-            @error('last_name')
-            <div class="field-err">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9.303 3.376c.866 1.5-.217 3.374-1.948 3.374H4.645c-1.73 0-2.813-1.874-1.948-3.374l7.547-13.015c.866-1.5 3.032-1.5 3.898 0l5.16 8.898z"/></svg>
-              {{ $message }}
+            <div class="fi-wrap {{ $errors->has('last_name') ? 'fi-err' : '' }}">
+              <svg class="fi-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0"/></svg>
+              <input type="text" name="last_name" value="{{ old('last_name') }}" required maxlength="100"
+                class="{{ $errors->has('last_name') ? 'is-err' : '' }}" placeholder="e.g. dela Cruz">
             </div>
-            @enderror
+            @error('last_name')<div class="field-err"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9.303 3.376c.866 1.5-.217 3.374-1.948 3.374H4.645c-1.73 0-2.813-1.874-1.948-3.374l7.547-13.015c.866-1.5 3.032-1.5 3.898 0l5.16 8.898z"/></svg>{{ $message }}</div>@enderror
           </div>
 
+          {{-- Middle Name --}}
           <div class="field">
             <label class="field-label">Middle Name <span class="opt">(optional)</span></label>
-            <input type="text" name="middle_name" value="{{ old('middle_name') }}" maxlength="100" placeholder="e.g. Santos">
+            <div class="fi-wrap">
+              <svg class="fi-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0"/></svg>
+              <input type="text" name="middle_name" value="{{ old('middle_name') }}" maxlength="100" placeholder="e.g. Santos">
+            </div>
           </div>
 
+          {{-- Suffix --}}
           <div class="field">
             <label class="field-label">Suffix <span class="opt">Jr., Sr., III…</span></label>
             <input type="text" name="suffix" value="{{ old('suffix') }}" maxlength="20" placeholder="e.g. Jr.">
           </div>
 
+          {{-- Date of Birth --}}
           <div class="field">
             <label class="field-label">Date of Birth <span class="req">*</span></label>
-            <input type="date" name="date_of_birth" value="{{ old('date_of_birth') }}" required
-              class="{{ $errors->has('date_of_birth') ? 'is-err' : '' }}">
-            @error('date_of_birth')
-            <div class="field-err">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9.303 3.376c.866 1.5-.217 3.374-1.948 3.374H4.645c-1.73 0-2.813-1.874-1.948-3.374l7.547-13.015c.866-1.5 3.032-1.5 3.898 0l5.16 8.898z"/></svg>
-              {{ $message }}
+            <div class="fi-wrap {{ $errors->has('date_of_birth') ? 'fi-err' : '' }}">
+              <svg class="fi-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/></svg>
+              <input type="date" name="date_of_birth" value="{{ old('date_of_birth') }}" required
+                class="{{ $errors->has('date_of_birth') ? 'is-err' : '' }}">
             </div>
-            @enderror
+            @error('date_of_birth')<div class="field-err"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9.303 3.376c.866 1.5-.217 3.374-1.948 3.374H4.645c-1.73 0-2.813-1.874-1.948-3.374l7.547-13.015c.866-1.5 3.032-1.5 3.898 0l5.16 8.898z"/></svg>{{ $message }}</div>@enderror
           </div>
 
+          {{-- Sex --}}
           <div class="field">
             <label class="field-label">Sex <span class="req">*</span></label>
-            <select name="sex" required class="{{ $errors->has('sex') ? 'is-err' : '' }}">
-              <option value="">— Select —</option>
-              <option value="Male"   {{ old('sex') === 'Male'   ? 'selected' : '' }}>Male</option>
-              <option value="Female" {{ old('sex') === 'Female' ? 'selected' : '' }}>Female</option>
-            </select>
-            @error('sex')
-            <div class="field-err">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9.303 3.376c.866 1.5-.217 3.374-1.948 3.374H4.645c-1.73 0-2.813-1.874-1.948-3.374l7.547-13.015c.866-1.5 3.032-1.5 3.898 0l5.16 8.898z"/></svg>
-              {{ $message }}
+            <div class="fi-wrap {{ $errors->has('sex') ? 'fi-err' : '' }}">
+              <svg class="fi-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"/></svg>
+              <select name="sex" required class="{{ $errors->has('sex') ? 'is-err' : '' }}">
+                <option value="">— Select —</option>
+                <option value="Male"   {{ old('sex') === 'Male'   ? 'selected' : '' }}>Male</option>
+                <option value="Female" {{ old('sex') === 'Female' ? 'selected' : '' }}>Female</option>
+              </select>
             </div>
-            @enderror
+            @error('sex')<div class="field-err"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9.303 3.376c.866 1.5-.217 3.374-1.948 3.374H4.645c-1.73 0-2.813-1.874-1.948-3.374l7.547-13.015c.866-1.5 3.032-1.5 3.898 0l5.16 8.898z"/></svg>{{ $message }}</div>@enderror
           </div>
 
+          {{-- LRN --}}
           <div class="field">
             <label class="field-label">Learner Reference Number <span class="opt">(LRN)</span></label>
-            <input type="text" name="lrn" value="{{ old('lrn') }}" maxlength="12" pattern="\d{12}"
-              placeholder="12-digit LRN" class="{{ $errors->has('lrn') ? 'is-err' : '' }}">
-            <div class="field-hint">Leave blank if not yet assigned.</div>
-            @error('lrn')
-            <div class="field-err">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9.303 3.376c.866 1.5-.217 3.374-1.948 3.374H4.645c-1.73 0-2.813-1.874-1.948-3.374l7.547-13.015c.866-1.5 3.032-1.5 3.898 0l5.16 8.898z"/></svg>
-              {{ $message }}
+            <div class="fi-wrap {{ $errors->has('lrn') ? 'fi-err' : '' }}">
+              <svg class="fi-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 9h3.75M15 12h3.75M15 15h3.75M4.5 19.5h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5zm6-10.125a1.875 1.875 0 11-3.75 0 1.875 1.875 0 013.75 0zm1.294 6.336a6.721 6.721 0 01-3.17.789 6.721 6.721 0 01-3.168-.789 3.376 3.376 0 016.338 0z"/></svg>
+              <input type="text" name="lrn" value="{{ old('lrn') }}" maxlength="12" pattern="\d{12}"
+                placeholder="12-digit LRN" class="{{ $errors->has('lrn') ? 'is-err' : '' }}">
             </div>
-            @enderror
+            <div class="field-hint">Leave blank if not yet assigned.</div>
+            @error('lrn')<div class="field-err"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9.303 3.376c.866 1.5-.217 3.374-1.948 3.374H4.645c-1.73 0-2.813-1.874-1.948-3.374l7.547-13.015c.866-1.5 3.032-1.5 3.898 0l5.16 8.898z"/></svg>{{ $message }}</div>@enderror
           </div>
 
+          {{-- Nationality --}}
           <div class="field">
             <label class="field-label">Nationality</label>
-            <input type="text" name="nationality" value="{{ old('nationality', 'Filipino') }}" maxlength="80">
+            <div class="fi-wrap">
+              <svg class="fi-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20.893 13.393l-1.135-1.135a2.252 2.252 0 01-.421-.585l-1.08-2.16a.414.414 0 00-.663-.107.827.827 0 01-.812.21l-1.273-.363a.89.89 0 00-.738 1.595l.587.39c.59.395.674 1.23.172 1.732l-.2.2c-.212.212-.33.498-.33.796v.41c0 .409-.11.809-.32 1.158l-1.315 2.191a2.11 2.11 0 01-1.81 1.025 1.055 1.055 0 01-1.055-1.055v-1.172c0-.92-.56-1.747-1.414-2.089l-.655-.261a2.25 2.25 0 01-1.383-2.46l.007-.042a2.25 2.25 0 01.29-.787l.09-.15a2.25 2.25 0 012.37-1.048l1.178.236a1.125 1.125 0 001.302-.795l.208-.73a1.125 1.125 0 00-.578-1.315l-.665-.332-.091.091a2.25 2.25 0 01-1.591.659h-.18c-.249 0-.487.1-.662.274a.931.931 0 01-1.458-1.137l1.279-2.132"/><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15"/></svg>
+              <input type="text" name="nationality" value="{{ old('nationality', 'Filipino') }}" maxlength="80">
+            </div>
           </div>
 
         </div>
