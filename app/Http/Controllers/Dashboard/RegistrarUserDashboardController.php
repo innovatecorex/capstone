@@ -179,17 +179,76 @@ class RegistrarUserDashboardController extends Controller
 
     public function students(Request $request)
     {
-        $search   = $request->input('search', '');
-        $students = User::where('role_id', '01')
-            ->when($search, fn($q) => $q->where(function ($q2) use ($search) {
-                $q2->where('first_name', 'like', "%{$search}%")
-                   ->orWhere('last_name',  'like', "%{$search}%");
-            }))
+        $search       = trim($request->input('search', ''));
+        $gradeFilter  = $request->input('grade', '');
+        $statusFilter = $request->input('status', '');
+        $enrollFilter = $request->input('enroll', ''); // enrolled|pending_payment|none
+
+        $activeYear  = AcademicYear::where('status', 'active')->first();
+        $activeYearId = $activeYear?->id ?? 0;
+
+        $query = User::where('role_id', '01');
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('first_name', 'like', "%{$search}%")
+                  ->orWhere('last_name',  'like', "%{$search}%")
+                  ->orWhere('lrn_hash',   hash('sha256', $search));
+            });
+        }
+
+        if ($gradeFilter) {
+            $query->where('grade_level', $gradeFilter);
+        }
+
+        if ($statusFilter) {
+            $query->where('status', $statusFilter);
+        }
+
+        if ($enrollFilter && $activeYearId) {
+            if ($enrollFilter === 'enrolled') {
+                $query->whereHas('enrollments', fn($q) =>
+                    $q->where('academic_year_id', $activeYearId)->where('status', 'enrolled'));
+            } elseif ($enrollFilter === 'pending_payment') {
+                $query->whereHas('enrollments', fn($q) =>
+                    $q->where('academic_year_id', $activeYearId)->where('status', 'pending_payment'));
+            } elseif ($enrollFilter === 'none') {
+                $query->whereDoesntHave('enrollments', fn($q) =>
+                    $q->where('academic_year_id', $activeYearId));
+            }
+        }
+
+        $students = $query
+            ->with(['enrollments' => fn($q) =>
+                $q->where('academic_year_id', $activeYearId)
+                  ->whereIn('status', ['enrolled', 'pending_payment'])
+                  ->with('section:id,section_name,grade_level')
+                  ->latest()
+            ])
             ->orderBy('last_name')
             ->paginate(20)
             ->withQueryString();
 
-        return view('dashboard.registrar-students', compact('students', 'search'));
+        // Grade levels present in the system for the filter dropdown
+        $gradeLevels = User::where('role_id', '01')
+            ->whereNotNull('grade_level')
+            ->distinct()
+            ->orderBy('grade_level')
+            ->pluck('grade_level');
+
+        // Quick stats for the active year banner
+        $stats = ['enrolled' => 0, 'pending_payment' => 0, 'not_enrolled' => 0, 'total' => 0];
+        if ($activeYearId) {
+            $stats['total']           = User::where('role_id', '01')->where('status', 'active')->count();
+            $stats['enrolled']        = Enrollment::where('academic_year_id', $activeYearId)->where('status', 'enrolled')->count();
+            $stats['pending_payment'] = Enrollment::where('academic_year_id', $activeYearId)->where('status', 'pending_payment')->count();
+            $stats['not_enrolled']    = max(0, $stats['total'] - $stats['enrolled'] - $stats['pending_payment']);
+        }
+
+        return view('dashboard.registrar-students', compact(
+            'students', 'search', 'gradeFilter', 'statusFilter', 'enrollFilter',
+            'gradeLevels', 'activeYear', 'stats'
+        ));
     }
 
     public function enrollment(Request $request)
