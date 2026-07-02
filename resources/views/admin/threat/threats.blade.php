@@ -4,6 +4,47 @@
 @section('title', 'Threat Events')
 @section('breadcrumb', 'Threat Events')
 
+@push('head')
+<style>
+#resolve-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 31, 68, .52);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  padding: 16px;
+}
+#resolve-modal {
+  width: 100%;
+  max-width: 420px;
+  margin: 0;
+  animation: resolveModalIn .18s ease;
+}
+@keyframes resolveModalIn {
+  from { opacity: 0; transform: translateY(-10px) scale(.97); }
+  to   { opacity: 1; transform: translateY(0)      scale(1); }
+}
+#resolve-modal .enc-card__title { gap: 8px; font-size: .95rem; }
+#resolve-modal-body {
+  font-size: .85rem;
+  color: var(--gray-500);
+  line-height: 1.6;
+  margin: 0;
+}
+#resolve-modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  padding: 16px 20px;
+  border-top: 1px solid var(--gray-100);
+}
+</style>
+@endpush
+
 @section('content')
 
 {{-- Page Header --}}
@@ -133,11 +174,15 @@
           <input type="checkbox" id="select-all-threats" style="cursor:pointer;">
           All
         </label>
-        <button type="submit" form="bulk-resolve-form" id="bulk-resolve-btn"
+        <button type="button" id="bulk-resolve-btn"
                 class="enc-btn enc-btn--success enc-btn--sm" disabled
-                onclick="return confirm('Resolve all selected threats?')">
+                onclick="openBulkResolveModal()">
           Resolve selected
         </button>
+        <span id="bulk-none-msg"
+              style="display:none;font-size:.75rem;color:var(--danger);white-space:nowrap;">
+          Select at least one threat first.
+        </span>
         <select class="enc-select" id="threat-filter" style="height:30px;font-size:.75rem;">
           <option value="all">All Types</option>
           <option value="brute_force">Brute Force</option>
@@ -194,11 +239,14 @@
                   @endif
                 @elseif($threat->status === 'active')
                   <span class="enc-badge enc-badge--danger">Active</span>
-                  <form method="POST" action="{{ route('admin.threat.resolve', $threat) }}" style="display:inline;">
+                  <form method="POST" action="{{ route('admin.threat.resolve', $threat) }}"
+                        class="threat-resolve-form" style="display:inline;">
                     @csrf
-                    <button type="submit" class="enc-btn enc-btn--success enc-btn--sm"
+                    <button type="button" class="enc-btn enc-btn--success enc-btn--sm"
                             style="padding:.15rem .55rem;font-size:.72rem;line-height:1.4;"
-                            onclick="return confirm('Mark threat #{{ $threat->id }} as resolved?')">
+                            data-threat-id="{{ $threat->id }}"
+                            data-threat-label="{{ $threat->event_label ?? $threat->threat_type }}"
+                            onclick="openSingleResolveModal(this)">
                       Resolve
                     </button>
                   </form>
@@ -421,44 +469,63 @@
   </div>
 </div>
 
-{{-- Hidden bulk-resolve form; checkboxes/button reference it via form="bulk-resolve-form" --}}
+{{-- Hidden bulk-resolve form; checkboxes reference it via form="bulk-resolve-form" --}}
 <form id="bulk-resolve-form" method="POST"
       action="{{ route('admin.threat.resolve-bulk') }}"
       style="display:none;">
   @csrf
 </form>
 
+{{-- ── Resolve confirmation modal ──────────────────────────────────── --}}
+<div id="resolve-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="resolve-modal-title">
+  <div id="resolve-modal" class="enc-card">
+    <div class="enc-card__header">
+      <div class="enc-card__title" id="resolve-modal-title">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;flex-shrink:0;color:var(--success);">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/>
+        </svg>
+        <span id="resolve-modal-heading">Resolve threat?</span>
+      </div>
+    </div>
+    <div class="enc-card__body" style="padding:18px 20px;">
+      <p id="resolve-modal-body"></p>
+    </div>
+    <div id="resolve-modal-actions">
+      <button id="resolve-modal-cancel" class="enc-btn enc-btn--ghost">Cancel</button>
+      <button id="resolve-modal-confirm" class="enc-btn enc-btn--success">Resolve</button>
+    </div>
+  </div>
+</div>
+
 @endsection
 
 @push('scripts')
 <script>
-  // Client-side threat type filter
-  const select = document.getElementById('threat-filter');
-  if (select) {
-    select.addEventListener('change', function () {
-      const val = this.value;
+(function () {
+  /* ── Threat-type filter ─────────────────────────────────────────── */
+  var filterSel = document.getElementById('threat-filter');
+  if (filterSel) {
+    filterSel.addEventListener('change', function () {
+      var val = this.value;
       document.querySelectorAll('.enc-timeline-item').forEach(function (item) {
-        if (val === 'all' || item.dataset.type === val) {
-          item.style.display = '';
-        } else {
-          item.style.display = 'none';
-        }
+        item.style.display = (val === 'all' || item.dataset.type === val) ? '' : 'none';
       });
     });
   }
 
-  // Bulk resolve: select-all + enable/disable button
-  const selectAll = document.getElementById('select-all-threats');
-  const bulkBtn   = document.getElementById('bulk-resolve-btn');
+  /* ── Bulk resolve: select-all + enable/disable button ───────────── */
+  var selectAll = document.getElementById('select-all-threats');
+  var bulkBtn   = document.getElementById('bulk-resolve-btn');
+  var noneMsg   = document.getElementById('bulk-none-msg');
 
   function syncBulkBtn() {
-    if (!bulkBtn) return;
-    bulkBtn.disabled = !document.querySelector('.threat-check:checked');
+    if (bulkBtn) bulkBtn.disabled = !document.querySelector('.threat-check:checked');
   }
 
   document.querySelectorAll('.threat-check').forEach(function (cb) {
     cb.addEventListener('change', function () {
       if (!this.checked && selectAll) selectAll.checked = false;
+      if (noneMsg) noneMsg.style.display = 'none';
       syncBulkBtn();
     });
   });
@@ -471,5 +538,77 @@
       syncBulkBtn();
     });
   }
+
+  /* ── Resolve confirmation modal ─────────────────────────────────── */
+  var overlay     = document.getElementById('resolve-modal-overlay');
+  var heading     = document.getElementById('resolve-modal-heading');
+  var body        = document.getElementById('resolve-modal-body');
+  var cancelBtn   = document.getElementById('resolve-modal-cancel');
+  var confirmBtn  = document.getElementById('resolve-modal-confirm');
+  var pendingForm = null;
+
+  function showModal(title, message, form) {
+    heading.textContent = title;
+    body.textContent    = message;
+    pendingForm         = form;
+    overlay.style.display = 'flex';
+    cancelBtn.focus();
+  }
+
+  function hideModal() {
+    overlay.style.display = 'none';
+    pendingForm = null;
+  }
+
+  /* Single-threat resolve */
+  window.openSingleResolveModal = function (btn) {
+    var id    = btn.dataset.threatId;
+    var label = btn.dataset.threatLabel;
+    var form  = btn.closest('form');
+    showModal(
+      'Resolve threat?',
+      'Mark threat #' + id + ' (' + label + ') as resolved? ' +
+      'It stays in the log for audit — this only changes its status.',
+      form
+    );
+  };
+
+  /* Bulk resolve */
+  window.openBulkResolveModal = function () {
+    var checked = document.querySelectorAll('.threat-check:checked');
+    if (checked.length === 0) {
+      if (noneMsg) noneMsg.style.display = '';
+      return;
+    }
+    if (noneMsg) noneMsg.style.display = 'none';
+    showModal(
+      'Resolve selected threats?',
+      'Mark ' + checked.length + ' selected threat(s) as resolved? ' +
+      'They stay in the log for audit — this only changes their status.',
+      document.getElementById('bulk-resolve-form')
+    );
+  };
+
+  /* Confirm submits the pending form */
+  if (confirmBtn) {
+    confirmBtn.addEventListener('click', function () {
+      if (pendingForm) pendingForm.submit();
+      hideModal();
+    });
+  }
+
+  /* Cancel / Escape / overlay click close the modal */
+  if (cancelBtn) cancelBtn.addEventListener('click', hideModal);
+
+  if (overlay) {
+    overlay.addEventListener('click', function (e) {
+      if (e.target === overlay) hideModal();
+    });
+  }
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && overlay && overlay.style.display !== 'none') hideModal();
+  });
+})();
 </script>
 @endpush
