@@ -7,13 +7,67 @@
 <style>
 /* ── Student schedule: toggle + print ─────────────────────────── */
 .sched-print-header { display: none; }
-.sched-weekly-list  { display: none; } /* JS shows in list mode; print CSS always forces it visible */
+.sched-weekly-list  { display: none; }
 
-.sched-btn-active {
-  background: rgba(99,102,241,.35) !important;
-  border-color: rgba(99,102,241,.6) !important;
-  color: #a5b4fc !important;
+/* Glass card consistent with light page background */
+.student-glass-card {
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid var(--gray-100);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: 0 4px 24px rgba(15, 23, 42, 0.07);
 }
+
+/* Toggle button group */
+.sched-toggle-wrap {
+  display: flex;
+  background: var(--gray-100);
+  border: 1px solid var(--gray-200);
+  border-radius: 9px;
+  overflow: hidden;
+  padding: 3px;
+  gap: 2px;
+}
+.sched-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: .3rem .72rem;
+  font-size: .78rem;
+  font-weight: 600;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--gray-500);
+  transition: background .15s, color .15s, box-shadow .15s;
+  white-space: nowrap;
+}
+.sched-toggle-btn svg { width: 12px; height: 12px; flex-shrink: 0; }
+.sched-toggle-btn:hover { color: var(--navy); }
+.sched-btn-active {
+  background: white !important;
+  color: #4f46e5 !important;
+  box-shadow: 0 1px 4px rgba(0,0,0,.12);
+}
+
+/* Action buttons (print, csv) */
+.sched-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: .3rem .75rem;
+  background: white;
+  border: 1px solid var(--gray-200);
+  border-radius: 8px;
+  font-size: .78rem;
+  font-weight: 600;
+  color: var(--gray-500);
+  cursor: pointer;
+  transition: background .15s, border-color .15s, color .15s;
+}
+.sched-action-btn:hover { background: var(--gray-100); color: var(--navy); }
+.sched-action-btn svg { width: 13px; height: 13px; flex-shrink: 0; }
 
 /* Grid table */
 .sched-grid-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
@@ -23,22 +77,21 @@
   min-width: 540px;
   table-layout: fixed;
 }
-.sched-grid-table thead tr { border-bottom: 1px solid rgba(255,255,255,.1); }
-.sched-grid-table tbody tr { border-bottom: 1px solid rgba(255,255,255,.05); }
+.sched-grid-table thead tr { border-bottom: 1px solid var(--gray-100); }
+.sched-grid-table tbody tr { border-bottom: 1px solid var(--gray-100); }
+.sched-grid-table tbody tr:last-child { border-bottom: none; }
 .sched-grid-table th, .sched-grid-table td { padding: 8px 6px; vertical-align: top; }
-.sched-grid-table td { border-right: 1px solid rgba(255,255,255,.05); }
+.sched-grid-table td { border-right: 1px solid var(--gray-100); }
 .sched-grid-table td:last-child, .sched-grid-table th:last-child { border-right: none; }
 
 /* Today column highlight */
-.sched-col-today th { color: #a5b4fc !important; background: rgba(99,102,241,.14); }
-.sched-col-today td { background: rgba(99,102,241,.08); }
+.sched-col-today th { color: #4f46e5 !important; background: rgba(99,102,241,.06); }
+.sched-col-today td { background: rgba(99,102,241,.04); }
 
 @media print {
-  /* Hide all app chrome and glass elements */
   .enc-sidebar, #enc-sidebar, .enc-header,
   .enc-page__header, .student-glass-card, .no-print { display: none !important; }
 
-  /* Show print-only elements regardless of JS toggle state */
   .sched-print-header { display: block !important; }
   .sched-weekly-list  { display: block !important;
                          background: transparent !important;
@@ -53,7 +106,6 @@
     padding-top: 0 !important;
   }
 
-  /* Clean up list day cards for print */
   .sched-list-day {
     border: 1px solid #d1d5db !important;
     box-shadow: none !important;
@@ -79,10 +131,9 @@
   $dayAbbrevs = ['monday'=>'Mon','tuesday'=>'Tue','wednesday'=>'Wed','thursday'=>'Thu','friday'=>'Fri','saturday'=>'Sat'];
   $todayName  = strtolower(now()->format('l'));
 
-  // Grid: time slots + 2-D cell map
-  $timeSlots   = [];   // start_time => end_time
-  $grid        = [];   // start_time => [day => SectionSubject]
-  $weekGrouped = [];   // day        => [SectionSubject, ...]
+  $timeSlots   = [];
+  $grid        = [];
+  $weekGrouped = [];
 
   foreach ($sectionSubjects ?? collect() as $ss) {
     $t = $ss->start_time ?? '';
@@ -99,7 +150,6 @@
   ksort($grid);
   $hasSchedule = !empty($timeSlots);
 
-  // JSON payload for CSV export
   $scheduleForJs = collect($dayOrder)->mapWithKeys(function ($day) use ($weekGrouped, $dayLabels) {
     return [
       $dayLabels[$day] => collect($weekGrouped[$day] ?? [])
@@ -134,21 +184,22 @@
     </div>
     <div class="no-print" style="display:flex;gap:8px;align-items:center;flex-shrink:0;flex-wrap:wrap;">
       {{-- Grid / List toggle --}}
-      <div style="display:flex;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;overflow:hidden;">
-        <button id="btn-grid" onclick="switchView('grid')"
-                class="sched-btn-active"
-                style="padding:.32rem .8rem;font-size:.78rem;font-weight:600;background:transparent;border:none;cursor:pointer;">Grid</button>
-        <button id="btn-list" onclick="switchView('list')"
-                style="padding:.32rem .8rem;font-size:.78rem;font-weight:600;color:rgba(255,255,255,.5);background:transparent;border:none;cursor:pointer;">List</button>
+      <div class="sched-toggle-wrap">
+        <button id="btn-grid" onclick="switchView('grid')" class="sched-toggle-btn sched-btn-active">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z"/></svg>
+          Grid
+        </button>
+        <button id="btn-list" onclick="switchView('list')" class="sched-toggle-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/></svg>
+          List
+        </button>
       </div>
-      <button onclick="window.print()"
-              style="display:inline-flex;align-items:center;gap:5px;padding:.32rem .8rem;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:8px;font-size:.78rem;font-weight:600;color:rgba(255,255,255,.8);cursor:pointer;">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;flex-shrink:0;"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 4.5h10.5M6 19.5h12a2.25 2.25 0 002.25-2.25v-7.5A2.25 2.25 0 0018 7.5H6a2.25 2.25 0 00-2.25 2.25v7.5A2.25 2.25 0 006 19.5zm.75-5.25h.008v.008H6.75v-.008zm3 0h.008v.008H9.75v-.008zm3 0h.008v.008h-.008v-.008z"/></svg>
+      <button onclick="window.print()" class="sched-action-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 4.5h10.5M6 19.5h12a2.25 2.25 0 002.25-2.25v-7.5A2.25 2.25 0 0018 7.5H6a2.25 2.25 0 00-2.25 2.25v7.5A2.25 2.25 0 006 19.5zm.75-5.25h.008v.008H6.75v-.008zm3 0h.008v.008H9.75v-.008zm3 0h.008v.008h-.008v-.008z"/></svg>
         Print
       </button>
-      <button onclick="downloadScheduleCSV()"
-              style="display:inline-flex;align-items:center;gap:5px;padding:.32rem .8rem;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:8px;font-size:.78rem;font-weight:600;color:rgba(255,255,255,.8);cursor:pointer;">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;flex-shrink:0;"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
+      <button onclick="downloadScheduleCSV()" class="sched-action-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
         CSV
       </button>
     </div>
@@ -161,13 +212,13 @@
 <div id="view-grid" class="enc-card student-glass-card" style="padding:1.25rem 1.5rem;">
 
   @if(!$hasSchedule)
-    <div style="text-align:center;padding:3rem 1rem;color:rgba(255,255,255,.4);">
+    <div style="text-align:center;padding:3rem 1rem;">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"
-           style="width:48px;height:48px;margin:0 auto 1rem;display:block;color:rgba(255,255,255,.2)">
+           style="width:48px;height:48px;margin:0 auto 1rem;display:block;color:var(--gray-200)">
         <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 9v7.5"/>
       </svg>
-      <p style="font-size:.95rem;font-weight:600;">No Schedule Assigned</p>
-      <p style="font-size:.82rem;margin-top:.3rem;">Your weekly schedule will appear here once configured.</p>
+      <p style="font-size:.95rem;font-weight:600;color:var(--navy);">No Schedule Assigned</p>
+      <p style="font-size:.82rem;margin-top:.3rem;color:var(--gray-500);">Your weekly schedule will appear here once configured.</p>
     </div>
 
   @else
@@ -175,18 +226,18 @@
       <table class="sched-grid-table">
         <colgroup>
           <col style="width:80px;">
-          @foreach($dayOrder as $day)<col>@endforeach
+          @foreach($dayOrder as $col)<col>@endforeach
         </colgroup>
         <thead>
           <tr>
-            <th style="text-align:left;font-size:.67rem;color:rgba(255,255,255,.25);padding-bottom:10px;"></th>
+            <th style="text-align:left;font-size:.67rem;color:var(--gray-200);padding-bottom:10px;"></th>
             @foreach($dayOrder as $day)
             <th class="{{ $day === $todayName ? 'sched-col-today' : '' }}"
                 style="text-align:center;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;
-                       color:{{ $day === $todayName ? '#a5b4fc' : 'rgba(255,255,255,.38)' }};padding-bottom:10px;">
+                       color:{{ $day === $todayName ? '#4f46e5' : 'var(--gray-500)' }};padding-bottom:10px;">
               {{ $dayAbbrevs[$day] }}
               @if($day === $todayName)
-              <div class="no-print" style="font-size:.58rem;font-weight:700;color:#818cf8;letter-spacing:.04em;margin-top:2px;">today</div>
+              <div class="no-print" style="font-size:.58rem;font-weight:700;color:#6366f1;letter-spacing:.04em;margin-top:2px;">today</div>
               @endif
             </th>
             @endforeach
@@ -195,28 +246,26 @@
         <tbody>
           @foreach($timeSlots as $startTime => $endTime)
           <tr>
-            {{-- Time label --}}
-            <td style="font-size:.67rem;color:rgba(255,255,255,.3);font-family:monospace;
+            <td style="font-size:.67rem;color:var(--gray-500);font-family:monospace;
                        white-space:nowrap;vertical-align:middle;text-align:right;padding-right:10px;">
               {{ substr($startTime, 0, 5) }}<br>
-              <span style="color:rgba(255,255,255,.18);">{{ substr($endTime, 0, 5) }}</span>
+              <span style="color:var(--gray-200);">{{ substr($endTime, 0, 5) }}</span>
             </td>
-            {{-- One cell per day --}}
             @foreach($dayOrder as $day)
             @php $ss = $grid[$startTime][$day] ?? null; @endphp
             <td class="{{ $day === $todayName ? 'sched-col-today' : '' }}"
                 style="padding:6px 5px;text-align:center;">
               @if($ss)
-              <div style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);
+              <div style="background:white;border:1px solid var(--gray-100);
                           border-radius:8px;padding:6px 7px;text-align:left;min-height:52px;">
-                <div style="font-size:.76rem;font-weight:600;color:rgba(255,255,255,.88);line-height:1.3;">
+                <div style="font-size:.76rem;font-weight:600;color:var(--navy);line-height:1.3;">
                   {{ $ss->subject?->subject_name ?? '—' }}
                 </div>
                 @if($ss->room)
-                <div style="font-size:.65rem;color:rgba(255,255,255,.45);margin-top:3px;">{{ $ss->room }}</div>
+                <div style="font-size:.65rem;color:var(--gray-500);margin-top:3px;">{{ $ss->room }}</div>
                 @endif
                 @if($ss->faculty)
-                <div style="font-size:.62rem;color:rgba(255,255,255,.3);margin-top:1px;
+                <div style="font-size:.62rem;color:var(--gray-500);margin-top:1px;
                             white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
                   {{ $ss->faculty->full_name }}
                 </div>
@@ -246,25 +295,25 @@
   </div>
   <div class="enc-card__body">
     @if(empty($todaySchedule))
-      <div style="text-align:center;padding:2.5rem 1rem;color:rgba(255,255,255,.4);">
+      <div style="text-align:center;padding:2.5rem 1rem;">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"
-             style="width:40px;height:40px;margin:0 auto .8rem;display:block;color:rgba(255,255,255,.2)">
+             style="width:40px;height:40px;margin:0 auto .8rem;display:block;color:var(--gray-200)">
           <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 9v7.5"/>
         </svg>
-        <p style="font-size:.9rem;font-weight:600;">No Classes Today</p>
-        <p style="font-size:.8rem;margin-top:.2rem;">No scheduled classes found for today.</p>
+        <p style="font-size:.9rem;font-weight:600;color:var(--navy);">No Classes Today</p>
+        <p style="font-size:.8rem;margin-top:.2rem;color:var(--gray-500);">No scheduled classes found for today.</p>
       </div>
     @else
       <div style="display:flex;flex-direction:column;gap:.6rem;">
         @foreach($todaySchedule as $class)
-        <div style="display:flex;align-items:center;gap:1rem;background:rgba(255,255,255,.04);
-                    border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:.85rem 1rem;">
-          <div style="min-width:110px;font-size:.8rem;font-weight:600;color:rgba(255,255,255,.5);font-family:monospace;">{{ $class['time'] }}</div>
+        <div style="display:flex;align-items:center;gap:1rem;background:var(--gray-50);
+                    border:1px solid var(--gray-100);border-radius:10px;padding:.85rem 1rem;">
+          <div style="min-width:110px;font-size:.8rem;font-weight:600;color:var(--gray-500);font-family:monospace;">{{ $class['time'] }}</div>
           <div style="flex:1;">
-            <div style="font-size:.92rem;font-weight:600;color:#fff;">{{ $class['subject'] }}</div>
-            <div style="font-size:.8rem;color:rgba(255,255,255,.45);margin-top:.15rem;">{{ $class['teacher'] }}</div>
+            <div style="font-size:.92rem;font-weight:600;color:var(--navy);">{{ $class['subject'] }}</div>
+            <div style="font-size:.8rem;color:var(--gray-500);margin-top:.15rem;">{{ $class['teacher'] }}</div>
           </div>
-          <div style="font-size:.82rem;color:rgba(255,255,255,.5);">{{ $class['room'] }}</div>
+          <div style="font-size:.82rem;color:var(--gray-500);">{{ $class['room'] }}</div>
         </div>
         @endforeach
       </div>
@@ -273,39 +322,37 @@
 </div>
 
 {{-- ══════════════════════════════════════════════════════════════ --}}
-{{-- FULL WEEKLY LIST — shown in list mode on screen + always in   --}}
-{{-- print (regardless of toggle state, via !important).           --}}
+{{-- FULL WEEKLY LIST — shown in list mode + always in print       --}}
 {{-- ══════════════════════════════════════════════════════════════ --}}
-<div class="sched-weekly-list"
-     style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:1.25rem 1.5rem;">
+<div class="sched-weekly-list enc-card student-glass-card" style="padding:1.25rem 1.5rem;">
 
   @if(!$hasSchedule)
-    <div style="text-align:center;padding:1.5rem;color:rgba(255,255,255,.35);">
-      <p style="font-size:.875rem;font-weight:600;">No schedule assigned yet.</p>
+    <div style="text-align:center;padding:1.5rem;">
+      <p style="font-size:.875rem;font-weight:600;color:var(--gray-500);">No schedule assigned yet.</p>
     </div>
   @else
   <div style="display:flex;flex-direction:column;gap:8px;">
     @foreach($dayOrder as $day)
     @php $classes = $weekGrouped[$day] ?? []; @endphp
     <div class="sched-list-day{{ $day === $todayName ? ' sched-today' : '' }}"
-         style="border:1px solid {{ $day === $todayName ? '#6366f1' : 'rgba(255,255,255,.1)' }};
+         style="border:1px solid {{ $day === $todayName ? '#6366f1' : 'var(--gray-100)' }};
                 border-radius:10px;overflow:hidden;
-                {{ $day === $todayName ? 'box-shadow:0 0 0 2px rgba(99,102,241,.22);' : '' }}">
+                {{ $day === $todayName ? 'box-shadow:0 0 0 2px rgba(99,102,241,.15);' : '' }}">
       <div class="sched-list-day-head"
            style="display:flex;align-items:center;gap:10px;padding:9px 16px;
-                  border-bottom:1px solid rgba(255,255,255,.06);
-                  {{ $day === $todayName ? 'background:rgba(99,102,241,.18);' : 'background:rgba(255,255,255,.04);' }}">
+                  border-bottom:1px solid var(--gray-100);
+                  {{ $day === $todayName ? 'background:rgba(99,102,241,.07);' : 'background:var(--gray-50);' }}">
         <span style="font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;
-                     color:{{ $day === $todayName ? '#a5b4fc' : 'rgba(255,255,255,.4)' }};
+                     color:{{ $day === $todayName ? '#4f46e5' : 'var(--gray-500)' }};
                      width:90px;flex-shrink:0;">{{ $dayLabels[$day] }}</span>
         @if($day === $todayName)
           <span class="no-print" style="font-size:.62rem;font-weight:700;padding:.1rem .45rem;
                 border-radius:20px;background:#6366f1;color:#fff;">TODAY</span>
         @endif
         @if(empty($classes))
-          <span style="font-size:.75rem;color:rgba(255,255,255,.22);">No classes</span>
+          <span style="font-size:.75rem;color:var(--gray-200);">No classes</span>
         @else
-          <span style="font-size:.75rem;color:rgba(255,255,255,.38);">
+          <span style="font-size:.75rem;color:var(--gray-500);">
             {{ count($classes) }} {{ Str::plural('class', count($classes)) }}
           </span>
         @endif
@@ -315,20 +362,20 @@
         @foreach(collect($classes)->sortBy('start_time') as $ss)
         <div class="sched-list-day-row"
              style="display:flex;align-items:center;gap:12px;padding:9px 16px;
-                    border-bottom:1px solid rgba(255,255,255,.04);">
-          <div style="font-size:.75rem;color:rgba(255,255,255,.38);white-space:nowrap;
+                    border-bottom:1px solid var(--gray-100);background:white;">
+          <div style="font-size:.75rem;color:var(--gray-500);white-space:nowrap;
                       width:110px;flex-shrink:0;font-family:monospace;">{{ $ss->time_range }}</div>
           <div style="flex:1;min-width:0;">
-            <div style="font-size:.85rem;font-weight:600;color:rgba(255,255,255,.88);">
+            <div style="font-size:.85rem;font-weight:600;color:var(--navy);">
               {{ $ss->subject?->subject_name ?? '—' }}
             </div>
-            <div style="font-size:.72rem;color:rgba(255,255,255,.38);margin-top:2px;">
+            <div style="font-size:.72rem;color:var(--gray-500);margin-top:2px;">
               {{ $ss->faculty?->full_name ?? '—' }}
             </div>
           </div>
           @if($ss->room)
           <div style="font-size:.7rem;font-weight:600;padding:.15rem .55rem;
-                      background:rgba(255,255,255,.07);color:rgba(255,255,255,.5);
+                      background:var(--gray-100);color:var(--gray-500);
                       border-radius:5px;flex-shrink:0;">{{ $ss->room }}</div>
           @endif
         </div>
@@ -349,13 +396,13 @@
     <span class="enc-card__meta">Exams, quizzes, and projects due soon</span>
   </div>
   <div class="enc-card__body">
-    <div style="text-align:center;padding:2.5rem 1rem;color:rgba(255,255,255,.45);">
+    <div style="text-align:center;padding:2.5rem 1rem;">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"
-           style="width:40px;height:40px;margin:0 auto .75rem;display:block;color:rgba(255,255,255,.2)">
+           style="width:40px;height:40px;margin:0 auto .75rem;display:block;color:var(--gray-200)">
         <path stroke-linecap="round" stroke-linejoin="round" d="M11.35 3.836c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m8.9-4.414c.376.023.75.05 1.124.08 1.131.094 1.976 1.057 1.976 2.192V16.5A2.25 2.25 0 0118 18.75h-2.25m-7.5-10.5H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V18.75m-7.5-10.5h6.375c.621 0 1.125.504 1.125 1.125v9.375m-8.25-3l1.5 1.5 3-3.75"/>
       </svg>
-      <p style="font-size:.9rem;font-weight:600;">No Upcoming Assessments</p>
-      <p style="font-size:.8rem;margin-top:.2rem;">Assessment schedules will appear here once posted by your teachers.</p>
+      <p style="font-size:.9rem;font-weight:600;color:var(--navy);">No Upcoming Assessments</p>
+      <p style="font-size:.8rem;margin-top:.2rem;color:var(--gray-500);">Assessment schedules will appear here once posted by your teachers.</p>
     </div>
   </div>
 </div>
@@ -369,11 +416,11 @@
 
   /* ── View toggle ──────────────────────────────────────────────── */
   window.switchView = function (view) {
-    var gridEl    = document.getElementById('view-grid');
-    var todayEl   = document.getElementById('view-list-today');
-    var listEl    = document.querySelector('.sched-weekly-list');
-    var btnGrid   = document.getElementById('btn-grid');
-    var btnList   = document.getElementById('btn-list');
+    var gridEl  = document.getElementById('view-grid');
+    var todayEl = document.getElementById('view-list-today');
+    var listEl  = document.querySelector('.sched-weekly-list');
+    var btnGrid = document.getElementById('btn-grid');
+    var btnList = document.getElementById('btn-list');
 
     var isGrid = (view === 'grid');
 
@@ -381,14 +428,8 @@
     if (todayEl) todayEl.style.display = isGrid ? 'none' : '';
     if (listEl)  listEl.style.display  = isGrid ? 'none' : 'block';
 
-    if (btnGrid) {
-      btnGrid.classList.toggle('sched-btn-active', isGrid);
-      btnGrid.style.color = isGrid ? '' : 'rgba(255,255,255,.5)';
-    }
-    if (btnList) {
-      btnList.classList.toggle('sched-btn-active', !isGrid);
-      btnList.style.color = isGrid ? 'rgba(255,255,255,.5)' : '';
-    }
+    if (btnGrid) btnGrid.classList.toggle('sched-btn-active', isGrid);
+    if (btnList) btnList.classList.toggle('sched-btn-active', !isGrid);
   };
 
   /* ── CSV export ───────────────────────────────────────────────── */
