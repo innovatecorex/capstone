@@ -245,6 +245,49 @@ body {
 .fi-wrap:focus-within .fi-icon { color: #2563eb; }
 .fi-wrap.fi-err .fi-icon { color: #ef4444; }
 
+/* ── Date-of-birth three-select row ───────────────── */
+.dob-row {
+  display: flex;
+  gap: 8px;
+}
+.dob-sel {
+  flex: 1;
+  height: 46px;
+  padding: 0 32px 0 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  font-size: .9rem;
+  color: #374151;
+  background: #ffffff;
+  font-family: inherit;
+  outline: none;
+  box-shadow: 0 1px 2px rgba(0,0,0,.05), inset 0 1px 2px rgba(0,0,0,.03);
+  transition: border-color .15s, box-shadow .15s;
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 14px;
+  cursor: pointer;
+}
+.dob-sel:hover { border-color: #9ca3af; }
+.dob-sel:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37,99,235,.12), 0 1px 2px rgba(0,0,0,.05);
+}
+.dob-sel.is-err {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239,68,68,.1);
+  background-color: #fff9f9;
+}
+/* Month gets the icon prefix, needs extra left padding */
+.dob-row .fi-wrap { flex: 5; }
+.dob-row .fi-wrap select { padding-left: 40px; }
+/* Day narrower, Year wider */
+.dob-sel.dob-day  { flex: 3; }
+.dob-sel.dob-year { flex: 4; }
+
 .field-hint {
   font-size: .72rem;
   color: #9ca3af;
@@ -929,11 +972,42 @@ body {
 
           {{-- Date of Birth --}}
           <div class="field">
-            <label class="field-label">Date of Birth <span class="req">*</span></label>
-            <div class="fi-wrap {{ $errors->has('date_of_birth') ? 'fi-err' : '' }}">
-              <svg class="fi-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/></svg>
-              <input type="date" name="date_of_birth" value="{{ old('date_of_birth') }}" required
-                class="{{ $errors->has('date_of_birth') ? 'is-err' : '' }}">
+            <label class="field-label">Date of birth <span class="req">*</span></label>
+            @php
+              $dobOld = old('date_of_birth', '');
+              $dobY   = $dobOld ? substr($dobOld, 0, 4) : '';
+              $dobM   = $dobOld ? substr($dobOld, 5, 2) : '';
+              $dobD   = $dobOld ? substr($dobOld, 8, 2) : '';
+            @endphp
+            {{-- Hidden field carries the combined YYYY-MM-DD value for server validation --}}
+            <input type="hidden" id="dob-hidden" name="date_of_birth" value="{{ $dobOld }}">
+            <div class="dob-row">
+              {{-- Month (with calendar icon) --}}
+              <div class="fi-wrap {{ $errors->has('date_of_birth') ? 'fi-err' : '' }}">
+                <svg class="fi-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/></svg>
+                <select id="dob-month" class="{{ $errors->has('date_of_birth') ? 'is-err' : '' }}" onchange="dobCombine()">
+                  <option value="">Month</option>
+                  @foreach(['01'=>'January','02'=>'February','03'=>'March','04'=>'April','05'=>'May','06'=>'June','07'=>'July','08'=>'August','09'=>'September','10'=>'October','11'=>'November','12'=>'December'] as $mv => $mn)
+                    <option value="{{ $mv }}" {{ $dobM === $mv ? 'selected' : '' }}>{{ $mn }}</option>
+                  @endforeach
+                </select>
+              </div>
+              {{-- Day --}}
+              <select id="dob-day" class="dob-sel dob-day {{ $errors->has('date_of_birth') ? 'is-err' : '' }}" onchange="dobCombine()">
+                <option value="">Day</option>
+                @for($d = 1; $d <= 31; $d++)
+                  @php $dv = str_pad($d, 2, '0', STR_PAD_LEFT); @endphp
+                  <option value="{{ $dv }}" {{ $dobD === $dv ? 'selected' : '' }}>{{ $d }}</option>
+                @endfor
+              </select>
+              {{-- Year --}}
+              <select id="dob-year" class="dob-sel dob-year {{ $errors->has('date_of_birth') ? 'is-err' : '' }}" onchange="dobCombine()">
+                <option value="">Year</option>
+                @php $curYr = (int) date('Y'); @endphp
+                @for($y = $curYr - 3; $y >= $curYr - 30; $y--)
+                  <option value="{{ $y }}" {{ $dobY === (string)$y ? 'selected' : '' }}>{{ $y }}</option>
+                @endfor
+              </select>
             </div>
             @error('date_of_birth')<div class="field-err"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9.303 3.376c.866 1.5-.217 3.374-1.948 3.374H4.645c-1.73 0-2.813-1.874-1.948-3.374l7.547-13.015c.866-1.5 3.032-1.5 3.898 0l5.16 8.898z"/></svg>{{ $message }}</div>@enderror
           </div>
@@ -1622,6 +1696,15 @@ body {
   }
 
   addrInit();
+
+  /* ── Date of birth three-select combine ─────────────────────────── */
+  function dobCombine() {
+    var m = document.getElementById('dob-month').value;
+    var d = document.getElementById('dob-day').value;
+    var y = document.getElementById('dob-year').value;
+    document.getElementById('dob-hidden').value = (m && d && y) ? (y + '-' + m + '-' + d) : '';
+  }
+  dobCombine(); // sync on page load (handles old() pre-fill)
 
   /* ── Form progress tracker ──────────────────────────────────────── */
   function updateProgress() {
