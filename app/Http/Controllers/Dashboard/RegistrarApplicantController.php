@@ -160,24 +160,27 @@ class RegistrarApplicantController extends Controller
             'role_id'                 => '01',
             'gender'                  => $gender,
             'lrn'                     => $lrn,
-            // Set grade_level immediately so the student appears in the correct
-            // grade bucket (not "Unassigned") even if no section has capacity.
-            // SectionAssignmentService will overwrite section_id + grade_level
-            // when a section is found, but grade_level must never be NULL.
             'grade_level'             => $applicant->applying_for_grade,
             'password_reset_required' => true,
             'status'                  => 'active',
         ]);
 
+        // Reserve the section slot but do NOT activate the enrollment yet.
+        // The enrollment flips to 'enrolled' when the registrar confirms payment.
         $assignedSection = null;
         try {
-            $assignedSection = app(SectionAssignmentService::class)->assign($user, $applicant->applying_for_grade);
+            $assignedSection = app(SectionAssignmentService::class)->assign(
+                $user, $applicant->applying_for_grade, status: 'pending_payment'
+            );
         } catch (\Exception $e) {
             \Log::error('Auto section assignment failed: ' . $e->getMessage());
         }
 
+        // Link the applicant to the new user account so PaymentController can
+        // find and update this record when payment is confirmed.
         $applicant->update([
-            'status'      => 'enrolled',
+            'user_id'     => $user->id,
+            'status'      => 'eligible_for_enrollment',
             'reviewed_by' => auth()->id(),
             'reviewed_at' => now(),
         ]);
@@ -187,11 +190,10 @@ class RegistrarApplicantController extends Controller
             'username'         => $username,
             'role_id'          => '01',
             'source_applicant' => $applicant->reference_number,
-            'note'             => 'Student account created from admission application by registrar.',
+            'note'             => 'Student account created from admission application by registrar. Awaiting payment to activate enrollment.',
         ]);
 
         if ($assignedSection) {
-            // Look up the enrollment that SectionAssignmentService just created
             $enrollment = Enrollment::where('student_id', $user->id)
                 ->where('section_id', $assignedSection->id)
                 ->latest()
@@ -203,6 +205,7 @@ class RegistrarApplicantController extends Controller
                     'student_id'       => $user->id,
                     'section_id'       => $assignedSection->id,
                     'academic_year_id' => $enrollment->academic_year_id,
+                    'status'           => 'pending_payment',
                     'source'           => 'admission.createAccount',
                     'source_applicant' => $applicant->reference_number,
                 ]);
@@ -224,7 +227,8 @@ class RegistrarApplicantController extends Controller
         $msg = "Student account created. LRN: <strong>{$lrn}</strong> &middot; Username: <strong>{$username}</strong> &middot; Temp password: <strong>{$tempPassword}</strong>.";
 
         if ($assignedSection) {
-            $msg .= ' Auto-assigned to section <strong>' . e($assignedSection->display_name ?? $assignedSection->name) . '</strong>.';
+            $sectionName = e($assignedSection->display_name ?? $assignedSection->section_name ?? $assignedSection->name);
+            $msg .= " Section <strong>{$sectionName}</strong> reserved &mdash; enrollment activates after payment is confirmed.";
         } else {
             $msg .= ' No available section found &mdash; please assign one manually.';
         }

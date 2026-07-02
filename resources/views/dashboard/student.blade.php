@@ -49,6 +49,37 @@
 @section('content')
 
 {{-- ═══════════════════════════════════════════════════
+     PAYMENT PENDING BANNER
+     Shown when enrollment is reserved but not yet paid.
+════════════════════════════════════════════════════ --}}
+@if(!empty($paymentPending))
+<div style="margin-bottom:24px;border-radius:16px;overflow:hidden;border:1.5px solid #fbbf24;box-shadow:0 4px 24px rgba(251,191,36,.15);">
+  <div style="background:linear-gradient(90deg,#fffbeb,#fef9c3);padding:18px 22px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+    <div style="flex-shrink:0;width:44px;height:44px;border-radius:12px;background:#fef3c7;border:1.5px solid #fbbf24;display:flex;align-items:center;justify-content:center;">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="#d97706" style="width:22px;height:22px">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
+      </svg>
+    </div>
+    <div style="flex:1;min-width:0;">
+      <div style="font-size:.95rem;font-weight:800;color:#92400e;margin-bottom:2px;">Enrollment Payment Required</div>
+      <div style="font-size:.84rem;color:#b45309;line-height:1.5;">
+        Your section slot is <strong>reserved</strong> but your enrollment is not yet active. Pay your enrollment fee to confirm your slot and unlock all academic features.
+      </div>
+    </div>
+    <a href="{{ route('student.payments.index') }}" style="flex-shrink:0;display:inline-flex;align-items:center;gap:6px;padding:.55rem 1.2rem;border-radius:999px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;font-size:.84rem;font-weight:700;text-decoration:none;white-space:nowrap;box-shadow:0 2px 8px rgba(217,119,6,.35);transition:opacity .15s;" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:15px;height:15px">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z"/>
+      </svg>
+      Pay Now
+    </a>
+  </div>
+  <div style="background:#fef3c7;border-top:1px solid #fde68a;padding:10px 22px;font-size:.78rem;color:#92400e;">
+    <strong>What you can do now:</strong> View your section and class schedule &nbsp;·&nbsp; <strong>Locked until paid:</strong> Grades, attendance, assignments, report card
+  </div>
+</div>
+@endif
+
+{{-- ═══════════════════════════════════════════════════
      1. ANNOUNCEMENTS — first thing students see
 ════════════════════════════════════════════════════ --}}
 <div class="sd-announce-wrap">

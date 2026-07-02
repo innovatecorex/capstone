@@ -11,6 +11,7 @@ use Illuminate\Support\Str;
 class Applicant extends Model
 {
     protected $fillable = [
+        'user_id',
         'first_name', 'middle_name', 'last_name', 'suffix',
         'date_of_birth', 'sex', 'lrn', 'lrn_hash', 'nationality',
         'address', 'barangay', 'municipality', 'province', 'zip_code',

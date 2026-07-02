@@ -13,16 +13,15 @@ class SectionAssignmentService
 {
     /**
      * Find the least-full active section for the given grade level and
-     * academic year, create an enrollment, create draft grade shells, and
-     * update the user's section_id AND grade_level.
+     * academic year, create an enrollment, and dual-write users.section_id
+     * and users.grade_level.
+     *
+     * $status = 'pending_payment' → section slot reserved, no grade shells.
+     * $status = 'enrolled'        → fully active, grade shells created immediately.
      *
      * Returns the assigned Section, or null if no section is available.
-     *
-     * DUAL-WRITE NOTE: writes users.section_id AND users.grade_level so the
-     * admin dashboard grade-breakdown widget, the Student Records screen, and
-     * the enrollment screens are all consistent.
      */
-    public function assign(User $student, string $gradeLevel, ?AcademicYear $academicYear = null): ?Section
+    public function assign(User $student, string $gradeLevel, ?AcademicYear $academicYear = null, string $status = 'enrolled'): ?Section
     {
         $academicYear ??= AcademicYear::where('status', 'active')
             ->orderByDesc('start_date')
@@ -32,18 +31,19 @@ class SectionAssignmentService
             return null;
         }
 
-        // Already enrolled in this academic year — skip
+        // Already has any enrollment (pending or active) for this year — skip
         if (Enrollment::where('student_id', $student->id)
                        ->where('academic_year_id', $academicYear->id)
                        ->exists()) {
             return null;
         }
 
-        // Find the least-full active section for this grade (load-balance)
+        // Count BOTH enrolled AND pending_payment seats so reserved slots are
+        // not double-assigned while awaiting payment confirmation.
         $section = Section::where('academic_year_id', $academicYear->id)
             ->where('grade_level', $gradeLevel)
             ->where('status', 'active')
-            ->withCount(['enrollments as enrolled_count' => fn ($q) => $q->where('status', 'enrolled')])
+            ->withCount(['enrollments as enrolled_count' => fn ($q) => $q->whereIn('status', ['enrolled', 'pending_payment'])])
             ->orderBy('enrolled_count', 'asc')
             ->get()
             ->first(fn ($s) => $s->enrolled_count < $s->capacity);
@@ -52,29 +52,42 @@ class SectionAssignmentService
             return null;
         }
 
-        // Create the enrollment row
         $enrollment = Enrollment::create([
             'student_id'       => $student->id,
             'section_id'       => $section->id,
             'academic_year_id' => $academicYear->id,
-            'status'           => 'enrolled',
+            'status'           => $status,
             'enrolled_at'      => now(),
         ]);
 
-        // Dual-write: set BOTH section_id and grade_level on the user.
-        // users.grade_level drives the dashboard "Grade Level Enrollment" widget
-        // and the "Unassigned" bucket (whereNull('grade_level')). Without this
-        // write the student stays in "Unassigned" even though an enrollment exists.
+        // Dual-write: drives dashboard grade-breakdown widget and Student Records.
         $student->update([
             'section_id'  => $section->id,
             'grade_level' => $gradeLevel,
         ]);
 
-        // Create draft grade shells — mirrors EnrollmentFinalizationController::confirm()
-        // so the faculty gradebook is populated immediately rather than waiting for a
-        // separate finalization click. firstOrCreate makes this idempotent; the registrar
-        // can still run confirm() later (it will just skip already-existing shells).
+        // Grade shells are only created for fully-active enrollments.
+        // When status = 'pending_payment' they are deferred until payment
+        // is confirmed (Admin\PaymentController::confirm calls createGradeShells).
+        if ($status === 'enrolled') {
+            $this->createGradeShells($enrollment, $section, $academicYear);
+        }
+
+        return $section;
+    }
+
+    /**
+     * Create draft grade shells for every subject × quarter in the section.
+     * Called immediately for 'enrolled' assignments and deferred for
+     * 'pending_payment' assignments (invoked from PaymentController::confirm).
+     *
+     * firstOrCreate makes this idempotent — safe to call on an already-shelled
+     * enrollment (e.g. EnrollmentFinalizationController::confirm()).
+     */
+    public function createGradeShells(Enrollment $enrollment, Section $section, AcademicYear $academicYear): void
+    {
         $section->loadMissing('sectionSubjects');
+
         $quarters = GradingQuarter::where('academic_year_id', $academicYear->id)
             ->orderBy('quarter_number')
             ->get();
@@ -91,7 +104,5 @@ class SectionAssignmentService
                 );
             }
         }
-
-        return $section;
     }
 }

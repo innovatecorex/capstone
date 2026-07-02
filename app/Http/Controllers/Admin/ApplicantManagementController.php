@@ -122,19 +122,27 @@ class ApplicantManagementController extends Controller
             'role_id'                 => '01',
             'gender'                  => $gender,
             'lrn'                     => $lrn,
+            'grade_level'             => $applicant->applying_for_grade,
             'password_reset_required' => true,
             'status'                  => 'active',
         ]);
 
+        // Reserve the section slot but do NOT activate the enrollment yet.
+        // The enrollment flips to 'enrolled' when the registrar confirms payment.
         $assignedSection = null;
         try {
-            $assignedSection = app(SectionAssignmentService::class)->assign($user, $applicant->applying_for_grade);
+            $assignedSection = app(SectionAssignmentService::class)->assign(
+                $user, $applicant->applying_for_grade, status: 'pending_payment'
+            );
         } catch (\Exception $e) {
             \Log::error('Auto section assignment failed: ' . $e->getMessage());
         }
 
+        // Link the applicant to the new user so PaymentController can find this
+        // record and flip it to 'enrolled' when payment is confirmed.
         $applicant->update([
-            'status'      => 'enrolled',
+            'user_id'     => $user->id,
+            'status'      => 'eligible_for_enrollment',
             'reviewed_by' => auth()->id(),
             'reviewed_at' => now(),
         ]);
@@ -144,9 +152,10 @@ class ApplicantManagementController extends Controller
             'username'         => $username,
             'role_id'          => '01',
             'source_applicant' => $applicant->reference_number,
-            'note'             => 'Student account created from admission application.',
+            'note'             => 'Student account created from admission application. Awaiting payment to activate enrollment.',
         ]);
 
+        $mailSent = false;
         if ($applicant->parent_email) {
             try {
                 Mail::to($applicant->parent_email)->send(
@@ -155,16 +164,14 @@ class ApplicantManagementController extends Controller
                 $mailSent = true;
             } catch (\Exception $e) {
                 \Log::error('Welcome credentials email failed: ' . $e->getMessage());
-                $mailSent = false;
             }
-        } else {
-            $mailSent = false;
         }
 
         $msg = "Student account created. LRN: <strong>{$lrn}</strong> &middot; Username: <strong>{$username}</strong> &middot; Temp password: <strong>{$tempPass}</strong>.";
 
         if ($assignedSection) {
-            $msg .= " Auto-assigned to section <strong>" . e($assignedSection->display_name ?? $assignedSection->name) . "</strong>.";
+            $sectionName = e($assignedSection->display_name ?? $assignedSection->section_name ?? $assignedSection->name);
+            $msg .= " Section <strong>{$sectionName}</strong> reserved &mdash; enrollment activates after payment is confirmed.";
         } else {
             $msg .= ' No available section found &mdash; please assign one manually.';
         }

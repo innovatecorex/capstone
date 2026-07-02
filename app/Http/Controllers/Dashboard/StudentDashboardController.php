@@ -31,8 +31,11 @@ class StudentDashboardController extends Controller
 
     private function activeEnrollment(int $studentId): ?Enrollment
     {
+        // Include pending_payment so students can see their reserved section and
+        // schedule while awaiting payment confirmation. Grade/attendance queries
+        // naturally return empty for pending_payment (no shells created yet).
         return Enrollment::where('student_id', $studentId)
-            ->where('status', 'enrolled')
+            ->whereIn('status', ['enrolled', 'pending_payment'])
             ->with(['section'])
             ->first();
     }
@@ -84,6 +87,7 @@ class StudentDashboardController extends Controller
         $user = auth()->user();
         [$activeAcademicYear, $activeQuarter] = $this->academicContext();
         $enrollment      = $this->activeEnrollment($user->id);
+        $paymentPending  = $enrollment && $enrollment->status === 'pending_payment';
         $sectionSubjects = $this->sectionSubjectsFor($enrollment);
         $ssIds           = $sectionSubjects->pluck('id')->all();
 
@@ -266,7 +270,8 @@ class StudentDashboardController extends Controller
             'announcements',
             'assessmentBreakdown',
             'reportCards',
-            'recentLogins'
+            'recentLogins',
+            'paymentPending'
         ));
     }
 

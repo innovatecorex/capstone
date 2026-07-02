@@ -4,9 +4,12 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\AcademicYear;
+use App\Models\Applicant;
 use App\Models\AuditLog;
+use App\Models\Enrollment;
 use App\Models\EnrollmentFee;
 use App\Models\Payment;
+use App\Services\SectionAssignmentService;
 use Illuminate\Http\Request;
 
 /**
@@ -45,6 +48,11 @@ class PaymentController extends Controller
 
     /**
      * POST /admin/payments/{payment}/confirm
+     *
+     * Confirming payment activates the student's pending_payment enrollment:
+     *   1. Payment → paid
+     *   2. Enrollment → enrolled  (grade shells created now)
+     *   3. Applicant  → enrolled
      */
     public function confirm(Payment $payment)
     {
@@ -65,8 +73,43 @@ class PaymentController extends Controller
             'confirmed_by' => auth()->id(),
         ]);
 
+        // Activate the reserved enrollment and create grade shells.
+        $enrollment = Enrollment::where('student_id', $payment->student_id)
+            ->where('academic_year_id', $payment->academic_year_id)
+            ->where('status', 'pending_payment')
+            ->with(['section', 'academicYear'])
+            ->first();
+
+        if ($enrollment) {
+            $enrollment->update(['status' => 'enrolled']);
+
+            if ($enrollment->section && $enrollment->academicYear) {
+                app(SectionAssignmentService::class)->createGradeShells(
+                    $enrollment,
+                    $enrollment->section,
+                    $enrollment->academicYear
+                );
+            }
+
+            AuditLog::record('ENROLLMENT_ACTIVATED', [
+                'enrollment_id' => $enrollment->id,
+                'student_id'    => $payment->student_id,
+                'payment_id'    => $payment->id,
+            ]);
+        }
+
+        // Mark the originating applicant as fully enrolled.
+        Applicant::where('user_id', $payment->student_id)
+            ->where('status', 'eligible_for_enrollment')
+            ->update([
+                'status'      => 'enrolled',
+                'reviewed_at' => now(),
+            ]);
+
+        $studentName = "{$payment->student?->first_name} {$payment->student?->last_name}";
+
         return back()->with('success',
-            "Payment confirmed for {$payment->student?->first_name} {$payment->student?->last_name}. You can now enlist this student into a section.");
+            "Payment confirmed for {$studentName}. Enrollment is now active and grade shells have been created.");
     }
 
     /**
