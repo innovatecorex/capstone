@@ -128,7 +128,16 @@
         </svg>
         Recent Threat Events
       </div>
-      <div style="display:flex;align-items:center;gap:8px;">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <label style="display:flex;align-items:center;gap:5px;font-size:.75rem;color:var(--gray-500);cursor:pointer;user-select:none;">
+          <input type="checkbox" id="select-all-threats" style="cursor:pointer;">
+          All
+        </label>
+        <button type="submit" form="bulk-resolve-form" id="bulk-resolve-btn"
+                class="enc-btn enc-btn--success enc-btn--sm" disabled
+                onclick="return confirm('Resolve all selected threats?')">
+          Resolve selected
+        </button>
         <select class="enc-select" id="threat-filter" style="height:30px;font-size:.75rem;">
           <option value="all">All Types</option>
           <option value="brute_force">Brute Force</option>
@@ -156,7 +165,7 @@
               <div class="enc-timeline__detail">
                 {{ $threat->description ?? 'No additional details.' }}
               </div>
-              <div class="enc-timeline__meta">
+              <div class="enc-timeline__meta" style="flex-wrap:wrap;gap:6px;">
                 @php
                   $sevClass = match($threat->severity ?? 'medium') {
                     'critical' => 'danger',
@@ -166,14 +175,33 @@
                     default    => 'neutral',
                   };
                 @endphp
+
+                @if($threat->status === 'active')
+                  <input type="checkbox" name="ids[]" value="{{ $threat->id }}"
+                         form="bulk-resolve-form" class="threat-check" style="cursor:pointer;">
+                @endif
+
                 <span class="enc-badge enc-badge--{{ $sevClass }}">
                   {{ strtoupper($threat->severity ?? 'MEDIUM') }}
                 </span>
 
                 @if($threat->status === 'resolved')
                   <span class="enc-badge enc-badge--success">Resolved</span>
+                  @if($threat->resolved_at)
+                    <span style="font-size:.68rem;color:var(--gray-400);">
+                      {{ $threat->resolved_at->format('M d, H:i') }}
+                    </span>
+                  @endif
                 @elseif($threat->status === 'active')
                   <span class="enc-badge enc-badge--danger">Active</span>
+                  <form method="POST" action="{{ route('admin.threat.resolve', $threat) }}" style="display:inline;">
+                    @csrf
+                    <button type="submit" class="enc-btn enc-btn--success enc-btn--sm"
+                            style="padding:.15rem .55rem;font-size:.72rem;line-height:1.4;"
+                            onclick="return confirm('Mark threat #{{ $threat->id }} as resolved?')">
+                      Resolve
+                    </button>
+                  </form>
                 @endif
 
                 @if($threat->source_ip)
@@ -393,6 +421,13 @@
   </div>
 </div>
 
+{{-- Hidden bulk-resolve form; checkboxes/button reference it via form="bulk-resolve-form" --}}
+<form id="bulk-resolve-form" method="POST"
+      action="{{ route('admin.threat.resolve-bulk') }}"
+      style="display:none;">
+  @csrf
+</form>
+
 @endsection
 
 @push('scripts')
@@ -409,6 +444,31 @@
           item.style.display = 'none';
         }
       });
+    });
+  }
+
+  // Bulk resolve: select-all + enable/disable button
+  const selectAll = document.getElementById('select-all-threats');
+  const bulkBtn   = document.getElementById('bulk-resolve-btn');
+
+  function syncBulkBtn() {
+    if (!bulkBtn) return;
+    bulkBtn.disabled = !document.querySelector('.threat-check:checked');
+  }
+
+  document.querySelectorAll('.threat-check').forEach(function (cb) {
+    cb.addEventListener('change', function () {
+      if (!this.checked && selectAll) selectAll.checked = false;
+      syncBulkBtn();
+    });
+  });
+
+  if (selectAll) {
+    selectAll.addEventListener('change', function () {
+      document.querySelectorAll('.threat-check').forEach(function (cb) {
+        cb.checked = selectAll.checked;
+      });
+      syncBulkBtn();
     });
   }
 </script>

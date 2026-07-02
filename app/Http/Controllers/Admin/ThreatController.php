@@ -55,4 +55,53 @@ class ThreatController extends Controller
 
         return view('admin.threat.threats', compact('threats', 'auditLogs', 'stats', 'criticalCount', 'threatType', 'severity', 'status'));
     }
+
+    public function resolve(Request $request, ThreatEvent $threat)
+    {
+        if ($threat->status !== 'active') {
+            return back()->with('info', 'Threat #' . $threat->id . ' is already resolved.');
+        }
+
+        $threat->update([
+            'status'      => 'resolved',
+            'resolved_at' => now(),
+            'resolved_by' => auth()->id(),
+        ]);
+
+        AuditLog::record(AuditLog::THREAT_RESOLVED, [
+            'threat_id'   => $threat->id,
+            'threat_type' => $threat->threat_type,
+            'severity'    => $threat->severity,
+        ]);
+
+        return back()->with('success', 'Threat #' . $threat->id . ' (' . $threat->event_label . ') marked as resolved.');
+    }
+
+    public function bulkResolve(Request $request)
+    {
+        $data = $request->validate([
+            'ids'   => ['required', 'array'],
+            'ids.*' => ['integer'],
+        ]);
+
+        $now    = now();
+        $userId = auth()->id();
+
+        $count = ThreatEvent::whereIn('id', $data['ids'])
+            ->where('status', 'active')
+            ->update([
+                'status'      => 'resolved',
+                'resolved_at' => $now,
+                'resolved_by' => $userId,
+            ]);
+
+        if ($count > 0) {
+            AuditLog::record(AuditLog::THREAT_RESOLVED, [
+                'threat_ids' => $data['ids'],
+                'resolved'   => $count,
+            ]);
+        }
+
+        return back()->with('success', $count . ' threat(s) resolved.');
+    }
 }

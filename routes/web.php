@@ -247,7 +247,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     // ── Threat Monitoring & Audit ─────────────────────────────────────────
     Route::get('/audit',             [AuditLogController::class,  'index'])    ->name('audit.index');
     Route::get('/audit/export.pdf',  [AuditLogController::class,  'exportPdf'])->name('audit.export-pdf');
-    Route::get('/threats',           [ThreatController::class,    'index']) ->name('threat.index');
+    Route::get('/threats',                    [ThreatController::class, 'index'])       ->name('threat.index');
+    Route::post('/threats/resolve-bulk',      [ThreatController::class, 'bulkResolve']) ->name('threat.resolve-bulk');
+    Route::post('/threats/{threat}/resolve',  [ThreatController::class, 'resolve'])     ->name('threat.resolve');
     Route::get('/compliance',        [ComplianceController::class, 'index'])->name('compliance.index');
     Route::get('/compliance/export', [ComplianceController::class, 'export'])->name('compliance.export');
 
