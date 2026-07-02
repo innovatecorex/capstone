@@ -14,6 +14,7 @@ use App\Models\User;
 use App\Services\ScheduleConflictService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
 /**
@@ -114,7 +115,7 @@ class ScheduleController extends Controller
                   ->orWhereNull('year_level');   // legacy rows without a year_level still show
             })
             ->orderBy('subject_name')
-            ->get(['id', 'subject_code', 'subject_name', 'year_level']);
+            ->get(['id', 'subject_code', 'subject_name', 'year_level', 'min_minutes']);
 
         return response()->json($subjects);
     }
@@ -339,7 +340,7 @@ class ScheduleController extends Controller
 
     private function validatePayload(Request $request): array
     {
-        return $request->validate([
+        $validator = Validator::make($request->all(), [
             'academic_year_id' => ['required', 'exists:academic_years,id'],
             'section_id'       => ['required', 'exists:sections,id'],
             'subject_id'       => ['required', 'exists:subjects,id'],
@@ -350,6 +351,38 @@ class ScheduleController extends Controller
             'start_time'       => ['required', 'date_format:H:i'],
             'end_time'         => ['required', 'date_format:H:i', 'after:start_time'],
         ]);
+
+        $validator->after(function ($v) use ($request) {
+            // Skip if any time/subject field already failed — avoids a confusing
+            // "only X minutes" message on top of an already-reported format error.
+            if ($v->errors()->hasAny(['start_time', 'end_time', 'subject_id'])) {
+                return;
+            }
+
+            $subjectId = $request->input('subject_id');
+            $start     = $request->input('start_time');
+            $end       = $request->input('end_time');
+
+            if (!$subjectId || !$start || !$end) {
+                return;
+            }
+
+            $subject = Subject::find($subjectId);
+            if (!$subject || $subject->min_minutes === null) {
+                return;
+            }
+
+            $duration = (int) round((strtotime($end) - strtotime($start)) / 60);
+
+            if ($duration < $subject->min_minutes) {
+                $v->errors()->add(
+                    'end_time',
+                    "This subject requires at least {$subject->min_minutes} minutes per session; the selected time is only {$duration} minutes."
+                );
+            }
+        });
+
+        return $validator->validate();
     }
 
     /**

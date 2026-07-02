@@ -60,13 +60,19 @@
             <option value="">— Select Subject —</option>
             @if(isset($subjects))
               @foreach($subjects as $subj)
-                <option value="{{ $subj->id }}" {{ old('subject_id', $schedule?->subject_id) == $subj->id ? 'selected' : '' }}>
+                <option value="{{ $subj->id }}"
+                        data-code="{{ $subj->subject_code }}"
+                        data-min-minutes="{{ $subj->min_minutes ?? '' }}"
+                        {{ old('subject_id', $schedule?->subject_id) == $subj->id ? 'selected' : '' }}>
                   {{ $subj->subject_code }} — {{ $subj->subject_name }}@if($subj->year_level) ({{ $subj->year_level }})@endif
                 </option>
               @endforeach
             @endif
           </select>
           <p style="font-size:.72rem;color:#94a3b8;margin:6px 0 0;">Subjects are filtered by the section's grade level.</p>
+          <p id="min-minutes-hint" style="font-size:.72rem;color:#92400e;margin:4px 0 0;display:none;">
+            ⏱ This subject requires a minimum of <strong id="min-minutes-val"></strong> minutes per session.
+          </p>
         </div>
       </div>
 
@@ -153,7 +159,7 @@
       <div id="conflict-banner" style="display:none;border-radius:8px;padding:12px 16px;font-size:.82rem;"></div>
 
       <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px 16px;font-size:.82rem;color:#1e40af;">
-        <strong>Duration rule:</strong> minimum {{ config('academic.schedule_min_hours', 2) }} hours per session (no maximum).
+        <strong>Duration rule:</strong> minimum session length is defined per subject and shown below the subject selector when applicable.
         <br><strong>Conflict checks:</strong> the system will reject the form if the chosen faculty or room is already booked for an overlapping time on any selected day. The same subject cannot be scheduled twice in one section per year.
       </div>
     </div>
@@ -192,13 +198,15 @@ function loadSubjectsForSection(sectionId, preselectId) {
         const opt = document.createElement('option');
         opt.value = s.id;
         opt.dataset.code = s.subject_code;
+        opt.dataset.minMinutes = s.min_minutes ?? '';
         opt.textContent = s.subject_code + ' — ' + s.subject_name + (s.year_level ? ' (' + s.year_level + ')' : '');
         if (preselectId && String(preselectId) === String(s.id)) opt.selected = true;
         subjSel.appendChild(opt);
       });
-      // Re-apply room filter if a subject is already selected after AJAX reload
+      // Re-apply room filter and min-minutes hint for already-selected subject
       const selected = subjSel.options[subjSel.selectedIndex];
       if (selected && selected.dataset.code) filterRoomsBySubject(selected.dataset.code);
+      checkMinDurationHint();
     })
     .catch(() => { subjSel.innerHTML = '<option value="">— Failed to load subjects —</option>'; });
 }
@@ -267,25 +275,50 @@ function clearRoomFilter(e) {
   if (hint) hint.style.display = 'none';
 }
 
-// Wire subject dropdown change → room filter
+// Wire subject dropdown change → room filter + min-minutes hint
 document.addEventListener('DOMContentLoaded', function() {
   const subjSel = document.getElementById('subject_id');
   if (subjSel) {
     subjSel.addEventListener('change', function() {
       const opt = this.options[this.selectedIndex];
       filterRoomsBySubject(opt ? opt.dataset.code || '' : '');
+      checkMinDurationHint();
     });
-    // Apply on load for edit forms
+    // Apply on load for edit forms (static options before AJAX replaces them)
     const preOpt = subjSel.options[subjSel.selectedIndex];
     if (preOpt && preOpt.dataset.code) filterRoomsBySubject(preOpt.dataset.code);
+    checkMinDurationHint();
   }
 });
 
 const MIN_HOURS = {{ config('academic.schedule_min_hours', 2) }};
+
+function getSubjectMinMinutes() {
+  const sel = document.getElementById('subject_id');
+  const opt = sel?.options[sel?.selectedIndex];
+  const mm  = opt?.dataset?.minMinutes;
+  return (mm && mm !== '') ? parseInt(mm, 10) : null;
+}
+
+function checkMinDurationHint() {
+  const hint = document.getElementById('min-minutes-hint');
+  const val  = document.getElementById('min-minutes-val');
+  if (!hint || !val) return;
+  const mm = getSubjectMinMinutes();
+  if (mm !== null) {
+    val.textContent = mm;
+    hint.style.display = '';
+  } else {
+    hint.style.display = 'none';
+  }
+}
+
 function autoSetEndTime(startVal) {
   if (!startVal) return;
   const [h, m] = startVal.split(':').map(Number);
-  const totalMin = h * 60 + m + MIN_HOURS * 60;
+  const subjectMin = getSubjectMinMinutes();
+  const fillMin    = subjectMin !== null ? subjectMin : MIN_HOURS * 60;
+  const totalMin   = h * 60 + m + fillMin;
   const endH = String(Math.floor(totalMin / 60) % 24).padStart(2, '0');
   const endM = String(totalMin % 60).padStart(2, '0');
   const endEl = document.getElementById('end_time');
