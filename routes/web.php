@@ -69,6 +69,11 @@ Route::get('/verify/{token}', [\App\Http\Controllers\ReportCardController::class
 Route::get('/apply',                    [ApplicantController::class, 'create'])->name('apply');
 Route::post('/apply',                   [ApplicantController::class, 'store'])->name('apply.store')->middleware('throttle:10,1');
 Route::get('/apply/thanks/{reference}', [ApplicantController::class, 'thanks'])->name('apply.thanks');
+
+// ── Philippine Address Cascade (cached PSGC proxy) ─────────────────────────
+Route::get('/address/provinces',        [App\Http\Controllers\PhAddressController::class, 'provinces']);
+Route::get('/address/cities/{code}',    [App\Http\Controllers\PhAddressController::class, 'cities']);
+Route::get('/address/barangays/{code}', [App\Http\Controllers\PhAddressController::class, 'barangays']);
 Route::get('/applicant-documents/{document}', [ApplicantController::class, 'downloadDocument'])->name('applicant.document.download')->middleware('auth');
 
 // ── Global Academic-Year Context (header selector, all roles) ──────────────
