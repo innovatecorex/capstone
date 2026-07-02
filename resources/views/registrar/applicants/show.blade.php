@@ -5,6 +5,14 @@
 
 @push('head')
 <style>
+@keyframes camIn {
+  from { opacity:0; transform:scale(.93) translateY(12px); }
+  to   { opacity:1; transform:scale(1)   translateY(0);    }
+}
+@keyframes camBarFlow {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
 /* ── Pipeline stepper ────────────────────────────────────────── */
 .app-pipeline { display:flex; align-items:flex-start; gap:0; }
 .app-pipeline-step {
@@ -417,10 +425,16 @@ textarea.adm-input { resize:vertical; }
             No parent email on file — share credentials manually.
           @endif
         </p>
-        <form method="POST" action="{{ route('registrar.applicants.create-account', $applicant->id) }}"
-              onsubmit="return confirm('Create a student account for {{ addslashes($applicant->full_name) }}?');">
+        <form method="POST" action="{{ route('registrar.applicants.create-account', $applicant->id) }}" id="create-account-form">
           @csrf
-          <button type="submit" class="enc-btn enc-btn--primary" style="width:100%;background:#16a34a;border-color:#16a34a;">
+          <button type="button"
+            class="enc-btn enc-btn--primary"
+            style="width:100%;background:#16a34a;border-color:#16a34a;display:flex;align-items:center;justify-content:center;gap:.45rem;"
+            onclick="openCreateModal(
+              '{{ addslashes($applicant->full_name) }}',
+              '{{ addslashes($applicant->parent_email ?? '') }}'
+            )">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z"/></svg>
             Create Student Account
           </button>
         </form>
@@ -437,5 +451,143 @@ textarea.adm-input { resize:vertical; }
 
   </div>
 </div>
+
+{{-- ── Create-account confirmation modal ─────────────────────────── --}}
+<div id="create-account-modal"
+     style="display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;"
+     aria-modal="true" role="dialog" aria-labelledby="cam-title">
+
+  {{-- Backdrop --}}
+  <div onclick="closeCreateModal()"
+       style="position:absolute;inset:0;background:rgba(2,8,23,.65);backdrop-filter:blur(5px);"></div>
+
+  {{-- Card --}}
+  <div style="position:relative;z-index:1;background:#fff;border-radius:20px;width:min(440px,92vw);
+              box-shadow:0 32px 72px rgba(0,0,0,.28),0 4px 16px rgba(0,0,0,.12);
+              overflow:hidden;animation:camIn .22s cubic-bezier(.22,1,.36,1);">
+
+    {{-- Gradient top bar --}}
+    <div style="height:4px;background:linear-gradient(90deg,#166534,#16a34a,#4ade80,#16a34a,#166534);
+                background-size:200% 100%;animation:camBarFlow 3s linear infinite;"></div>
+
+    {{-- Icon + headline --}}
+    <div style="padding:2rem 2rem 1.25rem;text-align:center;">
+      <div style="width:58px;height:58px;border-radius:16px;
+                  background:linear-gradient(135deg,#dcfce7,#bbf7d0);
+                  display:flex;align-items:center;justify-content:center;
+                  margin:0 auto 1rem;box-shadow:0 4px 14px rgba(22,163,74,.18);">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+             stroke="#16a34a" stroke-width="1.7" style="width:28px;height:28px;">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z"/>
+        </svg>
+      </div>
+      <div id="cam-title" style="font-size:1.05rem;font-weight:800;color:#0f172a;margin-bottom:.5rem;">
+        Create Student Account
+      </div>
+      <span id="cam-name"
+            style="display:inline-block;font-size:.84rem;font-weight:700;color:#166534;
+                   background:#dcfce7;padding:.3rem .85rem;border-radius:99px;
+                   border:1px solid #bbf7d0;"></span>
+    </div>
+
+    {{-- What will happen --}}
+    <div style="margin:0 1.75rem;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;
+                padding:.9rem 1rem;font-size:.8rem;color:#475569;line-height:1.7;">
+      <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.35rem;font-weight:700;color:#0f172a;font-size:.82rem;">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#16a34a" stroke-width="2" style="width:14px;height:14px;flex-shrink:0;">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"/>
+        </svg>
+        This will generate:
+      </div>
+      <ul style="margin:0;padding-left:1.1rem;display:flex;flex-direction:column;gap:.2rem;">
+        <li>A unique <strong>username</strong> and <strong>LRN</strong></li>
+        <li>A <strong>temporary password</strong> (must be changed on first login)</li>
+        <li id="cam-email-line">Credentials emailed to the parent on file</li>
+      </ul>
+    </div>
+
+    {{-- Warning --}}
+    <div style="margin:1rem 1.75rem 0;background:#fffbeb;border:1px solid #fef3c7;border-left:3px solid #f59e0b;
+                border-radius:10px;padding:.65rem .9rem;font-size:.75rem;color:#92400e;
+                display:flex;align-items:flex-start;gap:.5rem;line-height:1.55;">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+           stroke="#d97706" stroke-width="2" style="width:14px;height:14px;flex-shrink:0;margin-top:1px;">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126z"/>
+      </svg>
+      This action <strong>cannot be undone.</strong> The applicant's status will permanently change to <strong>Enrolled</strong>.
+    </div>
+
+    {{-- Buttons --}}
+    <div style="padding:1.5rem 1.75rem;display:flex;gap:.75rem;">
+      <button onclick="closeCreateModal()"
+              style="flex:1;padding:.7rem 1rem;border:1.5px solid #e2e8f0;border-radius:10px;
+                     background:#fff;color:#475569;font-size:.875rem;font-weight:600;
+                     cursor:pointer;font-family:inherit;transition:background .15s,border-color .15s;"
+              onmouseover="this.style.background='#f8fafc';this.style.borderColor='#cbd5e1'"
+              onmouseout="this.style.background='#fff';this.style.borderColor='#e2e8f0'">
+        Cancel
+      </button>
+      <button id="cam-confirm-btn" onclick="confirmCreateAccount()"
+              style="flex:2;padding:.7rem 1rem;border:none;border-radius:10px;
+                     background:linear-gradient(135deg,#166534,#16a34a);color:#fff;
+                     font-size:.875rem;font-weight:700;cursor:pointer;font-family:inherit;
+                     box-shadow:0 4px 14px rgba(22,163,74,.3);transition:box-shadow .15s,opacity .15s;
+                     display:flex;align-items:center;justify-content:center;gap:.45rem;"
+              onmouseover="this.style.boxShadow='0 6px 20px rgba(22,163,74,.42)'"
+              onmouseout="this.style.boxShadow='0 4px 14px rgba(22,163,74,.3)'">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+             stroke="currentColor" stroke-width="2.2" style="width:15px;height:15px;">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <span id="cam-confirm-label">Confirm &amp; Create Account</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+@push('head')
+<style>
+@keyframes camIn {
+  from { opacity:0; transform:scale(.93) translateY(12px); }
+  to   { opacity:1; transform:scale(1)   translateY(0);    }
+}
+@keyframes camBarFlow {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+</style>
+@endpush
+
+@push('scripts')
+<script>
+function openCreateModal(name, email) {
+  document.getElementById('cam-name').textContent = name;
+  var emailLine = document.getElementById('cam-email-line');
+  emailLine.innerHTML = email
+    ? 'Credentials emailed to <strong>' + email + '</strong>'
+    : '<em>No parent email on file — share credentials manually</em>';
+  var modal = document.getElementById('create-account-modal');
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+function closeCreateModal() {
+  document.getElementById('create-account-modal').style.display = 'none';
+  document.body.style.overflow = '';
+}
+function confirmCreateAccount() {
+  var btn   = document.getElementById('cam-confirm-btn');
+  var label = document.getElementById('cam-confirm-label');
+  btn.disabled = true;
+  btn.style.opacity = '.7';
+  label.textContent = 'Creating account…';
+  document.getElementById('create-account-form').submit();
+}
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeCreateModal();
+});
+</script>
+@endpush
 
 @endsection
