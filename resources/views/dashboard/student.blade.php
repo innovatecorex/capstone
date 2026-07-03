@@ -342,8 +342,8 @@
       </div>
     </div>
 
-    {{-- Upcoming Assignments --}}
-    <div class="sd-card">
+    {{-- Hidden: Assignments out of client scope, hidden for defense --}}
+    {{-- <div class="sd-card">
       <div class="sd-card__head">
         <div class="sd-card__title">Upcoming Assignments</div>
         <span class="sd-card__meta">Due soon</span>
@@ -360,7 +360,7 @@
           </div>
         @endforeach
       </div>
-    </div>
+    </div> --}}
 
     {{-- Security Hub --}}
     <div class="sd-card">

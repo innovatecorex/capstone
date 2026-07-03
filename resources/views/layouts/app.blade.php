@@ -1019,7 +1019,8 @@
         My Attendance
       </a>
 
-      <a href="{{ route('assignments.student.index') }}"
+      {{-- Hidden: Assignments out of client scope, hidden for defense --}}
+      {{-- <a href="{{ route('assignments.student.index') }}"
          class="stu-nav-item {{ request()->routeIs('assignments.student.*') ? 'active' : '' }}">
         <span class="stu-icon si-amber">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -1027,7 +1028,7 @@
           </svg>
         </span>
         My Assignments
-      </a>
+      </a> --}}
 
       <a href="{{ route('documents.student.index') }}"
          class="stu-nav-item {{ request()->routeIs('documents.student.*') ? 'active' : '' }}">
@@ -1221,7 +1222,8 @@
       @endif
     </a>
 
-    <a href="{{ route('assignments.faculty.index') }}"
+    {{-- Hidden: Assignments out of client scope, hidden for defense --}}
+    {{-- <a href="{{ route('assignments.faculty.index') }}"
        class="stu-nav-item {{ request()->routeIs('assignments.faculty.*') ? 'active' : '' }}">
       <span class="stu-icon si-yellow">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -1229,7 +1231,7 @@
         </svg>
       </span>
       Assignments
-    </a>
+    </a> --}}
 
     <a href="{{ route('leave.faculty.index') }}"
        class="stu-nav-item {{ request()->routeIs('leave.faculty.*') ? 'active' : '' }}">
