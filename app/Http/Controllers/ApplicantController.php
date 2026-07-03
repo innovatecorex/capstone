@@ -64,7 +64,9 @@ class ApplicantController extends Controller
             'docs.report_card'       => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
             'docs.good_moral'        => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
             'docs.picture_2x2'       => ['nullable', 'file', 'mimes:jpg,jpeg,png', 'max:5120'],
+            'data_privacy_consent'   => ['accepted'],
         ], [
+            'data_privacy_consent.accepted'   => 'You must agree to the data privacy policy to submit your application.',
             'docs.birth_certificate.required' => 'Please upload your PSA Birth Certificate.',
             'docs.form_137.required'          => 'Please upload your Form 137 (Permanent Record).',
             'docs.report_card.required'       => 'Please upload your Previous Report Card / Form 138.',
@@ -89,7 +91,7 @@ class ApplicantController extends Controller
             $validated['applying_for_year'] = $activeYear->year_label;
         }
 
-        $applicant = Applicant::create(collect($validated)->except('docs')->toArray());
+        $applicant = Applicant::create(collect($validated)->except(['docs', 'data_privacy_consent'])->toArray());
 
         $folder = 'applicant-documents/' . $applicant->reference_number;
 

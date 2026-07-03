@@ -1493,10 +1493,20 @@ body {
           <p>By submitting this form, I certify that all information provided is <strong>true, correct, and complete</strong> to the best of my knowledge.</p>
           <p>Submission of false or misleading information is grounds for disqualification from admission or enrollment, in accordance with DepEd regulations.</p>
         </div>
-        <label class="ap-privacy-check">
-          <input type="checkbox" required>
+        <label class="ap-privacy-check{{ $errors->has('data_privacy_consent') ? ' ap-privacy-check--err' : '' }}">
+          <input type="checkbox" id="data-privacy-consent" name="data_privacy_consent" value="accepted"{{ old('data_privacy_consent') === 'accepted' ? ' checked' : '' }}>
           <span>I have read and agree to the school's data privacy policy. I consent to the collection and processing of the information above in accordance with <strong>RA 10173 (Data Privacy Act of 2012)</strong>.</span>
         </label>
+        @error('data_privacy_consent')
+        <div class="field-err" style="margin-top:6px;">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9.303 3.376c.866 1.5-.217 3.374-1.948 3.374H4.645c-1.73 0-2.813-1.874-1.948-3.374l7.547-13.015c.866-1.5 3.032-1.5 3.898 0l5.16 8.898z"/></svg>
+          {{ $message }}
+        </div>
+        @enderror
+        <div class="field-err" id="privacy-client-err" style="display:none;margin-top:6px;">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9.303 3.376c.866 1.5-.217 3.374-1.948 3.374H4.645c-1.73 0-2.813-1.874-1.948-3.374l7.547-13.015c.866-1.5 3.032-1.5 3.898 0l5.16 8.898z"/></svg>
+          Please agree to the data privacy policy to continue.
+        </div>
         <div class="ap-submit-btn-wrap">
           <button type="submit" class="ap-submit-btn">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -1731,6 +1741,24 @@ body {
   });
 
   updateProgress();
+
+  /* ── Consent checkbox gating ────────────────────────────────────────── */
+  (function () {
+    var cb  = document.getElementById('data-privacy-consent');
+    var err = document.getElementById('privacy-client-err');
+
+    document.querySelector('form').addEventListener('submit', function (e) {
+      if (!cb.checked) {
+        e.preventDefault();
+        err.style.display = 'flex';
+        cb.closest('label').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    });
+
+    cb.addEventListener('change', function () {
+      if (this.checked) err.style.display = 'none';
+    });
+  }());
 </script>
 
 </body>
