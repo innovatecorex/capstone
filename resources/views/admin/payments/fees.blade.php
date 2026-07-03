@@ -47,10 +47,8 @@
 @if($yearId)
 
 @php
-  $gradeLevels = [
-    'Grade 1','Grade 2','Grade 3','Grade 4','Grade 5','Grade 6',
-    'Grade 7','Grade 8','Grade 9','Grade 10','Grade 11','Grade 12',
-  ];
+  // $gradeLevels is passed from PaymentController::fees() via StudentController::GRADE_LEVELS
+  // Canonical list lives in config('academic.grade_levels') — Grade 7-12 only (JHS + SHS)
   $feesByGrade = $fees->keyBy('grade_level');
   $selectedYear = $academicYears->firstWhere('id', $yearId);
 @endphp
@@ -101,10 +99,8 @@
               {{ $grade }}
               @if(in_array($grade, ['Grade 11','Grade 12']))
                 <span style="display:inline-block;margin-left:6px;padding:.1rem .45rem;border-radius:4px;font-size:.65rem;font-weight:700;background:#ede9fe;color:#6d28d9;text-transform:uppercase;letter-spacing:.04em;">SHS</span>
-              @elseif(in_array($grade, ['Grade 7','Grade 8','Grade 9','Grade 10']))
-                <span style="display:inline-block;margin-left:6px;padding:.1rem .45rem;border-radius:4px;font-size:.65rem;font-weight:700;background:#dbeafe;color:#1d4ed8;text-transform:uppercase;letter-spacing:.04em;">JHS</span>
               @else
-                <span style="display:inline-block;margin-left:6px;padding:.1rem .45rem;border-radius:4px;font-size:.65rem;font-weight:700;background:#f0fdf4;color:#166534;text-transform:uppercase;letter-spacing:.04em;">Elem</span>
+                <span style="display:inline-block;margin-left:6px;padding:.1rem .45rem;border-radius:4px;font-size:.65rem;font-weight:700;background:#dbeafe;color:#1d4ed8;text-transform:uppercase;letter-spacing:.04em;">JHS</span>
               @endif
             </td>
 

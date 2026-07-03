@@ -12,6 +12,17 @@
  */
 return [
 
+    // ── Canonical grade levels for Philippine Academy of Sakya (JHS + SHS) ──
+    // This is the SINGLE source of truth. All controllers and views should
+    // reference config('academic.grade_levels') instead of defining their own.
+    // StudentController::GRADE_LEVELS mirrors this as a PHP constant for
+    // places that need a compile-time array (class-constant syntax cannot call
+    // config()). Keep both in sync if you ever change grade offerings.
+    'grade_levels' => [
+        'Grade 7', 'Grade 8', 'Grade 9', 'Grade 10',   // JHS
+        'Grade 11', 'Grade 12',                          // SHS
+    ],
+
     // ── DepEd grade component weights (must sum to 1.0) ───────────────────
     'grade_weights' => [
         'written_work'          => 0.30,

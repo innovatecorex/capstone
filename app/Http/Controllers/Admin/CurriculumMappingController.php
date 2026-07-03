@@ -124,10 +124,7 @@ class CurriculumMappingController extends Controller
         $academicYears = AcademicYear::orderBy('year_label', 'desc')->get();
         $subjects = Subject::where('status', 'active')->orderBy('subject_code', 'asc')->get();
 
-        $standardGradeLevels = [
-            'Grade 1', 'Grade 2', 'Grade 3', 'Grade 4', 'Grade 5', 'Grade 6',
-            'Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12'
-        ];
+        $standardGradeLevels = config('academic.grade_levels');
 
         return view('admin.registrars.curriculum-mappings.create', compact(
             'academicYear',
@@ -182,10 +179,7 @@ class CurriculumMappingController extends Controller
         $academicYears = AcademicYear::orderBy('year_label', 'desc')->get();
         $subjects = Subject::where('status', 'active')->orderBy('subject_code', 'asc')->get();
 
-        $standardGradeLevels = [
-            'Grade 1', 'Grade 2', 'Grade 3', 'Grade 4', 'Grade 5', 'Grade 6',
-            'Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12'
-        ];
+        $standardGradeLevels = config('academic.grade_levels');
 
         return view('admin.registrars.curriculum-mappings.edit', compact(
             'mapping',

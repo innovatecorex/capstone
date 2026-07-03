@@ -145,7 +145,9 @@ class PaymentController extends Controller
             ? EnrollmentFee::where('academic_year_id', $yearId)->orderBy('grade_level')->get()
             : collect();
 
-        return view('admin.payments.fees', compact('academicYears', 'yearId', 'fees'));
+        $gradeLevels = StudentController::GRADE_LEVELS;
+
+        return view('admin.payments.fees', compact('academicYears', 'yearId', 'fees', 'gradeLevels'));
     }
 
     public function storeFee(Request $request)

@@ -14,12 +14,14 @@ use Illuminate\Support\Facades\DB;
 
 class PromotionController extends Controller
 {
-    // DepEd junior high school grade progression
+    // DepEd JHS + SHS grade progression (Philippine Academy of Sakya: Grade 7-12)
     private const GRADE_PROGRESSION = [
         'Grade 7'  => 'Grade 8',
         'Grade 8'  => 'Grade 9',
         'Grade 9'  => 'Grade 10',
-        'Grade 10' => null, // final level → graduated
+        'Grade 10' => 'Grade 11',
+        'Grade 11' => 'Grade 12',
+        'Grade 12' => null, // final level → graduated
     ];
 
     public function index(Request $request)
