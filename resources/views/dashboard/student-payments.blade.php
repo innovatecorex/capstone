@@ -92,7 +92,7 @@
 
   {{-- Per-account panels --}}
   @foreach($accounts as $i => $acct)
-  <div id="acct-panel-{{ $acct['id'] }}" class="acct-panel" style="display:{{ $i === 0 ? 'grid' : 'none' }};grid-template-columns:1fr 1fr;gap:24px;">
+  <div id="acct-panel-{{ $acct['id'] }}" class="acct-panel" style="display:{{ $i === 0 ? 'grid' : 'none' }};grid-template-columns:1fr 1fr;gap:24px;align-items:start;">
 
     {{-- Account details + QR --}}
     <div class="enc-card">
