@@ -97,8 +97,11 @@
     {{-- Account details + QR --}}
     <div class="enc-card">
       <div class="enc-card__header"><div class="enc-card__title">{{ $acct['label'] }} — Recipient Details</div></div>
-      <div class="enc-card__body" style="padding:24px;display:flex;flex-direction:column;align-items:center;gap:18px;">
+      <div class="enc-card__body" style="padding:24px;">
 
+        {{-- QR code intentionally hidden (not yet in scope for defense).
+             To restore: un-comment the block below and re-add the flex-column
+             centering style to enc-card__body.
         @if(!empty($acct['qr_path']))
         <div style="padding:12px;background:#fff;border:1px solid #e2e8f0;border-radius:12px;">
           <img src="{{ asset($acct['qr_path']) }}" alt="QR code for {{ $acct['label'] }}"
@@ -109,6 +112,7 @@
           <em>(Placeholder QR — your school will swap this for the live one.)</em>
         </p>
         @endif
+        --}}
 
         <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:14px 16px;font-size:.85rem;color:#334155;line-height:1.7;width:100%;">
           <div><strong>Account Name:</strong> {{ $acct['account_name'] }}</div>

@@ -40,5 +40,5 @@ return [
         ],
     ],
 
-    'instructions' => 'Choose an account below, scan the QR with your banking or GCash app (or transfer manually using the account number). After paying, enter your transfer reference number and upload a clear screenshot of the receipt. The registrar will verify and confirm your payment.',
+    'instructions' => 'Choose an account below and transfer the amount using the account number. After paying, enter your reference number and upload a clear screenshot of the receipt. The registrar will verify and confirm your payment.',
 ];
