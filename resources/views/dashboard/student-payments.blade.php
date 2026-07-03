@@ -135,13 +135,13 @@
       <div class="enc-card__body" style="padding:24px;display:flex;flex-direction:column;gap:14px;">
         <div>
           <label style="display:block;font-size:.78rem;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px;">Transfer Reference No.</label>
-          <input type="text" name="reference_number" required maxlength="100" placeholder="e.g. 1234567890"
+          <input type="text" name="reference_number" {{ $i !== 0 ? 'disabled' : '' }} required maxlength="100" placeholder="e.g. 1234567890"
                  value="{{ old('reference_number') }}"
                  style="width:100%;padding:9px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:.9rem;">
         </div>
         <div>
           <label style="display:block;font-size:.78rem;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px;">Proof of Payment (screenshot)</label>
-          <input type="file" name="proof" accept="image/*" required style="width:100%;font-size:.85rem;">
+          <input type="file" name="proof" {{ $i !== 0 ? 'disabled' : '' }} accept="image/*" required style="width:100%;font-size:.85rem;">
           <p style="font-size:.72rem;color:#94a3b8;margin:6px 0 0;">Clear photo or screenshot. JPG/PNG up to 4 MB.</p>
         </div>
         <button type="submit" style="margin-top:6px;padding:.7rem 1.2rem;border:none;border-radius:8px;background:#065f46;color:#fff;font-size:.95rem;font-weight:700;cursor:pointer;">
@@ -156,10 +156,21 @@
 
 <script>
 function showAccount(id) {
-  // Panels
-  document.querySelectorAll('.acct-panel').forEach(p => p.style.display = 'none');
+  // Hide all panels and disable their inputs so browser validation ignores them
+  document.querySelectorAll('.acct-panel').forEach(function(p) {
+    p.style.display = 'none';
+    p.querySelectorAll('input[name="reference_number"], input[name="proof"]').forEach(function(el) {
+      el.disabled = true;
+    });
+  });
+  // Show selected panel and enable its inputs
   const target = document.getElementById('acct-panel-' + id);
-  if (target) target.style.display = 'grid';
+  if (target) {
+    target.style.display = 'grid';
+    target.querySelectorAll('input[name="reference_number"], input[name="proof"]').forEach(function(el) {
+      el.disabled = false;
+    });
+  }
 
   // Tab styling
   document.querySelectorAll('.acct-tab').forEach(t => {
