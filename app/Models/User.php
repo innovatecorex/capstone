@@ -250,6 +250,50 @@ class User extends Authenticatable
         return hash('sha256', $value);
     }
 
+    /**
+     * Encrypted-name-aware search, shared by every user/student list so search
+     * behaves identically everywhere. first_name/last_name are AES-256
+     * encrypted, so only exact-hash matches are possible (no partial LIKE).
+     *
+     * Matches when:
+     *   - the whole term equals first_name OR last_name (single-name search), OR
+     *   - the term splits into first + last across any word boundary and both
+     *     halves match together — in either order, so "Dan Aguilar" and
+     *     "Aguilar Dan" both find the same person, and compound last names
+     *     ("Maria Dela Cruz") are covered by trying every split point.
+     *
+     * Add it as one branch of a larger search group, e.g.:
+     *   $q->whereNameMatches($s)->orWhere('lrn_hash', hash('sha256', trim($s)));
+     */
+    public function scopeWhereNameMatches($query, ?string $term)
+    {
+        $term = trim((string) $term);
+        if ($term === '') {
+            return $query;
+        }
+
+        return $query->where(function ($q) use ($term) {
+            // Whole term as a single first OR last name.
+            $q->where('first_name_hash', self::hashFor('first_name', $term))
+              ->orWhere('last_name_hash', self::hashFor('last_name', $term));
+
+            // Multi-word: try every first|last split, both orders.
+            $tokens = preg_split('/\s+/', $term) ?: [];
+            $count  = count($tokens);
+            for ($i = 1; $i < $count; $i++) {
+                $left  = implode(' ', array_slice($tokens, 0, $i));
+                $right = implode(' ', array_slice($tokens, $i));
+                $q->orWhere(function ($w) use ($left, $right) {
+                    $w->where('first_name_hash', self::hashFor('first_name', $left))
+                      ->where('last_name_hash', self::hashFor('last_name', $right));
+                })->orWhere(function ($w) use ($left, $right) {
+                    $w->where('first_name_hash', self::hashFor('first_name', $right))
+                      ->where('last_name_hash', self::hashFor('last_name', $left));
+                });
+            }
+        });
+    }
+
     // ── lrn (AES-256, searchable via lrn_hash) ──────────────────────────────
     public function getLrnAttribute(?string $value): ?string
     {

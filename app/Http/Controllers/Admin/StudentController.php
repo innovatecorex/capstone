@@ -22,9 +22,9 @@ class StudentController extends Controller
 
         if ($search = $request->input('search')) {
             // Names/username are AES-256 encrypted — EXACT match via *_hash.
+            // whereNameMatches() handles full "First Last" names (either order).
             $query->where(function ($q) use ($search) {
-                $q->where('first_name_hash', User::hashFor('first_name', $search))
-                  ->orWhere('last_name_hash', User::hashFor('last_name', $search))
+                $q->whereNameMatches($search)
                   ->orWhere('username_hash', User::hashFor('username', $search))
                   ->orWhere('lrn_hash', hash('sha256', trim($search)));
             });

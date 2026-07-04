@@ -158,9 +158,11 @@ class SFFormController extends Controller
         // Names are AES-256 encrypted: EXACT-match search via *_hash, and sort
         // the decrypted collection in PHP (ciphertext can't be ordered in SQL).
         $students = User::where('role_id', '01')
-            ->when($search, fn($q) => $q->where('first_name_hash', User::hashFor('first_name', $search))
-                ->orWhere('last_name_hash', User::hashFor('last_name', $search))
-                ->orWhere('lrn_hash', hash('sha256', trim($search))))
+            ->when($search, fn($q) => $q->where(function ($q2) use ($search) {
+                // whereNameMatches() handles full "First Last" names (either order).
+                $q2->whereNameMatches($search)
+                   ->orWhere('lrn_hash', hash('sha256', trim($search)));
+            }))
             ->get()
             ->sortBy('last_name')
             ->take(50)

@@ -23,8 +23,7 @@ class LockedAccountsController extends Controller
         //    their deterministic hashes (EXACT match only) ───────────────────
         if ($search) {
             $query->where(function ($q) use ($search) {
-                $q->where('first_name_hash', User::hashFor('first_name', $search))
-                  ->orWhere('last_name_hash', User::hashFor('last_name', $search))
+                $q->whereNameMatches($search)
                   ->orWhere('username_hash', User::hashFor('username', $search))
                   ->orWhere('email_hash', hash('sha256', strtolower(trim($search))));
             });

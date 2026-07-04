@@ -192,9 +192,9 @@ class RegistrarUserDashboardController extends Controller
         if ($search) {
             $query->where(function ($q) use ($search) {
                 // Names are AES-256 encrypted — EXACT match via *_hash columns.
-                $q->where('first_name_hash', User::hashFor('first_name', $search))
-                  ->orWhere('last_name_hash', User::hashFor('last_name', $search))
-                  ->orWhere('lrn_hash',   hash('sha256', $search));
+                // whereNameMatches() handles full "First Last" names (either order).
+                $q->whereNameMatches($search)
+                  ->orWhere('lrn_hash',   hash('sha256', trim($search)));
             });
         }
 
@@ -359,8 +359,7 @@ class RegistrarUserDashboardController extends Controller
                 // Student names are AES-256 encrypted — EXACT match via *_hash;
                 // section_name is plain text (partial LIKE).
                 $q->whereHas('student', fn($q2) =>
-                    $q2->where('first_name_hash', User::hashFor('first_name', $search))
-                       ->orWhere('last_name_hash', User::hashFor('last_name', $search))
+                    $q2->whereNameMatches($search)
                 )->orWhereHas('section', fn($q2) =>
                     $q2->where('section_name', 'like', "%{$search}%")
                 );
@@ -411,8 +410,8 @@ class RegistrarUserDashboardController extends Controller
         if ($search) {
             $query->whereHas('student', function ($q) use ($search) {
                 // Names are AES-256 encrypted — EXACT match via *_hash columns.
-                $q->where('first_name_hash', User::hashFor('first_name', $search))
-                  ->orWhere('last_name_hash', User::hashFor('last_name', $search))
+                // whereNameMatches() handles full "First Last" names (either order).
+                $q->whereNameMatches($search)
                   ->orWhere('lrn_hash',   hash('sha256', trim($search)));
             });
         }
@@ -464,8 +463,8 @@ class RegistrarUserDashboardController extends Controller
             if ($search) {
                 $query->whereHas('student', fn($q) =>
                     // Names are AES-256 encrypted — EXACT match via *_hash columns.
-                    $q->where('first_name_hash', User::hashFor('first_name', $search))
-                      ->orWhere('last_name_hash', User::hashFor('last_name', $search))
+                    // whereNameMatches() handles full "First Last" names (either order).
+                    $q->whereNameMatches($search)
                       ->orWhere('lrn_hash',   hash('sha256', trim($search)))
                 );
             }

@@ -42,10 +42,10 @@ class LeaveRequestController extends Controller
         $requests = LeaveRequest::with('faculty', 'reviewer')
             ->when($status, fn($q) => $q->where('status', $status))
             ->when($search, fn($q) => $q->whereHas('faculty', fn($q2) =>
-                // first/last name are AES-256 encrypted — EXACT match via *_hash;
+                // first/last name are AES-256 encrypted — EXACT match via *_hash
+                // (whereNameMatches handles full "First Last", either order);
                 // employee_number is plain text (partial LIKE).
-                $q2->where('first_name_hash', User::hashFor('first_name', $search))
-                   ->orWhere('last_name_hash', User::hashFor('last_name', $search))
+                $q2->whereNameMatches($search)
                    ->orWhere('employee_number', 'like', "%{$search}%")
             ))
             ->orderByDesc('created_at')

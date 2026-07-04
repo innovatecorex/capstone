@@ -29,8 +29,8 @@ class AdvisingController extends Controller
             ->where('status', 'active')
             ->when($search, fn($q) => $q->where(function ($q2) use ($search) {
                 // Names are AES-256 encrypted — EXACT match via *_hash columns.
-                $q2->where('first_name_hash', User::hashFor('first_name', $search))
-                   ->orWhere('last_name_hash', User::hashFor('last_name', $search))
+                // whereNameMatches() handles full "First Last" names (either order).
+                $q2->whereNameMatches($search)
                    ->orWhere('lrn_hash',   hash('sha256', trim($search)));
             }))
             ->get()

@@ -40,8 +40,8 @@ class DocumentRequestController extends Controller
             ->when($status, fn($q) => $q->where('status', $status))
             ->when($search, fn($q) => $q->whereHas('student', fn($q2) =>
                 // Names are AES-256 encrypted — EXACT match via *_hash columns.
-                $q2->where('first_name_hash', User::hashFor('first_name', $search))
-                   ->orWhere('last_name_hash', User::hashFor('last_name', $search))
+                // whereNameMatches() handles full "First Last" names (either order).
+                $q2->whereNameMatches($search)
                    ->orWhere('lrn_hash', hash('sha256', trim($search)))
             ))
             ->orderByDesc('created_at')

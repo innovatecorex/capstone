@@ -42,6 +42,7 @@ class UserManagementController extends Controller
 
         // Search. username / first_name / last_name are AES-256 encrypted, so
         // they support EXACT-match search only (via their *_hash columns).
+        // whereNameMatches() handles full "First Last" names (either order);
         // employee_number is plain text and still supports partial LIKE.
         if ($request->filled('search')) {
             $s = $request->input('search');
@@ -49,8 +50,7 @@ class UserManagementController extends Controller
                 $q->where('username_hash', User::hashFor('username', $s))
                   ->orWhere('lrn_hash', hash('sha256', trim($s)))
                   ->orWhere('employee_number', 'like', "%{$s}%")
-                  ->orWhere('first_name_hash', User::hashFor('first_name', $s))
-                  ->orWhere('last_name_hash', User::hashFor('last_name', $s));
+                  ->orWhere(fn($sub) => $sub->whereNameMatches($s));
             });
         }
 

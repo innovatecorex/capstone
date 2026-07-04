@@ -21,8 +21,7 @@ class RegistrarController extends Controller
         //    employee_number is plain text (partial LIKE) ───────────────────
         if ($search) {
             $query->where(function ($q) use ($search) {
-                $q->where('first_name_hash', User::hashFor('first_name', $search))
-                  ->orWhere('last_name_hash', User::hashFor('last_name', $search))
+                $q->whereNameMatches($search)
                   ->orWhere('username_hash', User::hashFor('username', $search))
                   ->orWhere('employee_number', 'like', "%{$search}%");
             });

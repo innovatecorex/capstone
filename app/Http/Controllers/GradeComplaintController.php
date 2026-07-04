@@ -218,8 +218,7 @@ class GradeComplaintController extends Controller
             $s = $request->input('search');
             // Names are AES-256 encrypted — EXACT match via *_hash columns.
             $query->whereHas('student', fn($q) => $q
-                ->where('first_name_hash', User::hashFor('first_name', $s))
-                ->orWhere('last_name_hash', User::hashFor('last_name', $s))
+                ->whereNameMatches($s)
                 ->orWhere('lrn_hash', hash('sha256', trim($s)))
             );
         }
