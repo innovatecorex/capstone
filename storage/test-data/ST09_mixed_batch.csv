@@ -1,0 +1,5 @@
+first_name,last_name,email,lrn,grade_level,gender
+Valid,NewStudent,valid.newstudent.st09@gmail.com,999900000003,8,female
+Duplicate,LRNRow,fresh.email.st09@gmail.com,999900000001,7,male
+Duplicate,EmailRow,baseline.student.st09@gmail.com,999900000004,9,male
+Valid,SecondNew,second.new.st09@gmail.com,999900000005,10,female
