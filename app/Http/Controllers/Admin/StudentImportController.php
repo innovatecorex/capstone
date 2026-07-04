@@ -208,7 +208,7 @@ class StudentImportController extends Controller
     private function uniqueUsername(string $lrn): string
     {
         $base = $lrn;
-        if (!User::where('username', $base)->exists()) {
+        if (!User::where('username_hash', User::hashFor('username', $base))->exists()) {
             return $base;
         }
         return $base . Str::random(3);

@@ -191,8 +191,9 @@ class RegistrarUserDashboardController extends Controller
 
         if ($search) {
             $query->where(function ($q) use ($search) {
-                $q->where('first_name', 'like', "%{$search}%")
-                  ->orWhere('last_name',  'like', "%{$search}%")
+                // Names are AES-256 encrypted — EXACT match via *_hash columns.
+                $q->where('first_name_hash', User::hashFor('first_name', $search))
+                  ->orWhere('last_name_hash', User::hashFor('last_name', $search))
                   ->orWhere('lrn_hash',   hash('sha256', $search));
             });
         }
@@ -218,16 +219,29 @@ class RegistrarUserDashboardController extends Controller
             }
         }
 
-        $students = $query
+        // last_name is AES-256 encrypted and cannot be ordered in SQL. Fetch the
+        // filtered set, sort by decrypted last_name in PHP, then paginate manually
+        // so alphabetical order is correct across pages. Fine at school scale.
+        $matches = $query
             ->with(['enrollments' => fn($q) =>
                 $q->where('academic_year_id', $activeYearId)
                   ->whereIn('status', ['enrolled', 'pending_payment'])
                   ->with('section:id,section_name,grade_level')
                   ->latest()
             ])
-            ->orderBy('last_name')
-            ->paginate(20)
-            ->withQueryString();
+            ->get()
+            ->sortBy(fn($u) => mb_strtolower(trim((string) $u->last_name)), SORT_NATURAL)
+            ->values();
+
+        $perPage  = 20;
+        $page     = \Illuminate\Pagination\Paginator::resolveCurrentPage('page');
+        $students = new \Illuminate\Pagination\LengthAwarePaginator(
+            $matches->forPage($page, $perPage)->values(),
+            $matches->count(),
+            $perPage,
+            $page,
+            ['path' => \Illuminate\Pagination\Paginator::resolveCurrentPath(), 'query' => $request->query()]
+        );
 
         // Grade levels present in the system for the filter dropdown
         $gradeLevels = User::where('role_id', '01')
@@ -299,15 +313,17 @@ class RegistrarUserDashboardController extends Controller
             : 0;
 
         // ── Student list with payment status map ─────────────────────────
+        // last_name is AES-256 encrypted — sort the decrypted collection in PHP.
         $allStudents = User::where('role_id', '01')
             ->where('status', 'active')
-            ->orderBy('last_name')
             ->with([
                 'enrollments' => fn($q) => $q->where('academic_year_id', optional($selectedYear)->id ?? 0)
                     ->where('status', 'enrolled')
                     ->with('section:id,section_name'),
             ])
-            ->get(['id', 'first_name', 'last_name', 'lrn']);
+            ->get(['id', 'first_name', 'last_name', 'lrn'])
+            ->sortBy(fn($u) => mb_strtolower(trim((string) $u->last_name)), SORT_NATURAL)
+            ->values();
 
         $studentPaymentStatus = [];
         if ($selectedYear) {
@@ -340,9 +356,11 @@ class RegistrarUserDashboardController extends Controller
 
         if ($search) {
             $enrollQuery->where(function ($q) use ($search) {
+                // Student names are AES-256 encrypted — EXACT match via *_hash;
+                // section_name is plain text (partial LIKE).
                 $q->whereHas('student', fn($q2) =>
-                    $q2->where('first_name', 'like', "%{$search}%")
-                       ->orWhere('last_name',  'like', "%{$search}%")
+                    $q2->where('first_name_hash', User::hashFor('first_name', $search))
+                       ->orWhere('last_name_hash', User::hashFor('last_name', $search))
                 )->orWhereHas('section', fn($q2) =>
                     $q2->where('section_name', 'like', "%{$search}%")
                 );
@@ -392,8 +410,9 @@ class RegistrarUserDashboardController extends Controller
 
         if ($search) {
             $query->whereHas('student', function ($q) use ($search) {
-                $q->where('first_name', 'like', "%{$search}%")
-                  ->orWhere('last_name',  'like', "%{$search}%")
+                // Names are AES-256 encrypted — EXACT match via *_hash columns.
+                $q->where('first_name_hash', User::hashFor('first_name', $search))
+                  ->orWhere('last_name_hash', User::hashFor('last_name', $search))
                   ->orWhere('lrn_hash',   hash('sha256', trim($search)));
             });
         }
@@ -444,8 +463,9 @@ class RegistrarUserDashboardController extends Controller
 
             if ($search) {
                 $query->whereHas('student', fn($q) =>
-                    $q->where('first_name', 'like', "%{$search}%")
-                      ->orWhere('last_name',  'like', "%{$search}%")
+                    // Names are AES-256 encrypted — EXACT match via *_hash columns.
+                    $q->where('first_name_hash', User::hashFor('first_name', $search))
+                      ->orWhere('last_name_hash', User::hashFor('last_name', $search))
                       ->orWhere('lrn_hash',   hash('sha256', trim($search)))
                 );
             }
@@ -627,10 +647,12 @@ class RegistrarUserDashboardController extends Controller
 
     public function ajaxStudents(Request $request)
     {
+        // last_name is AES-256 encrypted — sort the decrypted collection in PHP.
         $students = User::where('role_id', '01')
             ->where('status', 'active')
-            ->orderBy('last_name')
             ->get(['id', 'first_name', 'last_name', 'lrn'])
+            ->sortBy(fn($u) => mb_strtolower(trim((string) $u->last_name)), SORT_NATURAL)
+            ->values()
             ->map(fn($u) => [
                 'id'        => $u->id,
                 'full_name' => $u->last_name . ', ' . $u->first_name,

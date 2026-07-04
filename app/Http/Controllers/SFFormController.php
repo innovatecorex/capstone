@@ -155,13 +155,16 @@ class SFFormController extends Controller
         $student   = null;
         $history   = collect();
 
+        // Names are AES-256 encrypted: EXACT-match search via *_hash, and sort
+        // the decrypted collection in PHP (ciphertext can't be ordered in SQL).
         $students = User::where('role_id', '01')
-            ->when($search, fn($q) => $q->where('first_name', 'like', "%{$search}%")
-                ->orWhere('last_name', 'like', "%{$search}%")
+            ->when($search, fn($q) => $q->where('first_name_hash', User::hashFor('first_name', $search))
+                ->orWhere('last_name_hash', User::hashFor('last_name', $search))
                 ->orWhere('lrn_hash', hash('sha256', trim($search))))
-            ->orderBy('last_name')
-            ->limit(50)
-            ->get();
+            ->get()
+            ->sortBy('last_name')
+            ->take(50)
+            ->values();
 
         if ($studentId) {
             $student = User::findOrFail($studentId);

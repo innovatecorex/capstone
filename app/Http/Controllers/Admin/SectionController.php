@@ -42,10 +42,12 @@ class SectionController extends Controller
             ->paginate(20)
             ->withQueryString();
 
+        // last_name is AES-256 encrypted — sort the decrypted collection in PHP.
         $faculty = User::where('role_id', '02')
             ->where('status', 'active')
-            ->orderBy('last_name')
-            ->get();
+            ->get()
+            ->sortBy(fn($u) => mb_strtolower(trim((string) $u->last_name)), SORT_NATURAL)
+            ->values();
 
         return view('admin.sections.index', compact(
             'sections', 'academicYears', 'yearId', 'faculty',
@@ -155,12 +157,13 @@ class SectionController extends Controller
             ->pluck('student_id')
             ->all();
 
+        // Names are AES-256 encrypted — sort the decrypted collection in PHP.
         $available = User::where('role_id', '01')
             ->where('status', 'active')
             ->whereNotIn('id', $takenStudentIds)
-            ->orderBy('last_name')
-            ->orderBy('first_name')
-            ->get();
+            ->get()
+            ->sortBy(fn($u) => mb_strtolower(trim((string) $u->last_name . ' ' . (string) $u->first_name)), SORT_NATURAL)
+            ->values();
 
         return view('admin.sections.roster', compact('section', 'enrolled', 'available'));
     }

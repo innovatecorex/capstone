@@ -21,16 +21,31 @@ class AdvisingController extends Controller
     {
         $search = $request->input('search', '');
 
-        $students = User::where('role_id', '01')
+        // last_name is AES-256 encrypted and cannot be ordered in SQL. Fetch the
+        // filtered set, sort by the decrypted last_name in PHP, then paginate
+        // manually so alphabetical order is correct ACROSS pages (not just within
+        // the current page). Fine at school scale; revisit if the user table grows large.
+        $matches = User::where('role_id', '01')
             ->where('status', 'active')
             ->when($search, fn($q) => $q->where(function ($q2) use ($search) {
-                $q2->where('first_name', 'like', "%{$search}%")
-                   ->orWhere('last_name',  'like', "%{$search}%")
+                // Names are AES-256 encrypted — EXACT match via *_hash columns.
+                $q2->where('first_name_hash', User::hashFor('first_name', $search))
+                   ->orWhere('last_name_hash', User::hashFor('last_name', $search))
                    ->orWhere('lrn_hash',   hash('sha256', trim($search)));
             }))
-            ->orderBy('last_name')
-            ->paginate(25)
-            ->withQueryString();
+            ->get()
+            ->sortBy(fn($u) => mb_strtolower(trim((string) $u->last_name)), SORT_NATURAL)
+            ->values();
+
+        $perPage  = 25;
+        $page     = \Illuminate\Pagination\Paginator::resolveCurrentPage('page');
+        $students = new \Illuminate\Pagination\LengthAwarePaginator(
+            $matches->forPage($page, $perPage)->values(),
+            $matches->count(),
+            $perPage,
+            $page,
+            ['path' => \Illuminate\Pagination\Paginator::resolveCurrentPath(), 'query' => $request->query()]
+        );
 
         $activeYear = AcademicYear::where('status', 'active')->first();
 

@@ -319,7 +319,10 @@ class MessageController extends Controller
 
         $ids = $ids->unique()->values();
 
-        return User::whereIn('id', $ids)->where('status', 'active')->orderBy('last_name')->get();
+        // last_name is AES-256 encrypted — sort the decrypted collection in PHP.
+        return User::whereIn('id', $ids)->where('status', 'active')->get()
+            ->sortBy(fn($u) => mb_strtolower(trim((string) $u->last_name)), SORT_NATURAL)
+            ->values();
     }
 
     /**
@@ -344,10 +347,11 @@ class MessageController extends Controller
             ->unique()
             ->values();
 
+        // Names are AES-256 encrypted — sort the decrypted collection in PHP.
         return User::whereIn('id', $studentIds)
             ->where('status', 'active')
-            ->orderBy('last_name')
-            ->orderBy('first_name')
-            ->get();
+            ->get()
+            ->sortBy(fn($u) => mb_strtolower(trim((string) $u->last_name . ' ' . (string) $u->first_name)), SORT_NATURAL)
+            ->values();
     }
 }

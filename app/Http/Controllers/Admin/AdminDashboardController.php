@@ -20,8 +20,8 @@ class AdminDashboardController extends Controller
             'facultyCount'    => User::where('role_id', '02')->where('status', 'active')->count(),
             'registrarCount'  => User::where('role_id', '03')->where('status', 'active')->count(),
             'lockedAccounts'  => User::where('status', 'locked')->count(),
-            'maleUsers'       => User::where('gender', 'male')->count(),
-            'femaleUsers'     => User::where('gender', 'female')->count(),
+            'maleUsers'       => User::where('gender_hash', User::hashFor('gender', 'male'))->count(),
+            'femaleUsers'     => User::where('gender_hash', User::hashFor('gender', 'female'))->count(),
             'activeThreats'   => ThreatEvent::where('status', 'active')->count(),
             'recentAnnouncements' => Announcement::with('author')
                 ->orderByDesc('created_at')

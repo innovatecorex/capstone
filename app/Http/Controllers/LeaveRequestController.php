@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 
 use App\Models\LeaveRequest;
 use App\Models\Notification;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class LeaveRequestController extends Controller
@@ -41,8 +42,10 @@ class LeaveRequestController extends Controller
         $requests = LeaveRequest::with('faculty', 'reviewer')
             ->when($status, fn($q) => $q->where('status', $status))
             ->when($search, fn($q) => $q->whereHas('faculty', fn($q2) =>
-                $q2->where('first_name', 'like', "%{$search}%")
-                   ->orWhere('last_name', 'like', "%{$search}%")
+                // first/last name are AES-256 encrypted — EXACT match via *_hash;
+                // employee_number is plain text (partial LIKE).
+                $q2->where('first_name_hash', User::hashFor('first_name', $search))
+                   ->orWhere('last_name_hash', User::hashFor('last_name', $search))
                    ->orWhere('employee_number', 'like', "%{$search}%")
             ))
             ->orderByDesc('created_at')

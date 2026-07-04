@@ -35,21 +35,22 @@ class UserManagementController extends Controller
             $query->where('status', $request->input('status'));
         }
 
-        // Filter by gender
+        // Filter by gender (encrypted — match on deterministic hash)
         if ($request->filled('gender')) {
-            $query->where('gender', $request->input('gender'));
+            $query->where('gender_hash', User::hashFor('gender', $request->input('gender')));
         }
 
-        // Search by name, username, LRN, or employee number (all plain text)
+        // Search. username / first_name / last_name are AES-256 encrypted, so
+        // they support EXACT-match search only (via their *_hash columns).
+        // employee_number is plain text and still supports partial LIKE.
         if ($request->filled('search')) {
             $s = $request->input('search');
             $query->where(function ($q) use ($s) {
-                $q->where('username', 'like', "%{$s}%")
+                $q->where('username_hash', User::hashFor('username', $s))
                   ->orWhere('lrn_hash', hash('sha256', trim($s)))
                   ->orWhere('employee_number', 'like', "%{$s}%")
-                  ->orWhere('first_name', 'like', "%{$s}%")
-                  ->orWhere('last_name', 'like', "%{$s}%")
-                  ->orWhereRaw("(first_name || ' ' || last_name) LIKE ?", ["%{$s}%"]);
+                  ->orWhere('first_name_hash', User::hashFor('first_name', $s))
+                  ->orWhere('last_name_hash', User::hashFor('last_name', $s));
             });
         }
 
@@ -345,7 +346,7 @@ class UserManagementController extends Controller
         $counter  = 1;
 
         // Ensure uniqueness
-        while (User::where('username', $username)->exists()) {
+        while (User::where('username_hash', User::hashFor('username', $username))->exists()) {
             $username = $base . $counter;
             $counter++;
         }

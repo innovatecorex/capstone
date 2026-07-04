@@ -270,7 +270,7 @@ class RegistrarApplicantController extends Controller
         $username = $base;
         $counter  = 1;
 
-        while (User::where('username', $username)->exists()) {
+        while (User::where('username_hash', User::hashFor('username', $username))->exists()) {
             $username = $base . $counter++;
         }
 

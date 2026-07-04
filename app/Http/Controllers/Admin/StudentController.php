@@ -21,17 +21,18 @@ class StudentController extends Controller
         $query = User::where('role_id', '01')->where('status', 'active');
 
         if ($search = $request->input('search')) {
+            // Names/username are AES-256 encrypted — EXACT match via *_hash.
             $query->where(function ($q) use ($search) {
-                $q->where('first_name', 'like', "%{$search}%")
-                  ->orWhere('last_name',  'like', "%{$search}%")
-                  ->orWhere('username',   'like', "%{$search}%")
+                $q->where('first_name_hash', User::hashFor('first_name', $search))
+                  ->orWhere('last_name_hash', User::hashFor('last_name', $search))
+                  ->orWhere('username_hash', User::hashFor('username', $search))
                   ->orWhere('lrn_hash', hash('sha256', trim($search)));
             });
         }
 
         if ($gender = $request->input('gender')) {
             if (in_array($gender, ['male', 'female'])) {
-                $query->where('gender', $gender);
+                $query->where('gender_hash', User::hashFor('gender', $gender));
             }
         }
 
@@ -67,8 +68,8 @@ class StudentController extends Controller
 
         $stats = [
             'total_students'  => User::where('role_id', '01')->where('status', 'active')->count(),
-            'male_students'   => User::where('role_id', '01')->where('status', 'active')->where('gender', 'male')->count(),
-            'female_students' => User::where('role_id', '01')->where('status', 'active')->where('gender', 'female')->count(),
+            'male_students'   => User::where('role_id', '01')->where('status', 'active')->where('gender_hash', User::hashFor('gender', 'male'))->count(),
+            'female_students' => User::where('role_id', '01')->where('status', 'active')->where('gender_hash', User::hashFor('gender', 'female'))->count(),
         ];
 
         // grade_level is plain text — distinct/pluck is safe here
@@ -90,11 +91,12 @@ class StudentController extends Controller
     public function export(Request $request): StreamedResponse
     {
         // Respect the same filters as index() — no pagination, full result set
+        // Names are AES-256 encrypted — sort the decrypted collection in PHP.
         $students = $this->buildQuery($request)
             ->with('section')
-            ->orderBy('last_name')
-            ->orderBy('first_name')
-            ->get();
+            ->get()
+            ->sortBy(fn($u) => mb_strtolower(trim((string) $u->last_name . ' ' . (string) $u->first_name)), SORT_NATURAL)
+            ->values();
 
         $filterDesc = collect([
             $request->input('search')      ? 'search:'   . $request->input('search')      : null,
@@ -149,11 +151,12 @@ class StudentController extends Controller
     // ── Print view ─────────────────────────────────────────────────────────
     public function printView(Request $request)
     {
+        // Names are AES-256 encrypted — sort the decrypted collection in PHP.
         $students = $this->buildQuery($request)
             ->with('section')
-            ->orderBy('last_name')
-            ->orderBy('first_name')
-            ->get();
+            ->get()
+            ->sortBy(fn($u) => mb_strtolower(trim((string) $u->last_name . ' ' . (string) $u->first_name)), SORT_NATURAL)
+            ->values();
 
         $filters = [
             'search'      => $request->input('search'),

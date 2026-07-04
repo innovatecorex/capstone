@@ -16,7 +16,9 @@ class FacultyScheduleController extends Controller
             ->orderByDesc('created_at')
             ->paginate(15)->withQueryString();
 
-        $faculty      = User::where('role_id', '02')->where('status', 'active')->orderBy('last_name')->get();
+        // last_name is AES-256 encrypted — sort the decrypted collection in PHP.
+        $faculty      = User::where('role_id', '02')->where('status', 'active')->get()
+            ->sortBy(fn($u) => mb_strtolower(trim((string) $u->last_name)), SORT_NATURAL)->values();
         $academicYears = AcademicYear::orderByDesc('id')->get();
 
         return view('admin.schedules.index', compact('schedules', 'faculty', 'academicYears'));

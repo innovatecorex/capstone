@@ -29,7 +29,7 @@ class DemoStudentSeeder extends Seeder
     public function run(): void
     {
         DB::transaction(function () {
-            $student = User::where('username', 'student1')->first();
+            $student = User::where('username_hash', User::hashFor('username', 'student1'))->first();
             if (! $student) {
                 $this->command->error('student1 not found. Seed base accounts first.');
                 return;

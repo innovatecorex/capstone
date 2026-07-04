@@ -101,12 +101,13 @@ class SeedDemoEnrollment extends Command
             ->pluck('student_id')
             ->all();
 
+        // Names are AES-256 encrypted — sort the decrypted collection in PHP.
         $unassigned = User::where('role_id', '01')
             ->where('status', 'active')
             ->when($alreadyEnrolledIds, fn ($q) => $q->whereNotIn('id', $alreadyEnrolledIds))
-            ->orderBy('last_name')
-            ->orderBy('first_name')
-            ->get();
+            ->get()
+            ->sortBy(fn($u) => mb_strtolower(trim((string) $u->last_name . ' ' . (string) $u->first_name)), SORT_NATURAL)
+            ->values();
 
         $this->newLine();
         $this->info("Unassigned active students available: {$unassigned->count()}");

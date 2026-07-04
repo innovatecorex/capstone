@@ -39,8 +39,9 @@ class DocumentRequestController extends Controller
         $requests = DocumentRequest::with('student','processor')
             ->when($status, fn($q) => $q->where('status', $status))
             ->when($search, fn($q) => $q->whereHas('student', fn($q2) =>
-                $q2->where('first_name','like',"%{$search}%")
-                   ->orWhere('last_name','like',"%{$search}%")
+                // Names are AES-256 encrypted — EXACT match via *_hash columns.
+                $q2->where('first_name_hash', User::hashFor('first_name', $search))
+                   ->orWhere('last_name_hash', User::hashFor('last_name', $search))
                    ->orWhere('lrn_hash', hash('sha256', trim($search)))
             ))
             ->orderByDesc('created_at')

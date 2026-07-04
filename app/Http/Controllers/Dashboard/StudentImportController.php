@@ -171,7 +171,7 @@ class StudentImportController extends Controller
         $base     = preg_replace('/[^a-z0-9.]/', '', $base);
         $username = $base;
         $counter  = 1;
-        while (User::where('username', $username)->exists()) {
+        while (User::where('username_hash', User::hashFor('username', $username))->exists()) {
             $username = $base . $counter;
             $counter++;
         }

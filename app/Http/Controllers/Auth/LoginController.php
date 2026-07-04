@@ -30,7 +30,8 @@ class LoginController extends Controller
         $username = $request->input('username');
         $password = $request->input('password');
 
-        $user = User::where('username', $username)->first();
+        // username is AES-256 encrypted; look up by its deterministic hash.
+        $user = User::where('username_hash', User::hashFor('username', $username))->first();
 
         if (!$user) {
             // Perform a dummy hash check so the response time is the same whether

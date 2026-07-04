@@ -21,7 +21,7 @@ class AdminSeeder extends Seeder
     public function run(): void
     {
         // Prevent creating duplicates on re-seed
-        if (User::where('username', 'adm.admin')->exists()) {
+        if (User::where('username_hash', User::hashFor('username', 'adm.admin'))->exists()) {
             $this->command->info('Admin account already exists. Skipping.');
             return;
         }

@@ -24,7 +24,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // Skip the test user if it already exists (idempotent for repeated seeds)
-        if (User::where('username', 'testuser')->exists()) {
+        if (User::where('username_hash', User::hashFor('username', 'testuser'))->exists()) {
             return;
         }
 

@@ -69,10 +69,12 @@ class ScheduleController extends Controller
             ? Section::where('academic_year_id', $yearId)->active()->orderBy('grade_level')->orderBy('section_name')->get()
             : collect();
 
+        // last_name is AES-256 encrypted — sort the decrypted collection in PHP.
         $faculty = User::where('role_id', '02')
             ->where('status', 'active')
-            ->orderBy('last_name')
-            ->get();
+            ->get()
+            ->sortBy(fn($u) => mb_strtolower(trim((string) $u->last_name)), SORT_NATURAL)
+            ->values();
 
         return view('admin.schedules.index', compact(
             'schedules', 'academicYears', 'sections', 'faculty',
@@ -90,7 +92,8 @@ class ScheduleController extends Controller
 
         $sections   = collect();
         $classrooms = collect();
-        $faculty    = User::where('role_id', '02')->where('status', 'active')->orderBy('last_name')->get();
+        $faculty    = User::where('role_id', '02')->where('status', 'active')->get()
+            ->sortBy(fn($u) => mb_strtolower(trim((string) $u->last_name)), SORT_NATURAL)->values();
 
         if ($yearId) {
             $sections   = Section::where('academic_year_id', $yearId)->active()->orderBy('grade_level')->orderBy('section_name')->get();
@@ -204,7 +207,8 @@ class ScheduleController extends Controller
         $yearId        = $schedule->academic_year_id;
         $sections      = Section::where('academic_year_id', $yearId)->active()->orderBy('grade_level')->orderBy('section_name')->get();
         $classrooms    = Classroom::forYear($yearId)->active()->orderBy('room_name')->get();
-        $faculty       = User::where('role_id', '02')->where('status', 'active')->orderBy('last_name')->get();
+        $faculty       = User::where('role_id', '02')->where('status', 'active')->get()
+            ->sortBy(fn($u) => mb_strtolower(trim((string) $u->last_name)), SORT_NATURAL)->values();
 
         $section = Section::find($schedule->section_id);
         $subjects = Subject::query()

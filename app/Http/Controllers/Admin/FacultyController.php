@@ -19,19 +19,20 @@ class FacultyController extends Controller
         // ── Query ──────────────────────────────────────────────────────────
         $query = User::where('role_id', '02')->where('status', 'active');
 
-        // ── Search by name, email, or employee number ─────────────────────
+        // ── Search — name/username are encrypted (EXACT match via hashes);
+        //    employee_number is plain text (partial LIKE) ───────────────────
         if ($search) {
             $query->where(function ($q) use ($search) {
-                $q->where('first_name', 'like', "%{$search}%")
-                  ->orWhere('last_name', 'like', "%{$search}%")
-                  ->orWhere('username', 'like', "%{$search}%")
+                $q->where('first_name_hash', User::hashFor('first_name', $search))
+                  ->orWhere('last_name_hash', User::hashFor('last_name', $search))
+                  ->orWhere('username_hash', User::hashFor('username', $search))
                   ->orWhere('employee_number', 'like', "%{$search}%");
             });
         }
 
-        // ── Filter by gender ───────────────────────────────────────────────
+        // ── Filter by gender (encrypted — match on hash) ───────────────────
         if ($gender && in_array($gender, ['male', 'female'])) {
-            $query->where('gender', $gender);
+            $query->where('gender_hash', User::hashFor('gender', $gender));
         }
 
         // ── Sorting ────────────────────────────────────────────────────────
@@ -43,8 +44,8 @@ class FacultyController extends Controller
         // ── Statistics ────────────────────────────────────────────────────
         $stats = [
             'total_faculty' => User::where('role_id', '02')->where('status', 'active')->count(),
-            'male_faculty' => User::where('role_id', '02')->where('status', 'active')->where('gender', 'male')->count(),
-            'female_faculty' => User::where('role_id', '02')->where('status', 'active')->where('gender', 'female')->count(),
+            'male_faculty' => User::where('role_id', '02')->where('status', 'active')->where('gender_hash', User::hashFor('gender', 'male'))->count(),
+            'female_faculty' => User::where('role_id', '02')->where('status', 'active')->where('gender_hash', User::hashFor('gender', 'female'))->count(),
         ];
 
         return view('admin.faculty.index', compact('faculty', 'stats', 'search', 'gender'));

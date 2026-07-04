@@ -19,13 +19,14 @@ class LockedAccountsController extends Controller
         // ── Query ──────────────────────────────────────────────────────────
         $query = User::where('status', 'locked');
 
-        // ── Search by name or email ────────────────────────────────────────
+        // ── Search — name/username/email are AES-256 encrypted, so match on
+        //    their deterministic hashes (EXACT match only) ───────────────────
         if ($search) {
             $query->where(function ($q) use ($search) {
-                $q->where('first_name', 'like', "%{$search}%")
-                  ->orWhere('last_name', 'like', "%{$search}%")
-                  ->orWhere('username', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+                $q->where('first_name_hash', User::hashFor('first_name', $search))
+                  ->orWhere('last_name_hash', User::hashFor('last_name', $search))
+                  ->orWhere('username_hash', User::hashFor('username', $search))
+                  ->orWhere('email_hash', hash('sha256', strtolower(trim($search))));
             });
         }
 
