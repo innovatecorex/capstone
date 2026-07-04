@@ -13,8 +13,6 @@ class FacultyController extends Controller
         // ── Filters from query string ──────────────────────────────────────
         $search = $request->input('search');
         $gender = $request->input('gender');
-        $sort = $request->input('sort', 'created_at');
-        $dir = $request->input('dir', 'desc');
 
         // ── Query ──────────────────────────────────────────────────────────
         $query = User::where('role_id', '02')->where('status', 'active');
@@ -35,11 +33,23 @@ class FacultyController extends Controller
             $query->where('gender_hash', User::hashFor('gender', $gender));
         }
 
-        // ── Sorting ────────────────────────────────────────────────────────
-        $query->orderBy($sort, $dir);
+        // ── Sort + paginate ────────────────────────────────────────────────
+        // last_name is AES-256 encrypted and cannot be ordered in SQL. Fetch the
+        // filtered set, sort by decrypted name in PHP, then paginate manually so
+        // alphabetical order is correct across ALL pages. Fine at school scale.
+        $matches = $query->get()
+            ->sortBy(fn($u) => mb_strtolower(trim((string) $u->last_name . ' ' . (string) $u->first_name)), SORT_NATURAL)
+            ->values();
 
-        // ── Pagination ────────────────────────────────────────────────────
-        $faculty = $query->paginate(50)->withQueryString();
+        $perPage = 50;
+        $page    = \Illuminate\Pagination\Paginator::resolveCurrentPage('page');
+        $faculty = new \Illuminate\Pagination\LengthAwarePaginator(
+            $matches->forPage($page, $perPage)->values(),
+            $matches->count(),
+            $perPage,
+            $page,
+            ['path' => \Illuminate\Pagination\Paginator::resolveCurrentPath(), 'query' => $request->query()]
+        );
 
         // ── Statistics ────────────────────────────────────────────────────
         $stats = [

@@ -57,14 +57,25 @@ class StudentController extends Controller
         $gender     = $request->input('gender');
         $gradeLevel = $request->input('grade_level');
         $sectionId  = $request->input('section_id');
-        $sort       = $request->input('sort', 'created_at');
-        $dir        = $request->input('dir', 'desc');
 
-        $students = $this->buildQuery($request)
+        // last_name is AES-256 encrypted and cannot be ordered in SQL. Fetch the
+        // filtered set, sort by decrypted name in PHP, then paginate manually so
+        // alphabetical order is correct across ALL pages. Fine at school scale.
+        $matches = $this->buildQuery($request)
             ->with('section')
-            ->orderBy($sort, $dir)
-            ->paginate(50)
-            ->withQueryString();
+            ->get()
+            ->sortBy(fn($u) => mb_strtolower(trim((string) $u->last_name . ' ' . (string) $u->first_name)), SORT_NATURAL)
+            ->values();
+
+        $perPage  = 50;
+        $page     = \Illuminate\Pagination\Paginator::resolveCurrentPage('page');
+        $students = new \Illuminate\Pagination\LengthAwarePaginator(
+            $matches->forPage($page, $perPage)->values(),
+            $matches->count(),
+            $perPage,
+            $page,
+            ['path' => \Illuminate\Pagination\Paginator::resolveCurrentPath(), 'query' => $request->query()]
+        );
 
         $stats = [
             'total_students'  => User::where('role_id', '01')->where('status', 'active')->count(),
