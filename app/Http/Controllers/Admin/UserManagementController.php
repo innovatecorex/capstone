@@ -54,7 +54,22 @@ class UserManagementController extends Controller
             });
         }
 
-        $users = $query->orderBy('created_at', 'desc')->paginate(20)->withQueryString();
+        // last_name is AES-256 encrypted and cannot be ordered in SQL. Fetch the
+        // filtered set, sort by decrypted name in PHP, then paginate manually so
+        // alphabetical order is correct across ALL pages. Fine at school scale.
+        $matches = $query->get()
+            ->sortBy(fn($u) => mb_strtolower(trim((string) $u->last_name . ' ' . (string) $u->first_name)), SORT_NATURAL)
+            ->values();
+
+        $perPage = 20;
+        $page    = \Illuminate\Pagination\Paginator::resolveCurrentPage('page');
+        $users   = new \Illuminate\Pagination\LengthAwarePaginator(
+            $matches->forPage($page, $perPage)->values(),
+            $matches->count(),
+            $perPage,
+            $page,
+            ['path' => \Illuminate\Pagination\Paginator::resolveCurrentPath(), 'query' => $request->query()]
+        );
 
         return view('admin.users.index', compact('users'));
     }
