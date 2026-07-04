@@ -827,8 +827,7 @@ body {
         <img src="/images/logo.png" alt="PAS Logo">
       </div>
       <div>
-        <div class="ap-brand-name">Philippine Academy of Sakya</div>
-        <div class="ap-brand-sub">EncryptEd · AMS</div>
+        <a href="{{ route('login') }}" class="ap-brand-name" style="text-decoration:none;color:inherit;display:inline-block;">Philippine Academy of Sakya</a>
       </div>
     </div>
 
@@ -858,21 +857,7 @@ body {
         </div>
       </div>
       <div class="ap-req-note">
-        Fields marked <strong>*</strong> are required. Data is encrypted under <strong style="color:rgba(255,255,255,.5);">RA 10173</strong>.
-      </div>
-      <div class="ap-security-badges">
-        <span class="ap-sec-badge">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
-          AES-256
-        </span>
-        <span class="ap-sec-badge">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg>
-          RA 10173
-        </span>
-        <span class="ap-sec-badge">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7.864 4.243A7.5 7.5 0 0119.5 10.5c0 2.92-.556 5.709-1.568 8.268M5.742 6.364A7.465 7.465 0 004.5 10.5a7.464 7.464 0 01-1.15 3.993m1.989 3.559A11.209 11.209 0 008.25 10.5a3.75 3.75 0 117.5 0c0 .527-.021 1.049-.064 1.565M12 10.5a14.94 14.94 0 01-3.6 9.75m6.633-4.596a18.666 18.666 0 01-2.485 5.33"/></svg>
-          bcrypt
-        </span>
+        Fields marked <strong>*</strong> are required.
       </div>
     </div>
 
@@ -913,7 +898,7 @@ body {
     </div>
     @endif
 
-    <form method="POST" action="{{ route('apply.store') }}" enctype="multipart/form-data" novalidate>
+    <form method="POST" action="{{ route('apply.store') }}" enctype="multipart/form-data">
       @csrf
 
       {{-- 1. Personal Information --}}
@@ -1082,22 +1067,40 @@ body {
 
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.1rem;">
             <div class="field">
-              <label class="field-label">Province</label>
-              <select id="addr-province" name="province" onchange="addrOnProvince()">
+              <label class="field-label">Province <span class="req">*</span></label>
+              <select id="addr-province" name="province" required onchange="addrOnProvince()" class="{{ $errors->has('province') ? 'is-err' : '' }}">
                 <option value="">Loading…</option>
               </select>
+              @error('province')
+              <div class="field-err">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9.303 3.376c.866 1.5-.217 3.374-1.948 3.374H4.645c-1.73 0-2.813-1.874-1.948-3.374l7.547-13.015c.866-1.5 3.032-1.5 3.898 0l5.16 8.898z"/></svg>
+                {{ $message }}
+              </div>
+              @enderror
             </div>
             <div class="field">
-              <label class="field-label">Municipality / City</label>
-              <select id="addr-city" name="municipality" disabled onchange="addrOnCity()">
+              <label class="field-label">Municipality / City <span class="req">*</span></label>
+              <select id="addr-city" name="municipality" required disabled onchange="addrOnCity()" class="{{ $errors->has('municipality') ? 'is-err' : '' }}">
                 <option value="">Select province first</option>
               </select>
+              @error('municipality')
+              <div class="field-err">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9.303 3.376c.866 1.5-.217 3.374-1.948 3.374H4.645c-1.73 0-2.813-1.874-1.948-3.374l7.547-13.015c.866-1.5 3.032-1.5 3.898 0l5.16 8.898z"/></svg>
+                {{ $message }}
+              </div>
+              @enderror
             </div>
             <div class="field">
-              <label class="field-label">Barangay</label>
-              <select id="addr-barangay" name="barangay" disabled>
+              <label class="field-label">Barangay <span class="req">*</span></label>
+              <select id="addr-barangay" name="barangay" required disabled class="{{ $errors->has('barangay') ? 'is-err' : '' }}">
                 <option value="">Select city first</option>
               </select>
+              @error('barangay')
+              <div class="field-err">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9.303 3.376c.866 1.5-.217 3.374-1.948 3.374H4.645c-1.73 0-2.813-1.874-1.948-3.374l7.547-13.015c.866-1.5 3.032-1.5 3.898 0l5.16 8.898z"/></svg>
+                {{ $message }}
+              </div>
+              @enderror
             </div>
           </div>
 
@@ -1115,31 +1118,44 @@ body {
           </div>
           <div>
             <div class="ap-card-section-badge badge-purple">Section 3</div>
-            <div class="ap-card-title">Previous School <span style="font-size:.76rem;font-weight:500;color:#94a3b8;">(if any)</span></div>
+            <div class="ap-card-title">Previous School</div>
           </div>
         </div>
 
         <div class="ap-card-body" style="grid-template-columns:1fr 1fr 1fr;">
 
           <div class="field span-2">
-            <label class="field-label">School Name</label>
-            <input type="text" name="previous_school" value="{{ old('previous_school') }}" maxlength="200"
-              placeholder="Full name of last school attended">
+            <label class="field-label">School Name <span class="req">*</span></label>
+            <input type="text" name="previous_school" value="{{ old('previous_school') }}" required maxlength="200"
+              placeholder="Full name of last school attended"
+              class="{{ $errors->has('previous_school') ? 'is-err' : '' }}">
+            @error('previous_school')
+            <div class="field-err">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9.303 3.376c.866 1.5-.217 3.374-1.948 3.374H4.645c-1.73 0-2.813-1.874-1.948-3.374l7.547-13.015c.866-1.5 3.032-1.5 3.898 0l5.16 8.898z"/></svg>
+              {{ $message }}
+            </div>
+            @enderror
           </div>
 
           <div class="field">
-            <label class="field-label">Grade Level Completed</label>
-            <select name="previous_grade_level">
+            <label class="field-label">Grade Level Completed <span class="req">*</span></label>
+            <select name="previous_grade_level" required class="{{ $errors->has('previous_grade_level') ? 'is-err' : '' }}">
               <option value="">— Select —</option>
               @foreach($gradeLevels as $lvl)
               <option value="{{ $lvl }}" {{ old('previous_grade_level') === $lvl ? 'selected' : '' }}>{{ $lvl }}</option>
               @endforeach
             </select>
+            @error('previous_grade_level')
+            <div class="field-err">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9.303 3.376c.866 1.5-.217 3.374-1.948 3.374H4.645c-1.73 0-2.813-1.874-1.948-3.374l7.547-13.015c.866-1.5 3.032-1.5 3.898 0l5.16 8.898z"/></svg>
+              {{ $message }}
+            </div>
+            @enderror
           </div>
 
           <div class="field">
-            <label class="field-label">School Year Completed</label>
-            <select name="school_year_completed">
+            <label class="field-label">School Year Completed <span class="req">*</span></label>
+            <select name="school_year_completed" required class="{{ $errors->has('school_year_completed') ? 'is-err' : '' }}">
               <option value="">— Select school year —</option>
               @php $curYear = (int) date('Y'); @endphp
               @for($y = $curYear; $y >= $curYear - 15; $y--)
@@ -1147,6 +1163,12 @@ body {
                 <option value="{{ $sy }}" {{ old('school_year_completed') === $sy ? 'selected' : '' }}>{{ $sy }}</option>
               @endfor
             </select>
+            @error('school_year_completed')
+            <div class="field-err">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9.303 3.376c.866 1.5-.217 3.374-1.948 3.374H4.645c-1.73 0-2.813-1.874-1.948-3.374l7.547-13.015c.866-1.5 3.032-1.5 3.898 0l5.16 8.898z"/></svg>
+              {{ $message }}
+            </div>
+            @enderror
           </div>
 
         </div>
@@ -1186,8 +1208,8 @@ body {
           </div>
 
           <div class="field">
-            <label class="field-label">School Year <span class="opt">(optional)</span></label>
-            <select name="applying_for_year">
+            <label class="field-label">School Year <span class="req">*</span></label>
+            <select name="applying_for_year" required class="{{ $errors->has('applying_for_year') ? 'is-err' : '' }}">
               <option value="">— Select school year —</option>
               @php $curYear = (int) date('Y'); @endphp
               @for($y = $curYear + 1; $y >= $curYear - 1; $y--)
@@ -1195,6 +1217,12 @@ body {
                 <option value="{{ $sy }}" {{ old('applying_for_year') === $sy ? 'selected' : '' }}>{{ $sy }}</option>
               @endfor
             </select>
+            @error('applying_for_year')
+            <div class="field-err">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9.303 3.376c.866 1.5-.217 3.374-1.948 3.374H4.645c-1.73 0-2.813-1.874-1.948-3.374l7.547-13.015c.866-1.5 3.032-1.5 3.898 0l5.16 8.898z"/></svg>
+              {{ $message }}
+            </div>
+            @enderror
           </div>
 
         </div>
@@ -1260,8 +1288,8 @@ body {
           </div>
 
           <div class="field span-2">
-            <label class="field-label">Email Address <span class="opt">(optional but recommended)</span></label>
-            <input type="email" name="parent_email" value="{{ old('parent_email') }}" maxlength="180"
+            <label class="field-label">Email Address <span class="req">*</span></label>
+            <input type="email" name="parent_email" value="{{ old('parent_email') }}" required maxlength="180"
               placeholder="yourname@email.com"
               class="{{ $errors->has('parent_email') ? 'is-err' : '' }}">
             <div class="field-hint">Status updates and login credentials will be sent here once your application is reviewed.</div>
@@ -1644,6 +1672,7 @@ body {
       if (!sel) return;
       var inp = document.createElement('input');
       inp.type = 'text'; inp.name = row[1]; inp.maxLength = 100; inp.placeholder = row[2];
+      inp.required = true;
       sel.parentNode.replaceChild(inp, sel);
     });
   }
