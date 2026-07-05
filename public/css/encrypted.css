@@ -1985,3 +1985,59 @@ body.dark-mode .notif-dropdown__title { color: #f1f5f9; }
   font-size: .67rem; font-weight: 700; color: #94a3b8;
   text-transform: uppercase; letter-spacing: .08em; margin-top: 5px; line-height: 1.3;
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   MOBILE FIXES (appended) — small-screen only, does not affect desktop
+   Fixes: (1) stat cards rendering as empty colored blocks on phones,
+          (2) wide tables overflowing the viewport.
+   ═══════════════════════════════════════════════════════════════════ */
+@media (max-width: 600px) {
+
+  /* ---- Stat cards: force a clean, readable state on mobile ---- */
+  .enc-stat-card {
+    background: #ffffff !important;
+    min-height: 0 !important;
+    padding: 18px 12px !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 12px !important;
+    text-align: left !important;
+  }
+  /* keep the colored icon a fixed small circle, never fill the card */
+  .enc-stat-icon {
+    width: 44px !important;
+    height: 44px !important;
+    flex: 0 0 44px !important;
+  }
+  .enc-stat-icon svg { width: 22px !important; height: 22px !important; }
+
+  /* make sure the value + label are always visible */
+  .enc-stat-body { display: block !important; }
+  .enc-stat-value {
+    font-size: 1.5rem !important;
+    line-height: 1.1 !important;
+    color: #0f172a !important;
+  }
+  .enc-stat-label {
+    font-size: .8rem !important;
+    color: #475569 !important;
+  }
+
+  /* neutralize sticky tap-hover that can leave a colored fill on phones */
+  .enc-stat-card:hover { background: #ffffff !important; }
+  .enc-stat-card:hover .enc-stat-icon { transform: none !important; }
+
+  /* one column of stat cards on small phones for readability */
+  .enc-stats { grid-template-columns: 1fr !important; }
+
+  /* ---- Tables: scroll inside their card instead of off the page ---- */
+  .enc-table-wrap {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    max-width: 100%;
+  }
+  /* if a table isn't wrapped, still contain it */
+  .enc-card { overflow-x: hidden; }
+  .enc-table { min-width: 640px; }  /* keeps columns readable; wrap scrolls */
+}
