@@ -34,15 +34,16 @@ class SecurityHeaders
 
         $csp = implode('; ', [
             "default-src 'self'",
-            "script-src 'self' 'unsafe-inline'",
-            "style-src 'self' 'unsafe-inline'",
+            "script-src 'self' 'unsafe-inline' https://www.google.com https://www.gstatic.com",
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
             "img-src 'self' data: blob:",
-            "font-src 'self'",
+            "font-src 'self' https://fonts.gstatic.com",
             "connect-src 'self'",
             "object-src 'none'",
             "base-uri 'self'",
             "form-action 'self'",
             "frame-ancestors 'self'",
+            "frame-src https://www.google.com",
         ]);
         $response->headers->set('Content-Security-Policy', $csp);
 

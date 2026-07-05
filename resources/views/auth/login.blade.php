@@ -378,6 +378,7 @@
       .lp-hero h1 { font-size: 1.5rem; }
     }
   </style>
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 <body>
 
@@ -534,6 +535,8 @@
             </label>
             <a href="{{ route('password.request') }}" class="lp-forgot">Forgot password?</a>
           </div>
+
+          <div class="g-recaptcha" data-sitekey="{{ config('services.recaptcha.site_key') }}" style="margin: 0 auto 16px; display: flex; justify-content: center;"></div>
 
           <button type="submit" class="lp-submit">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">

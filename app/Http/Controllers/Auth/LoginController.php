@@ -27,6 +27,23 @@ class LoginController extends Controller
             'password' => ['required', 'string', 'max:128'],
         ]);
 
+        // reCAPTCHA v2 verification (fail-open on network error)
+        $recaptchaSecret = config('services.recaptcha.secret_key');
+        if (!empty($recaptchaSecret)) {
+            $recaptchaResponse = $request->input('g-recaptcha-response');
+            if (empty($recaptchaResponse)) {
+                return back()->withInput($request->only('username'))->withErrors(['username' => 'Please complete the reCAPTCHA verification.']);
+            }
+            try {
+                $verify = \Illuminate\Support\Facades\Http::asForm()->timeout(5)->post('https://www.google.com/recaptcha/api/siteverify', ['secret' => $recaptchaSecret, 'response' => $recaptchaResponse, 'remoteip' => $request->ip()]);
+                if ($verify->successful() && $verify->json('success') === false) {
+                    return back()->withInput($request->only('username'))->withErrors(['username' => 'reCAPTCHA verification failed. Please try again.']);
+                }
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('reCAPTCHA verify failed (allowing login): ' . $e->getMessage());
+            }
+        }
+
         $username = $request->input('username');
         $password = $request->input('password');
 
