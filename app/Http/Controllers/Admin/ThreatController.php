@@ -17,7 +17,9 @@ class ThreatController extends Controller
         $status = $request->input('status');
 
         // ── Query Threats ──────────────────────────────────────────────────
-        $threatQuery = ThreatEvent::orderBy('created_at', 'desc');
+        // Active threats first (unresolved needs attention), then newest first.
+        $threatQuery = ThreatEvent::orderByRaw("CASE WHEN status = 'active' THEN 0 ELSE 1 END")
+            ->orderBy('created_at', 'desc');
 
         if ($threatType) {
             $threatQuery->where('threat_type', $threatType);
@@ -47,7 +49,8 @@ class ThreatController extends Controller
             'brute_force'           => ThreatEvent::where('threat_type', 'brute_force')->where('status', 'active')->count(),
             'injection_attempts'    => ThreatEvent::where('threat_type', 'injection')->where('status', 'active')->count(),
             'privilege_escalations' => ThreatEvent::where('threat_type', 'privilege_escalation')->where('status', 'active')->count(),
-            'accounts_locked'       => AuditLog::where('action_type', 'ACCOUNT_LOCKED')->whereDate('created_at', today())->count(),
+            'accounts_locked'       => \App\Models\User::where('status', 'locked')
+                                          ->where('locked_until', '>', now())->count(),
             'threats_resolved'      => ThreatEvent::where('status', 'resolved')->count(),
         ];
 

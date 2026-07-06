@@ -51,6 +51,19 @@ class ThreatEvent extends Model
                 'source_ip'    => Request::ip(),
                 'target_route' => $targetRoute ?? Request::path(),
             ]);
+
+            // Alert all admins in real time via the notification bell.
+            $adminIds = \App\Models\User::where('role_id', '04')
+                ->where('status', 'active')
+                ->pluck('id');
+            foreach ($adminIds as $adminId) {
+                \App\Models\Notification::create([
+                    'user_id' => $adminId,
+                    'type'    => 'security_threat',
+                    'title'   => 'Security Alert: ' . $label,
+                    'body'    => ucfirst($severity) . ' — ' . $description,
+                ]);
+            }
         } catch (\Exception $e) {
             \Log::error('ThreatEvent::record failed: ' . $e->getMessage());
         }
