@@ -46,7 +46,7 @@ class ThreatController extends Controller
         $stats = [
             'brute_force'           => ThreatEvent::where('threat_type', 'brute_force')->where('status', 'active')->count(),
             'injection_attempts'    => ThreatEvent::where('threat_type', 'injection')->where('status', 'active')->count(),
-            'privilege_escalations' => ThreatEvent::where('threat_type', 'privilege')->where('status', 'active')->count(),
+            'privilege_escalations' => ThreatEvent::where('threat_type', 'privilege_escalation')->where('status', 'active')->count(),
             'accounts_locked'       => AuditLog::where('action_type', 'ACCOUNT_LOCKED')->whereDate('created_at', today())->count(),
             'threats_resolved'      => ThreatEvent::where('status', 'resolved')->count(),
         ];

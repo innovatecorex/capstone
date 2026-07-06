@@ -187,7 +187,7 @@
           <option value="all">All Types</option>
           <option value="brute_force">Brute Force</option>
           <option value="injection">Injection</option>
-          <option value="privilege">Privilege Escalation</option>
+          <option value="privilege_escalation">Privilege Escalation</option>
         </select>
       </div>
     </div>

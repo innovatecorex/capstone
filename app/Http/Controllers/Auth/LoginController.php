@@ -93,7 +93,7 @@ class LoginController extends Controller
                 $user->full_name
             );
             ThreatEvent::record(
-                'login_attempt_on_locked_account',
+                'brute_force',   // must match the threat_events enum + dashboard filter
                 'medium',
                 'Login Attempt on Locked Account',
                 "Login attempted on locked account [{$user->username}]. {$minutesLeft} min remaining.",
