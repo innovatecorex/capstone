@@ -61,6 +61,11 @@ class ApplicantManagementController extends Controller
 
     public function updateStatus(Request $request, Applicant $applicant): RedirectResponse
     {
+        // Separation of duties: admission decisions are processed by the
+        // Registrar (via the registrar applicant workflow). The admin view is
+        // read-only, so this admin-side update path is disabled.
+        abort(403, 'Admission decisions are processed by the Registrar.');
+
         $validated = $request->validate([
             'status'  => ['required', 'in:pending,under_review,waitlisted,accepted,rejected,enrolled'],
             'remarks' => ['nullable', 'string', 'max:1000'],

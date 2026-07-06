@@ -1,4 +1,4 @@
-﻿{{-- resources/views/layouts/app.blade.php --}}
+{{-- resources/views/layouts/app.blade.php --}}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1737,6 +1737,7 @@
       Admissions
     </a>
 
+    {{-- Hidden: school does not conduct online entrance exams. Route still exists; link removed from admin nav.
     <a href="{{ route('admin.guidance-testing.index') }}"
        class="stu-nav-item {{ request()->routeIs('admin.guidance-testing.*') ? 'active' : '' }}">
       <span class="stu-icon si-amber">
@@ -1746,6 +1747,7 @@
       </span>
       Guidance &amp; Testing
     </a>
+    --}}
 
     <a href="{{ route('admin.payments.index') }}"
        class="stu-nav-item {{ request()->routeIs('admin.payments.*') ? 'active' : '' }}">

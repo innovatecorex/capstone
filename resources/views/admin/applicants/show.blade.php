@@ -175,35 +175,30 @@
     {{-- Update status form --}}
     @if($applicant->status !== 'enrolled')
     <div class="enc-card" style="padding:1.25rem;">
-      <div class="enc-card__header"><div class="enc-card__title">Update Status</div></div>
+      <div class="enc-card__header"><div class="enc-card__title">Application Status</div></div>
       <div class="enc-card__body">
-        <form method="POST" action="{{ route('admin.applicants.update-status', $applicant->id) }}"
-              style="display:grid;gap:.75rem;">
-          @csrf
-          @method('PATCH')
-
+        {{-- Read-only: admission decisions are processed by the Registrar. --}}
+        <div style="display:grid;gap:.5rem;">
           <div>
-            <label class="app-label">New Status</label>
-            <select name="status" class="app-input" required>
-              @foreach(['pending','under_review','waitlisted','accepted','rejected'] as $s)
-              <option value="{{ $s }}" {{ $applicant->status === $s ? 'selected' : '' }}>
-                {{ ucfirst(str_replace('_',' ',$s)) }}
-              </option>
-              @endforeach
-            </select>
+            <span class="app-label">Current Status</span>
+            <div style="display:inline-block;margin-top:4px;padding:.35rem .9rem;border-radius:999px;font-weight:700;font-size:.85rem;
+                        background:#eef2ff;color:#3730a3;text-transform:capitalize;">
+              {{ str_replace('_',' ', $applicant->status) }}
+            </div>
           </div>
-
+          @if($applicant->remarks)
           <div>
-            <label class="app-label">Remarks (optional)</label>
-            <textarea name="remarks" class="app-input" rows="3"
-              placeholder="Additional notes for this decision…">{{ old('remarks', $applicant->remarks) }}</textarea>
+            <span class="app-label">Remarks</span>
+            <div style="font-size:.85rem;color:#475569;margin-top:2px;">{{ $applicant->remarks }}</div>
           </div>
-
-          <button type="submit"
-            style="padding:.6rem;background:var(--primary);color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:.88rem;">
-            Save Decision
-          </button>
-        </form>
+          @endif
+          <div style="font-size:.78rem;color:#94a3b8;margin-top:4px;display:flex;gap:6px;align-items:center;">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 00-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/>
+            </svg>
+            Admission decisions are processed by the Registrar.
+          </div>
+        </div>
       </div>
     </div>
     @endif
