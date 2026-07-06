@@ -175,7 +175,7 @@ textarea.form-control { resize:vertical; min-height:90px; }
         <div class="ann-item ann-item--{{ $ann->priority }} {{ !$ann->is_active ? 'ann-item--inactive' : '' }}">
           <div class="ann-body">
             <div class="ann-title">{{ $ann->title }}</div>
-            <div class="ann-msg">{{ Str::limit($ann->message, 140) }}</div>
+            <div class="ann-msg" style="white-space:pre-wrap;word-break:break-word;">{{ $ann->message }}</div>
             <div class="ann-meta">
               <span><span class="ann-badge b-{{ $ann->priority }}">{{ $ann->priority_label }}</span></span>
               <span><span class="ann-badge b-{{ $ann->target_audience }}">{{ $ann->audience_label }}</span></span>
