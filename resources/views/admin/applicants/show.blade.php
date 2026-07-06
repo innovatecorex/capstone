@@ -203,38 +203,8 @@
     </div>
     @endif
 
-    {{-- Create student account (only when accepted) --}}
-    @if($applicant->status === 'accepted')
-    <div class="enc-card" style="padding:1.25rem;border:2px solid #dcfce7;">
-      <div class="enc-card__header">
-        <div class="enc-card__title" style="color:#166534;">Create Student Account</div>
-      </div>
-      <div class="enc-card__body">
-        <p style="font-size:.82rem;color:var(--gray-500);margin-bottom:.9rem;line-height:1.6;">
-          Generates login credentials for this applicant.
-          @if($applicant->parent_email)
-            Credentials will be emailed to <strong>{{ $applicant->parent_email }}</strong>.
-          @else
-            No parent email on file — share credentials manually after creation.
-          @endif
-        </p>
-        <form method="POST" action="{{ route('admin.applicants.create-account', $applicant->id) }}" id="create-account-form">
-          @csrf
-          <button type="button"
-            style="width:100%;padding:.65rem;background:#16a34a;color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:.88rem;display:flex;align-items:center;justify-content:center;gap:.5rem;font-family:inherit;"
-            onclick="openCreateModal(
-              '{{ addslashes($applicant->full_name) }}',
-              '{{ addslashes($applicant->parent_email ?? '') }}'
-            )">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z"/>
-            </svg>
-            Create Student Account
-          </button>
-        </form>
-      </div>
-    </div>
-    @endif
+    {{-- Create Student Account card removed: student accounts are created via
+         CSV import / User Management, not per-applicant here. --}}
 
     @if($applicant->status === 'enrolled')
     <div style="background:#e0f2fe;border-radius:10px;padding:.85rem 1rem;font-size:.85rem;color:#0369a1;font-weight:600;">

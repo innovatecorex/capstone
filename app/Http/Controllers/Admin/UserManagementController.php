@@ -225,6 +225,13 @@ class UserManagementController extends Controller
     // ── Toggle account status (active ↔ deactivated only) ─────────────────
     public function toggleStatus(Request $request, User $user)
     {
+        // Admin accounts are protected — they cannot be deactivated. This
+        // prevents an admin from locking out other administrators.
+        if ($user->role_id === '04' && $user->status === 'active') {
+            return redirect()->back()
+                ->with('error', 'Administrator accounts are protected and cannot be deactivated.');
+        }
+
         // Locked accounts must go through unlockAccount — toggling would
         // set status='active' without clearing failed_attempts/locked_until.
         if ($user->status === 'locked') {
@@ -279,6 +286,12 @@ class UserManagementController extends Controller
     // ── Permanently delete a user account ─────────────────────────────────
     public function destroy(User $user)
     {
+        // User deletion is disabled: accounts are deactivated, never hard-deleted,
+        // to preserve the audit trail and referential integrity of historical
+        // records (grades, enrollments, audit logs).
+        return redirect()->back()
+            ->with('error', 'User accounts cannot be deleted. Deactivate the account instead.');
+
         // Prevent admin from deleting their own account
         if ($user->id === auth()->id()) {
             return redirect()->back()

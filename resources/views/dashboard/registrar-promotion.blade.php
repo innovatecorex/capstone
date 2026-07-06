@@ -342,6 +342,8 @@
         <span id="selCount">{{ $promotableCount }}</span> of <strong>{{ $totalStudents }}</strong> selected for promotion
         @if(!$activeYear)
         <span style="color:#dc2626;font-weight:700;margin-left:.5rem;">— No active academic year. Cannot promote.</span>
+        @elseif(empty($promotionAllowed))
+        <span style="color:#dc2626;font-weight:700;margin-left:.5rem;">— Promotion is only allowed in the 4th (final) quarter. Current: {{ $activeQuarter?->quarter_name ?? 'none' }}.</span>
         @elseif($noGradesCount > 0 && $promotableCount === 0)
         <span style="color:#d97706;font-weight:600;margin-left:.5rem;">— Lock grades first in Grade Oversight.</span>
         @endif
@@ -357,8 +359,8 @@
                 id="promoteBtn"
                 class="enc-btn enc-btn--primary"
                 onclick="return confirm('Promote selected students? This will advance their grade level and create new enrollment records in {{ $activeYear?->year_label ?? 'the active year' }}.')"
-                {{ (!$activeYear || $promotableCount === 0) ? 'disabled' : '' }}
-                style="{{ (!$activeYear || $promotableCount === 0) ? 'opacity:.45;cursor:not-allowed;' : '' }}">
+                {{ (!$activeYear || $promotableCount === 0 || empty($promotionAllowed)) ? 'disabled' : '' }}
+                style="{{ (!$activeYear || $promotableCount === 0 || empty($promotionAllowed)) ? 'opacity:.45;cursor:not-allowed;' : '' }}">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"
                style="width:14px;height:14px;flex-shrink:0;">
             <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>

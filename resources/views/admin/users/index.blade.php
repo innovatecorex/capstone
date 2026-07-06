@@ -326,6 +326,15 @@
                     </button>
                   </form>
                   @else
+                  @if($user->role_id === '04')
+                    {{-- Admins cannot be deactivated (separation-of-duties / lockout protection) --}}
+                    <span class="enc-btn enc-btn--outline enc-btn--sm" style="opacity:.55;cursor:not-allowed;" title="Administrator accounts are protected and cannot be deactivated">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                      </svg>
+                      Protected
+                    </span>
+                  @else
                   <form method="POST" action="{{ route('admin.users.toggle-status', $user) }}"
                         onsubmit="return confirm('Change status for {{ $user->username }}?')">
                     @csrf
@@ -347,23 +356,10 @@
                     </button>
                   </form>
                   @endif
-
-                  {{-- Permanent Delete --}}
-                  @if(auth()->id() !== $user->id)
-                    <form method="POST" action="{{ route('admin.users.destroy', $user) }}"
-                          onsubmit="return confirm('PERMANENTLY DELETE {{ $user->username }}?\n\nThis cannot be undone and will be logged in the audit trail.')">
-                      @csrf
-                      @method('DELETE')
-                      <button type="submit" class="enc-btn enc-btn--ghost enc-btn--sm"
-                              title="Delete permanently"
-                              style="color:var(--danger);">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/>
-                        </svg>
-                        Delete
-                      </button>
-                    </form>
                   @endif
+
+                  {{-- Permanent Delete removed: accounts are deactivated, never
+                       hard-deleted, to preserve audit trail and referential integrity. --}}
                 </div>
               </td>
             </tr>

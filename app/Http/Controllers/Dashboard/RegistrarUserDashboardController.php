@@ -825,13 +825,21 @@ class RegistrarUserDashboardController extends Controller
             ])->withInput();
         }
 
-        Enrollment::create([
-            'student_id'       => $student->id,
-            'section_id'       => $request->section_id,
-            'academic_year_id' => $request->academic_year_id,
-            'status'           => 'enrolled',
-            'enrolled_at'      => now(),
-        ]);
+        // A student may already have an enrollment row for this year (e.g. a
+        // reserved 'pending_payment' one). The table is unique on
+        // (student_id, academic_year_id), so update the existing row if present
+        // rather than inserting a duplicate (which would violate the constraint).
+        Enrollment::updateOrCreate(
+            [
+                'student_id'       => $student->id,
+                'academic_year_id' => $request->academic_year_id,
+            ],
+            [
+                'section_id'  => $request->section_id,
+                'status'      => 'enrolled',
+                'enrolled_at' => now(),
+            ]
+        );
 
         AuditLog::record(AuditLog::ENROLLMENT_CREATED, [
             'student_id'  => $student->id,
@@ -839,5 +847,63 @@ class RegistrarUserDashboardController extends Controller
         ]);
 
         return back()->with('success', 'Student enrolled successfully.');
+    }
+
+    /**
+     * Manually mark a student as PAID for the active academic year.
+     *
+     * The finance office handles actual payment collection and proof; when they
+     * signal that a student has settled their balance, the registrar flips the
+     * student to paid here, which clears the enrollment payment gate. This
+     * creates a Payment record (status 'paid') if none exists, or updates an
+     * existing one.
+     */
+    public function markPaid(Request $request)
+    {
+        $validated = $request->validate([
+            'student_id' => ['required', 'integer', 'exists:users,id'],
+        ]);
+
+        $activeYear = AcademicYear::where('status', 'active')->first();
+        if (!$activeYear) {
+            return back()->with('error', 'No active academic year is set.');
+        }
+
+        // Already paid? Nothing to do.
+        if (Payment::studentHasPaid($validated['student_id'], $activeYear->id)) {
+            return back()->with('success', 'This student is already marked as paid.');
+        }
+
+        // Create or update the payment record to 'paid'.
+        $student = \App\Models\User::find($validated['student_id']);
+        $payment = Payment::updateOrCreate(
+            [
+                'student_id'       => $validated['student_id'],
+                'academic_year_id' => $activeYear->id,
+            ],
+            [
+                'grade_level'    => $student->grade_level ?? 'N/A',
+                'amount'         => 0,
+                'currency'       => 'PHP',
+                'account_id'     => 'manual',
+                'account_label'  => 'Office Payment',
+                'account_number' => 'N/A',
+                'proof_path'     => 'manual',
+                'reference_number' => 'MANUAL-' . now()->format('YmdHis'),
+                'status'         => 'paid',
+                'paid_at'        => now(),
+                'confirmed_by'   => auth()->id(),
+                'notes'          => 'Marked paid manually by registrar (finance-confirmed).',
+            ]
+        );
+
+        AuditLog::record('PAYMENT_CONFIRMED', [
+            'payment_id'   => $payment->id,
+            'student_id'   => $validated['student_id'],
+            'confirmed_by' => auth()->id(),
+            'method'       => 'manual_registrar',
+        ]);
+
+        return back()->with('success', 'Student marked as paid. They can now be enrolled into a section.');
     }
 }

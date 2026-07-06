@@ -381,6 +381,47 @@
 
   </div>
 
+  {{-- ── Payment Status (finance-confirmed) ────────────────────────────── --}}
+  <div class="enr-card" style="margin-bottom:24px;">
+    <div class="enr-card__head" style="margin-bottom:12px;">
+      <div>
+        <div class="enr-card__title">Payment Status</div>
+        <div class="enr-card__desc">When finance confirms a student has paid, mark them here. This only makes the student eligible for enrollment — you still assign their section above.</div>
+      </div>
+    </div>
+    @php
+      $unpaidStudents = collect($allStudents)->filter(fn($s) => !($studentPaymentStatus[$s->id] ?? false));
+    @endphp
+    @if($unpaidStudents->isEmpty())
+      <div style="padding:16px;text-align:center;color:#94a3b8;font-size:.84rem;">All students are marked as paid for {{ $selectedYear?->year_label ?? 'this year' }}.</div>
+    @else
+      <div style="overflow-x:auto;">
+        <table class="enr-table">
+          <thead>
+            <tr><th>Student</th><th>LRN</th><th>Status</th><th style="text-align:right;">Action</th></tr>
+          </thead>
+          <tbody>
+            @foreach($unpaidStudents as $s)
+            <tr>
+              <td style="font-weight:600;color:#0f172a;">{{ $s->full_name }}</td>
+              <td style="color:#64748b;">{{ $s->lrn ?? '—' }}</td>
+              <td><span class="enr-pay-badge enr-pay-badge--unpaid">Unpaid</span></td>
+              <td style="text-align:right;">
+                <form method="POST" action="{{ route('registrar.mark-paid') }}" style="margin:0;display:inline;">
+                  @csrf
+                  <input type="hidden" name="student_id" value="{{ $s->id }}">
+                  <button type="submit" style="background:#166534;color:#fff;border:none;border-radius:6px;padding:5px 12px;font-size:.76rem;font-weight:700;cursor:pointer;"
+                    title="Finance confirmed payment — mark this student as eligible for enrollment">Mark as Paid</button>
+                </form>
+              </td>
+            </tr>
+            @endforeach
+          </tbody>
+        </table>
+      </div>
+    @endif
+  </div>
+
   {{-- ── Current Enrollments Table ─────────────────────────────────────── --}}
   <div class="enr-card">
     <div class="enr-card__head" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">

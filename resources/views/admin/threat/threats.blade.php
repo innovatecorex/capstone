@@ -88,7 +88,7 @@
 
 {{-- Threat Stats --}}
 <div class="enc-stats">
-  <a href="{{ route('admin.threat.index') }}" class="enc-stat-card" style="text-decoration:none;color:inherit;">
+  <div class="enc-stat-card" style="cursor:default;">
     <div class="enc-stat-icon enc-stat-icon--red">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
         <path stroke-linecap="round" stroke-linejoin="round"
@@ -100,9 +100,9 @@
       <div class="enc-stat-label">Brute Force</div>
       <div class="enc-stat-delta enc-stat-delta--up">Today</div>
     </div>
-  </a>
+  </div>
 
-  <a href="{{ route('admin.threat.index') }}" class="enc-stat-card" style="text-decoration:none;color:inherit;">
+  <div class="enc-stat-card" style="cursor:default;">
     <div class="enc-stat-icon enc-stat-icon--amber">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
         <path stroke-linecap="round" stroke-linejoin="round"
@@ -113,9 +113,9 @@
       <div class="enc-stat-value">{{ $stats['injection_attempts'] ?? 0 }}</div>
       <div class="enc-stat-label">Injection Blocked</div>
     </div>
-  </a>
+  </div>
 
-  <a href="{{ route('admin.threat.index') }}" class="enc-stat-card" style="text-decoration:none;color:inherit;">
+  <div class="enc-stat-card" style="cursor:default;">
     <div class="enc-stat-icon enc-stat-icon--red">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
         <path stroke-linecap="round" stroke-linejoin="round"
@@ -126,7 +126,7 @@
       <div class="enc-stat-value">{{ $stats['privilege_escalations'] ?? 0 }}</div>
       <div class="enc-stat-label">Priv. Escalations</div>
     </div>
-  </a>
+  </div>
 
   <a href="{{ route('admin.locked-accounts.index') }}" class="enc-stat-card" style="text-decoration:none;color:inherit;">
     <div class="enc-stat-icon enc-stat-icon--teal">
@@ -141,7 +141,7 @@
     </div>
   </a>
 
-  <a href="{{ route('admin.threat.index') }}" class="enc-stat-card" style="text-decoration:none;color:inherit;">
+  <div class="enc-stat-card" style="cursor:default;">
     <div class="enc-stat-icon enc-stat-icon--green">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
         <path stroke-linecap="round" stroke-linejoin="round"
@@ -153,7 +153,7 @@
       <div class="enc-stat-label">Resolved</div>
       <div class="enc-stat-delta enc-stat-delta--down">↓ Cleared</div>
     </div>
-  </a>
+  </div>
 </div>
 
 {{-- Two-column layout: Timeline + Defense Status --}}

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\Admin\StudentController;
 use App\Models\Announcement;
 use App\Models\FacultySchedule;
+use App\Models\Schedule;
 use App\Models\Section;
 use App\Models\ThreatEvent;
 use App\Models\User;
@@ -29,11 +30,11 @@ class AdminDashboardController extends Controller
                 ->get(),
             'totalAnnouncements'  => Announcement::count(),
             'activeAnnouncements' => Announcement::active()->count(),
-            'recentSchedules'     => FacultySchedule::with('faculty')
+            'recentSchedules'     => Schedule::with('faculty')
                 ->orderByDesc('created_at')
                 ->take(4)
                 ->get(),
-            'totalSchedules'      => FacultySchedule::count(),
+            'totalSchedules'      => Schedule::count(),
             'gradeBreakdown'      => $this->buildGradeBreakdown(),
             'unassignedStudents'  => User::where('role_id', '01')->where('status', 'active')
                                         ->whereNull('grade_level')->count(),

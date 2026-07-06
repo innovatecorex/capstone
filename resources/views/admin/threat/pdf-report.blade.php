@@ -203,7 +203,12 @@
         @endif
         <div class="metadata-row">
             <span class="metadata-label">Total Records:</span>
-            <span class="metadata-value">{{ $logs->count() }} events</span>
+            <span class="metadata-value">
+                {{ $logs->count() }} events
+                @if(!empty($capped))
+                    (most recent {{ $exportCap }} of {{ $totalMatching }} — for the complete trail, use CSV export)
+                @endif
+            </span>
         </div>
     </div>
 

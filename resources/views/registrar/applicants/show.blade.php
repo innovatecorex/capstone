@@ -392,7 +392,7 @@ textarea.adm-input { resize:vertical; }
             <select name="status" class="adm-input" required>
               {{-- 'enrolled' is intentionally excluded — it is set automatically
                    by Create Student Account and must not be set manually here. --}}
-              @foreach(['pending','under_review','waitlisted','accepted','rejected','eligible_for_enrollment'] as $s)
+              @foreach(['pending','under_review','waitlisted','accepted','rejected'] as $s)
               <option value="{{ $s }}" {{ $applicant->status === $s ? 'selected' : '' }}>
                 {{ ucfirst(str_replace('_',' ',$s)) }}
               </option>
@@ -410,37 +410,8 @@ textarea.adm-input { resize:vertical; }
     </div>
     @endif
 
-    {{-- Create student account --}}
-    @if($applicant->status === 'accepted')
-    <div class="enc-card" style="padding:1.25rem;border:2px solid #bbf7d0;">
-      <div class="enc-card__header">
-        <div class="enc-card__title" style="color:#166534;">Create Student Account</div>
-      </div>
-      <div class="enc-card__body">
-        <p style="font-size:.82rem;color:var(--gray-500);margin-bottom:.9rem;line-height:1.6;">
-          Generates a username, LRN, and temporary password for this applicant.
-          @if($applicant->parent_email)
-            Credentials will be emailed to <strong>{{ $applicant->parent_email }}</strong>.
-          @else
-            No parent email on file — share credentials manually.
-          @endif
-        </p>
-        <form method="POST" action="{{ route('registrar.applicants.create-account', $applicant->id) }}" id="create-account-form">
-          @csrf
-          <button type="button"
-            class="enc-btn enc-btn--primary"
-            style="width:100%;background:#16a34a;border-color:#16a34a;display:flex;align-items:center;justify-content:center;gap:.45rem;"
-            onclick="openCreateModal(
-              '{{ addslashes($applicant->full_name) }}',
-              '{{ addslashes($applicant->parent_email ?? '') }}'
-            )">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z"/></svg>
-            Create Student Account
-          </button>
-        </form>
-      </div>
-    </div>
-    @endif
+    {{-- Create Student Account card removed: student accounts are created via
+         CSV import / User Management, not per-applicant here. --}}
 
     @if($applicant->status === 'enrolled')
     <div style="background:#dcfce7;border:1px solid #86efac;border-radius:10px;padding:.85rem 1rem;font-size:.85rem;color:#166534;font-weight:600;display:flex;align-items:center;gap:.5rem;">

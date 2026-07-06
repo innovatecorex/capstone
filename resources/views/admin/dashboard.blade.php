@@ -544,10 +544,10 @@
             {{ strtoupper(substr($sch->faculty->first_name ?? 'F', 0, 1)) }}{{ strtoupper(substr($sch->faculty->last_name ?? '', 0, 1)) }}
           </div>
           <div class="adm-sch-info">
-            <div class="adm-sch-subject">{{ $sch->subject_name }} @if($sch->section) · <span style="font-weight:500;color:#475569;">{{ $sch->section }}</span>@endif</div>
-            <div class="adm-sch-detail">{{ $sch->faculty->last_name ?? '—' }}, {{ $sch->faculty->first_name ?? '' }} @if($sch->room) · {{ $sch->room }}@endif</div>
+            <div class="adm-sch-subject">{{ $sch->subject->subject_name ?? $sch->subject->name ?? 'Subject' }} @if($sch->section) · <span style="font-weight:500;color:#475569;">{{ $sch->section->section_name ?? '' }}</span>@endif</div>
+            <div class="adm-sch-detail">{{ $sch->faculty->last_name ?? '—' }}, {{ $sch->faculty->first_name ?? '' }}</div>
           </div>
-          <div class="adm-sch-time">{{ $sch->days_label }}</div>
+          <div class="adm-sch-time">{{ is_array($sch->schedule_days) ? implode(', ', $sch->schedule_days) : $sch->schedule_days }}</div>
         </div>
         @endforeach
         @if($totalSchedules > 4)

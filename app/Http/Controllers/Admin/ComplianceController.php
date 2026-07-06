@@ -55,16 +55,27 @@ class ComplianceController extends Controller
             $query->where('action_type', 'like', "%{$action}%");
         }
 
-        $logs = $query->get();
+        // ── Cap rows to keep the PDF within memory limits ──────────────────
+        // DomPDF holds the whole document in memory; thousands of rows exhaust
+        // PHP's memory. A PDF is a summary format — for a complete dump, CSV is
+        // the right tool. We cap at the most recent 500 matching entries.
+        $exportCap = 500;
+        $totalMatching = (clone $query)->count();
+        $logs = $query->limit($exportCap)->get();
+        $capped = $totalMatching > $exportCap;
 
         // ── Log the export action ──────────────────────────────────────────
         AuditLog::create([
             'user_id'      => auth()->id(),
             'actor_name'   => auth()->user()->first_name . ' ' . auth()->user()->last_name,
             'action_type'  => 'EXPORT_REPORT',
-            'data_payload' => "Report type: {$type} | Range: {$dateFrom} to {$dateTo} | Records: " . count($logs),
+            'data_payload' => "Report type: {$type} | Range: {$dateFrom} to {$dateTo} | Records: " . count($logs) . ($capped ? " (capped from {$totalMatching})" : ''),
             'source_ip'    => $request->ip(),
         ]);
+
+        // Raise memory + time just for this PDF render, as a safety margin.
+        @ini_set('memory_limit', '512M');
+        @set_time_limit(120);
 
         // ── Generate PDF ───────────────────────────────────────────────────
         $pdf = Pdf::loadView('admin.threat.pdf-report', [
@@ -72,6 +83,9 @@ class ComplianceController extends Controller
             'type'        => $type,
             'dateFrom'    => $dateFrom,
             'dateTo'      => $dateTo,
+            'capped'      => $capped,
+            'totalMatching' => $totalMatching,
+            'exportCap'   => $exportCap,
             'generatedBy' => auth()->user()->first_name . ' ' . auth()->user()->last_name,
             'generatedAt' => now()->format('m/d/Y H:i:s'),
             'institution' => 'Phil. Academy of Sakya',

@@ -132,12 +132,16 @@ class StudentImportController extends Controller
                                     );
                                 }
 
-                                Enrollment::create([
-                                    'student_id'       => $user->id,
-                                    'section_id'       => $section->id,
-                                    'academic_year_id' => $activeYear->id,
-                                    'status'           => 'enrolled',
-                                ]);
+                                Enrollment::updateOrCreate(
+                                    [
+                                        'student_id'       => $user->id,
+                                        'academic_year_id' => $activeYear->id,
+                                    ],
+                                    [
+                                        'section_id' => $section->id,
+                                        'status'     => 'enrolled',
+                                    ]
+                                );
                                 $user->update(['section_id' => $section->id]);
                             }
                         }
@@ -158,7 +162,11 @@ class StudentImportController extends Controller
                 'skipped'  => $skipped,
             ]);
 
-            return view('admin.students.import', compact('imported', 'skipped', 'errors'));
+            return view('admin.students.import', [
+                'imported'  => $imported,
+                'skipped'   => $skipped,
+                'rowErrors' => $errors,
+            ]);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
             throw $e; // Let Laravel handle validation redirects normally

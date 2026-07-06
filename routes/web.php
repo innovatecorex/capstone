@@ -194,15 +194,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     });
 
     // ── Sections Management ──────────────────────────────────────────────
-    Route::prefix('sections')->name('sections.')->group(function () {
-        Route::get('/',                  [\App\Http\Controllers\Admin\SectionController::class, 'index'])  ->name('index');
-        Route::post('/',                 [\App\Http\Controllers\Admin\SectionController::class, 'store'])  ->name('store');
-        Route::put('/{section}',         [\App\Http\Controllers\Admin\SectionController::class, 'update']) ->name('update');
-        Route::delete('/{section}',      [\App\Http\Controllers\Admin\SectionController::class, 'destroy'])->name('destroy');
-        Route::get('/{section}/roster',  [\App\Http\Controllers\Admin\SectionController::class, 'roster']) ->name('roster');
-        Route::post('/{section}/enroll', [\App\Http\Controllers\Admin\SectionController::class, 'enrollStudents'])->name('enroll');
-        Route::delete('/{section}/remove-student', [\App\Http\Controllers\Admin\SectionController::class, 'removeStudent'])->name('remove-student');
-    });
+    // Moved out of the admin-only group: section assignment is a registrar
+    // responsibility. See the dedicated registrar-accessible group below.
+
 
     // ── Grading Quarters Management ───────────────────────────────────────
     Route::prefix('grading-quarters')->name('grading-quarters.')->group(function () {
@@ -285,6 +279,21 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     });
 });
 
+// ── Sections Management (Registrar) ───────────────────────────────────────
+// Section assignment is a registrar responsibility. These keep the existing
+// URL (/admin/sections) and route names (admin.sections.*) so all existing
+// links/forms continue to work, but access is restricted to registrars.
+Route::prefix('admin/sections')->name('admin.sections.')
+    ->middleware(['auth', 'role:registrar'])->group(function () {
+        Route::get('/',                  [\App\Http\Controllers\Admin\SectionController::class, 'index'])  ->name('index');
+        Route::post('/',                 [\App\Http\Controllers\Admin\SectionController::class, 'store'])  ->name('store');
+        Route::put('/{section}',         [\App\Http\Controllers\Admin\SectionController::class, 'update']) ->name('update');
+        Route::delete('/{section}',      [\App\Http\Controllers\Admin\SectionController::class, 'destroy'])->name('destroy');
+        Route::get('/{section}/roster',  [\App\Http\Controllers\Admin\SectionController::class, 'roster']) ->name('roster');
+        Route::post('/{section}/enroll', [\App\Http\Controllers\Admin\SectionController::class, 'enrollStudents'])->name('enroll');
+        Route::delete('/{section}/remove-student', [\App\Http\Controllers\Admin\SectionController::class, 'removeStudent'])->name('remove-student');
+    });
+
 // ── Notifications ─────────────────────────────────────────────────────────
 Route::middleware('auth')->group(function () {
     Route::get('/notifications',              [\App\Http\Controllers\NotificationController::class, 'index'])           ->name('notifications.index');
@@ -313,6 +322,7 @@ Route::middleware(['auth'])->group(function () {
 
         // Enrollment (with prerequisite enforcement)
         Route::post('/registrar/enroll',          [App\Http\Controllers\Dashboard\RegistrarUserDashboardController::class, 'enroll'])->name('registrar.enroll');
+        Route::post('/registrar/mark-paid',        [App\Http\Controllers\Dashboard\RegistrarUserDashboardController::class, 'markPaid'])->name('registrar.mark-paid');
         Route::post('/registrar/drop-enrollment', [App\Http\Controllers\Dashboard\RegistrarUserDashboardController::class, 'dropEnrollment'])->name('registrar.drop-enrollment');
         // AJAX helpers for cascading dropdowns
         Route::get('/registrar/ajax/sections',     [App\Http\Controllers\Dashboard\RegistrarUserDashboardController::class, 'ajaxSections'])  ->name('registrar.ajax.sections');

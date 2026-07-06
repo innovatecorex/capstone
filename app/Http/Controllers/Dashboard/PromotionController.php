@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AcademicYear;
 use App\Models\AuditLog;
 use App\Models\Enrollment;
+use App\Models\GradingQuarter;
 use App\Models\Section;
 use App\Models\SectionSubject;
 use App\Models\User;
@@ -28,6 +29,10 @@ class PromotionController extends Controller
     {
         $academicYears = AcademicYear::orderByDesc('id')->get();
         $sections      = collect();
+
+        // Promotion is only permitted in the final (4th) grading quarter.
+        $activeQuarter    = GradingQuarter::where('status', 'active')->first();
+        $promotionAllowed = $activeQuarter && (int) $activeQuarter->quarter_number >= 4;
         $students      = collect();
         $selectedYear  = null;
         $selectedSection = null;
@@ -72,7 +77,9 @@ class PromotionController extends Controller
             'selectedSection',
             'activeYear',
             'totalSubjects',
-            'gradeSummary'
+            'gradeSummary',
+            'activeQuarter',
+            'promotionAllowed'
         ));
     }
 
@@ -91,6 +98,17 @@ class PromotionController extends Controller
         if (!$activeYear) {
             return back()->withErrors([
                 'promotion' => 'No active academic year found. Please activate the next academic year before promoting students.',
+            ]);
+        }
+
+        // ── Quarter gate: promotion is only allowed once the school year has
+        // reached its FINAL (4th) grading quarter. Promoting mid-year (e.g. in
+        // Q1) would advance students before the year's grades are complete.
+        $activeQuarter = GradingQuarter::where('status', 'active')->first();
+        if (!$activeQuarter || (int) $activeQuarter->quarter_number < 4) {
+            $current = $activeQuarter ? $activeQuarter->quarter_name : 'none';
+            return back()->withErrors([
+                'promotion' => "Promotion is only allowed during the 4th (final) grading quarter. The current active quarter is: {$current}. Students cannot be promoted until the school year's final quarter.",
             ]);
         }
 

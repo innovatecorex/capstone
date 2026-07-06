@@ -16,11 +16,11 @@
     <div style="font-size:.95rem;font-weight:700;color:#166534;margin-bottom:6px;">
       Import complete — {{ $imported }} student(s) created@if($skipped > 0), {{ $skipped }} skipped@endif.
     </div>
-    @if(!empty($errors))
+    @if(!empty($rowErrors))
     <div style="margin-top:12px;">
       <div style="font-size:.8rem;font-weight:700;color:#374151;margin-bottom:8px;">Skipped rows:</div>
       <ul style="margin:0;padding-left:18px;font-size:.8rem;color:#64748b;line-height:1.8;">
-        @foreach($errors as $err)
+        @foreach($rowErrors as $err)
         <li>{{ $err }}</li>
         @endforeach
       </ul>
