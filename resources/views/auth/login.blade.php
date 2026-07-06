@@ -497,7 +497,14 @@
               value="{{ old('username') }}"
               class="lp-input {{ $errors->has('username') ? 'is-error' : '' }}"
               placeholder="Enter your identifier"
+              maxlength="100"
+              pattern="[A-Za-z0-9._@-]+"
+              title="Use only letters, numbers, and . _ - @ (no spaces or symbols)"
               autocomplete="username" autofocus>
+            <div class="lp-field-err" id="username-hint" style="display:none;color:#94a3b8;">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+              Letters, numbers, and . _ - @ only.
+            </div>
             @error('username')
             <div class="lp-field-err">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
@@ -512,6 +519,7 @@
               <input type="password" id="password" name="password"
                 class="lp-input {{ $errors->has('password') ? 'is-error' : '' }}"
                 placeholder="Enter your password"
+                maxlength="200"
                 autocomplete="current-password">
               <button type="button" class="lp-pw-toggle" onclick="togglePw()" aria-label="Toggle password visibility">
                 <svg id="pw-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;">
@@ -594,6 +602,17 @@
     if (f.type === 'password') { f.type = 'text'; i.innerHTML = eyeOff; i.style.color = '#2563eb'; }
     else { f.type = 'password'; i.innerHTML = eyeOpen; i.style.color = '#94a3b8'; }
   }
+
+  // Lightweight UX hint only — the real validation is server-side.
+  (function () {
+    var u = document.getElementById('username');
+    var hint = document.getElementById('username-hint');
+    if (!u || !hint) return;
+    var allowed = /^[A-Za-z0-9._@-]*$/;
+    u.addEventListener('input', function () {
+      hint.style.display = allowed.test(u.value) ? 'none' : 'flex';
+    });
+  }());
 </script>
 
 {{-- ── Security & Privacy Modal ── --}}

@@ -24,7 +24,9 @@ class LoginController extends Controller
     {
         $request->validate([
             'username' => ['required', 'string', 'max:100'],
-            'password' => ['required', 'string', 'max:128'],
+            // Cap the password length to stop oversized-input abuse, but never
+            // restrict its characters — passwords must allow symbols.
+            'password' => ['required', 'string', 'max:200'],
         ]);
 
         // reCAPTCHA v2 verification (fail-open on network error)
@@ -46,6 +48,19 @@ class LoginController extends Controller
 
         $username = $request->input('username');
         $password = $request->input('password');
+
+        // ── Entry-point character whitelist ────────────────────────────────
+        // The identifier is a username ("stu.dan025"), a 9-12 digit LRN, or an
+        // employee number — all built from letters, digits and . _ - @ only.
+        // Anything else (quotes, <>, ;, =, spaces, backslashes, null bytes …)
+        // is an injection/XSS probe: reject with a GENERIC message (never
+        // reveal it was a format failure) and log it as a threat. The DB is
+        // never touched for a rejected identifier.
+        if (!preg_match('/^[A-Za-z0-9._@-]+$/', $username)) {
+            $this->recordMaliciousLogin($request, $username);
+
+            return back()->withErrors(['username' => 'Invalid credentials. Please try again.']);
+        }
 
         // username is AES-256 encrypted; look up by its deterministic hash.
         $user = User::where('username_hash', User::hashFor('username', $username))->first();
@@ -152,6 +167,35 @@ class LoginController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         return redirect()->route('login');
+    }
+
+    /**
+     * Record a login identifier that failed the character whitelist as an
+     * injection threat — same channel InjectionDefenseMiddleware uses, so it
+     * surfaces on the Threat Events dashboard with the source IP.
+     *
+     * The attacker's raw string is never stored verbatim: it is reduced to
+     * printable ASCII, length-capped and HTML-escaped so a crafted payload
+     * cannot poison the log or the dashboard that renders it.
+     */
+    private function recordMaliciousLogin(Request $request, string $identifier): void
+    {
+        $preview = preg_replace('/[^\x20-\x7E]/', '?', $identifier); // printable ASCII only
+        $preview = e(mb_substr((string) $preview, 0, 60));           // cap + HTML-escape
+
+        AuditLog::record(AuditLog::INJECTION_BLOCKED, [
+            'context' => 'login_identifier',
+            'route'   => $request->path(),
+            'method'  => $request->method(),
+        ]);
+
+        ThreatEvent::record(
+            'injection',   // must match the threat_events enum + dashboard filter
+            'high',
+            'Malicious Login Input Blocked',
+            "A login identifier was rejected by the character whitelist. Sanitized preview: \"{$preview}\".",
+            null
+        );
     }
 
     private function redirectByRole(User $user)

@@ -114,7 +114,7 @@ class InjectionDefenseMiddleware
                 'method' => $request->method(),
             ]);
             ThreatEvent::record(
-                'injection_attempt',
+                'injection',   // must match the threat_events enum + dashboard filter
                 $mode === 'block' ? 'high' : 'low',
                 'Injection Pattern Detected',
                 "Suspicious pattern in request to {$request->path()} (mode: {$mode})",
