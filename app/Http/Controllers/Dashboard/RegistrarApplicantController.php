@@ -83,6 +83,7 @@ class RegistrarApplicantController extends Controller
         $new = $validated['status'];
 
         // Gate: block Accept unless every required document is confirmed.
+        $confirmedKeys = collect();
         if ($new === 'accepted') {
             $requirements = config('admission.requirements', []);
             $requiredKeys = collect($requirements)->filter(fn ($r) => $r['required'])->keys();
@@ -116,7 +117,6 @@ class RegistrarApplicantController extends Controller
 
         if ($new === 'accepted') {
             $auditContext['requirements_confirmed'] = $confirmedKeys->all();
-            $auditContext['requirements_missing']   = [];
         }
 
         AuditLog::record(AuditLog::APPLICANT_STATUS_UPDATED, $auditContext);

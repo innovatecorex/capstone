@@ -275,6 +275,7 @@
           <td class="adm-td" style="font-family:monospace;font-size:.79rem;color:#64748b;">{{ $a->reference_number }}</td>
           <td class="adm-td">
             <div style="font-weight:700;color:#0f172a;">{{ $a->full_name }}</div>
+            <div style="font-size:.72rem;color:#64748b;font-family:monospace;margin-top:1px;">Ref: {{ $a->reference_number }}</div>
             <div style="font-size:.74rem;color:#94a3b8;">
               {{ $a->parent_contact }}
               @if($a->lrn) · LRN {{ $a->lrn }} @endif

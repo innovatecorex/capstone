@@ -1141,7 +1141,7 @@ body {
             <label class="field-label">Grade Level Completed <span class="req">*</span></label>
             <select name="previous_grade_level" required class="{{ $errors->has('previous_grade_level') ? 'is-err' : '' }}">
               <option value="">— Select —</option>
-              @foreach($gradeLevels as $lvl)
+              @foreach($previousGradeLevels as $lvl)
               <option value="{{ $lvl }}" {{ old('previous_grade_level') === $lvl ? 'selected' : '' }}>{{ $lvl }}</option>
               @endforeach
             </select>
@@ -1211,11 +1211,9 @@ body {
             <label class="field-label">School Year <span class="req">*</span></label>
             <select name="applying_for_year" required class="{{ $errors->has('applying_for_year') ? 'is-err' : '' }}">
               <option value="">— Select school year —</option>
-              @php $curYear = (int) date('Y'); @endphp
-              @for($y = $curYear + 1; $y >= $curYear - 1; $y--)
-                @php $sy = $y . '–' . ($y + 1); @endphp
-                <option value="{{ $sy }}" {{ old('applying_for_year') === $sy ? 'selected' : '' }}>{{ $sy }}</option>
-              @endfor
+              @if(!empty($activeYearLabel))
+                <option value="{{ $activeYearLabel }}" {{ old('applying_for_year', $activeYearLabel) === $activeYearLabel ? 'selected' : '' }}>{{ $activeYearLabel }}</option>
+              @endif
             </select>
             @error('applying_for_year')
             <div class="field-err">
@@ -1373,7 +1371,7 @@ body {
               </div>
               <div class="doc-card-meta">
                 <div class="doc-card-title">Form 137 (Permanent Record)</div>
-                <span class="doc-badge-req">Required</span>
+                <span class="doc-badge-req" style="background:#f1f5f9;color:#64748b;">Optional</span>
               </div>
             </div>
             <div class="upload-zone{{ $errors->has('docs.form_137') ? ' uz-err' : '' }}"
@@ -1409,7 +1407,7 @@ body {
                 </svg>
               </div>
               <div class="doc-card-meta">
-                <div class="doc-card-title">Report Card / Form 138</div>
+                <div class="doc-card-title">Form 138 (Report Card)</div>
                 <span class="doc-badge-req">Required</span>
               </div>
             </div>
@@ -1447,7 +1445,7 @@ body {
               </div>
               <div class="doc-card-meta">
                 <div class="doc-card-title">Certificate of Good Moral Character</div>
-                <span class="doc-badge-req">Required</span>
+                <span class="doc-badge-req" style="background:#f1f5f9;color:#64748b;">Optional</span>
               </div>
             </div>
             <div class="upload-zone{{ $errors->has('docs.good_moral') ? ' uz-err' : '' }}"
@@ -1522,8 +1520,8 @@ body {
           <p>Submission of false or misleading information is grounds for disqualification from admission or enrollment, in accordance with DepEd regulations.</p>
         </div>
         <label class="ap-privacy-check{{ $errors->has('data_privacy_consent') ? ' ap-privacy-check--err' : '' }}">
-          <input type="checkbox" id="data-privacy-consent" name="data_privacy_consent" value="accepted"{{ old('data_privacy_consent') === 'accepted' ? ' checked' : '' }}>
-          <span>I have read and agree to the school's data privacy policy. I consent to the collection and processing of the information above in accordance with <strong>RA 10173 (Data Privacy Act of 2012)</strong>.</span>
+          <input type="checkbox" id="data-privacy-consent" name="data_privacy_consent" value="yes"{{ old('data_privacy_consent') ? ' checked' : '' }}>
+          <span>I have read and agree to the school's <a href="#" onclick="document.getElementById('privacyPolicyModal').style.display='flex';return false;" style="color:#1d4ed8;font-weight:700;text-decoration:underline;">data privacy policy</a>. I consent to the collection and processing of the information above in accordance with <strong>RA 10173 (Data Privacy Act of 2012)</strong>.</span>
         </label>
         @error('data_privacy_consent')
         <div class="field-err" style="margin-top:6px;">
@@ -1771,24 +1769,65 @@ body {
 
   updateProgress();
 
-  /* ── Consent checkbox gating ────────────────────────────────────────── */
+  /* ── Consent checkbox gating (robust) ───────────────────────────────── */
   (function () {
-    var cb  = document.getElementById('data-privacy-consent');
-    var err = document.getElementById('privacy-client-err');
+    var form = document.querySelector('form');
+    var err  = document.getElementById('privacy-client-err');
 
-    document.querySelector('form').addEventListener('submit', function (e) {
-      if (!cb.checked) {
+    form.addEventListener('submit', function (e) {
+      // Re-query the checkbox live at submit time (avoids stale references).
+      var cb = document.getElementById('data-privacy-consent');
+      if (cb && !cb.checked) {
         e.preventDefault();
-        err.style.display = 'flex';
+        if (err) err.style.display = 'flex';
         cb.closest('label').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return false;
       }
+      // checked (or not found) → allow normal submission; server validates too.
     });
 
-    cb.addEventListener('change', function () {
-      if (this.checked) err.style.display = 'none';
-    });
+    var cbInit = document.getElementById('data-privacy-consent');
+    if (cbInit) {
+      cbInit.addEventListener('change', function () {
+        if (this.checked && err) err.style.display = 'none';
+      });
+    }
   }());
 </script>
+
+<div id="privacyPolicyModal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:2000;overflow-y:auto;padding:20px;">
+  <div style="background:#fff;border-radius:14px;max-width:620px;width:100%;margin:40px auto;max-height:calc(100vh - 80px);overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3);">
+    <div style="padding:20px 24px;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:#fff;">
+      <h3 style="margin:0;font-size:1.1rem;font-weight:800;color:#0f172a;">Data Privacy Policy</h3>
+      <button type="button" onclick="document.getElementById('privacyPolicyModal').style.display='none'"
+              style="background:none;border:none;font-size:1.5rem;line-height:1;color:#94a3b8;cursor:pointer;">&times;</button>
+    </div>
+    <div style="padding:24px;font-size:.9rem;line-height:1.65;color:#334155;">
+      <p style="margin:0 0 14px;"><strong>Philippine Academy of Sakya</strong> is committed to protecting your personal data in accordance with <strong>Republic Act No. 10173 (Data Privacy Act of 2012)</strong> and its Implementing Rules and Regulations.</p>
+
+      <p style="margin:0 0 6px;font-weight:700;color:#0f172a;">1. Information We Collect</p>
+      <p style="margin:0 0 14px;">We collect the applicant's personal information (name, date of birth, sex, address), academic records (previous school, grade level, report cards), parent/guardian contact details, and supporting documents you upload as part of the admission process.</p>
+
+      <p style="margin:0 0 6px;font-weight:700;color:#0f172a;">2. How We Use It</p>
+      <p style="margin:0 0 14px;">Your information is used solely to evaluate and process this application for admission, to communicate with you regarding your application status, and to maintain official academic and enrollment records if admitted.</p>
+
+      <p style="margin:0 0 6px;font-weight:700;color:#0f172a;">3. How We Protect It</p>
+      <p style="margin:0 0 14px;">Sensitive personal information is encrypted at rest using AES-256 encryption. Access is restricted to authorized school personnel (registrar and administration) on a need-to-know basis, and all access is logged in a tamper-evident audit trail.</p>
+
+      <p style="margin:0 0 6px;font-weight:700;color:#0f172a;">4. Data Retention & Sharing</p>
+      <p style="margin:0 0 14px;">We retain your information only as long as necessary for admission and enrollment purposes or as required by law. We do not sell or share your personal data with third parties except where required by the Department of Education or by law.</p>
+
+      <p style="margin:0 0 6px;font-weight:700;color:#0f172a;">5. Your Rights</p>
+      <p style="margin:0 0 14px;">Under the Data Privacy Act, you have the right to be informed, to access, to correct, and to object to the processing of your personal data, and to file a complaint with the National Privacy Commission. To exercise these rights, contact the school registrar.</p>
+
+      <p style="margin:0;color:#64748b;font-size:.85rem;">By checking the consent box, you confirm that you have read and understood this policy and consent to the collection and processing of the information provided.</p>
+    </div>
+    <div style="padding:16px 24px;border-top:1px solid #e2e8f0;text-align:right;">
+      <button type="button" onclick="document.getElementById('privacyPolicyModal').style.display='none'"
+              style="padding:.55rem 1.4rem;background:#1e293b;color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:.88rem;">Close</button>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>

@@ -306,7 +306,7 @@ textarea.adm-input { resize:vertical; }
 
         @if(!$allRequiredChecked && in_array($applicant->status, ['pending','under_review','waitlisted']))
         <div class="app-hint app-hint--amber" style="margin-top:.75rem;font-size:.79rem;">
-          All required documents must be confirmed before this applicant can be accepted.
+          The required documents (PSA Birth Certificate and Form 138) must be confirmed before this applicant can be accepted.
         </div>
         @endif
       </div>

@@ -17,19 +17,27 @@ class ApplicantController extends Controller
         'Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12',
     ];
 
+    // Grade levels a student may have COMPLETED before applying (includes Grade 6,
+    // since a Grade 7 applicant just finished Grade 6).
+    private const PREVIOUS_GRADE_LEVELS = [
+        'Grade 6', 'Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11',
+    ];
+
     public const DOCUMENT_TYPES = [
         'birth_certificate' => ['label' => 'PSA Birth Certificate',               'required' => true],
-        'form_137'          => ['label' => 'Form 137 (Permanent Record)',          'required' => true],
-        'report_card'       => ['label' => 'Previous Report Card / Form 138',     'required' => true],
-        'good_moral'        => ['label' => 'Certificate of Good Moral Character', 'required' => true],
-        'picture_2x2'       => ['label' => '2×2 ID Picture',                     'required' => true],
+        'form_137'          => ['label' => 'Form 137 (Permanent Record)',          'required' => false],
+        'report_card'       => ['label' => 'Form 138 (Report Card)',              'required' => true],
+        'good_moral'        => ['label' => 'Certificate of Good Moral Character', 'required' => false],
+        'picture_2x2'       => ['label' => '2×2 ID Picture',                     'required' => false],
     ];
 
     public function create(): View
     {
         return view('applicant.create', [
-            'gradeLevels'   => self::GRADE_LEVELS,
-            'documentTypes' => self::DOCUMENT_TYPES,
+            'gradeLevels'         => self::GRADE_LEVELS,
+            'previousGradeLevels' => self::PREVIOUS_GRADE_LEVELS,
+            'documentTypes'       => self::DOCUMENT_TYPES,
+            'activeYearLabel'     => AcademicYear::where('status', 'active')->value('year_label'),
         ]);
     }
 
@@ -59,9 +67,9 @@ class ApplicantController extends Controller
             'parent_contact'         => ['required', 'string', 'max:20'],
             'parent_email'           => ['required', 'email', 'max:180'],
             'docs.birth_certificate' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
-            'docs.form_137'          => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
+            'docs.form_137'          => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
             'docs.report_card'       => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
-            'docs.good_moral'        => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
+            'docs.good_moral'        => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
             'docs.picture_2x2'       => ['nullable', 'file', 'mimes:jpg,jpeg,png', 'max:5120'],
             'data_privacy_consent'   => ['accepted'],
         ], [
