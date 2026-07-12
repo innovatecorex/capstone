@@ -111,7 +111,7 @@
       </svg>
     </div>
     <div class="enc-stat-body">
-      <div class="enc-stat-value">{{ \App\Models\User::where('gender','male')->count() }}</div>
+      <div class="enc-stat-value">{{ \App\Models\User::where('gender_hash', \App\Models\User::hashFor('gender','male'))->count() }}</div>
       <div class="enc-stat-label">Male</div>
     </div>
   </a>
@@ -122,7 +122,7 @@
       </svg>
     </div>
     <div class="enc-stat-body">
-      <div class="enc-stat-value">{{ \App\Models\User::where('gender','female')->count() }}</div>
+      <div class="enc-stat-value">{{ \App\Models\User::where('gender_hash', \App\Models\User::hashFor('gender','female'))->count() }}</div>
       <div class="enc-stat-label">Female</div>
     </div>
   </a>
@@ -195,6 +195,7 @@
             <th>Gender</th>
             <th>Role</th>
             <th>Status</th>
+            <th>Date Added</th>
             <th>Last Login</th>
             <th>Actions</th>
           </tr>
@@ -275,6 +276,19 @@
                 @endif
               </td>
 
+              {{-- Date Added — when the account was created, for traceability.
+                   There is no created_by column on users, so WHO added the
+                   account is traced through the audit log (CREATE_USER, which
+                   records the acting admin). Adding created_by would need a
+                   migration — deliberately out of scope here. --}}
+              <td class="mono" style="font-size:.72rem;white-space:nowrap;">
+                @if($user->created_at)
+                  {{ $user->created_at->format('m/d/Y g:i A') }}
+                @else
+                  <span style="color:var(--gray-300);">—</span>
+                @endif
+              </td>
+
               {{-- Last Login — links to login history --}}
               <td style="font-size:.72rem;">
                 @if($user->last_login_at)
@@ -326,9 +340,13 @@
                     </button>
                   </form>
                   @else
-                  @if($user->role_id === '04')
-                    {{-- Admins cannot be deactivated (separation-of-duties / lockout protection) --}}
-                    <span class="enc-btn enc-btn--outline enc-btn--sm" style="opacity:.55;cursor:not-allowed;" title="Administrator accounts are protected and cannot be deactivated">
+                  @if($user->isSuperAdmin() || $user->id === auth()->id())
+                    {{-- Only the super-admin is protected (so admin access can
+                         never be locked out), plus your own account (so you
+                         cannot deactivate yourself). Regular admins CAN be
+                         deactivated — e.g. when an administrator resigns. --}}
+                    <span class="enc-btn enc-btn--outline enc-btn--sm" style="opacity:.55;cursor:not-allowed;"
+                          title="{{ $user->isSuperAdmin() ? 'The super administrator account cannot be deactivated' : 'You cannot deactivate your own account' }}">
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                       </svg>
@@ -365,7 +383,7 @@
             </tr>
           @empty
             <tr>
-              <td colspan="8">
+              <td colspan="9">
                 <div class="enc-empty" style="padding:40px;">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" style="width:40px;height:40px;margin:0 auto 12px;display:block;opacity:.4;">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/>

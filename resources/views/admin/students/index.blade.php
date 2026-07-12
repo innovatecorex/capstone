@@ -261,9 +261,11 @@
                 <span style="color:var(--gray-600);">{{ substr($student->email, 0, 20) }}...</span>
               </td>
 
-              {{-- Registered Date --}}
-              <td class="mono" style="font-size:.72rem;">
-                {{ $student->created_at->format('m/d/Y') }}
+              {{-- Registered — date + time, so the record can be traced.
+                   "Added by" is not stored on users (no created_by column);
+                   the actor is traceable via the audit log (CREATE_USER). --}}
+              <td class="mono" style="font-size:.72rem;white-space:nowrap;">
+                {{ $student->created_at->format('m/d/Y g:i A') }}
               </td>
             </tr>
           @empty

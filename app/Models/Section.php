@@ -89,9 +89,28 @@ class Section extends Model
         return $this->status === 'active';
     }
 
+    /**
+     * Number of students actively enrolled in this section.
+     *
+     * Counts status='enrolled' only. Seats reserved as 'pending_payment' are
+     * NOT counted here — SectionAssignmentService::assign() counts those
+     * separately when auto-placing a student, so a reserved slot is never
+     * double-assigned while awaiting payment confirmation.
+     */
+    public function enrolledCount(): int
+    {
+        return $this->enrollments()->where('status', 'enrolled')->count();
+    }
+
+    /** Seats still open in this section (never negative). */
+    public function slotsRemaining(): int
+    {
+        return max(0, $this->capacity - $this->enrolledCount());
+    }
+
     public function isFull(): bool
     {
-        return $this->enrollments()->where('status', 'enrolled')->count() >= $this->capacity;
+        return $this->enrolledCount() >= $this->capacity;
     }
 
     public function getDisplayNameAttribute(): string

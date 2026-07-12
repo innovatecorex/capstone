@@ -635,8 +635,10 @@ function onGradeChange(grade) {
       } else {
         sel.innerHTML = '<option value="">— Choose a section —</option>' +
           data.map(s => {
-            const full = s.enrolled >= s.capacity;
-            return `<option value="${s.id}" ${full ? 'disabled' : ''}>${escHtml(s.section_name)} (${s.enrolled}/${s.capacity}${full ? ' — FULL' : ''})</option>`;
+            const left = Math.max(0, s.capacity - s.enrolled);
+            const full = left === 0;
+            const tail = full ? ' — FULL' : ` — ${left} slot${left === 1 ? '' : 's'} left`;
+            return `<option value="${s.id}" ${full ? 'disabled' : ''}>${escHtml(s.section_name)} (${s.enrolled}/${s.capacity}${tail})</option>`;
           }).join('');
         sel.disabled = false;
       }

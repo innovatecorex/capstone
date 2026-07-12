@@ -421,6 +421,24 @@ class User extends Authenticatable
         return $this->role_id === '04';
     }
 
+    /**
+     * The single protected super-administrator account.
+     *
+     * Regular admin accounts (adm.mike004, adm.rose003, …) can be deactivated
+     * like any other role — e.g. when an administrator resigns. This ONE
+     * account cannot, so the system can never be locked out of admin access.
+     *
+     * Matched on username_hash because username is AES-256 encrypted and
+     * therefore not directly comparable.
+     */
+    public const SUPER_ADMIN_USERNAME = 'admin';
+
+    public function isSuperAdmin(): bool
+    {
+        return $this->role_id === '04'
+            && $this->username_hash === self::hashFor('username', self::SUPER_ADMIN_USERNAME);
+    }
+
     public function getIsFacultyAttribute(): bool
     {
         return $this->role_id === '02';

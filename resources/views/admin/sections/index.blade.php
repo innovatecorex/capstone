@@ -163,7 +163,7 @@
             <th style="padding:12px 14px;text-align:left;font-size:.72rem;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em;">Grade</th>
             <th style="padding:12px 14px;text-align:left;font-size:.72rem;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em;">Section</th>
             <th style="padding:12px 14px;text-align:left;font-size:.72rem;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em;">Adviser</th>
-            <th style="padding:12px 14px;text-align:left;font-size:.72rem;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em;">Capacity</th>
+            <th style="padding:12px 14px;text-align:left;font-size:.72rem;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em;">Enrolled / Capacity</th>
             <th style="padding:12px 14px;text-align:left;font-size:.72rem;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em;">Year</th>
             <th style="padding:12px 14px;text-align:left;font-size:.72rem;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em;">Status</th>
             <th style="padding:12px 14px;text-align:right;font-size:.72rem;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em;">Actions</th>
@@ -181,7 +181,25 @@
                 <span style="color:#94a3b8;font-style:italic;">— None —</span>
               @endif
             </td>
-            <td style="padding:12px 14px;color:#64748b;">{{ $s->capacity }}</td>
+            {{-- Enrolled / capacity + slots left. enrolledCount() counts
+                 status='enrolled', so it rises the moment a student is enlisted. --}}
+            @php
+              $enrolled = $s->enrolledCount();
+              $left     = $s->slotsRemaining();
+              // red when full, amber when nearly full (<=10% or <=3 seats), else green
+              $lowMark  = max(3, (int) ceil($s->capacity * 0.1));
+              $slotCol  = $left === 0 ? ['#991b1b','#fecaca','#fef2f2']
+                        : ($left <= $lowMark ? ['#92400e','#fde68a','#fffbeb']
+                        : ['#166534','#86efac','#f0fdf4']);
+            @endphp
+            <td style="padding:12px 14px;">
+              <div style="font-size:.82rem;font-weight:600;color:#0f172a;white-space:nowrap;">
+                Enrolled: {{ $enrolled }} / {{ $s->capacity }}
+              </div>
+              <span style="display:inline-block;margin-top:3px;padding:.15rem .5rem;border-radius:6px;font-size:.68rem;font-weight:700;white-space:nowrap;color:{{ $slotCol[0] }};background:{{ $slotCol[2] }};border:1px solid {{ $slotCol[1] }};">
+                {{ $left === 0 ? 'FULL — 0 slots left' : 'Slots left: ' . $left }}
+              </span>
+            </td>
             <td style="padding:12px 14px;color:#64748b;">{{ $s->academicYear?->year_label ?? '—' }}</td>
             <td style="padding:12px 14px;">
               @php $c = $s->status === 'active' ? ['#166534','#86efac','#f0fdf4'] : ['#475569','#cbd5e1','#f8fafc']; @endphp

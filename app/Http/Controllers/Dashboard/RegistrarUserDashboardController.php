@@ -825,6 +825,31 @@ class RegistrarUserDashboardController extends Controller
             ])->withInput();
         }
 
+        // ── Capacity gate ─────────────────────────────────────────────────
+        // The section picker already disables full sections client-side, but a
+        // crafted POST would bypass that, so enforce capacity on the server.
+        // A student already occupying a seat in THIS section must not be
+        // blocked (they are re-saved into the seat they already hold).
+        $section = Section::findOrFail((int) $request->section_id);
+
+        $alreadyInThisSection = Enrollment::where('student_id', $student->id)
+            ->where('section_id', $section->id)
+            ->where('status', 'enrolled')
+            ->exists();
+
+        if (!$alreadyInThisSection && $section->isFull()) {
+            AuditLog::record('ENROLLMENT_BLOCKED_FULL', [
+                'student_id' => $student->id,
+                'section_id' => $section->id,
+                'capacity'   => $section->capacity,
+                'enrolled'   => $section->enrolledCount(),
+            ]);
+
+            return back()->withErrors([
+                'enrollment' => "This section is full ({$section->enrolledCount()}/{$section->capacity}). Choose a section with open slots.",
+            ])->withInput();
+        }
+
         // A student may already have an enrollment row for this year (e.g. a
         // reserved 'pending_payment' one). The table is unique on
         // (student_id, academic_year_id), so update the existing row if present

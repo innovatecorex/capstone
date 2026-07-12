@@ -225,11 +225,31 @@ class UserManagementController extends Controller
     // ── Toggle account status (active ↔ deactivated only) ─────────────────
     public function toggleStatus(Request $request, User $user)
     {
-        // Admin accounts are protected — they cannot be deactivated. This
-        // prevents an admin from locking out other administrators.
-        if ($user->role_id === '04' && $user->status === 'active') {
+        // Regular admin accounts CAN be deactivated (e.g. when an administrator
+        // resigns). Only the single super-administrator is protected, so the
+        // system can never be locked out of admin access entirely.
+        if ($user->isSuperAdmin() && $user->status === 'active') {
             return redirect()->back()
-                ->with('error', 'Administrator accounts are protected and cannot be deactivated.');
+                ->with('error', 'The super administrator account cannot be deactivated.');
+        }
+
+        // Guard against self-lockout: deactivating your own account would end
+        // your session immediately and you could not undo it yourself.
+        if ($user->id === auth()->id() && $user->status === 'active') {
+            return redirect()->back()
+                ->with('error', 'You cannot deactivate your own account.');
+        }
+
+        // Safety net: never leave the system with zero active administrators.
+        // isSuperAdmin() keys off a specific username, so on an environment
+        // whose super-admin is named differently this is what still guarantees
+        // admin access can't be locked out entirely.
+        if ($user->role_id === '04' && $user->status === 'active') {
+            $activeAdmins = User::where('role_id', '04')->where('status', 'active')->count();
+            if ($activeAdmins <= 1) {
+                return redirect()->back()
+                    ->with('error', 'This is the last active administrator account — it cannot be deactivated.');
+            }
         }
 
         // Locked accounts must go through unlockAccount — toggling would
