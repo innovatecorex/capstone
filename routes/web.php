@@ -30,8 +30,9 @@ use App\Http\Controllers\Settings\StudentSettingsController;
 use App\Http\Controllers\Settings\FacultySettingsController;
 use App\Http\Controllers\Settings\RegistrarSettingsController;
 
-// Root redirect
-Route::get('/', fn() => redirect()->route('login'));
+// Public landing page (homepage). Deliberately NOT behind auth/guest
+// middleware — it is always viewable, signed in or not.
+Route::get('/', fn() => view('landing'))->name('landing');
 
 
 // ── Guest Auth Routes ─────────────────────────────────────────────────────
