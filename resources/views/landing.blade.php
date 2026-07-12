@@ -11,490 +11,585 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Merriweather:wght@700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ asset('css/encrypted.css') }}">
   <style>
+    :root {
+      --navy:        #0a1a33;
+      --navy-700:    #12305c;
+      --indigo:      #1d4ed8;
+      --indigo-600:  #2563eb;
+      --gold:        #c9962f;
+      --gold-soft:   #f3d89a;
+      --ink:         #0f172a;
+      --body:        #55627a;
+      --muted:       #8a95a8;
+      --line:        #e5e9f0;
+      --paper:       #ffffff;
+      --canvas:      #f7f9fc;
+      --radius:      14px;
+    }
+
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
+    html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
     body {
       font-family: 'Inter', sans-serif;
-      background: #f4f7fb;
-      color: #1e293b;
-      min-height: 100vh;
+      background: var(--paper);
+      color: var(--body);
+      line-height: 1.65;
       overflow-x: hidden;
     }
-    a { text-decoration: none; }
-    :focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; border-radius: 6px; }
+    a { text-decoration: none; color: inherit; }
+    img { max-width: 100%; }
+    :focus-visible { outline: 2px solid var(--indigo); outline-offset: 3px; border-radius: 4px; }
 
-    /* ══════════════ TOP NAV ══════════════ */
-    .ld-nav {
-      background: #0b1e3d;
-      padding: .7rem 2rem;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      position: sticky;
-      top: 0;
-      z-index: 200;
-      box-shadow: 0 2px 12px rgba(0,0,0,.3);
+    .wrap { max-width: 1120px; margin: 0 auto; padding: 0 1.5rem; }
+
+    /* ── shared type ─────────────────────────────────── */
+    .eyebrow {
+      display: inline-block;
+      font-size: .68rem; font-weight: 700;
+      letter-spacing: .16em; text-transform: uppercase;
+      color: var(--muted);
     }
-    .ld-nav-brand { display: flex; align-items: center; gap: .75rem; min-width: 0; }
-    .ld-nav-brand img {
-      height: 32px; width: 32px;
-      border-radius: 50%;
-      border: 1.5px solid rgba(255,255,255,.15);
+    .serif { font-family: 'Merriweather', Georgia, serif; }
+
+    /* ── buttons ─────────────────────────────────────── */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      font-family: inherit; font-weight: 600; cursor: pointer;
+      border: 1px solid transparent; border-radius: 10px;
+      min-height: 44px; padding: 0 1.25rem;
+      font-size: .875rem; white-space: nowrap;
+      transition: background-color .18s ease, color .18s ease, border-color .18s ease, box-shadow .18s ease;
+    }
+    .btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+    .btn--navy   { background: var(--navy); color: #fff; }
+    .btn--navy:hover { background: var(--navy-700); box-shadow: 0 6px 18px rgba(10,26,51,.22); }
+    .btn--quiet  { background: transparent; color: var(--ink); border-color: var(--line); }
+    .btn--quiet:hover { border-color: #c7cfdc; background: #f4f6fa; }
+    .btn--gold   { background: var(--gold); color: #241a04; }
+    .btn--gold:hover { background: #dda93c; box-shadow: 0 6px 18px rgba(201,150,47,.32); }
+    .btn--onDark { background: rgba(255,255,255,.07); color: #fff; border-color: rgba(255,255,255,.24); }
+    .btn--onDark:hover { background: rgba(255,255,255,.14); border-color: rgba(255,255,255,.45); }
+    .btn--lg { min-height: 50px; padding: 0 1.6rem; font-size: .92rem; }
+
+    /* ══════════════ NAV ══════════════ */
+    .nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(255,255,255,.88);
+      backdrop-filter: saturate(180%) blur(14px);
+      -webkit-backdrop-filter: saturate(180%) blur(14px);
+      border-bottom: 1px solid var(--line);
+    }
+    .nav__in { display: flex; align-items: center; gap: 1rem; height: 68px; }
+    .nav__brand { display: flex; align-items: center; gap: .7rem; min-width: 0; }
+    .nav__crest {
+      width: 38px; height: 38px; border-radius: 50%;
+      border: 1px solid var(--line); padding: 2px; background: #fff;
       flex-shrink: 0;
     }
-    .ld-nav-name { font-size: .88rem; font-weight: 800; color: #fff; letter-spacing: -.01em; }
-    .ld-nav-sub  { font-size: .62rem; color: rgba(255,255,255,.38); letter-spacing: .03em; }
-    .ld-nav-sep  { flex: 1; }
-    .ld-nav-actions { display: flex; align-items: center; gap: .6rem; flex-shrink: 0; }
-
-    .ld-btn {
-      display: inline-flex; align-items: center; justify-content: center; gap: 7px;
-      font-family: inherit; font-weight: 700; cursor: pointer;
-      border-radius: 10px; transition: background .18s, color .18s, transform .15s, box-shadow .18s;
-      white-space: nowrap;
-    }
-    .ld-btn svg { width: 14px; height: 14px; flex-shrink: 0; }
-
-    /* nav-sized */
-    .ld-btn--ghost {
-      padding: .5rem 1rem; font-size: .78rem;
-      color: rgba(255,255,255,.72);
-      border: 1px solid rgba(255,255,255,.18);
-      background: transparent;
-    }
-    .ld-btn--ghost:hover { color: #fff; background: rgba(255,255,255,.08); }
-    .ld-btn--light {
-      padding: .5rem 1rem; font-size: .78rem;
-      background: #fff; color: #1d4ed8;
-      box-shadow: 0 3px 12px rgba(0,0,0,.2);
-    }
-    .ld-btn--light:hover { background: #f0f7ff; transform: translateY(-1px); }
-
-    /* hero-sized */
-    .ld-btn--primary {
-      padding: .8rem 1.6rem; font-size: .9rem;
-      background: #fff; color: #1d4ed8;
-      box-shadow: 0 6px 20px rgba(0,0,0,.25);
-    }
-    .ld-btn--primary:hover { background: #f0f7ff; transform: translateY(-1px); box-shadow: 0 10px 28px rgba(0,0,0,.3); }
-    .ld-btn--outline {
-      padding: .8rem 1.6rem; font-size: .9rem;
-      background: rgba(255,255,255,.06); color: #fff;
-      border: 1.5px solid rgba(255,255,255,.35);
-    }
-    .ld-btn--outline:hover { background: rgba(255,255,255,.14); transform: translateY(-1px); }
-
-    /* solid blue (admission band) */
-    .ld-btn--solid {
-      padding: .8rem 1.7rem; font-size: .9rem;
-      background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 60%, #2563eb 100%);
-      color: #fff;
-      box-shadow: 0 4px 16px rgba(29,78,216,.32);
-    }
-    .ld-btn--solid:hover { transform: translateY(-1px); box-shadow: 0 8px 26px rgba(29,78,216,.42); }
+    .nav__name { font-size: .9rem; font-weight: 800; color: var(--ink); letter-spacing: -.015em; line-height: 1.2; }
+    .nav__sub  { font-size: .66rem; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; margin-top: 1px; }
+    .nav__sp { flex: 1; }
+    .nav__acts { display: flex; align-items: center; gap: .6rem; flex-shrink: 0; }
 
     /* ══════════════ HERO ══════════════ */
-    .ld-hero {
-      background: linear-gradient(135deg, #0b1e3d 0%, #1535a0 55%, #1d4ed8 100%);
-      padding: 3.5rem 2rem 4.5rem;
-      text-align: center;
+    .hero {
       position: relative;
+      background:
+        radial-gradient(1000px 460px at 78% 8%, rgba(37,99,235,.30), transparent 60%),
+        linear-gradient(180deg, #0a1a33 0%, #0d2246 100%);
+      color: #fff;
       overflow: hidden;
+      border-bottom: 3px solid var(--gold);
     }
-    .ld-hero::before {
+    /* faint academic grid texture */
+    .hero::before {
       content: '';
       position: absolute; inset: 0;
-      background-image: radial-gradient(rgba(255,255,255,.04) 1px, transparent 1px);
-      background-size: 24px 24px;
+      background-image:
+        linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+      background-size: 62px 62px;
+      mask-image: radial-gradient(70% 60% at 50% 40%, #000 40%, transparent 100%);
+      -webkit-mask-image: radial-gradient(70% 60% at 50% 40%, #000 40%, transparent 100%);
       pointer-events: none;
     }
-    .ld-hero::after {
-      content: '';
-      position: absolute; bottom: -2px; left: 0; right: 0;
-      height: 44px; background: #f4f7fb;
-      clip-path: ellipse(55% 100% at 50% 100%);
-      pointer-events: none;
+    .hero__in {
+      position: relative; z-index: 1;
+      display: grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 3.5rem;
+      align-items: center;
+      padding: 5rem 0 5.5rem;
     }
-    .ld-hero-inner { position: relative; z-index: 1; max-width: 760px; margin: 0 auto; }
-    .ld-hero-badge {
-      display: inline-flex; align-items: center; gap: 6px;
-      background: rgba(245,158,11,.15);
-      border: 1px solid rgba(245,158,11,.3);
-      color: #fde68a;
-      font-size: .67rem; font-weight: 700;
-      letter-spacing: .1em; text-transform: uppercase;
-      padding: .3rem .85rem; border-radius: 99px;
-      margin-bottom: 1rem;
+    .hero__eyebrow { color: var(--gold-soft); }
+    .hero__eyebrow::after {
+      content: ''; display: block;
+      width: 34px; height: 2px; background: var(--gold);
+      margin-top: .7rem;
     }
-    .ld-hero-badge svg { width: 12px; height: 12px; }
-    .ld-hero h1 {
-      font-family: 'Merriweather', serif;
-      font-size: 2.5rem; font-weight: 900; color: #fff;
-      letter-spacing: -.02em; line-height: 1.15;
-      margin-bottom: .6rem;
+    .hero h1 {
+      font-size: clamp(2rem, 3.6vw, 2.85rem);
+      font-weight: 900; color: #fff;
+      letter-spacing: -.025em; line-height: 1.18;
+      margin: 1.1rem 0 .5rem;
     }
-    .ld-hero-tagline {
-      font-size: .8rem; font-weight: 700;
-      color: rgba(255,255,255,.5);
-      letter-spacing: .12em; text-transform: uppercase;
-      margin-bottom: 1rem;
+    .hero__tagline {
+      font-size: .72rem; font-weight: 700;
+      letter-spacing: .18em; text-transform: uppercase;
+      color: rgba(255,255,255,.44);
+      margin-bottom: 1.1rem;
     }
-    .ld-hero-desc {
-      font-size: 1rem; line-height: 1.7;
-      color: rgba(255,255,255,.78);
-      max-width: 560px; margin: 0 auto 2rem;
+    .hero__desc {
+      font-size: 1.02rem; line-height: 1.75;
+      color: rgba(255,255,255,.74);
+      max-width: 52ch;
+      margin-bottom: 2rem;
     }
-    .ld-hero-cta { display: flex; gap: .8rem; justify-content: center; flex-wrap: wrap; }
+    .hero__cta { display: flex; gap: .75rem; flex-wrap: wrap; }
+
+    /* crest panel */
+    .crest {
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 20px;
+      padding: 2.25rem 1.75rem;
+      text-align: center;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+    .crest img {
+      width: 108px; height: 108px; border-radius: 50%;
+      border: 2px solid rgba(201,150,47,.55);
+      padding: 4px; background: rgba(255,255,255,.06);
+      margin-bottom: 1.1rem;
+    }
+    .crest__name { font-size: 1rem; font-weight: 800; color: #fff; letter-spacing: -.01em; }
+    .crest__rule { width: 40px; height: 2px; background: var(--gold); margin: .8rem auto; }
+    .crest__meta { font-size: .78rem; color: rgba(255,255,255,.6); line-height: 1.7; }
+
+    /* ══════════════ TRUST STRIP ══════════════ */
+    .trust { background: var(--canvas); border-bottom: 1px solid var(--line); }
+    .trust__in {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 1rem; padding: 1.35rem 0;
+    }
+    .trust__item { display: flex; align-items: center; gap: .65rem; justify-content: center; }
+    .trust__item svg { width: 17px; height: 17px; color: var(--indigo); flex-shrink: 0; }
+    .trust__label { font-size: .8rem; font-weight: 600; color: var(--ink); }
 
     /* ══════════════ SECTIONS ══════════════ */
-    .ld-section { max-width: 1040px; margin: 0 auto; padding: 3.5rem 1.5rem; }
-    .ld-section-head { text-align: center; margin-bottom: 2rem; }
-    .ld-eyebrow {
-      font-size: .63rem; font-weight: 800; color: #94a3b8;
-      text-transform: uppercase; letter-spacing: .12em; margin-bottom: .5rem;
+    .sec { padding: 5rem 0; }
+    .sec--tint { background: var(--canvas); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .sec__head { max-width: 640px; margin-bottom: 2.75rem; }
+    .sec__head--center { margin-left: auto; margin-right: auto; text-align: center; }
+    .sec__title {
+      font-size: clamp(1.5rem, 2.4vw, 1.95rem);
+      font-weight: 900; color: var(--ink);
+      letter-spacing: -.022em; line-height: 1.25;
+      margin: .7rem 0 .6rem;
     }
-    .ld-section-title {
-      font-family: 'Merriweather', serif;
-      font-size: 1.6rem; font-weight: 900; color: #0f172a;
-      letter-spacing: -.02em;
-    }
-    .ld-section-sub { font-size: .9rem; color: #64748b; margin-top: .5rem; }
+    .sec__sub { font-size: .96rem; color: var(--body); line-height: 1.75; }
 
-    .ld-grid { display: grid; gap: 1.1rem; }
-    .ld-grid--3 { grid-template-columns: repeat(3, 1fr); }
-    .ld-grid--4 { grid-template-columns: repeat(4, 1fr); }
+    .grid { display: grid; gap: 1.25rem; }
+    .grid--3 { grid-template-columns: repeat(3, 1fr); }
+    .grid--4 { grid-template-columns: repeat(4, 1fr); }
 
-    /* card — mirrors .lp-card from the login page */
-    .ld-card {
-      background: #fff;
-      border-radius: 18px;
-      box-shadow: 0 2px 16px rgba(15,23,42,.07), 0 1px 3px rgba(15,23,42,.04);
-      border: 1px solid rgba(226,232,240,.7);
-      overflow: hidden;
-      display: flex; flex-direction: column;
-      transition: transform .18s, box-shadow .18s;
+    /* role cards — hairline, numbered, restrained */
+    .role {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 1.75rem 1.5rem;
+      transition: border-color .2s ease, box-shadow .2s ease;
     }
-    .ld-card:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(15,23,42,.1); }
-    .ld-card-bar { height: 3px; background: linear-gradient(90deg, #1a3a6b, #2563eb, #3ecfa0); }
-    .ld-card-body { padding: 1.4rem; }
-    .ld-card-icon {
-      width: 40px; height: 40px; border-radius: 11px;
-      background: #eff6ff;
+    .role:hover { border-color: #cbd5e6; box-shadow: 0 10px 30px rgba(15,23,42,.07); }
+    .role__top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.1rem; }
+    .role__ico {
+      width: 42px; height: 42px; border-radius: 11px;
       display: flex; align-items: center; justify-content: center;
-      margin-bottom: .9rem;
+      background: #eef3fe; border: 1px solid #dce6fb;
     }
-    .ld-card-icon svg { width: 19px; height: 19px; }
-    .ld-card-title { font-size: .95rem; font-weight: 800; color: #0f172a; margin-bottom: .35rem; letter-spacing: -.01em; }
-    .ld-card-text  { font-size: .84rem; line-height: 1.65; color: #64748b; }
+    .role__ico svg { width: 19px; height: 19px; color: var(--indigo); }
+    .role__num { font-size: .72rem; font-weight: 800; color: var(--muted); letter-spacing: .1em; }
+    .role__title { font-size: 1rem; font-weight: 800; color: var(--ink); margin-bottom: .4rem; letter-spacing: -.01em; }
+    .role__text { font-size: .875rem; color: var(--body); line-height: 1.7; }
+
+    /* feature cards */
+    .feat {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 1.6rem 1.35rem;
+      transition: border-color .2s ease, transform .2s ease, box-shadow .2s ease;
+    }
+    .feat:hover { border-color: #cbd5e6; transform: translateY(-2px); box-shadow: 0 12px 30px rgba(15,23,42,.08); }
+    .feat__ico {
+      width: 40px; height: 40px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 1rem;
+    }
+    .feat__ico svg { width: 19px; height: 19px; }
+    .feat__title { font-size: .93rem; font-weight: 800; color: var(--ink); margin-bottom: .35rem; letter-spacing: -.01em; }
+    .feat__text  { font-size: .84rem; color: var(--body); line-height: 1.7; }
 
     /* ══════════════ ADMISSION BAND ══════════════ */
-    .ld-band-wrap { padding: 0 1.5rem 3.5rem; }
-    .ld-band {
-      max-width: 1040px; margin: 0 auto;
-      background: linear-gradient(135deg, #0b1e3d 0%, #1535a0 55%, #1d4ed8 100%);
-      border-radius: 20px;
-      padding: 2.5rem 2rem;
-      text-align: center;
-      position: relative; overflow: hidden;
+    .band {
+      position: relative;
+      background: linear-gradient(180deg, #0a1a33 0%, #12305c 100%);
+      color: #fff; overflow: hidden;
+      border-top: 3px solid var(--gold);
     }
-    .ld-band::before {
+    .band::before {
       content: '';
       position: absolute; inset: 0;
       background-image: radial-gradient(rgba(255,255,255,.05) 1px, transparent 1px);
-      background-size: 22px 22px;
+      background-size: 26px 26px;
       pointer-events: none;
     }
-    .ld-band-inner { position: relative; z-index: 1; }
-    .ld-band-eyebrow {
-      display: inline-flex; align-items: center; gap: 6px;
-      background: rgba(52,211,153,.15);
-      border: 1px solid rgba(52,211,153,.35);
-      color: #6ee7b7;
-      font-size: .65rem; font-weight: 700;
-      letter-spacing: .1em; text-transform: uppercase;
-      padding: .3rem .85rem; border-radius: 99px;
+    .band__in {
+      position: relative; z-index: 1;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 2rem; flex-wrap: wrap;
+      padding: 3.25rem 0;
+    }
+    .band__pill {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: rgba(201,150,47,.16);
+      border: 1px solid rgba(201,150,47,.4);
+      color: var(--gold-soft);
+      font-size: .67rem; font-weight: 700;
+      letter-spacing: .12em; text-transform: uppercase;
+      padding: .32rem .8rem; border-radius: 999px;
       margin-bottom: .9rem;
     }
-    .ld-band-eyebrow svg { width: 12px; height: 12px; }
-    .ld-band h2 {
-      font-family: 'Merriweather', serif;
-      font-size: 1.7rem; font-weight: 900; color: #fff;
-      letter-spacing: -.02em; margin-bottom: .5rem;
+    .band__pill svg { width: 12px; height: 12px; }
+    .band h2 {
+      font-size: clamp(1.4rem, 2.2vw, 1.8rem);
+      font-weight: 900; color: #fff;
+      letter-spacing: -.022em; margin-bottom: .45rem;
     }
-    .ld-band p { font-size: .92rem; color: rgba(255,255,255,.75); margin-bottom: 1.5rem; }
+    .band p { font-size: .95rem; color: rgba(255,255,255,.7); max-width: 46ch; }
 
     /* ══════════════ FOOTER ══════════════ */
-    .ld-footer { background: #0b1e3d; padding: 2.5rem 1.5rem 1.5rem; }
-    .ld-footer-inner {
-      max-width: 1040px; margin: 0 auto;
-      display: flex; justify-content: space-between; align-items: flex-start;
-      gap: 2rem; flex-wrap: wrap;
-      padding-bottom: 1.5rem;
-      border-bottom: 1px solid rgba(255,255,255,.08);
+    .foot { background: var(--navy); color: rgba(255,255,255,.6); }
+    .foot__in {
+      display: grid; grid-template-columns: 2fr 1fr 1fr;
+      gap: 2.5rem; padding: 3.25rem 0 2.25rem;
     }
-    .ld-footer-brand { display: flex; align-items: center; gap: .75rem; }
-    .ld-footer-brand img { height: 34px; width: 34px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,.15); }
-    .ld-footer-name { font-size: .9rem; font-weight: 800; color: #fff; }
-    .ld-footer-sub  { font-size: .65rem; color: rgba(255,255,255,.4); margin-top: 2px; }
-    .ld-footer-links { display: flex; flex-direction: column; gap: .45rem; }
-    .ld-footer-links-title {
-      font-size: .6rem; font-weight: 800; color: rgba(255,255,255,.45);
-      text-transform: uppercase; letter-spacing: .12em; margin-bottom: .2rem;
+    .foot__brand { display: flex; align-items: center; gap: .8rem; margin-bottom: .9rem; }
+    .foot__brand img {
+      width: 40px; height: 40px; border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.18); padding: 2px;
     }
-    .ld-footer-links a {
-      font-size: .8rem; color: rgba(255,255,255,.65); font-weight: 500;
-      transition: color .15s;
+    .foot__name { font-size: .95rem; font-weight: 800; color: #fff; letter-spacing: -.01em; }
+    .foot__sub  { font-size: .7rem; color: rgba(255,255,255,.42); margin-top: 2px; }
+    .foot__blurb { font-size: .84rem; line-height: 1.75; max-width: 42ch; color: rgba(255,255,255,.55); }
+    .foot__h {
+      font-size: .66rem; font-weight: 800; color: rgba(255,255,255,.85);
+      text-transform: uppercase; letter-spacing: .14em; margin-bottom: 1rem;
     }
-    .ld-footer-links a:hover { color: #fff; }
-    .ld-footer-note {
-      max-width: 1040px; margin: 1.25rem auto 0;
-      text-align: center;
-      font-size: .68rem; color: rgba(255,255,255,.38);
-      line-height: 1.7;
+    .foot__links { display: flex; flex-direction: column; gap: .6rem; }
+    .foot__links a { font-size: .86rem; color: rgba(255,255,255,.6); transition: color .16s ease; }
+    .foot__links a:hover { color: #fff; }
+    .foot__bar {
+      border-top: 1px solid rgba(255,255,255,.09);
+      padding: 1.35rem 0 2rem;
+      display: flex; justify-content: space-between; align-items: center;
+      gap: 1rem; flex-wrap: wrap;
+      font-size: .76rem; color: rgba(255,255,255,.42);
     }
-    .ld-footer-note strong { color: rgba(255,255,255,.55); }
+    .foot__bar strong { color: rgba(255,255,255,.62); font-weight: 700; }
 
     /* ══════════════ RESPONSIVE ══════════════ */
-    @media (max-width: 900px) {
-      .ld-grid--4 { grid-template-columns: repeat(2, 1fr); }
+    @media (max-width: 980px) {
+      .hero__in { grid-template-columns: 1fr; gap: 2.5rem; padding: 3.5rem 0 4rem; }
+      .crest { max-width: 380px; }
+      .trust__in { grid-template-columns: repeat(2, 1fr); gap: 1rem 1.25rem; }
+      .trust__item { justify-content: flex-start; }
+      .grid--4 { grid-template-columns: repeat(2, 1fr); }
+      .foot__in { grid-template-columns: 1fr 1fr; gap: 2rem; }
+      .foot__brand-col { grid-column: 1 / -1; }
     }
-    @media (max-width: 760px) {
-      .ld-nav { padding: .7rem 1rem; flex-wrap: wrap; gap: .6rem; }
-      .ld-nav-sub { display: none; }
-      .ld-nav-actions { width: 100%; justify-content: stretch; }
-      .ld-nav-actions .ld-btn { flex: 1; }
-      .ld-hero { padding: 2.5rem 1.25rem 3.5rem; }
-      .ld-hero h1 { font-size: 1.8rem; }
-      .ld-hero-desc { font-size: .92rem; }
-      .ld-hero-cta .ld-btn { width: 100%; }
-      .ld-section { padding: 2.5rem 1.25rem; }
-      .ld-section-title { font-size: 1.35rem; }
-      .ld-grid--3, .ld-grid--4 { grid-template-columns: 1fr; }
-      .ld-band { padding: 2rem 1.25rem; }
-      .ld-band h2 { font-size: 1.35rem; }
-      .ld-band .ld-btn { width: 100%; }
-      .ld-footer-inner { flex-direction: column; gap: 1.5rem; }
+    @media (max-width: 700px) {
+      .nav__in { height: 60px; }
+      .nav__sub { display: none; }
+      .nav__acts .btn--quiet { display: none; }   /* keep one clear CTA on mobile */
+      .sec { padding: 3.25rem 0; }
+      .hero__desc { font-size: .95rem; }
+      .hero__cta .btn { flex: 1 1 100%; }
+      .grid--3, .grid--4 { grid-template-columns: 1fr; }
+      .band__in { padding: 2.5rem 0; }
+      .band__in .btn { width: 100%; }
+      .foot__in { grid-template-columns: 1fr; }
+      .foot__bar { justify-content: flex-start; }
     }
   </style>
 </head>
 <body>
 
-{{-- ══════════ TOP NAV ══════════ --}}
-<nav class="ld-nav">
-  <a href="{{ route('landing') }}" class="ld-nav-brand">
-    <img src="{{ asset('images/logo.png') }}" alt="Philippine Academy of Sakya logo">
-    <div>
-      <div class="ld-nav-name">Philippine Academy of Sakya</div>
-      <div class="ld-nav-sub">EncryptEd · Academic Management System</div>
+{{-- ══════════ NAV ══════════ --}}
+<nav class="nav">
+  <div class="wrap nav__in">
+    <a href="{{ route('landing') }}" class="nav__brand" aria-label="Philippine Academy of Sakya — home">
+      <img class="nav__crest" src="{{ asset('images/logo.png') }}" alt="Philippine Academy of Sakya crest">
+      <span>
+        <span class="nav__name">Philippine Academy of Sakya</span>
+        <span class="nav__sub">Junior &amp; Senior High School</span>
+      </span>
+    </a>
+    <div class="nav__sp"></div>
+    <div class="nav__acts">
+      <a href="{{ route('apply') }}" class="btn btn--quiet">Apply for Admission</a>
+      <a href="{{ route('login') }}" class="btn btn--navy">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"/>
+        </svg>
+        Sign In
+      </a>
     </div>
-  </a>
-  <div class="ld-nav-sep"></div>
-  <div class="ld-nav-actions">
-    <a href="{{ route('apply') }}" class="ld-btn ld-btn--ghost">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z"/>
-      </svg>
-      Apply for Admission
-    </a>
-    <a href="{{ route('login') }}" class="ld-btn ld-btn--light">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"/>
-      </svg>
-      Sign In
-    </a>
   </div>
 </nav>
 
 {{-- ══════════ HERO ══════════ --}}
-<header class="ld-hero">
-  <div class="ld-hero-inner">
-    <div class="ld-hero-badge">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/>
-      </svg>
-      Official Portal
+<header class="hero">
+  <div class="wrap hero__in">
+    <div>
+      <span class="eyebrow hero__eyebrow">Official School Portal</span>
+
+      <h1 class="serif">Philippine Academy of Sakya</h1>
+      <div class="hero__tagline">EncryptEd · Academic Management System</div>
+
+      <p class="hero__desc">
+        The official secure academic portal of Philippine Academy of Sakya —
+        Junior &amp; Senior High School. Admissions, enrollment, grades and
+        records, in one protected system.
+      </p>
+
+      <div class="hero__cta">
+        <a href="{{ route('apply') }}" class="btn btn--lg btn--gold">
+          Apply Now
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/>
+          </svg>
+        </a>
+        <a href="{{ route('login') }}" class="btn btn--lg btn--onDark">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"/>
+          </svg>
+          Portal Login
+        </a>
+      </div>
     </div>
 
-    <h1>Philippine Academy of Sakya</h1>
-    <div class="ld-hero-tagline">EncryptEd · Academic Management System</div>
-    <p class="ld-hero-desc">
-      The official secure academic portal of Philippine Academy of Sakya —
-      Junior &amp; Senior High School.
-    </p>
-
-    <div class="ld-hero-cta">
-      <a href="{{ route('apply') }}" class="ld-btn ld-btn--primary">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/>
-        </svg>
-        Apply Now
-      </a>
-      <a href="{{ route('login') }}" class="ld-btn ld-btn--outline">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"/>
-        </svg>
-        Portal Login
-      </a>
-    </div>
+    <aside class="crest">
+      <img src="{{ asset('images/logo.png') }}" alt="Philippine Academy of Sakya crest">
+      <div class="crest__name">Philippine Academy of Sakya</div>
+      <div class="crest__rule"></div>
+      <div class="crest__meta">
+        Grades 7 &ndash; 12<br>
+        Junior &amp; Senior High School<br>
+        Republic of the Philippines
+      </div>
+    </aside>
   </div>
 </header>
 
-{{-- ══════════ WHO IT'S FOR ══════════ --}}
-<section class="ld-section">
-  <div class="ld-section-head">
-    <div class="ld-eyebrow">Who It's For</div>
-    <h2 class="ld-section-title">One portal, every role</h2>
-    <p class="ld-section-sub">Secure, role-based access for the whole school community.</p>
+{{-- ══════════ TRUST STRIP ══════════ --}}
+<section class="trust" aria-label="Institutional standards">
+  <div class="wrap trust__in">
+    <div class="trust__item">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342"/>
+      </svg>
+      <span class="trust__label">Grades 7 &ndash; 12</span>
+    </div>
+    <div class="trust__item">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+      <span class="trust__label">DepEd-Aligned Curriculum</span>
+    </div>
+    <div class="trust__item">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/>
+      </svg>
+      <span class="trust__label">AES-256 Encrypted</span>
+    </div>
+    <div class="trust__item">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/>
+      </svg>
+      <span class="trust__label">RA 10173 Compliant</span>
+    </div>
   </div>
+</section>
 
-  <div class="ld-grid ld-grid--3">
-    <div class="ld-card">
-      <div class="ld-card-bar"></div>
-      <div class="ld-card-body">
-        <div class="ld-card-icon" style="background:#fffbeb;">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#d97706" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342"/>
-          </svg>
-        </div>
-        <div class="ld-card-title">Students &amp; Parents</div>
-        <p class="ld-card-text">View grades, schedules, attendance and enrollment status, and submit requirements online.</p>
-      </div>
+{{-- ══════════ WHO IT'S FOR ══════════ --}}
+<section class="sec">
+  <div class="wrap">
+    <div class="sec__head">
+      <span class="eyebrow">Who It's For</span>
+      <h2 class="sec__title serif">One portal for the whole school community</h2>
+      <p class="sec__sub">Every account sees exactly what its role permits — nothing more.</p>
     </div>
 
-    <div class="ld-card">
-      <div class="ld-card-bar"></div>
-      <div class="ld-card-body">
-        <div class="ld-card-icon" style="background:#ecfdf5;">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#059669" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/>
-          </svg>
+    <div class="grid grid--3">
+      <article class="role">
+        <div class="role__top">
+          <div class="role__ico">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342"/>
+            </svg>
+          </div>
+          <span class="role__num">01</span>
         </div>
-        <div class="ld-card-title">Faculty</div>
-        <p class="ld-card-text">Encode and submit grades, manage class records, and track student attendance with confidence.</p>
-      </div>
-    </div>
+        <h3 class="role__title">Students &amp; Parents</h3>
+        <p class="role__text">Track grades, schedules, attendance and enrollment status, submit requirements, and receive report cards online.</p>
+      </article>
 
-    <div class="ld-card">
-      <div class="ld-card-bar"></div>
-      <div class="ld-card-body">
-        <div class="ld-card-icon" style="background:#eff6ff;">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#1d4ed8" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z"/>
-          </svg>
+      <article class="role">
+        <div class="role__top">
+          <div class="role__ico">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/>
+            </svg>
+          </div>
+          <span class="role__num">02</span>
         </div>
-        <div class="ld-card-title">Registrar &amp; Admin</div>
-        <p class="ld-card-text">Process admissions and enrollment, manage records and sections, and oversee system security.</p>
-      </div>
+        <h3 class="role__title">Faculty</h3>
+        <p class="role__text">Encode and submit grades, manage class records, and monitor attendance with a verified, auditable workflow.</p>
+      </article>
+
+      <article class="role">
+        <div class="role__top">
+          <div class="role__ico">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z"/>
+            </svg>
+          </div>
+          <span class="role__num">03</span>
+        </div>
+        <h3 class="role__title">Registrar &amp; Admin</h3>
+        <p class="role__text">Process admissions and enrollment, manage sections and records, and oversee system security and audit trails.</p>
+      </article>
     </div>
   </div>
 </section>
 
 {{-- ══════════ WHY ENCRYPTED ══════════ --}}
-<section class="ld-section" style="padding-top:0;">
-  <div class="ld-section-head">
-    <div class="ld-eyebrow">Why EncryptEd</div>
-    <h2 class="ld-section-title">Built for security and compliance</h2>
-    <p class="ld-section-sub">Student data is protected at every layer, in line with Philippine law.</p>
-  </div>
+<section class="sec sec--tint">
+  <div class="wrap">
+    <div class="sec__head sec__head--center">
+      <span class="eyebrow">Why EncryptEd</span>
+      <h2 class="sec__title serif">Built for security and compliance</h2>
+      <p class="sec__sub">Student records are protected at every layer, in line with Philippine law.</p>
+    </div>
 
-  <div class="ld-grid ld-grid--4">
-    <div class="ld-card">
-      <div class="ld-card-bar"></div>
-      <div class="ld-card-body">
-        <div class="ld-card-icon" style="background:#eff6ff;">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#1d4ed8" stroke-width="2">
+    <div class="grid grid--4">
+      <article class="feat">
+        <div class="feat__ico" style="background:#eef3fe;border:1px solid #dce6fb;">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#1d4ed8" stroke-width="2" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/>
           </svg>
         </div>
-        <div class="ld-card-title">Data Encryption</div>
-        <p class="ld-card-text">Personal data is AES-256 encrypted at rest, in compliance with RA 10173 (Data Privacy Act).</p>
-      </div>
-    </div>
+        <h3 class="feat__title">Data Encryption</h3>
+        <p class="feat__text">Personal data is AES-256 encrypted at rest, compliant with RA 10173 (Data Privacy Act of 2012).</p>
+      </article>
 
-    <div class="ld-card">
-      <div class="ld-card-bar"></div>
-      <div class="ld-card-body">
-        <div class="ld-card-icon" style="background:#fef2f2;">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#dc2626" stroke-width="2">
+      <article class="feat">
+        <div class="feat__ico" style="background:#fdeeee;border:1px solid #f8d7d7;">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#c0392b" stroke-width="2" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
           </svg>
         </div>
-        <div class="ld-card-title">Threat Monitoring</div>
-        <p class="ld-card-text">Suspicious activity and injection attempts are detected, blocked and logged in real time.</p>
-      </div>
-    </div>
+        <h3 class="feat__title">Threat Monitoring</h3>
+        <p class="feat__text">Injection attempts and suspicious activity are detected, blocked and logged in real time.</p>
+      </article>
 
-    <div class="ld-card">
-      <div class="ld-card-bar"></div>
-      <div class="ld-card-body">
-        <div class="ld-card-icon" style="background:#f5f3ff;">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#7c3aed" stroke-width="2">
+      <article class="feat">
+        <div class="feat__ico" style="background:#f2eefc;border:1px solid #e3daf8;">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#6d28d9" stroke-width="2" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/>
           </svg>
         </div>
-        <div class="ld-card-title">Role-Based Access</div>
-        <p class="ld-card-text">Every account sees only what its role permits — students, faculty, registrar and admin.</p>
-      </div>
-    </div>
+        <h3 class="feat__title">Role-Based Access</h3>
+        <p class="feat__text">Students, faculty, registrar and admin each see only the records their role permits.</p>
+      </article>
 
-    <div class="ld-card">
-      <div class="ld-card-bar"></div>
-      <div class="ld-card-body">
-        <div class="ld-card-icon" style="background:#ecfdf5;">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#059669" stroke-width="2">
+      <article class="feat">
+        <div class="feat__ico" style="background:#e9f7f1;border:1px solid #d2ede2;">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#0f766e" stroke-width="2" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z"/>
           </svg>
         </div>
-        <div class="ld-card-title">Digital Enrollment &amp; Grades</div>
-        <p class="ld-card-text">Apply, enroll, pay and receive report cards online — no paper forms, no queues.</p>
-      </div>
+        <h3 class="feat__title">Digital Enrollment &amp; Grades</h3>
+        <p class="feat__text">Apply, enroll, pay and receive report cards online — no paper forms, no queues.</p>
+      </article>
     </div>
   </div>
 </section>
 
 {{-- ══════════ ADMISSION BAND ══════════ --}}
-<div class="ld-band-wrap">
-  <div class="ld-band">
-    <div class="ld-band-inner">
-      <div class="ld-band-eyebrow">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+<section class="band">
+  <div class="wrap band__in">
+    <div>
+      <span class="band__pill">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
         </svg>
-        Now Enrolling
-      </div>
-      <h2>Now enrolling for SY 2025&ndash;2026</h2>
-      <p>Admission is open for Junior &amp; Senior High School. Start your application online today.</p>
-      <a href="{{ route('apply') }}" class="ld-btn ld-btn--primary">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/>
-        </svg>
-        Begin Application
-      </a>
+        Admissions Open
+      </span>
+      <h2 class="serif">Now enrolling for SY 2025&ndash;2026</h2>
+      <p>Admission is open for Junior &amp; Senior High School. Begin your application online — it only takes a few minutes.</p>
     </div>
+    <a href="{{ route('apply') }}" class="btn btn--lg btn--gold">
+      Begin Application
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/>
+      </svg>
+    </a>
   </div>
-</div>
+</section>
 
 {{-- ══════════ FOOTER ══════════ --}}
-<footer class="ld-footer">
-  <div class="ld-footer-inner">
-    <div class="ld-footer-brand">
-      <img src="{{ asset('images/logo.png') }}" alt="Philippine Academy of Sakya logo">
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot__in">
+      <div class="foot__brand-col">
+        <div class="foot__brand">
+          <img src="{{ asset('images/logo.png') }}" alt="Philippine Academy of Sakya crest">
+          <div>
+            <div class="foot__name">Philippine Academy of Sakya</div>
+            <div class="foot__sub">Junior &amp; Senior High School</div>
+          </div>
+        </div>
+        <p class="foot__blurb">
+          The official secure academic portal of Philippine Academy of Sakya,
+          powered by EncryptEd.
+        </p>
+      </div>
+
       <div>
-        <div class="ld-footer-name">Philippine Academy of Sakya</div>
-        <div class="ld-footer-sub">Junior &amp; Senior High School</div>
+        <div class="foot__h">Portal</div>
+        <div class="foot__links">
+          <a href="{{ route('login') }}">Portal Login</a>
+          <a href="{{ route('apply') }}">Apply for Admission</a>
+        </div>
+      </div>
+
+      <div>
+        <div class="foot__h">Admissions</div>
+        <div class="foot__links">
+          <a href="{{ route('apply') }}">Begin Application</a>
+          <a href="{{ route('login') }}">Check Your Status</a>
+        </div>
       </div>
     </div>
 
-    <div class="ld-footer-links">
-      <div class="ld-footer-links-title">Quick Links</div>
-      <a href="{{ route('login') }}">Portal Login</a>
-      <a href="{{ route('apply') }}">Apply for Admission</a>
+    <div class="foot__bar">
+      <span>&copy; {{ date('Y') }} Philippine Academy of Sakya &middot; Powered by <strong>EncryptEd</strong></span>
+      <span>Data processed in compliance with <strong>RA 10173</strong> (Data Privacy Act of 2012)</span>
     </div>
-  </div>
-
-  <div class="ld-footer-note">
-    &copy; {{ date('Y') }} Philippine Academy of Sakya &nbsp;&middot;&nbsp; Powered by <strong>EncryptEd</strong><br>
-    All personal data is processed in compliance with <strong>RA 10173 (Data Privacy Act of 2012)</strong>.
   </div>
 </footer>
 
