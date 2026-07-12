@@ -1463,7 +1463,8 @@
       Grade Complaints
     </a>
 
-    {{  <a href="{{ route('documents.registrar.index') }}"
+    {{-- Hidden: registrar "Doc Requests" nav item.
+    <a href="{{ route('documents.registrar.index') }}"
        class="stu-nav-item {{ request()->routeIs('documents.registrar.*') ? 'active' : '' }}">
       <span class="stu-icon si-orange">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -1471,7 +1472,8 @@
         </svg>
       </span>
       Doc Requests (New)
-    </a>}}
+    </a>
+    --}}
 
     <a href="{{ route('leave.faculty.index') }}"
        class="stu-nav-item {{ request()->routeIs('leave.faculty.*') ? 'active' : '' }}">
