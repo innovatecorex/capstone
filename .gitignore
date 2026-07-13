@@ -25,3 +25,6 @@ Thumbs.db
 public/adminer.php
 public/db-viewer-x7k2m9.php
 public/adminer.php
+
+# Stray nested clone of this repo — never commit it (was an orphan gitlink)
+/capstone/
