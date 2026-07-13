@@ -20,6 +20,60 @@ use Illuminate\View\View;
 
 class RegistrarApplicantController extends Controller
 {
+    /**
+     * Admission lifecycle, in order. A status may only ever ADVANCE along this
+     * list — an accepted applicant can never be sent back to pending.
+     *
+     * 'rejected' is deliberately NOT in this list: it is an exit, reachable from
+     * any non-terminal state rather than a rung on the ladder.
+     */
+    public const STATUS_ORDER = [
+        'pending'                 => 0,
+        'under_review'            => 1,
+        'waitlisted'              => 2,
+        'accepted'                => 3,
+        'eligible_for_enrollment' => 4,
+        'enrolled'                => 5,
+    ];
+
+    /** Final states — once here, the application is closed and cannot change. */
+    public const TERMINAL_STATUSES = ['enrolled', 'rejected'];
+
+    /**
+     * The statuses a registrar may legally move an applicant to from $current.
+     * Used by the server guard AND to build the UI dropdown, so the two can
+     * never disagree.
+     *
+     * @return list<string>
+     */
+    public static function allowedTransitions(string $current): array
+    {
+        // Terminal: nothing further is permitted.
+        if (in_array($current, self::TERMINAL_STATUSES, true)) {
+            return [];
+        }
+
+        $currentRank = self::STATUS_ORDER[$current] ?? -1;
+
+        $allowed = [];
+        foreach (self::STATUS_ORDER as $status => $rank) {
+            if ($rank > $currentRank) {
+                $allowed[] = $status;   // forward only
+            }
+        }
+
+        // Rejection is a valid exit from any non-terminal state.
+        $allowed[] = 'rejected';
+
+        return $allowed;
+    }
+
+    /** "under_review" → "under review" */
+    private static function label(string $status): string
+    {
+        return str_replace('_', ' ', $status);
+    }
+
     public function index(Request $request): View
     {
         $query = Applicant::latest();
@@ -69,7 +123,20 @@ class RegistrarApplicantController extends Controller
         $applicant->load(['reviewedBy', 'documents', 'requirementChecks.checkedBy']);
         $requirements      = config('admission.requirements', []);
         $requirementChecks = $applicant->requirementChecks->keyBy('requirement_key');
-        return view('registrar.applicants.show', compact('applicant', 'requirements', 'requirementChecks'));
+
+        // Only the statuses this applicant may legally move to — same source the
+        // server guard uses, so the dropdown can never offer a move the server
+        // would reject. 'eligible_for_enrollment' and 'enrolled' are excluded:
+        // those are set automatically (Create Student Account / payment
+        // confirmation), never chosen by hand here.
+        $allowedStatuses = collect(self::allowedTransitions($applicant->status))
+            ->reject(fn ($s) => in_array($s, ['eligible_for_enrollment', 'enrolled'], true))
+            ->values()
+            ->all();
+
+        return view('registrar.applicants.show', compact(
+            'applicant', 'requirements', 'requirementChecks', 'allowedStatuses'
+        ));
     }
 
     public function updateStatus(Request $request, Applicant $applicant): RedirectResponse
@@ -81,6 +148,32 @@ class RegistrarApplicantController extends Controller
 
         $old = $applicant->status;
         $new = $validated['status'];
+
+        // ── Forward-only transition guard ──────────────────────────────────
+        // An admission decision must never silently un-happen: an accepted
+        // applicant cannot be pushed back to pending/under_review. Enforced on
+        // the server, so hiding options in the UI is convenience, not security.
+        if ($new !== $old) {
+            // Terminal states are final. A rejected or fully enrolled applicant
+            // is closed; reopening one would need a deliberate new process, not
+            // a dropdown.
+            if (in_array($old, self::TERMINAL_STATUSES, true)) {
+                return back()->with('error',
+                    'This application is already ' . self::label($old)
+                    . ' and its status can no longer be changed.');
+            }
+
+            // Backward moves along the lifecycle are rejected. ('rejected' is not
+            // in STATUS_ORDER, so rejecting from any non-terminal state falls
+            // through here and is allowed — it is a valid exit, not a step back.)
+            if (isset(self::STATUS_ORDER[$old], self::STATUS_ORDER[$new])
+                && self::STATUS_ORDER[$new] < self::STATUS_ORDER[$old]) {
+                return back()->with('error',
+                    "Cannot change status from '" . self::label($old) . "' back to '"
+                    . self::label($new) . "'. Application status can only move forward.");
+            }
+        }
+        // Same status re-submitted → idempotent, allowed to fall through.
 
         // Gate: block Accept unless every required document is confirmed.
         $confirmedKeys = collect();

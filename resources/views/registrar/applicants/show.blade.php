@@ -384,20 +384,31 @@ textarea.adm-input { resize:vertical; }
     <div class="enc-card" style="padding:1.25rem;">
       <div class="enc-card__header"><div class="enc-card__title">Update Decision</div></div>
       <div class="enc-card__body">
+
+        {{-- Application status moves FORWARD only. 'enrolled' and 'rejected' are
+             terminal, so a closed application offers no options at all. The
+             server enforces this regardless — the dropdown just stops the
+             registrar from attempting a move that would be refused. --}}
+        @if(empty($allowedStatuses))
+          <div style="padding:14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;font-size:.85rem;color:#475569;line-height:1.6;">
+            <strong style="color:#0f172a;">This application is {{ str_replace('_', ' ', $applicant->status) }}.</strong><br>
+            It is final — its status can no longer be changed.
+          </div>
+        @else
         <form method="POST" action="{{ route('registrar.applicants.update-status', $applicant->id) }}"
               style="display:grid;gap:.75rem;">
           @csrf @method('PATCH')
           <div>
             <label class="adm-label">New Status</label>
             <select name="status" class="adm-input" required>
-              {{-- 'enrolled' is intentionally excluded — it is set automatically
-                   by Create Student Account and must not be set manually here. --}}
-              @foreach(['pending','accepted','rejected'] as $s)
-              <option value="{{ $s }}" {{ $applicant->status === $s ? 'selected' : '' }}>
-                {{ ucfirst(str_replace('_',' ',$s)) }}
-              </option>
+              @foreach($allowedStatuses as $s)
+              <option value="{{ $s }}">{{ ucfirst(str_replace('_',' ',$s)) }}</option>
               @endforeach
             </select>
+            <div style="font-size:.72rem;color:#94a3b8;margin-top:5px;line-height:1.5;">
+              Currently <strong>{{ str_replace('_', ' ', $applicant->status) }}</strong>.
+              Status can only move forward — it cannot be reverted.
+            </div>
           </div>
           <div>
             <label class="adm-label">Remarks</label>
@@ -406,6 +417,7 @@ textarea.adm-input { resize:vertical; }
           </div>
           <button type="submit" class="enc-btn enc-btn--primary" style="width:100%;">Save Decision</button>
         </form>
+        @endif
       </div>
     </div>
     @endif
