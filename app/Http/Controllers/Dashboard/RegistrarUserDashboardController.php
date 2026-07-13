@@ -825,28 +825,66 @@ class RegistrarUserDashboardController extends Controller
             ])->withInput();
         }
 
+        // ── Duplicate-enrollment gate ─────────────────────────────────────
+        // enrollments is UNIQUE on (student_id, academic_year_id), so a second
+        // row is impossible — but updateOrCreate below would happily overwrite
+        // section_id, SILENTLY MOVING an already-enrolled student into another
+        // section. That silent move is the double-enrollment the panel found.
+        //
+        // Note: a 'pending_payment' row is deliberately NOT blocked. That is a
+        // reserved seat which this action legitimately finalises — markPaid()
+        // records the payment but does not activate the enrollment, so enroll()
+        // is what converts that same row to 'enrolled'. Blocking it would make
+        // manually-marked-paid students impossible to enlist.
+        $existing = Enrollment::where('student_id', $student->id)
+            ->where('academic_year_id', $request->academic_year_id)
+            ->where('status', 'enrolled')
+            ->with('section')
+            ->first();
+
+        if ($existing) {
+            AuditLog::record('ENROLLMENT_BLOCKED_DUPLICATE', [
+                'student_id'             => $student->id,
+                'academic_year_id'       => (int) $request->academic_year_id,
+                'existing_enrollment_id' => $existing->id,
+                'existing_section_id'    => $existing->section_id,
+                'attempted_section_id'   => (int) $request->section_id,
+            ]);
+
+            $inSection = $existing->section ? " (Section: {$existing->section->section_name})" : '';
+
+            return back()->withErrors([
+                'enrollment' => "This student is already enrolled for the selected academic year{$inSection}. "
+                    . 'A student cannot be enrolled in more than one section. '
+                    . 'To move them, drop or transfer the existing enrollment first.',
+            ])->withInput();
+        }
+
         // ── Capacity gate ─────────────────────────────────────────────────
-        // The section picker already disables full sections client-side, but a
-        // crafted POST would bypass that, so enforce capacity on the server.
-        // A student already occupying a seat in THIS section must not be
-        // blocked (they are re-saved into the seat they already hold).
+        // The picker disables full sections client-side, but a crafted POST
+        // would bypass that, so enforce capacity server-side. Count seats that
+        // are TAKEN or RESERVED (pending_payment) — mirroring
+        // SectionAssignmentService::assign() — so a reserved seat is never given
+        // away. This student's own reserved seat is excluded, otherwise
+        // finalising their own reservation into a full section would self-block.
         $section = Section::findOrFail((int) $request->section_id);
 
-        $alreadyInThisSection = Enrollment::where('student_id', $student->id)
-            ->where('section_id', $section->id)
-            ->where('status', 'enrolled')
-            ->exists();
+        $occupied = Enrollment::where('section_id', $section->id)
+            ->where('academic_year_id', $request->academic_year_id)
+            ->whereIn('status', ['enrolled', 'pending_payment'])
+            ->where('student_id', '!=', $student->id)
+            ->count();
 
-        if (!$alreadyInThisSection && $section->isFull()) {
+        if ($occupied >= $section->capacity) {
             AuditLog::record('ENROLLMENT_BLOCKED_FULL', [
                 'student_id' => $student->id,
                 'section_id' => $section->id,
                 'capacity'   => $section->capacity,
-                'enrolled'   => $section->enrolledCount(),
+                'occupied'   => $occupied,
             ]);
 
             return back()->withErrors([
-                'enrollment' => "This section is full ({$section->enrolledCount()}/{$section->capacity}). Choose a section with open slots.",
+                'enrollment' => "Section {$section->section_name} is full ({$occupied}/{$section->capacity}). Choose another section.",
             ])->withInput();
         }
 
