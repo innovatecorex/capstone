@@ -34,6 +34,7 @@ class LrnCleanup extends Command
 {
     protected $signature = 'lrn:cleanup
         {--fix-placeholders : Regenerate valid 12-digit LRNs for short numeric placeholders}
+        {--fill-corrupted : Give Excel-corrupted rows a PROVISIONAL 12-digit LRN (pre-go-live demo data only)}
         {--apply= : CSV file of id,lrn with the real DepEd LRNs to apply}
         {--dry-run : Show what would change without writing}';
 
@@ -51,6 +52,10 @@ class LrnCleanup extends Command
 
         if ($this->option('fix-placeholders')) {
             return $this->fixPlaceholders($placeholders, $dry);
+        }
+
+        if ($this->option('fill-corrupted')) {
+            return $this->fillCorrupted($corrupted, $dry);
         }
 
         return $this->report($corrupted, $placeholders);
@@ -177,6 +182,95 @@ class LrnCleanup extends Command
         }
 
         return self::SUCCESS;
+    }
+
+    /**
+     * Give Excel-corrupted rows a PROVISIONAL 12-digit LRN.
+     *
+     * Only legitimate because the system is not yet in the client's hands and
+     * these are seeded demo records — there is no real learner behind them, and
+     * an LRN is issued by DepEd, not the school, so there is nothing to look up.
+     * Once the school goes live, real DepEd LRNs must replace these; every one
+     * is written to the audit log as LRN_PROVISIONAL_FILLED so they can be found.
+     *
+     * The value is not invented from nothing: it keeps the digits Excel DID
+     * preserve (6.20962E+11 → 620962…) and pads to 12 with the zero-padded user
+     * id, so it is deterministic, unique, and still carries the surviving prefix.
+     */
+    private function fillCorrupted(array $corrupted, bool $dry): int
+    {
+        if (!$corrupted) {
+            $this->info('No Excel-corrupted LRNs found.');
+            return self::SUCCESS;
+        }
+
+        $this->warn('These are PROVISIONAL LRNs for pre-go-live demo data.');
+        $this->warn('Real DepEd-issued LRNs must replace them before the school uses the system.');
+        $this->newLine();
+        $this->info($dry ? 'DRY RUN — nothing will be written.' : 'Filling corrupted LRNs…');
+
+        $filled = 0;
+
+        foreach ($corrupted as $r) {
+            $user = User::find($r['id']);
+            if (!$user) {
+                continue;
+            }
+
+            $new = $this->buildProvisionalLrn((string) ($r['known_prefix'] ?? ''), (int) $r['id']);
+
+            $this->line("  id {$r['id']}  {$r['lrn']}  →  {$new}   ({$r['name']})");
+
+            if (!$dry) {
+                $old = $user->lrn;
+                $user->lrn = $new;   // mutator re-encrypts + refreshes lrn_hash
+                $user->save();
+
+                AuditLog::record('LRN_PROVISIONAL_FILLED', [
+                    'target_user_id' => $user->id,
+                    'old_lrn'        => $old,
+                    'new_lrn'        => $new,
+                    'reason'         => 'Excel-corrupted LRN replaced with a PROVISIONAL 12-digit value '
+                                      . '(pre-go-live demo data). Must be replaced with the real DepEd LRN.',
+                ]);
+            }
+            $filled++;
+        }
+
+        $this->newLine();
+        $this->info(($dry ? 'Would fill: ' : 'Filled: ') . $filled);
+        if ($dry) {
+            $this->warn('Re-run without --dry-run to apply.');
+        } else {
+            $this->warn('Audit trail: php artisan tinker → AuditLog::where(\'action_type\',\'LRN_PROVISIONAL_FILLED\')');
+        }
+
+        return self::SUCCESS;
+    }
+
+    /** Surviving prefix + zero-padded user id, padded/trimmed to exactly 12 digits and unique. */
+    private function buildProvisionalLrn(string $prefix, int $id): string
+    {
+        $prefix = preg_replace('/\D/', '', $prefix) ?? '';
+
+        // Keep room for a meaningful tail; fall back to the sequential generator
+        // if Excel left us nothing usable.
+        if ($prefix === '') {
+            return $this->nextFreeLrn();
+        }
+        $prefix = substr($prefix, 0, 8);
+
+        $tailLen = 12 - strlen($prefix);
+        $seed    = $id;
+
+        do {
+            $tail      = substr(str_pad((string) $seed, $tailLen, '0', STR_PAD_LEFT), -$tailLen);
+            $candidate = $prefix . $tail;
+            $taken     = User::where('lrn_hash', User::hashFor('lrn', $candidate))->exists();
+            $seed++;
+        } while ($taken);
+
+        return $candidate;
     }
 
     private function apply(string $file, bool $dry): int
