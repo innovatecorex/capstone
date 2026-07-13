@@ -117,8 +117,15 @@ class LrnCleanup extends Command
 
             $this->newLine();
             $this->warn('  These CANNOT be auto-repaired — the trailing digits no longer exist.');
-            $this->info('  Worksheet written to: storage/app/' . $path);
-            $this->info('  Fill in the real_lrn column from school records, then run:');
+            $this->warn('  known_prefix shows the digits Excel DID preserve; use it to match the');
+            $this->warn('  student against school records.');
+            $this->newLine();
+            $this->info('  Worksheet: storage/app/' . $path);
+            $this->error('  IMPORTANT: format the real_lrn column as TEXT before typing into it —');
+            $this->error('  otherwise Excel will mangle the new LRNs exactly the same way.');
+            $this->error('  (Safest: fill it in a plain-text editor or Google Sheets.)');
+            $this->newLine();
+            $this->info('  Then run:');
             $this->info('    php artisan lrn:cleanup --apply=storage/app/' . $path . ' --dry-run');
         }
 
@@ -203,6 +210,22 @@ class LrnCleanup extends Command
             if ($id === '' || $lrn === '') {
                 $skipped++;
                 continue; // row left blank — nothing supplied yet
+            }
+
+            // The worksheet is filled in by a human, most likely in Excel — which
+            // will happily corrupt the freshly-typed LRN all over again. Strip the
+            // text-protection markers, and if it arrives already mangled, say so
+            // plainly instead of silently writing a wrong number.
+            $lrn = ltrim($lrn, "'\t");
+            if (preg_match('/^=\s*"?(.*?)"?$/', $lrn, $m)) {
+                $lrn = trim($m[1]);
+            }
+
+            if (preg_match('/[eE][+-]?\d+/', $lrn) || str_contains($lrn, '.')) {
+                $this->error("  id {$id}: '{$lrn}' is scientific notation — Excel corrupted it AGAIN. "
+                    . 'Format the real_lrn column as TEXT (or edit the CSV in a plain-text editor) and retry.');
+                $skipped++;
+                continue;
             }
 
             if (!preg_match('/^\d{12}$/', $lrn)) {
