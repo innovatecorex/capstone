@@ -499,6 +499,12 @@
                   <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
                     <a href="{{ route('registrar.enrollment.finalize', $enr->student_id) }}?year_id={{ $selectedYearId }}"
                        style="padding:.3rem .65rem;font-size:.72rem;background:#e0e7ff;color:#3730a3;border-radius:5px;text-decoration:none;font-weight:700;">Finalize</a>
+                    {{-- Explicit transfer — updates the SAME enrollment row.
+                         Re-enrolling into another section is blocked as a duplicate. --}}
+                    <button type="button"
+                            onclick="openTransfer({{ $enr->id }}, '{{ addslashes($enr->student?->full_name ?? '') }}', '{{ addslashes($enr->section?->section_name ?? '') }}', '{{ addslashes($enr->section?->grade_level ?? '') }}', {{ $enr->section_id ?? 0 }})"
+                            style="padding:.3rem .65rem;font-size:.72rem;background:#fef3c7;color:#92400e;border:none;border-radius:5px;cursor:pointer;font-weight:700;">Transfer</button>
+
                     <form method="POST" action="{{ route('registrar.drop-enrollment') }}"
                           onsubmit="return confirmRemove('{{ addslashes($enr->student?->full_name ?? '') }}', '{{ addslashes($enr->section?->section_name ?? '') }}')">
                       @csrf
@@ -525,6 +531,51 @@
       {{ $recentEnrollments->links() }}
     </div>
     @endif
+  </div>
+
+  {{-- ══════ Transfer Section modal ══════
+       Explicit, audited move. Posts enrollment_id + section_id; the server
+       updates that SAME enrollment row (never creates a second one). --}}
+  <div id="transferModal" style="display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;">
+    <div onclick="closeTransfer()" style="position:absolute;inset:0;background:rgba(15,23,42,.55);backdrop-filter:blur(3px);"></div>
+    <div style="position:relative;z-index:1;background:#fff;border-radius:14px;width:100%;max-width:440px;box-shadow:0 24px 60px rgba(0,0,0,.3);overflow:hidden;">
+      <div style="padding:16px 20px;border-bottom:1px solid #e2e8f0;">
+        <div style="font-size:.95rem;font-weight:800;color:#0f172a;">Transfer Section</div>
+        <div style="font-size:.75rem;color:#64748b;margin-top:2px;">Moves the student's existing enrollment — no duplicate is created.</div>
+      </div>
+
+      <form method="POST" action="{{ route('registrar.transfer-section') }}">
+        @csrf
+        <input type="hidden" name="enrollment_id" id="tr_enrollment_id">
+
+        <div style="padding:18px 20px;display:flex;flex-direction:column;gap:12px;">
+          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:9px;padding:10px 12px;font-size:.82rem;color:#334155;">
+            <div><strong>Student:</strong> <span id="tr_student">—</span></div>
+            <div style="margin-top:2px;"><strong>Currently in:</strong> <span id="tr_current">—</span></div>
+          </div>
+
+          <div>
+            <label style="display:block;font-size:.72rem;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;">
+              Transfer to <span id="tr_grade" style="color:#94a3b8;font-weight:600;text-transform:none;letter-spacing:0;"></span>
+            </label>
+            <select name="section_id" id="tr_section" required
+                    style="width:100%;padding:9px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:.88rem;">
+              <option value="">Loading sections…</option>
+            </select>
+            <p style="font-size:.72rem;color:#94a3b8;margin:6px 0 0;">
+              Transfers stay within the same grade level. Full sections are disabled.
+            </p>
+          </div>
+        </div>
+
+        <div style="padding:14px 20px;border-top:1px solid #e2e8f0;display:flex;justify-content:flex-end;gap:8px;">
+          <button type="button" onclick="closeTransfer()"
+                  style="padding:.5rem 1rem;font-size:.82rem;font-weight:700;background:#f1f5f9;color:#475569;border:none;border-radius:8px;cursor:pointer;">Cancel</button>
+          <button type="submit" id="tr_submit"
+                  style="padding:.5rem 1.1rem;font-size:.82rem;font-weight:700;background:#065f46;color:#fff;border:none;border-radius:8px;cursor:pointer;">Transfer Student</button>
+        </div>
+      </form>
+    </div>
   </div>
 
 </div>
@@ -758,6 +809,55 @@ function checkEnrollBtn() {
 
 function escHtml(str) {
   return String(str ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ── Transfer Section modal ──────────────────────────────────────────────
+   Loads the sections for the student's CURRENT grade level (a transfer must
+   stay within the grade), excludes the section they're already in, shows live
+   slots-left, and disables full ones. The server re-checks all of this. */
+function openTransfer(enrollmentId, studentName, currentSection, gradeLevel, currentSectionId) {
+  document.getElementById('tr_enrollment_id').value = enrollmentId;
+  document.getElementById('tr_student').textContent = studentName || '—';
+  document.getElementById('tr_current').textContent = currentSection || '—';
+  document.getElementById('tr_grade').textContent   = gradeLevel ? '(' + gradeLevel + ')' : '';
+
+  const sel = document.getElementById('tr_section');
+  const btn = document.getElementById('tr_submit');
+  sel.innerHTML = '<option value="">Loading sections…</option>';
+  btn.disabled  = true;
+
+  document.getElementById('transferModal').style.display = 'flex';
+
+  if (!gradeLevel) {
+    sel.innerHTML = '<option value="">Unknown grade level</option>';
+    return;
+  }
+
+  let url = AJAX_SECTIONS_URL + '?grade_level=' + encodeURIComponent(gradeLevel);
+  if (SELECTED_YEAR_ID) url += '&academic_year_id=' + SELECTED_YEAR_ID;
+
+  fetch(url)
+    .then(r => r.json())
+    .then(data => {
+      const others = data.filter(s => Number(s.id) !== Number(currentSectionId));
+      if (!others.length) {
+        sel.innerHTML = '<option value="">No other section available for this grade</option>';
+        return;
+      }
+      sel.innerHTML = '<option value="">— Choose a section —</option>' +
+        others.map(s => {
+          const left = Math.max(0, s.capacity - s.enrolled);
+          const full = left === 0;
+          const tail = full ? ' — FULL' : ` — ${left} slot${left === 1 ? '' : 's'} left`;
+          return `<option value="${s.id}" ${full ? 'disabled' : ''}>${escHtml(s.section_name)} (${s.enrolled}/${s.capacity}${tail})</option>`;
+        }).join('');
+      btn.disabled = false;
+    })
+    .catch(() => { sel.innerHTML = '<option value="">Failed to load sections</option>'; });
+}
+
+function closeTransfer() {
+  document.getElementById('transferModal').style.display = 'none';
 }
 </script>
 @endpush

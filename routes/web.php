@@ -325,6 +325,9 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/registrar/enroll',          [App\Http\Controllers\Dashboard\RegistrarUserDashboardController::class, 'enroll'])->name('registrar.enroll');
         Route::post('/registrar/mark-paid',        [App\Http\Controllers\Dashboard\RegistrarUserDashboardController::class, 'markPaid'])->name('registrar.mark-paid');
         Route::post('/registrar/drop-enrollment', [App\Http\Controllers\Dashboard\RegistrarUserDashboardController::class, 'dropEnrollment'])->name('registrar.drop-enrollment');
+        // Explicit section transfer — the only sanctioned way to move a student
+        // between sections (re-enrolling is blocked as a duplicate).
+        Route::post('/registrar/transfer-section', [App\Http\Controllers\Dashboard\RegistrarUserDashboardController::class, 'transferSection'])->name('registrar.transfer-section');
         // AJAX helpers for cascading dropdowns
         Route::get('/registrar/ajax/sections',     [App\Http\Controllers\Dashboard\RegistrarUserDashboardController::class, 'ajaxSections'])  ->name('registrar.ajax.sections');
         Route::get('/registrar/ajax/students',     [App\Http\Controllers\Dashboard\RegistrarUserDashboardController::class, 'ajaxStudents'])  ->name('registrar.ajax.students');

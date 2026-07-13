@@ -14,11 +14,14 @@ use App\Models\GradingQuarter;
 use App\Models\Notification;
 use App\Models\Payment;
 use App\Models\Section;
+use App\Models\SectionSubject;
 use App\Models\AuditLog;
 use App\Models\ReportCardToken;
 use App\Models\User;
 use App\Services\PrerequisiteService;
+use App\Services\SectionAssignmentService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 /**
  * RegistrarUserDashboardController
@@ -778,6 +781,134 @@ class RegistrarUserDashboardController extends Controller
 
         return redirect()->route('registrar.enrollment')
             ->with('success', 'Student has been removed from the section.');
+    }
+
+    /**
+     * Transfer a student to a different section — the legitimate, explicit way
+     * to move someone, replacing the old behaviour where re-enrolling silently
+     * overwrote section_id (the "Martinez" double-enrollment).
+     *
+     * It updates the SAME enrollment row (never creates a second one), keeps
+     * grades intact by re-pointing them at the destination section's equivalent
+     * subject, is capacity-checked, audited, and notifies the student.
+     */
+    public function transferSection(Request $request)
+    {
+        $request->validate([
+            'enrollment_id' => ['required', 'integer', 'exists:enrollments,id'],
+            'section_id'    => ['required', 'integer', 'exists:sections,id'],
+        ]);
+
+        $enrollment = Enrollment::with(['student', 'section', 'academicYear'])
+            ->findOrFail($request->enrollment_id);
+
+        $from = $enrollment->section;
+        $to   = Section::findOrFail((int) $request->section_id);
+
+        // Only a live seat (taken or reserved) can be moved.
+        if (!in_array($enrollment->status, ['enrolled', 'pending_payment'], true)) {
+            return back()->with('error', 'Only an active enrollment can be transferred.');
+        }
+
+        if ($to->id === $enrollment->section_id) {
+            return back()->with('error', 'The student is already in that section.');
+        }
+
+        // A move across grade levels is a promotion, not a transfer.
+        if ($from && $to->grade_level !== $from->grade_level) {
+            return back()->with('error', "A transfer must stay within the same grade level ({$from->grade_level}).");
+        }
+
+        // Finalized/locked grades are bound to the current section's subjects
+        // and must never be re-pointed. Mirrors the dropEnrollment guard.
+        if (Grade::where('enrollment_id', $enrollment->id)->whereIn('status', ['finalized', 'locked'])->exists()) {
+            return back()->with('error', 'Cannot transfer — this student has finalized or locked grades in their current section.');
+        }
+
+        // Capacity: count taken + reserved seats, excluding this student's own.
+        $occupied = Enrollment::where('section_id', $to->id)
+            ->where('academic_year_id', $enrollment->academic_year_id)
+            ->whereIn('status', ['enrolled', 'pending_payment'])
+            ->where('student_id', '!=', $enrollment->student_id)
+            ->count();
+
+        if ($occupied >= $to->capacity) {
+            return back()->with('error', "Section {$to->section_name} is full ({$occupied}/{$to->capacity}).");
+        }
+
+        // Map the destination's subjects: subject_id => section_subject_id.
+        $toSubjects = SectionSubject::where('section_id', $to->id)
+            ->where('academic_year_id', $enrollment->academic_year_id)
+            ->pluck('id', 'subject_id');
+
+        // Refuse to silently discard work: if the student has any ENCODED score
+        // for a subject the destination section does not offer, block instead of
+        // deleting it. Empty shells are safe to drop.
+        $grades = Grade::where('enrollment_id', $enrollment->id)->with('sectionSubject')->get();
+
+        foreach ($grades as $g) {
+            $subjectId = $g->sectionSubject?->subject_id;
+            $hasScores = $g->written_work !== null || $g->performance_task !== null
+                      || $g->quarterly_assessment !== null || $g->final_grade !== null;
+
+            if ($hasScores && (!$subjectId || !isset($toSubjects[$subjectId]))) {
+                return back()->with('error',
+                    "Cannot transfer — the student has encoded grades for a subject that {$to->section_name} does not offer. Move those grades first.");
+            }
+        }
+
+        DB::transaction(function () use ($enrollment, $to, $grades, $toSubjects) {
+            // Re-point each grade at the destination's equivalent subject;
+            // discard only empty shells for subjects not taught there.
+            foreach ($grades as $g) {
+                $subjectId = $g->sectionSubject?->subject_id;
+
+                if ($subjectId && isset($toSubjects[$subjectId])) {
+                    $g->update(['section_subject_id' => $toSubjects[$subjectId]]);
+                } else {
+                    $g->delete(); // empty shell only — scored ones were blocked above
+                }
+            }
+
+            // THE SAME ROW — a transfer never creates a second enrollment.
+            $enrollment->update(['section_id' => $to->id]);
+
+            // Dual-write users.section_id, mirroring SectionAssignmentService.
+            $enrollment->student?->update(['section_id' => $to->id]);
+
+            // Backfill shells for any subject the destination offers.
+            if ($enrollment->status === 'enrolled' && $enrollment->academicYear) {
+                app(SectionAssignmentService::class)
+                    ->createGradeShells($enrollment, $to, $enrollment->academicYear);
+            }
+        });
+
+        AuditLog::record('ENROLLMENT_TRANSFERRED', [
+            'enrollment_id' => $enrollment->id,
+            'student_id'    => $enrollment->student_id,
+            'student'       => $enrollment->student?->full_name,
+            'from_section'  => $from?->section_name,
+            'to_section'    => $to->section_name,
+            'grade_level'   => $to->grade_level,
+            'transferred_by'=> auth()->user()?->full_name,
+        ]);
+
+        if ($enrollment->student_id) {
+            Notification::create([
+                'user_id'      => $enrollment->student_id,
+                'type'         => 'enrollment',
+                'title'        => 'Section transfer',
+                'body'         => 'You have been transferred from '
+                                . ($from?->section_name ?? 'your previous section')
+                                . " to {$to->section_name}.",
+                'related_type' => Enrollment::class,
+                'related_id'   => $enrollment->id,
+            ]);
+        }
+
+        return back()->with('success',
+            ($enrollment->student?->full_name ?? 'Student')
+            . ' transferred from ' . ($from?->section_name ?? '—') . " to {$to->section_name}.");
     }
 
     public function enroll(Request $request)
