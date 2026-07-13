@@ -185,9 +185,10 @@
 
 @section('content')
 @php
-  $wwPct = round(($subjectWeights['ww'] ?? 0.30) * 100);
-  $ptPct = round(($subjectWeights['pt'] ?? 0.50) * 100);
-  $qaPct = round(($subjectWeights['qa'] ?? 0.20) * 100);
+  // The components that actually compute the final grade (config-driven, the
+  // same source Grade::computeFinalGrade() uses) so the weights shown in the
+  // column headers always match how the grade is really derived.
+  $gradeComponents = $gradeComponents ?? config('academic.grade_components', []);
 
   // Overall status for the badge
   $overallStatus = 'no-entry';

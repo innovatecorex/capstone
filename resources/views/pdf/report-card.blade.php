@@ -138,6 +138,57 @@
       </tr>
     </tbody>
   </table>
+
+  {{-- ── GRADE COMPUTATION ──────────────────────────────────────────────
+       An official report card should not be just a final number: this shows
+       the components behind every quarterly grade. Kept as a separate table
+       so the matrix above stays legible on the page. --}}
+  @php $components = config('academic.grade_components', []); @endphp
+  @if(!empty($components))
+  <div style="font-size:9.5pt;font-weight:bold;color:#1e3a5f;margin:14px 0 3px;">GRADE COMPUTATION</div>
+  <div style="font-size:7.5pt;color:#666;margin-bottom:5px;">
+    How each quarterly grade was derived from its components (each score is out of 100).
+  </div>
+
+  <table class="grades" style="font-size:7.5pt;">
+    <thead>
+      <tr>
+        <th class="subject-col" style="width:26%;">Learning Area</th>
+        <th style="width:6%;">Qtr</th>
+        @foreach($components as $key => $meta)
+        <th>{{ $meta['label'] ?? strtoupper($key) }}<br>
+          <span style="font-weight:normal;font-size:6.5pt;">
+            {{ rtrim(rtrim(number_format($meta['weight'] * 100, 2), '0'), '.') }}%
+          </span>
+        </th>
+        @endforeach
+        <th>Final</th>
+      </tr>
+    </thead>
+    <tbody>
+      @foreach($rows as $subject => $info)
+        @foreach($quarters as $q)
+          @php $g = $info['quarters'][$q->quarter_number] ?? null; @endphp
+          @if($g && !empty($g['breakdown']))
+          <tr>
+            <td class="subject-cell">{{ $subject }}</td>
+            <td>Q{{ $q->quarter_number }}</td>
+            @foreach($g['breakdown']['rows'] as $r)
+            <td>{{ $r['score'] === null ? '—' : rtrim(rtrim(number_format($r['score'], 2), '0'), '.') }}</td>
+            @endforeach
+            <td><strong>{{ $g['final_grade'] !== null ? number_format($g['final_grade'], 2) : '—' }}</strong></td>
+          </tr>
+          @endif
+        @endforeach
+      @endforeach
+    </tbody>
+  </table>
+
+  <div style="font-size:7pt;color:#666;margin:4px 0 10px;">
+    Final grade = {{ \App\Models\Grade::weightsLegend() }} &middot; per DepEd Order No. 8, s. 2015.
+    Final grade = sum of (component score &times; its weight).
+  </div>
+  @endif
   @else
   <p style="text-align:center;color:#888;padding:20px 0;">No finalized grades available for this report card.</p>
   @endif

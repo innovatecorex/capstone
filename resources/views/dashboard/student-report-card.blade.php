@@ -43,7 +43,7 @@
 <div class="enc-card student-glass-card" style="padding:1.5rem;">
   <div class="enc-card__header">
     <div class="enc-card__title">Grades Breakdown</div>
-    <span class="enc-card__meta">Detailed subject scores</span>
+    <span class="enc-card__meta">Detailed subject scores · click a subject to see the computation</span>
   </div>
   <div class="enc-card__body">
     <div style="overflow-x:auto;">
@@ -56,18 +56,42 @@
           </tr>
         </thead>
         <tbody>
-          @foreach($reportCard['subjects'] as $subject)
-          <tr>
-            <td style="padding:14px 14px;border-bottom:1px solid rgba(15,23,42,.06);">{{ $subject['name'] }}</td>
+          @foreach($reportCard['subjects'] as $i => $subject)
+          <tr onclick="toggleBreakdown({{ $i }})" style="cursor:pointer;" title="Show how this grade was computed">
+            <td style="padding:14px 14px;border-bottom:1px solid rgba(15,23,42,.06);">
+              <span style="display:inline-block;width:12px;color:var(--gray-400);font-size:.7rem;" id="bd-caret-{{ $i }}">▸</span>
+              {{ $subject['name'] }}
+            </td>
             <td style="padding:14px 14px;border-bottom:1px solid rgba(15,23,42,.06);">{{ $subject['category'] }}</td>
             <td style="padding:14px 14px;border-bottom:1px solid rgba(15,23,42,.06);text-align:right;font-weight:700;color:var(--navy);">{{ $subject['grade'] }}%</td>
           </tr>
+
+          {{-- Per-subject component breakdown: every component, its weight, its
+               contribution, and how they sum to the final grade shown above. --}}
+          @isset($subject['model'])
+          <tr id="bd-row-{{ $i }}" style="display:none;">
+            <td colspan="3" style="padding:0 14px 14px;border-bottom:1px solid rgba(15,23,42,.06);background:#fbfcfe;">
+              @include('partials.grade-breakdown', ['grade' => $subject['model']])
+            </td>
+          </tr>
+          @endisset
           @endforeach
         </tbody>
       </table>
     </div>
   </div>
 </div>
+
+<script>
+  function toggleBreakdown(i) {
+    var row = document.getElementById('bd-row-' + i);
+    var car = document.getElementById('bd-caret-' + i);
+    if (!row) return;
+    var open = row.style.display !== 'none';
+    row.style.display = open ? 'none' : 'table-row';
+    if (car) car.textContent = open ? '▸' : '▾';
+  }
+</script>
 
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;margin-top:20px;">
   <div class="enc-card student-glass-card" style="padding:1.25rem;">

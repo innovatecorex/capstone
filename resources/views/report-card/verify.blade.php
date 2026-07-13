@@ -108,6 +108,61 @@
         </tr>
       </tbody>
     </table>
+
+    {{-- ══════ GRADE COMPUTATION ══════
+         The matrix above shows only the final number per quarter. This section
+         shows HOW each of those numbers was derived — every component, its
+         weight, and the resulting grade. Kept as its own table so the main
+         matrix stays readable. --}}
+    @php $components = config('academic.grade_components', []); @endphp
+    @if(!empty($components))
+    <h3 style="font-size:.9rem;font-weight:800;color:#0f172a;margin:26px 0 4px;">Grade Computation</h3>
+    <p style="font-size:.75rem;color:#64748b;margin:0 0 10px;">
+      How each quarterly grade was computed from its components.
+    </p>
+
+    <table class="grades">
+      <thead>
+        <tr>
+          <th class="left">Learning Area</th>
+          <th>Quarter</th>
+          @foreach($components as $key => $meta)
+          <th>
+            {{ $meta['label'] ?? strtoupper($key) }}
+            <div style="font-weight:500;color:#94a3b8;font-size:.68rem;">
+              {{ rtrim(rtrim(number_format($meta['weight'] * 100, 2), '0'), '.') }}%
+            </div>
+          </th>
+          @endforeach
+          <th>Final</th>
+        </tr>
+      </thead>
+      <tbody>
+        @foreach($data['rows'] as $subject => $info)
+          @foreach($data['quarters'] as $q)
+            @php $g = $info['quarters'][$q->quarter_number] ?? null; @endphp
+            @if($g && !empty($g['breakdown']))
+            <tr>
+              <td class="left">{{ $subject }}</td>
+              <td>Q{{ $q->quarter_number }}</td>
+              @foreach($g['breakdown']['rows'] as $r)
+              <td>{{ $r['score'] === null ? '—' : rtrim(rtrim(number_format($r['score'], 2), '0'), '.') }}</td>
+              @endforeach
+              <td style="font-weight:800;">
+                {{ $g['final_grade'] !== null ? number_format($g['final_grade'], 2) : '—' }}
+              </td>
+            </tr>
+            @endif
+          @endforeach
+        @endforeach
+      </tbody>
+    </table>
+
+    <p style="font-size:.72rem;color:#64748b;margin:-14px 0 24px;">
+      Final grade = {{ \App\Models\Grade::weightsLegend() }} · per DepEd Order No. 8, s. 2015.
+      Each score is out of 100; the final grade is the sum of (score &times; weight).
+    </p>
+    @endif
     @else
     <p style="color:#94a3b8;font-size:.85rem;margin-bottom:20px;">No grade records found.</p>
     @endif

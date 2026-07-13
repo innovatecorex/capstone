@@ -50,6 +50,10 @@ class ReportCardController extends Controller
                 'final_grade'  => $grade->final_grade,
                 'descriptor'   => $grade->descriptor,
                 'status'       => $grade->status,
+                // Per-component derivation, so an official report card shows HOW
+                // the final grade was computed, not just the number. Safe for the
+                // tamper fingerprint: fingerprintData() hashes final_grade only.
+                'breakdown'    => $grade->componentBreakdown(),
             ];
         }
 

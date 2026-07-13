@@ -322,10 +322,14 @@ class StudentDashboardController extends Controller
                     'remarks'  => $qGrades->every(fn($g) => $g->isPassing())
                                   ? 'All subjects passed'
                                   : 'Some subjects need improvement',
+                    // The Grade model is carried through so the view can render the
+                    // per-component breakdown (Grade::componentBreakdown()) and show
+                    // exactly how each final grade was computed.
                     'subjects' => $qGrades->map(fn($g) => [
                         'name'     => $g->sectionSubject?->subject?->subject_name ?? '—',
                         'category' => $g->descriptor ?? '—',
                         'grade'    => number_format($g->final_grade, 0),
+                        'model'    => $g,
                     ])->toArray(),
                 ];
             }

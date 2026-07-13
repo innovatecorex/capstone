@@ -122,16 +122,18 @@ class GradebookController extends Controller
             }
         }
 
-        $weights = $ss->subject?->getGradeWeights()
-            ?? config('academic.grade_weights')
-            ?? ['written_work' => 0.30, 'performance_task' => 0.50, 'quarterly_assessment' => 0.20];
+        // The grade components that actually produce final_grade. (The old
+        // written_work/performance_task/quarterly_assessment weights are dead —
+        // those columns are no longer filled, so exporting them produced a
+        // column of dashes and an "Initial Grade" that never matched.)
+        $components = config('academic.grade_components', []);
 
         $subjectSlug = \Str::slug($ss->subject?->subject_name ?? 'class');
         $sectionSlug = \Str::slug(($ss->section?->grade_level ?? '') . '-' . ($ss->section_name ?? ''));
         $suffix      = $includeGrades ? '-with-grades' : '';
         $filename    = "classlist-{$subjectSlug}-{$sectionSlug}{$suffix}-" . now()->format('Y-m-d') . '.csv';
 
-        return response()->stream(function () use ($enrollments, $ss, $includeGrades, $grades, $quarter, $weights) {
+        return response()->stream(function () use ($enrollments, $ss, $includeGrades, $grades, $quarter, $components) {
             $h = fopen('php://output', 'w');
 
             // Header info rows
@@ -144,18 +146,17 @@ class GradebookController extends Controller
             fputcsv($h, ['Total Students', $enrollments->count()]);
             fputcsv($h, []);
 
-            // Column headers
+            // Column headers — one column per ACTUAL grade component, each
+            // labelled with the weight that produced the final grade.
             $cols = ['#', 'LRN', 'Last Name', 'First Name', 'Middle Name', 'Gender', 'Email'];
             if ($includeGrades) {
-                $wwPct  = round(($weights['written_work']         ?? 0.30) * 100);
-                $ptPct  = round(($weights['performance_task']     ?? 0.50) * 100);
-                $qaPct  = round(($weights['quarterly_assessment'] ?? 0.20) * 100);
-                $cols   = array_merge($cols, [
-                    "Written Work ({$wwPct}%)",
-                    "Performance Task ({$ptPct}%)",
-                    "Quarterly Assessment ({$qaPct}%)",
-                    'Initial Grade',
-                    'Transmuted Grade',
+                foreach ($components as $key => $meta) {
+                    $pct    = rtrim(rtrim(number_format($meta['weight'] * 100, 2), '0'), '.');
+                    $cols[] = ($meta['label'] ?? strtoupper($key)) . " ({$pct}%)";
+                }
+                $cols = array_merge($cols, [
+                    'Computed Grade',
+                    'Final Grade',
                     'Descriptor',
                     'Status',
                 ]);
@@ -178,22 +179,27 @@ class GradebookController extends Controller
                 if ($includeGrades) {
                     $g = $grades->get($e->id);
                     if ($g) {
-                        $ww = $weights['written_work']         ?? 0.30;
-                        $pt = $weights['performance_task']     ?? 0.50;
-                        $qa = $weights['quarterly_assessment'] ?? 0.20;
-                        $hasAll  = $g->written_work !== null && $g->performance_task !== null && $g->quarterly_assessment !== null;
-                        $initial = $hasAll ? round($g->written_work * $ww + $g->performance_task * $pt + $g->quarterly_assessment * $qa, 2) : null;
+                        // Same breakdown the UI shows, so the CSV reconciles too.
+                        $b = $g->componentBreakdown();
+
+                        foreach ($b['rows'] as $r) {
+                            $row[] = $r['score'] === null
+                                ? '—'
+                                : rtrim(rtrim(number_format($r['score'], 2), '0'), '.');
+                        }
+
                         $row = array_merge($row, [
-                            $g->written_work         !== null ? number_format($g->written_work, 0)         : '—',
-                            $g->performance_task     !== null ? number_format($g->performance_task, 0)     : '—',
-                            $g->quarterly_assessment !== null ? number_format($g->quarterly_assessment, 0) : '—',
-                            $initial !== null ? number_format($initial, 2) : '—',
-                            $g->final_grade          !== null ? number_format($g->final_grade, 0)          : '—',
-                            $g->descriptor           ?? '—',
-                            ucfirst($g->status       ?? '—'),
+                            $b['total']       !== null ? number_format($b['total'], 2)       : '—',
+                            $g->final_grade   !== null ? number_format($g->final_grade, 2)   : '—',
+                            $g->descriptor    ?? '—',
+                            ucfirst($g->status ?? '—'),
                         ]);
                     } else {
-                        $row = array_merge($row, ['—', '—', '—', '—', '—', '—', 'No Entry']);
+                        $row = array_merge(
+                            $row,
+                            array_fill(0, count($components), '—'),
+                            ['—', '—', '—', 'No Entry']
+                        );
                     }
                 }
 
@@ -251,15 +257,10 @@ class GradebookController extends Controller
         $anyLocked    = $grades->some(fn($g) => $g->status === 'locked');
         $anyFinalized = $grades->some(fn($g) => in_array($g->status, ['finalized', 'locked']));
 
-        $rawWeights = $ss->subject?->getGradeWeights()
-            ?? config('academic.grade_weights')
-            ?? ['written_work' => 0.30, 'performance_task' => 0.50, 'quarterly_assessment' => 0.20];
-
-        $subjectWeights = [
-            'ww' => $rawWeights['written_work']         ?? $rawWeights['ww'] ?? 0.30,
-            'pt' => $rawWeights['performance_task']     ?? $rawWeights['pt'] ?? 0.50,
-            'qa' => $rawWeights['quarterly_assessment'] ?? $rawWeights['qa'] ?? 0.20,
-        ];
+        // Components that actually compute the final grade — the faculty
+        // gradebook shows each weight in its column header so the derivation is
+        // visible on screen (and during the panel demo).
+        $gradeComponents = config('academic.grade_components', []);
 
         $sectionAnnouncements = \App\Models\Announcement::where('section_id', $ss->section_id)
             ->where('created_by', auth()->id())
@@ -270,7 +271,7 @@ class GradebookController extends Controller
             'ss', 'quarter', 'allQuarters', 'activeQuarter', 'isActiveQuarter',
             'enrollments', 'grades',
             'allDraft', 'allSubmitted', 'anyLocked', 'anyFinalized',
-            'subjectWeights', 'sectionAnnouncements'
+            'gradeComponents', 'sectionAnnouncements'
         ));
     }
 

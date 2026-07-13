@@ -260,6 +260,81 @@ class Grade extends Model
     }
 
     /**
+     * Per-component breakdown of how this grade was computed.
+     *
+     * Deliberately reads the SAME config('academic.grade_components') that
+     * computeFinalGrade() uses, so what a student/parent/panel sees on screen can
+     * never drift from the number actually stored in final_grade. If the weights
+     * ever change, both move together.
+     *
+     * Returns, for every component:
+     *   key, label, score (null = not yet graded), weight (0-1), weight_pct,
+     *   contribution (score × weight, null when ungraded)
+     *
+     * @return array{
+     *   rows: list<array<string,mixed>>,
+     *   total: float|null,
+     *   is_complete: bool,
+     *   stored: float|null,
+     *   matches: bool
+     * }
+     */
+    public function componentBreakdown(): array
+    {
+        $components = config('academic.grade_components', []);
+
+        $rows       = [];
+        $total      = 0.0;
+        $isComplete = true;
+
+        foreach ($components as $key => $meta) {
+            $score = $this->{$key};
+
+            if ($score === null) {
+                $isComplete = false;
+            } else {
+                $total += (float) $score * $meta['weight'];
+            }
+
+            $rows[] = [
+                'key'          => $key,
+                'label'        => $meta['label'] ?? strtoupper($key),
+                'name'         => $meta['name'] ?? ($meta['label'] ?? strtoupper($key)),
+                'score'        => $score === null ? null : (float) $score,
+                'weight'       => (float) $meta['weight'],
+                'weight_pct'   => round($meta['weight'] * 100, 2),
+                'contribution' => $score === null ? null : round((float) $score * $meta['weight'], 2),
+            ];
+        }
+
+        $computed = $isComplete ? round($total, 2) : null;
+        $stored   = $this->final_grade === null ? null : (float) $this->final_grade;
+
+        return [
+            'rows'        => $rows,
+            'total'       => $computed,
+            'is_complete' => $isComplete,
+            'stored'      => $stored,
+            // Guards the compliance claim: the shown math must reconcile with the
+            // stored grade (tolerance covers decimal rounding only).
+            'matches'     => $computed !== null && $stored !== null
+                             && abs($computed - $stored) < 0.02,
+        ];
+    }
+
+    /**
+     * The grading policy, for the legend shown wherever a breakdown appears.
+     * e.g. "OP 5% + HW 10% + … + QE 30%"
+     */
+    public static function weightsLegend(): string
+    {
+        return collect(config('academic.grade_components', []))
+            ->map(fn ($meta, $key) => ($meta['label'] ?? strtoupper($key))
+                . ' ' . round($meta['weight'] * 100, 2) . '%')
+            ->implode(' + ');
+    }
+
+    /**
      * Return the DepEd descriptor label for the stored final_grade.
      */
     public function getDescriptorAttribute(): ?string

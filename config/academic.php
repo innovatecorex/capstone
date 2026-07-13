@@ -32,14 +32,18 @@ return [
 
     // ── Client's official 7-component structure ───────────────────────────
     //   OP 5% / HW 10% / ASS 10% / PR 5% / AQ 20% / ALT 20% / QE 30%
+    // The client's official 7-component structure. Grade::computeFinalGrade()
+    // and Grade::componentBreakdown() both read THIS array, so the breakdown
+    // shown to students/faculty/panels always reconciles with the stored grade.
+    // Weights must sum to 1.0 (5 + 10 + 10 + 5 + 20 + 20 + 30 = 100%).
     'grade_components' => [
-        'op'  => ['label' => 'OP',  'weight' => 0.05],
-        'hw'  => ['label' => 'HW',  'weight' => 0.10],
-        'ass' => ['label' => 'ASS', 'weight' => 0.10],
-        'pr'  => ['label' => 'PR',  'weight' => 0.05],
-        'aq'  => ['label' => 'AQ',  'weight' => 0.20],
-        'alt' => ['label' => 'ALT', 'weight' => 0.20],
-        'qe'  => ['label' => 'QE',  'weight' => 0.30],
+        'op'  => ['label' => 'OP',  'name' => 'Oral Participation',   'weight' => 0.05],
+        'hw'  => ['label' => 'HW',  'name' => 'Homework',             'weight' => 0.10],
+        'ass' => ['label' => 'ASS', 'name' => 'Assignment / Seatwork', 'weight' => 0.10],
+        'pr'  => ['label' => 'PR',  'name' => 'Project',              'weight' => 0.05],
+        'aq'  => ['label' => 'AQ',  'name' => 'Assessment Quiz',      'weight' => 0.20],
+        'alt' => ['label' => 'ALT', 'name' => 'Alternative Assessment', 'weight' => 0.20],
+        'qe'  => ['label' => 'QE',  'name' => 'Quarterly Exam',       'weight' => 0.30],
     ],
 
     // ── Minimum passing grade (DepEd: 75) ─────────────────────────────────
