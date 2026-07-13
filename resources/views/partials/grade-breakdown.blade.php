@@ -61,9 +61,11 @@
     </tfoot>
   </table>
 
-  {{-- Policy legend — the actual weights in force, pulled from config. --}}
+  {{-- Policy legend — the weights that actually produced THIS grade. Older
+       grades were computed under the previous component model, so the legend is
+       taken from the grade itself rather than from the current config. --}}
   <div style="padding:7px 10px;background:#f8fafc;border-top:1px solid #e2e8f0;font-size:.68rem;color:#64748b;line-height:1.55;">
-    Final grade = {{ \App\Models\Grade::weightsLegend() }}
+    Final grade = {{ $b['legend'] }}
     <span style="color:#94a3b8;">· per DepEd Order No. 8, s. 2015</span>
   </div>
 </div>

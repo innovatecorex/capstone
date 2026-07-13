@@ -281,7 +281,7 @@ class Grade extends Model
      */
     public function componentBreakdown(): array
     {
-        $components = config('academic.grade_components', []);
+        $components = $this->activeComponents();
 
         $rows       = [];
         $total      = 0.0;
@@ -319,6 +319,72 @@ class Grade extends Model
             // stored grade (tolerance covers decimal rounding only).
             'matches'     => $computed !== null && $stored !== null
                              && abs($computed - $stored) < 0.02,
+            // The policy line for THIS grade — legacy rows carry different
+            // components and weights from current ones.
+            'legend'      => collect($components)
+                                ->map(fn ($m, $k) => ($m['label'] ?? strtoupper($k))
+                                    . ' ' . rtrim(rtrim(number_format($m['weight'] * 100, 2), '0'), '.') . '%')
+                                ->implode(' + '),
+        ];
+    }
+
+    /**
+     * The component set that ACTUALLY produced this grade.
+     *
+     * The gradebook was migrated from the legacy 3-component model
+     * (written_work / performance_task / quarterly_assessment) to the client's
+     * 7-component structure (OP/HW/ASS/PR/AQ/ALT/QE). Both generations of grades
+     * exist side by side: older rows were computed with the old components and
+     * weights, newer rows with the new ones — and each reconciles only against
+     * the formula that produced it.
+     *
+     * So the breakdown is resolved per grade rather than globally; otherwise
+     * every legacy grade would render as "Incomplete" next to a real mark.
+     *
+     * @return array<string, array{label:string, name:string, weight:float}>
+     */
+    public function activeComponents(): array
+    {
+        $current = config('academic.grade_components', []);
+
+        foreach (array_keys($current) as $key) {
+            if ($this->{$key} !== null) {
+                return $current;   // graded under the current 7-component model
+            }
+        }
+
+        // No new-model score present. If the legacy columns hold data, this is an
+        // old grade — describe it with the weights that actually computed it
+        // (per-subject overrides included). Otherwise it is simply ungraded, and
+        // new grades use the current model.
+        $isLegacy = $this->written_work !== null
+                 || $this->performance_task !== null
+                 || $this->quarterly_assessment !== null;
+
+        if (!$isLegacy) {
+            return $current;
+        }
+
+        $w = $this->sectionSubject?->subject?->getGradeWeights()
+            ?? config('academic.grade_weights')
+            ?? ['written_work' => 0.30, 'performance_task' => 0.50, 'quarterly_assessment' => 0.20];
+
+        return [
+            'written_work' => [
+                'label'  => 'WW',
+                'name'   => 'Written Work',
+                'weight' => (float) ($w['written_work'] ?? 0.30),
+            ],
+            'performance_task' => [
+                'label'  => 'PT',
+                'name'   => 'Performance Task',
+                'weight' => (float) ($w['performance_task'] ?? 0.50),
+            ],
+            'quarterly_assessment' => [
+                'label'  => 'QA',
+                'name'   => 'Quarterly Assessment',
+                'weight' => (float) ($w['quarterly_assessment'] ?? 0.20),
+            ],
         ];
     }
 

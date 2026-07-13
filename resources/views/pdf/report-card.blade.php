@@ -143,26 +143,19 @@
        An official report card should not be just a final number: this shows
        the components behind every quarterly grade. Kept as a separate table
        so the matrix above stays legible on the page. --}}
-  @php $components = config('academic.grade_components', []); @endphp
-  @if(!empty($components))
   <div style="font-size:9.5pt;font-weight:bold;color:#1e3a5f;margin:14px 0 3px;">GRADE COMPUTATION</div>
   <div style="font-size:7.5pt;color:#666;margin-bottom:5px;">
-    How each quarterly grade was derived from its components (each score is out of 100).
+    How each quarterly grade was derived. Each score is out of 100; the final
+    grade is the sum of (score &times; its weight).
   </div>
 
   <table class="grades" style="font-size:7.5pt;">
     <thead>
       <tr>
-        <th class="subject-col" style="width:26%;">Learning Area</th>
+        <th class="subject-col" style="width:24%;">Learning Area</th>
         <th style="width:6%;">Qtr</th>
-        @foreach($components as $key => $meta)
-        <th>{{ $meta['label'] ?? strtoupper($key) }}<br>
-          <span style="font-weight:normal;font-size:6.5pt;">
-            {{ rtrim(rtrim(number_format($meta['weight'] * 100, 2), '0'), '.') }}%
-          </span>
-        </th>
-        @endforeach
-        <th>Final</th>
+        <th class="subject-col">Computation</th>
+        <th style="width:9%;">Final</th>
       </tr>
     </thead>
     <tbody>
@@ -173,9 +166,9 @@
           <tr>
             <td class="subject-cell">{{ $subject }}</td>
             <td>Q{{ $q->quarter_number }}</td>
-            @foreach($g['breakdown']['rows'] as $r)
-            <td>{{ $r['score'] === null ? '—' : rtrim(rtrim(number_format($r['score'], 2), '0'), '.') }}</td>
-            @endforeach
+            <td class="subject-cell" style="font-weight:normal;">
+              @foreach($g['breakdown']['rows'] as $r){{ $r['label'] }} {{ $r['score'] === null ? '—' : rtrim(rtrim(number_format($r['score'], 2), '0'), '.') }}&times;{{ rtrim(rtrim(number_format($r['weight_pct'], 2), '0'), '.') }}%@if(!$loop->last) + @endif @endforeach
+            </td>
             <td><strong>{{ $g['final_grade'] !== null ? number_format($g['final_grade'], 2) : '—' }}</strong></td>
           </tr>
           @endif
@@ -185,10 +178,9 @@
   </table>
 
   <div style="font-size:7pt;color:#666;margin:4px 0 10px;">
-    Final grade = {{ \App\Models\Grade::weightsLegend() }} &middot; per DepEd Order No. 8, s. 2015.
-    Final grade = sum of (component score &times; its weight).
+    Per DepEd Order No. 8, s. 2015. Weights are shown per subject above, since grades
+    issued under an earlier grading policy retain the components and weights that produced them.
   </div>
-  @endif
   @else
   <p style="text-align:center;color:#888;padding:20px 0;">No finalized grades available for this report card.</p>
   @endif

@@ -114,11 +114,10 @@
          shows HOW each of those numbers was derived — every component, its
          weight, and the resulting grade. Kept as its own table so the main
          matrix stays readable. --}}
-    @php $components = config('academic.grade_components', []); @endphp
-    @if(!empty($components))
     <h3 style="font-size:.9rem;font-weight:800;color:#0f172a;margin:26px 0 4px;">Grade Computation</h3>
     <p style="font-size:.75rem;color:#64748b;margin:0 0 10px;">
-      How each quarterly grade was computed from its components.
+      How each quarterly grade was derived. Each score is out of 100; the final
+      grade is the sum of (score &times; its weight).
     </p>
 
     <table class="grades">
@@ -126,14 +125,7 @@
         <tr>
           <th class="left">Learning Area</th>
           <th>Quarter</th>
-          @foreach($components as $key => $meta)
-          <th>
-            {{ $meta['label'] ?? strtoupper($key) }}
-            <div style="font-weight:500;color:#94a3b8;font-size:.68rem;">
-              {{ rtrim(rtrim(number_format($meta['weight'] * 100, 2), '0'), '.') }}%
-            </div>
-          </th>
-          @endforeach
+          <th class="left">Computation</th>
           <th>Final</th>
         </tr>
       </thead>
@@ -145,9 +137,15 @@
             <tr>
               <td class="left">{{ $subject }}</td>
               <td>Q{{ $q->quarter_number }}</td>
-              @foreach($g['breakdown']['rows'] as $r)
-              <td>{{ $r['score'] === null ? '—' : rtrim(rtrim(number_format($r['score'], 2), '0'), '.') }}</td>
-              @endforeach
+              <td class="left" style="font-weight:500;font-family:monospace;font-size:.76rem;color:#334155;">
+                @foreach($g['breakdown']['rows'] as $r)
+                  <span style="white-space:nowrap;">
+                    {{ $r['label'] }}
+                    {{ $r['score'] === null ? '—' : rtrim(rtrim(number_format($r['score'], 2), '0'), '.') }}
+                    &times;{{ rtrim(rtrim(number_format($r['weight_pct'], 2), '0'), '.') }}%
+                  </span>@if(!$loop->last) <span style="color:#94a3b8;">+</span> @endif
+                @endforeach
+              </td>
               <td style="font-weight:800;">
                 {{ $g['final_grade'] !== null ? number_format($g['final_grade'], 2) : '—' }}
               </td>
@@ -159,10 +157,10 @@
     </table>
 
     <p style="font-size:.72rem;color:#64748b;margin:-14px 0 24px;">
-      Final grade = {{ \App\Models\Grade::weightsLegend() }} · per DepEd Order No. 8, s. 2015.
-      Each score is out of 100; the final grade is the sum of (score &times; weight).
+      Per DepEd Order No. 8, s. 2015. Weights are shown per subject above, since
+      grades issued under an earlier grading policy retain the components and
+      weights that produced them.
     </p>
-    @endif
     @else
     <p style="color:#94a3b8;font-size:.85rem;margin-bottom:20px;">No grade records found.</p>
     @endif
