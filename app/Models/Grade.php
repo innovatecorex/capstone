@@ -29,6 +29,13 @@ class Grade extends Model
         'written_work',
         'performance_task',
         'quarterly_assessment',
+        'op',
+        'hw',
+        'ass',
+        'pr',
+        'aq',
+        'alt',
+        'qe',
         'final_grade',
         'status',
         'submitted_at',
@@ -49,6 +56,13 @@ class Grade extends Model
         'written_work'          => 'float',
         'performance_task'      => 'float',
         'quarterly_assessment'  => 'float',
+        'op'  => 'float',
+        'hw'  => 'float',
+        'ass' => 'float',
+        'pr'  => 'float',
+        'aq'  => 'float',
+        'alt' => 'float',
+        'qe'  => 'float',
         'final_grade'           => 'float',
         'submitted_at'          => 'datetime',
         'finalized_at'          => 'datetime',
@@ -228,25 +242,21 @@ class Grade extends Model
             return null;
         }
 
-        if (is_null($this->written_work)
-            || is_null($this->performance_task)
-            || is_null($this->quarterly_assessment))
-        {
-            return null;
+        $components = config('academic.grade_components');
+
+        // Every component must have a score entered; a null means "not graded yet".
+        foreach (array_keys($components) as $key) {
+            if (is_null($this->{$key})) {
+                return null;
+            }
         }
 
-        $subject = $this->relationLoaded('sectionSubject')
-            ? $this->sectionSubject?->subject
-            : $this->sectionSubject?->load('subject')?->subject;
+        $total = 0.0;
+        foreach ($components as $key => $meta) {
+            $total += $this->{$key} * $meta['weight'];
+        }
 
-        $w = $subject?->getGradeWeights() ?? config('academic.grade_weights');
-
-        return round(
-            ($this->written_work         * $w['written_work']) +
-            ($this->performance_task     * $w['performance_task']) +
-            ($this->quarterly_assessment * $w['quarterly_assessment']),
-            2
-        );
+        return round($total, 2);
     }
 
     /**

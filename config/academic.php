@@ -30,6 +30,18 @@ return [
         'quarterly_assessment'  => 0.20,
     ],
 
+    // ── Client's official 7-component structure ───────────────────────────
+    //   OP 5% / HW 10% / ASS 10% / PR 5% / AQ 20% / ALT 20% / QE 30%
+    'grade_components' => [
+        'op'  => ['label' => 'OP',  'weight' => 0.05],
+        'hw'  => ['label' => 'HW',  'weight' => 0.10],
+        'ass' => ['label' => 'ASS', 'weight' => 0.10],
+        'pr'  => ['label' => 'PR',  'weight' => 0.05],
+        'aq'  => ['label' => 'AQ',  'weight' => 0.20],
+        'alt' => ['label' => 'ALT', 'weight' => 0.20],
+        'qe'  => ['label' => 'QE',  'weight' => 0.30],
+    ],
+
     // ── Minimum passing grade (DepEd: 75) ─────────────────────────────────
     'passing_grade' => 75,
 

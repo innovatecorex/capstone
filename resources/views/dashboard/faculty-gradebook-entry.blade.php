@@ -246,7 +246,7 @@
       </span>
       @endif
       <span class="gb-chip gb-chip--slate">
-        WW {{ $wwPct }}% · PT {{ $ptPct }}% · QA {{ $qaPct }}%
+        OP 5% · HW 10% · ASS 10% · PR 5% · AQ 20% · ALT 20% · QE 30%
       </span>
     </div>
   </div>
@@ -389,17 +389,33 @@
           <tr>
             <th class="left" style="padding-left:16px;width:30px;">#</th>
             <th class="left" style="min-width:180px;">Student</th>
-            <th style="min-width:100px;">
-              Written Work
-              <div style="font-size:.63rem;color:#94a3b8;font-weight:500;text-transform:none;letter-spacing:0;">{{ $wwPct }}% weight</div>
+            <th style="min-width:90px;">
+              Oral Participation
+              <div style="font-size:.63rem;color:#94a3b8;font-weight:500;text-transform:none;letter-spacing:0;">5%</div>
             </th>
-            <th style="min-width:100px;">
-              Performance Task
-              <div style="font-size:.63rem;color:#94a3b8;font-weight:500;text-transform:none;letter-spacing:0;">{{ $ptPct }}% weight</div>
+            <th style="min-width:90px;">
+              Homework
+              <div style="font-size:.63rem;color:#94a3b8;font-weight:500;text-transform:none;letter-spacing:0;">10%</div>
             </th>
-            <th style="min-width:100px;">
-              Quarterly Assessment
-              <div style="font-size:.63rem;color:#94a3b8;font-weight:500;text-transform:none;letter-spacing:0;">{{ $qaPct }}% weight</div>
+            <th style="min-width:90px;">
+              Assignment / Seatwork
+              <div style="font-size:.63rem;color:#94a3b8;font-weight:500;text-transform:none;letter-spacing:0;">10%</div>
+            </th>
+            <th style="min-width:90px;">
+              Project
+              <div style="font-size:.63rem;color:#94a3b8;font-weight:500;text-transform:none;letter-spacing:0;">5%</div>
+            </th>
+            <th style="min-width:90px;">
+              Assessment Quiz
+              <div style="font-size:.63rem;color:#94a3b8;font-weight:500;text-transform:none;letter-spacing:0;">20%</div>
+            </th>
+            <th style="min-width:90px;">
+              Alternative Assessment
+              <div style="font-size:.63rem;color:#94a3b8;font-weight:500;text-transform:none;letter-spacing:0;">20%</div>
+            </th>
+            <th style="min-width:90px;">
+              Quarterly Exam
+              <div style="font-size:.63rem;color:#94a3b8;font-weight:500;text-transform:none;letter-spacing:0;">30%</div>
             </th>
             <th style="min-width:80px;">
               Initial Grade
@@ -418,7 +434,7 @@
           @foreach($enrollments as $i => $enrollment)
           @php
             $grade   = $grades->get($enrollment->id);
-            $locked  = $grade && in_array($grade->status, ['finalized', 'locked']);
+            $locked  = $grade && in_array($grade->status, ['submitted', 'finalized', 'locked']);
             $dropped = $grade?->isDropped();
             $student = $enrollment->student;
             $inputDisabled = $locked || $dropped || !$isActiveQuarter;
@@ -449,50 +465,23 @@
               @endif
             </td>
 
-            {{-- Written Work --}}
+            {{-- 7-component inputs: OP / HW / ASS / PR / AQ / ALT / QE --}}
+            @foreach(['op','hw','ass','pr','aq','alt','qe'] as $comp)
             <td style="text-align:center;">
               <div>
                 <input type="number"
-                       name="grades[{{ $enrollment->id }}][written_work]" form="grade-form"
-                       class="gb-score-input ww-input"
-                       value="{{ old("grades.{$enrollment->id}.written_work", $grade?->written_work) }}"
+                       name="grades[{{ $enrollment->id }}][{{ $comp }}]" form="grade-form"
+                       class="gb-score-input comp-input comp-{{ $comp }}"
+                       value="{{ old("grades.{$enrollment->id}.{$comp}", $grade?->{$comp}) }}"
                        min="0" max="100" step="0.01"
                        placeholder="0–100"
                        {{ $inputDisabled ? 'disabled' : '' }}
-                       data-field="ww">
+                       data-field="{{ $comp }}"
+                       data-enrollment="{{ $enrollment->id }}">
                 <div class="gb-input-err">Out of range (0–100)</div>
               </div>
             </td>
-
-            {{-- Performance Task --}}
-            <td style="text-align:center;">
-              <div>
-                <input type="number"
-                       name="grades[{{ $enrollment->id }}][performance_task]" form="grade-form"
-                       class="gb-score-input pt-input"
-                       value="{{ old("grades.{$enrollment->id}.performance_task", $grade?->performance_task) }}"
-                       min="0" max="100" step="0.01"
-                       placeholder="0–100"
-                       {{ $inputDisabled ? 'disabled' : '' }}
-                       data-field="pt">
-                <div class="gb-input-err">Out of range (0–100)</div>
-              </div>
-            </td>
-
-            {{-- Quarterly Assessment --}}
-            <td style="text-align:center;">
-              <div>
-                <input type="number"
-                       name="grades[{{ $enrollment->id }}][quarterly_assessment]" form="grade-form"
-                       class="gb-score-input qa-input"
-                       value="{{ old("grades.{$enrollment->id}.quarterly_assessment", $grade?->quarterly_assessment) }}"
-                       min="0" max="100" step="0.01"
-                       placeholder="0–100"
-                       {{ $inputDisabled ? 'disabled' : '' }}
-                       data-field="qa">
-                <div class="gb-input-err">Out of range (0–100)</div>
-              </div>
-            </td>
+            @endforeach
 
             {{-- Initial Grade --}}
             <td style="text-align:center;">
@@ -661,7 +650,7 @@
       </div>
       @endif
       <div class="gb-stat" style="margin-left:auto;">
-        <span class="gb-stat__val" style="font-size:.8rem;color:#6366f1;">WW {{ $wwPct }}% · PT {{ $ptPct }}% · QA {{ $qaPct }}%</span>
+        <span class="gb-stat__val" style="font-size:.8rem;color:#6366f1;">OP 5% · HW 10% · ASS 10% · PR 5% · AQ 20% · ALT 20% · QE 30%</span>
         <span class="gb-stat__lbl">Grade Weights</span>
       </div>
     </div>
@@ -784,9 +773,8 @@
   'use strict';
 
   /* ── Weights from server ─────────────────────────────── */
-  const WW_W = {{ $subjectWeights['ww'] }};
-  const PT_W = {{ $subjectWeights['pt'] }};
-  const QA_W = {{ $subjectWeights['qa'] }};
+  const COMP_W = { op: 0.05, hw: 0.10, ass: 0.10, pr: 0.05, aq: 0.20, alt: 0.20, qe: 0.30 };
+  const COMP_KEYS = ['op','hw','ass','pr','aq','alt','qe'];
 
   /* ── DepEd Descriptor table ──────────────────────────── */
   const DESCRIPTORS = [
@@ -841,20 +829,23 @@
 
   /* ── Recalculate one grade row ───────────────────────── */
   function recalcRow(row) {
-    const wwIn  = row.querySelector('.ww-input');
-    const ptIn  = row.querySelector('.pt-input');
-    const qaIn  = row.querySelector('.qa-input');
     const igEl  = row.querySelector('.gb-grade-cell');
     const tgEl  = row.querySelector('.gb-transmuted-cell');
     const descEl = row.querySelector('.descriptor-display');
 
     if (!igEl) return;   // dropped row — no display elements
 
-    const ww = parseFloat(wwIn?.value);
-    const pt = parseFloat(ptIn?.value);
-    const qa = parseFloat(qaIn?.value);
+    // Gather all 7 component values.
+    let anyEmpty = false;
+    let total = 0;
+    for (const key of COMP_KEYS) {
+      const input = row.querySelector('.comp-' + key);
+      const val = parseFloat(input?.value);
+      if (isNaN(val)) { anyEmpty = true; break; }
+      total += val * COMP_W[key];
+    }
 
-    if (isNaN(ww) || isNaN(pt) || isNaN(qa)) {
+    if (anyEmpty) {
       // At least one component is empty (NULL = not yet graded). Show greyed "—".
       igEl.textContent = '—';
       igEl.style.color = '#94a3b8';
@@ -866,11 +857,11 @@
       return;
     }
 
-    const ig     = Math.min(100, Math.max(0, Math.round((ww * WW_W + pt * PT_W + qa * QA_W) * 100) / 100));
+    const ig     = Math.min(100, Math.max(0, Math.round(total * 100) / 100));
     const tg     = transmuteGrade(ig);
     const desc   = getDescriptor(tg);
 
-    // All three components present (including a real 0.0 score). Show computed grade.
+    // All components present (including a real 0.0 score). Show computed grade.
     igEl.textContent = ig.toFixed(2);
     igEl.style.color = '';
 

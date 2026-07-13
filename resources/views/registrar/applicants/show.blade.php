@@ -392,7 +392,7 @@ textarea.adm-input { resize:vertical; }
             <select name="status" class="adm-input" required>
               {{-- 'enrolled' is intentionally excluded — it is set automatically
                    by Create Student Account and must not be set manually here. --}}
-              @foreach(['pending','under_review','waitlisted','accepted','rejected'] as $s)
+              @foreach(['pending','accepted','rejected'] as $s)
               <option value="{{ $s }}" {{ $applicant->status === $s ? 'selected' : '' }}>
                 {{ ucfirst(str_replace('_',' ',$s)) }}
               </option>

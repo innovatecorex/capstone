@@ -283,10 +283,14 @@ class GradebookController extends Controller
         abort_unless($quarter, 422, 'No active grading quarter.');
 
         $request->validate([
-            'grades'                        => 'nullable|array',
-            'grades.*.written_work'         => 'nullable|numeric|min:0|max:100',
-            'grades.*.performance_task'     => 'nullable|numeric|min:0|max:100',
-            'grades.*.quarterly_assessment' => 'nullable|numeric|min:0|max:100',
+            'grades'                => 'nullable|array',
+            'grades.*.op'           => 'nullable|numeric|min:0|max:100',
+            'grades.*.hw'           => 'nullable|numeric|min:0|max:100',
+            'grades.*.ass'          => 'nullable|numeric|min:0|max:100',
+            'grades.*.pr'           => 'nullable|numeric|min:0|max:100',
+            'grades.*.aq'           => 'nullable|numeric|min:0|max:100',
+            'grades.*.alt'          => 'nullable|numeric|min:0|max:100',
+            'grades.*.qe'           => 'nullable|numeric|min:0|max:100',
         ]);
 
         $validEnrollmentIds = Enrollment::forActiveAcademicYear()
@@ -304,7 +308,9 @@ class GradebookController extends Controller
                 ->where('enrollment_id', $enrollmentId)
                 ->first();
 
-            if ($existing && in_array($existing->status, ['finalized', 'locked'])) continue;
+            // Grades that have left the faculty's hands (submitted to registrar,
+            // finalized, or locked) can no longer be edited via save-draft.
+            if ($existing && in_array($existing->status, ['submitted', 'finalized', 'locked'])) continue;
 
             $grade = $existing ?? new Grade([
                 'section_subject_id' => $ss->id,
@@ -315,10 +321,14 @@ class GradebookController extends Controller
 
             $toFloat = fn($v) => isset($v) && $v !== '' ? (float) $v : null;
             $grade->fill([
-                'written_work'         => $toFloat($scores['written_work'] ?? null),
-                'performance_task'     => $toFloat($scores['performance_task'] ?? null),
-                'quarterly_assessment' => $toFloat($scores['quarterly_assessment'] ?? null),
-                'status'               => 'draft',
+                'op'   => $toFloat($scores['op']  ?? null),
+                'hw'   => $toFloat($scores['hw']  ?? null),
+                'ass'  => $toFloat($scores['ass'] ?? null),
+                'pr'   => $toFloat($scores['pr']  ?? null),
+                'aq'   => $toFloat($scores['aq']  ?? null),
+                'alt'  => $toFloat($scores['alt'] ?? null),
+                'qe'   => $toFloat($scores['qe']  ?? null),
+                'status' => 'draft',
             ]);
             $grade->final_grade = $grade->computeFinalGrade();
             $grade->save();
@@ -495,11 +505,15 @@ class GradebookController extends Controller
             ]);
         }
 
-        // Use DB update to bypass the locked immutability guard for drop fields
+        // Use DB update to bypass the locked immutability guard for drop fields.
+        // Raw update() does not fire model events, so the boot() guard is not
+        // triggered. We also clear final_grade so no stale pass/fail shows for a
+        // dropped student anywhere downstream.
         Grade::where('id', $grade->id)->update([
             'dropped_at'  => now(),
             'drop_reason' => $request->drop_reason,
             'dropped_by'  => auth()->id(),
+            'final_grade' => null,
         ]);
 
         AuditLog::record('STUDENT_DROPPED', [
