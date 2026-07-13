@@ -89,12 +89,19 @@ class NormalizeGender extends Command
             $this->warn('DRY RUN — no database changes will be made.');
         }
 
-        $users = User::select('id', 'username', 'first_name', 'last_name', 'gender', 'role_id')
-            ->where(function ($q) {
-                $q->whereNotIn('gender', ['male', 'female'])
-                  ->orWhereNull('gender');
+        // gender is AES-256 encrypted, so it cannot be filtered in SQL — every
+        // row's ciphertext trivially "is not male/female", which would drag in
+        // every user. Read through the model (the accessor decrypts) and select
+        // the non-canonical ones in PHP instead.
+        $users = User::select('id', 'username', 'first_name', 'last_name', 'gender', 'gender_hash', 'role_id')
+            ->get()
+            ->filter(function (User $u) {
+                $g = $u->gender;                       // decrypted by the accessor
+                $g = $g === null ? null : strtolower(trim((string) $g));
+
+                return $g === null || $g === '' || !in_array($g, ['male', 'female'], true);
             })
-            ->get();
+            ->values();
 
         if ($users->isEmpty()) {
             $this->info('No non-canonical gender values found. Nothing to do.');
@@ -106,14 +113,20 @@ class NormalizeGender extends Command
         $skipped  = [];
 
         foreach ($users as $user) {
-            $raw        = $user->getAttributes()['gender'] ?? null;
+            // Read the DECRYPTED value — normalising raw ciphertext is meaningless.
+            $raw        = $user->gender;
             $normalized = $this->normalize($raw);
 
             if ($normalized !== null) {
                 $this->line(sprintf('  [map]    user %d (%s) — "%s" → "%s"',
                     $user->id, $user->username, $raw ?? 'NULL', $normalized));
                 if (!$dryRun) {
-                    DB::table('users')->where('id', $user->id)->update(['gender' => $normalized]);
+                    // Save THROUGH the model: the mutator re-encrypts gender and
+                    // refreshes gender_hash. A raw DB::table() write here would
+                    // drop plaintext into an encrypted column and leave the hash
+                    // stale, silently breaking every gender filter and count.
+                    $user->gender = $normalized;
+                    $user->save();
                 }
                 $mapped++;
                 continue;
@@ -125,7 +138,8 @@ class NormalizeGender extends Command
                     $this->line(sprintf('  [name]   user %d (%s %s, %s) → "%s"',
                         $user->id, $user->first_name, $user->last_name, $user->username, $guessed));
                     if (!$dryRun) {
-                        DB::table('users')->where('id', $user->id)->update(['gender' => $guessed]);
+                        $user->gender = $guessed;
+                        $user->save();
                     }
                     $inferred++;
                     continue;
