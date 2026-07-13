@@ -56,6 +56,21 @@
         </button>
       </form>
 
+      {{-- Excel turns a 12-digit LRN typed into a NUMBER cell into scientific
+           notation (1.2348E+11) and the digits are lost for good. Warn up front. --}}
+      <div style="margin-top:16px;background:#fffbeb;border:1px solid #fcd34d;border-left:4px solid #f59e0b;border-radius:10px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start;">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:17px;height:17px;color:#d97706;flex-shrink:0;margin-top:1px;">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
+        </svg>
+        <div style="font-size:.76rem;color:#92400e;line-height:1.65;">
+          <strong>Format the LRN column as Text.</strong>
+          In your spreadsheet, set the LRN column to <strong>Text</strong> (not Number) before saving.
+          Excel converts a 12-digit number to scientific notation
+          (<code style="background:#fef3c7;padding:0 3px;border-radius:3px;">1.2348E+11</code>),
+          which <strong>permanently destroys the digits</strong> — such rows will be rejected.
+        </div>
+      </div>
+
       <div style="margin-top:16px;padding-top:16px;border-top:1px solid #f1f5f9;">
         <a href="{{ route('admin.students.import.template') }}"
            style="font-size:.78rem;color:#6366f1;font-weight:600;text-decoration:none;">
@@ -83,7 +98,7 @@
             ['first_name',   'Text, required'],
             ['last_name',    'Text, required'],
             ['email',        'Valid email, unique'],
-            ['lrn',          '12 digits, unique'],
+            ['lrn',          'Exactly 12 digits, unique · format cell as TEXT'],
             ['grade_level',  'Optional · 7–12'],
             ['section_name', 'Optional · must match existing section'],
             ['gender',       'Optional · male or female'],

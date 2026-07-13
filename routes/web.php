@@ -128,10 +128,15 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
         Route::get('/import',    [\App\Http\Controllers\Admin\StudentImportController::class, 'showForm'])->name('import');
         Route::post('/import',   [\App\Http\Controllers\Admin\StudentImportController::class, 'import'])  ->name('import.submit');
         Route::get('/import/template', function () {
+            // The LRN samples are wrapped as ="123456789012" so that opening this
+            // template in Excel keeps the column as TEXT. Left as a plain number,
+            // Excel rewrites a 12-digit LRN to scientific notation (1.2348E+11)
+            // and the digits are lost. StudentImportController::normalizeLrn()
+            // strips the wrapper on import, so the file works as-is.
             $csv = implode("\n", [
                 'first_name,last_name,email,lrn,grade_level,section_name,gender,phone,address',
-                'Juan,Dela Cruz,juan@example.com,123456789012,7,Section A,male,09171234567,Manila',
-                'Maria,Santos,maria@example.com,123456789013,8,Section B,female,,',
+                'Juan,Dela Cruz,juan@example.com,="123456789012",7,Section A,male,09171234567,Manila',
+                'Maria,Santos,maria@example.com,="123456789013",8,Section B,female,,',
             ]);
             return response($csv, 200, [
                 'Content-Type'        => 'text/csv',

@@ -89,7 +89,10 @@ class UserManagementController extends Controller
             'email'           => ['required', 'email', 'max:200'],
             'gender'          => ['required', 'in:male,female'],
             'role_id'         => ['required', 'in:01,02,03,04'],
-            'lrn'             => ['nullable', 'string', 'digits:9', function ($attribute, $value, $fail) {
+            // The DepEd LRN is exactly 12 digits — matching ApplicantController
+            // and the CSV import. (employee_number below is a DIFFERENT field
+            // and stays 9 digits.)
+            'lrn'             => ['nullable', 'string', 'digits:12', function ($attribute, $value, $fail) {
                 if ($value && \App\Models\User::where('lrn_hash', hash('sha256', trim($value)))->exists()) {
                     $fail('This LRN is already registered.');
                 }
@@ -431,10 +434,18 @@ class UserManagementController extends Controller
         return str_shuffle($upper . $lower . $number . $special);
     }
     // ── Student number generator ───────────────────────────────────────
+    /**
+     * Auto-assign an LRN when an admin creates a student without one.
+     *
+     * MUST be 12 digits to satisfy the 'digits:12' rule — a 4-digit year plus
+     * an 8-digit sequence (e.g. 2026 00000001). It previously emitted 9 digits,
+     * which is what the old 'digits:9' rule was accommodating; that produced
+     * LRNs the form itself would reject on any later edit.
+     */
     private function generateStudentNumber(): string
     {
-        $prefix = now()->format('Y');
-        return $this->generateUniqueIdentifier($prefix, 5);
+        $prefix = now()->format('Y');           // 4 digits
+        return $this->generateUniqueIdentifier($prefix, 8);  // + 8 = 12 digits
     }
 
     // ── Employee number generator for faculty/registrar/admin ───────────

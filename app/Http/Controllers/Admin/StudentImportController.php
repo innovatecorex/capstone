@@ -71,6 +71,13 @@ class StudentImportController extends Controller
                 $fields = array_combine($header, $data);
                 $fields = array_map('trim', $fields);
 
+                // Accept the ways users legitimately force Excel to keep the LRN
+                // as text ('123456789012 or ="123456789012") — strip the marker
+                // so a correctly-protected file imports cleanly.
+                if (isset($fields['lrn'])) {
+                    $fields['lrn'] = $this->normalizeLrn($fields['lrn']);
+                }
+
                 $rowErrors = $this->validateRow($fields, $row);
                 if ($rowErrors) {
                     $errors = array_merge($errors, $rowErrors);
@@ -182,6 +189,24 @@ class StudentImportController extends Controller
         }
     }
 
+    /**
+     * Strip the markers spreadsheets use to force a cell to TEXT, so an LRN a
+     * user correctly protected still imports:
+     *   '123456789012    (leading apostrophe)
+     *   ="123456789012"  (formula wrapper)
+     * Only the marker is removed — the digits are never altered.
+     */
+    private function normalizeLrn(string $value): string
+    {
+        $value = ltrim(trim($value), "'\t");
+
+        if (preg_match('/^=\s*"?(.*?)"?$/', $value, $m)) {
+            $value = $m[1];
+        }
+
+        return trim($value);
+    }
+
     private function validateRow(array $fields, int $row): array
     {
         $errors = [];
@@ -197,7 +222,20 @@ class StudentImportController extends Controller
         }
 
         if (!empty($fields['lrn']) && !preg_match('/^\d{12}$/', $fields['lrn'])) {
-            $errors[] = "Row {$row}: LRN must be exactly 12 digits (got '{$fields['lrn']}').";
+            $lrn = trim($fields['lrn']);
+
+            // Excel silently converts a 12-digit LRN typed into a NUMBER cell to
+            // scientific notation ("1.2348E+11"), destroying the original digits.
+            // They are genuinely unrecoverable — 1.2348E+11 maps to a whole range
+            // of 12-digit numbers — so never try to "restore" it. Reject the row
+            // and tell the user exactly how to prevent it.
+            if (preg_match('/[eE][+-]?\d+/', $lrn) || str_contains($lrn, '.')) {
+                $errors[] = "Row {$row}: LRN '{$lrn}' looks like Excel scientific notation — "
+                    . "the original digits were lost. Open your CSV and format the LRN column as TEXT "
+                    . "before saving, then re-import. LRN must be exactly 12 digits.";
+            } else {
+                $errors[] = "Row {$row}: LRN must be exactly 12 digits (got '{$lrn}').";
+            }
         }
 
         if (!empty($fields['grade_level']) && !in_array($fields['grade_level'], ['7','8','9','10','11','12'])) {
