@@ -2,12 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\ApplicationReceivedMail;
 use App\Models\AcademicYear;
 use App\Models\Applicant;
 use App\Models\ApplicantDocument;
+use App\Models\AuditLog;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
@@ -130,7 +134,44 @@ class ApplicantController extends Controller
             }
         }
 
+        // ── Confirmation email ─────────────────────────────────────────────
+        // The applicant needs written proof of submission and, above all, their
+        // reference number — it is the only handle they have for tracking the
+        // application. A mail failure must never lose them a submitted
+        // application, so this is best-effort: log it and carry on.
+        if ($applicant->parent_email) {
+            try {
+                Mail::to($applicant->parent_email)->send(new ApplicationReceivedMail($applicant));
+
+                AuditLog::record('APPLICATION_CONFIRMATION_SENT', [
+                    'applicant_id'     => $applicant->id,
+                    'reference_number' => $applicant->reference_number,
+                    'sent_to'          => $this->maskEmail($applicant->parent_email),
+                ]);
+            } catch (\Exception $e) {
+                Log::error('Application received email failed: ' . $e->getMessage());
+
+                AuditLog::record('APPLICATION_CONFIRMATION_FAILED', [
+                    'applicant_id'     => $applicant->id,
+                    'reference_number' => $applicant->reference_number,
+                    'sent_to'          => $this->maskEmail($applicant->parent_email),
+                    'error'            => $e->getMessage(),
+                ]);
+                // Deliberately swallowed — the application IS submitted.
+            }
+        }
+
         return redirect()->route('apply.thanks', $applicant->reference_number);
+    }
+
+    /** j***@example.com — never write a full address into the audit trail. */
+    private function maskEmail(string $email): string
+    {
+        [$user, $domain] = array_pad(explode('@', $email, 2), 2, '');
+
+        $masked = mb_substr($user, 0, 1) . str_repeat('*', max(1, mb_strlen($user) - 1));
+
+        return $domain === '' ? $masked : "{$masked}@{$domain}";
     }
 
     public function thanks(string $reference): View
