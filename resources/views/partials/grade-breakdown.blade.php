@@ -61,6 +61,21 @@
     </tfoot>
   </table>
 
+  {{-- The computation, written out explicitly: score × weight for every
+       component, summing to the final grade. This is the line that makes the
+       derivation auditable at a glance. --}}
+  @if($b['is_complete'])
+  <div style="padding:8px 10px;background:#f0f7ff;border-top:1px solid #dbeafe;font-size:.72rem;color:#1e3a8a;line-height:1.7;">
+    <strong style="font-weight:700;">Computation:</strong>
+    <span style="font-family:monospace;">
+      @foreach($b['rows'] as $r){{ $r['label'] }}
+        {{ rtrim(rtrim(number_format($r['score'], 2), '0'), '.') }}&times;{{ rtrim(rtrim(number_format($r['weight_pct'], 2), '0'), '.') }}%@if(!$loop->last) + @endif
+      @endforeach
+      = <strong>{{ number_format($b['total'], 2) }}</strong>
+    </span>
+  </div>
+  @endif
+
   {{-- Policy legend — the weights that actually produced THIS grade. Older
        grades were computed under the previous component model, so the legend is
        taken from the grade itself rather than from the current config. --}}

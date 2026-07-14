@@ -57,20 +57,22 @@
         </thead>
         <tbody>
           @foreach($reportCard['subjects'] as $i => $subject)
-          <tr onclick="toggleBreakdown({{ $i }})" style="cursor:pointer;" title="Show how this grade was computed">
+          <tr onclick="toggleBreakdown({{ $i }})" style="cursor:pointer;" title="Hide/show the computation">
             <td style="padding:14px 14px;border-bottom:1px solid rgba(15,23,42,.06);">
-              <span style="display:inline-block;width:12px;color:var(--gray-400);font-size:.7rem;" id="bd-caret-{{ $i }}">▸</span>
+              <span style="display:inline-block;width:12px;color:var(--gray-400);font-size:.7rem;" id="bd-caret-{{ $i }}">▾</span>
               {{ $subject['name'] }}
             </td>
             <td style="padding:14px 14px;border-bottom:1px solid rgba(15,23,42,.06);">{{ $subject['category'] }}</td>
             <td style="padding:14px 14px;border-bottom:1px solid rgba(15,23,42,.06);text-align:right;font-weight:700;color:var(--navy);">{{ $subject['grade'] }}%</td>
           </tr>
 
-          {{-- Per-subject component breakdown: every component, its weight, its
-               contribution, and how they sum to the final grade shown above. --}}
+          {{-- Per-subject component breakdown — VISIBLE BY DEFAULT. This is the
+               compliance requirement: the report card must show the components
+               and how they produce the final grade, not hide them behind a click.
+               (The row stays collapsible for anyone who wants a compact view.) --}}
           @isset($subject['model'])
-          <tr id="bd-row-{{ $i }}" style="display:none;">
-            <td colspan="3" style="padding:0 14px 14px;border-bottom:1px solid rgba(15,23,42,.06);background:#fbfcfe;">
+          <tr id="bd-row-{{ $i }}">
+            <td colspan="3" style="padding:0 14px 16px;border-bottom:1px solid rgba(15,23,42,.06);background:#fbfcfe;">
               @include('partials.grade-breakdown', ['grade' => $subject['model']])
             </td>
           </tr>
