@@ -32,7 +32,7 @@ class SFFormController extends Controller
                 ->get()
                 ->map->student
                 ->filter()
-                ->sortBy('last_name')
+                ->sortBy(fn($s) => mb_strtolower(trim((string) $s->last_name . ' ' . (string) $s->first_name)), SORT_NATURAL)
                 ->values();
         }
 
@@ -65,7 +65,7 @@ class SFFormController extends Controller
                 ->get()
                 ->map->student
                 ->filter()
-                ->sortBy('last_name')
+                ->sortBy(fn($s) => mb_strtolower(trim((string) $s->last_name . ' ' . (string) $s->first_name)), SORT_NATURAL)
                 ->values();
 
             $daysInMonth = \Carbon\Carbon::create($year, $month, 1)->daysInMonth;
@@ -107,7 +107,7 @@ class SFFormController extends Controller
                 ->get()
                 ->map->student
                 ->filter()
-                ->sortBy('last_name')
+                ->sortBy(fn($s) => mb_strtolower(trim((string) $s->last_name . ' ' . (string) $s->first_name)), SORT_NATURAL)
                 ->values();
         }
 
@@ -164,7 +164,7 @@ class SFFormController extends Controller
                    ->orWhere('lrn_hash', hash('sha256', trim($search)));
             }))
             ->get()
-            ->sortBy('last_name')
+            ->sortBy(fn($s) => mb_strtolower(trim((string) $s->last_name . ' ' . (string) $s->first_name)), SORT_NATURAL)
             ->take(50)
             ->values();
 

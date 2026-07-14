@@ -63,6 +63,25 @@
   {{ $students->count() }} students
 </div>
 
+{{-- The register below is valid and correctly built, but every mark will be
+     blank if attendance was never recorded for this month. Say so explicitly,
+     otherwise an empty grid reads as a broken form rather than as missing data. --}}
+@if($attendance->isEmpty())
+<div style="background:#fffbeb;border:1px solid #fcd34d;border-left:4px solid #f59e0b;border-radius:10px;padding:14px 18px;margin-bottom:18px;display:flex;gap:12px;align-items:flex-start;">
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;color:#d97706;flex-shrink:0;margin-top:1px;">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
+  </svg>
+  <div style="font-size:.85rem;color:#92400e;line-height:1.6;">
+    <strong style="display:block;margin-bottom:2px;">
+      No attendance records for this section in {{ \Carbon\Carbon::create($year,$month,1)->format('F Y') }}.
+    </strong>
+    The register below lists the enrolled students correctly, but the daily marks are blank
+    because attendance has not been encoded for this month yet. Choose another month, or have
+    the adviser record attendance first.
+  </div>
+</div>
+@endif
+
 <div style="background:#fff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;">
   <div style="overflow-x:auto;">
     <table style="width:100%;border-collapse:collapse;font-size:.78rem;">
