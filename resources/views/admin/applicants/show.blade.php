@@ -297,8 +297,8 @@ function openCreateModal(name, email) {
   document.getElementById('cam-name').textContent = name;
   var emailLine = document.getElementById('cam-email-line');
   emailLine.innerHTML = email
-    ? 'Credentials emailed to <strong>' + email + '</strong>'
-    : '<em>No parent email on file — share credentials manually</em>';
+    ? 'Login details will be emailed to <strong>' + email + '</strong>'
+    : '<em>No parent email on file — add one, then use Reset Password to send the login details</em>';
   var modal = document.getElementById('create-account-modal');
   modal.style.display = 'flex';
   document.body.style.overflow = 'hidden';

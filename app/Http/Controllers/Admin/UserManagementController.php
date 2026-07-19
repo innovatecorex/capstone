@@ -162,13 +162,19 @@ class UserManagementController extends Controller
             \Log::error('Welcome credentials email failed: ' . $e->getMessage());
         }
 
+        // Login credentials (username + temporary password) are NEVER shown to
+        // the admin — they are delivered only to the user's own email. The
+        // record identifier (student/employee number) is not a login secret, so
+        // it is kept as a confirmation of what was assigned.
         if ($mailSent) {
             return redirect()->route('admin.users.index')
-                ->with('success', "Account created. {$identifierLabel}: <strong>{$assignedIdentifier}</strong> — Username: <strong>{$username}</strong>. Credentials were emailed to <strong>{$validated['email']}</strong>.");
+                ->with('success', "Account created. {$identifierLabel}: <strong>{$assignedIdentifier}</strong>. The login details have been emailed to <strong>{$validated['email']}</strong>.");
         }
 
+        // Email failed: still no credentials on screen. Recovery is to fix the
+        // address and use the account's Reset Password action, which re-sends.
         return redirect()->route('admin.users.index')
-            ->with('warning', "Account created but email delivery failed. Share these credentials manually — {$identifierLabel}: <strong>{$assignedIdentifier}</strong> — Email: <strong>{$validated['email']}</strong> — Username: <strong>{$username}</strong> — Temp password: <strong>{$tempPassword}</strong>.");
+            ->with('warning', "Account created ({$identifierLabel}: <strong>{$assignedIdentifier}</strong>), but the login email to <strong>{$validated['email']}</strong> could not be delivered. Verify the email address, then use the account's <strong>Reset Password</strong> action to re-send the login details.");
     }
 
     // ── Show edit form ─────────────────────────────────────────────────────
@@ -355,13 +361,27 @@ class UserManagementController extends Controller
             'locked_until'           => null,
         ]);
 
+        // The new password is emailed to the user — never shown to the admin.
+        // This is also the sanctioned recovery path when an account-creation
+        // email fails: Reset Password re-issues and re-sends the credentials.
+        $mailSent = false;
+        try {
+            \Mail::to($user->email)->send(new \App\Mail\WelcomeCredentialsMail(
+                $user->first_name, $user->username, $tempPassword
+            ));
+            $mailSent = true;
+        } catch (\Exception $e) {
+            \Log::error('Password reset email failed: ' . $e->getMessage());
+        }
+
         AuditLog::record(
             AuditLog::PASSWORD_RESET,
-            ['target_user_id' => $user->id, 'note' => 'Admin-initiated password reset.']
+            ['target_user_id' => $user->id, 'note' => 'Admin-initiated password reset.', 'emailed' => $mailSent]
         );
 
-        return redirect()->back()
-            ->with('success', "Password reset. New temp password: <strong>{$tempPassword}</strong>. Share securely.");
+        return $mailSent
+            ? redirect()->back()->with('success', 'Password reset. A new temporary password has been emailed to the user.')
+            : redirect()->back()->with('warning', 'Password was reset, but the email could not be delivered. Please verify the user\'s email address and try again.');
     }
 
     // ── Login history for a single account ───────────────────────────────

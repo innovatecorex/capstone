@@ -172,7 +172,10 @@ class ApplicantManagementController extends Controller
             }
         }
 
-        $msg = "Student account created. LRN: <strong>{$lrn}</strong> &middot; Username: <strong>{$username}</strong> &middot; Temp password: <strong>{$tempPass}</strong>.";
+        // Login credentials are never shown here — they go to the parent's
+        // email only. The LRN is a record identifier, not a login secret, so it
+        // is kept as a confirmation of the student number assigned.
+        $msg = "Student account created. LRN: <strong>{$lrn}</strong>.";
 
         if ($assignedSection) {
             $sectionName = e($assignedSection->display_name ?? $assignedSection->section_name ?? $assignedSection->name);
@@ -182,11 +185,11 @@ class ApplicantManagementController extends Controller
         }
 
         if ($mailSent) {
-            $msg .= ' Credentials emailed to parent.';
+            $msg .= ' The login details have been emailed to the parent.';
         } elseif ($applicant->parent_email) {
-            $msg .= ' Email delivery failed &mdash; share credentials manually.';
+            $msg .= ' The credential email could not be delivered &mdash; verify the parent email, then use Reset Password to re-send.';
         } else {
-            $msg .= ' No parent email on file &mdash; share credentials manually.';
+            $msg .= ' No parent email is on file &mdash; add one, then use Reset Password to send the login details.';
         }
 
         return back()->with('success', $msg);
