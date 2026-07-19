@@ -98,18 +98,13 @@
       background: linear-gradient(90deg, var(--gold) 0%, var(--gold-2) 50%, var(--gold) 100%);
     }
 
-    /* ── VALUE STRIP ─────────────────────────── */
-    .values { background: #f8fafc; border-bottom: 1px solid var(--line); }
-    .values__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; padding: 2.75rem 0; }
-    .value { display: flex; gap: .9rem; align-items: flex-start; }
-    .value__ic {
-      width: 42px; height: 42px; flex-shrink: 0; border-radius: 11px;
-      background: #eef3fe; border: 1px solid #dce6fb;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .value__ic svg { width: 20px; height: 20px; color: var(--blue); }
-    .value__t { font-size: .95rem; font-weight: 800; color: var(--ink); margin-bottom: .2rem; letter-spacing: -.01em; }
-    .value__d { font-size: .85rem; color: var(--body); line-height: 1.6; }
+    /* ── FACTS / ACCREDITATION STRIP ─────────── */
+    .facts { background: #f8fafc; border-bottom: 1px solid var(--line); }
+    .facts__grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; padding: 2.5rem 0; }
+    .fact { text-align: center; padding: .35rem 1rem; }
+    .fact + .fact { border-left: 1px solid var(--line); }
+    .fact__n { font-family: 'Merriweather', Georgia, serif; font-size: clamp(1.5rem, 2.4vw, 1.95rem); font-weight: 900; color: var(--navy); letter-spacing: -.02em; line-height: 1.05; }
+    .fact__l { font-size: .72rem; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); margin-top: .55rem; }
 
     /* ── ROLES (kept short) ──────────────────── */
     .section { padding: 4rem 0; }
@@ -117,13 +112,12 @@
     .eyebrow { font-size: .68rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
     .section__title { font-family: 'Merriweather', Georgia, serif; font-size: clamp(1.4rem, 2.4vw, 1.85rem); font-weight: 900; color: var(--ink); letter-spacing: -.02em; margin: .5rem 0 .5rem; }
     .section__sub { font-size: .95rem; color: var(--body); }
-    .roles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.1rem; }
-    .role { border: 1px solid var(--line); border-radius: 14px; padding: 1.5rem 1.35rem; background: #fff; transition: border-color .2s, box-shadow .2s, transform .2s; }
-    .role:hover { border-color: #cdd7e6; box-shadow: 0 12px 30px rgba(15,23,42,.07); transform: translateY(-2px); }
-    .role__ic { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: .9rem; }
-    .role__ic svg { width: 19px; height: 19px; }
-    .role__t { font-size: 1rem; font-weight: 800; color: var(--ink); margin-bottom: .35rem; }
-    .role__d { font-size: .86rem; color: var(--body); line-height: 1.65; }
+    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.1rem; }
+    .step { border: 1px solid var(--line); border-radius: 14px; padding: 1.75rem 1.4rem; background: #fff; transition: border-color .2s, box-shadow .2s, transform .2s; }
+    .step:hover { border-color: #cdd7e6; box-shadow: 0 12px 30px rgba(15,23,42,.07); transform: translateY(-2px); }
+    .step__n { width: 40px; height: 40px; border-radius: 10px; background: var(--navy); color: var(--gold-2); font-family: 'Merriweather', Georgia, serif; font-weight: 900; font-size: 1.05rem; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; }
+    .step__t { font-size: 1rem; font-weight: 800; color: var(--ink); margin-bottom: .35rem; }
+    .step__d { font-size: .86rem; color: var(--body); line-height: 1.65; }
 
     /* ── ADMISSION BAND ──────────────────────── */
     .band { position: relative; overflow: hidden; background: linear-gradient(135deg, var(--navy) 0%, var(--navy-2) 60%, var(--blue) 100%); color: #fff; border-top: 3px solid var(--gold); }
@@ -149,8 +143,9 @@
 
     /* ── responsive ──────────────────────────── */
     @media (max-width: 860px) {
-      .values__grid { grid-template-columns: 1fr; gap: 1.5rem; }
-      .roles { grid-template-columns: 1fr; }
+      .facts__grid { grid-template-columns: repeat(2, 1fr); gap: 1.5rem 0; }
+      .fact + .fact { border-left: none; }
+      .steps { grid-template-columns: 1fr; }
     }
     @media (max-width: 640px) {
       .nav { padding: .85rem 1rem; }
@@ -204,80 +199,51 @@
   </div>
 </header>
 
-{{-- ══════ VALUE STRIP ══════ --}}
-<section class="values" aria-label="Why EncryptEd">
-  <div class="wrap values__grid">
-    <div class="value">
-      <div class="value__ic">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/>
-        </svg>
-      </div>
-      <div>
-        <div class="value__t">Data Encryption</div>
-        <div class="value__d">Personal records are AES-256 encrypted at rest, in line with RA 10173 (Data Privacy Act).</div>
-      </div>
+{{-- ══════ ACCREDITATION / KEY FACTS ══════ --}}
+<section class="facts" aria-label="School at a glance">
+  <div class="wrap facts__grid">
+    <div class="fact">
+      <div class="fact__n">1960</div>
+      <div class="fact__l">Established</div>
     </div>
-    <div class="value">
-      <div class="value__ic">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/>
-        </svg>
-      </div>
-      <div>
-        <div class="value__t">Role-Based Access</div>
-        <div class="value__d">Students, faculty, registrar and admin each see only the records their role permits.</div>
-      </div>
+    <div class="fact">
+      <div class="fact__n">Level III</div>
+      <div class="fact__l">PAASCU Accredited</div>
     </div>
-    <div class="value">
-      <div class="value__ic">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z"/>
-        </svg>
-      </div>
-      <div>
-        <div class="value__t">Digital Enrollment &amp; Grades</div>
-        <div class="value__d">Apply, enroll, pay and receive report cards online — no paper forms, no queues.</div>
-      </div>
+    <div class="fact">
+      <div class="fact__n">Grades 7&ndash;12</div>
+      <div class="fact__l">Junior &amp; Senior High</div>
+    </div>
+    <div class="fact">
+      <div class="fact__n">K to 12</div>
+      <div class="fact__l">DepEd Curriculum</div>
     </div>
   </div>
 </section>
 
-{{-- ══════ ROLES ══════ --}}
+{{-- ══════ HOW TO APPLY ══════ --}}
 <section class="section">
   <div class="wrap">
     <div class="section__head">
-      <span class="eyebrow">Who It's For</span>
-      <h2 class="section__title">One portal for the whole school</h2>
-      <p class="section__sub">Secure, role-based access for every member of the community.</p>
+      <span class="eyebrow">Admissions</span>
+      <h2 class="section__title">How to apply</h2>
+      <p class="section__sub">Three simple steps, all online — start your application without visiting the campus.</p>
     </div>
-    <div class="roles">
-      <article class="role">
-        <div class="role__ic" style="background:#fffbeb;">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#d97706" stroke-width="2" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342"/>
-          </svg>
-        </div>
-        <div class="role__t">Students &amp; Parents</div>
-        <div class="role__d">Track grades, schedules, attendance and enrollment, and receive report cards online.</div>
+    <div class="steps">
+      <article class="step">
+        <div class="step__n">1</div>
+        <div class="step__t">Apply Online</div>
+        <div class="step__d">Complete the online admission form. You&rsquo;ll receive a reference number by email as your proof of submission.</div>
       </article>
-      <article class="role">
-        <div class="role__ic" style="background:#ecfdf5;">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#059669" stroke-width="2" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/>
-          </svg>
-        </div>
-        <div class="role__t">Faculty</div>
-        <div class="role__d">Encode and submit grades, manage class records, and track attendance with a verified workflow.</div>
+      <article class="step">
+        <div class="step__n">2</div>
+        <div class="step__t">Submit Requirements</div>
+        <div class="step__d">Upload the required documents — report card, birth certificate, and the rest — for the registrar to review.</div>
       </article>
-      <article class="role">
-        <div class="role__ic" style="background:#eff6ff;">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#1d4ed8" stroke-width="2" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z"/>
-          </svg>
-        </div>
-        <div class="role__t">Registrar &amp; Admin</div>
-        <div class="role__d">Process admissions and enrollment, manage sections and records, and oversee system security.</div>
+      <article class="step">
+        <div class="step__n">3</div>
+        <div class="step__t">Get Notified</div>
+        <div class="step__d">The registrar reviews your application and emails you the decision, along with the next steps for enrollment.</div>
       </article>
     </div>
   </div>
