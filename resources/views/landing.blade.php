@@ -411,12 +411,6 @@
     </div>
     <div class="trust__item">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/>
-      </svg>
-      <span class="trust__label">AES-256 Encrypted</span>
-    </div>
-    <div class="trust__item">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/>
       </svg>
       <span class="trust__label">RA 10173 Compliant</span>
@@ -476,76 +470,6 @@
   </div>
 </section>
 
-{{-- ══════════ WHY ENCRYPTED ══════════ --}}
-<section class="sec sec--tint">
-  <div class="wrap">
-    <div class="sec__head sec__head--center">
-      <span class="eyebrow">Why EncryptEd</span>
-      <h2 class="sec__title serif">Built for security and compliance</h2>
-      <p class="sec__sub">Student records are protected at every layer, in line with Philippine law.</p>
-    </div>
-
-    <div class="grid grid--4">
-      <article class="feat">
-        <div class="feat__ico" style="background:#eef3fe;border:1px solid #dce6fb;">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#1d4ed8" stroke-width="2" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/>
-          </svg>
-        </div>
-        <h3 class="feat__title">Data Encryption</h3>
-        <p class="feat__text">Personal data is AES-256 encrypted at rest, compliant with RA 10173 (Data Privacy Act of 2012).</p>
-      </article>
-
-      <article class="feat">
-        <div class="feat__ico" style="background:#fdeeee;border:1px solid #f8d7d7;">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#c0392b" stroke-width="2" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
-          </svg>
-        </div>
-        <h3 class="feat__title">Threat Monitoring</h3>
-        <p class="feat__text">Injection attempts and suspicious activity are detected, blocked and logged in real time.</p>
-      </article>
-
-      <article class="feat">
-        <div class="feat__ico" style="background:#f2eefc;border:1px solid #e3daf8;">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#6d28d9" stroke-width="2" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/>
-          </svg>
-        </div>
-        <h3 class="feat__title">Role-Based Access</h3>
-        <p class="feat__text">Students, faculty, registrar and admin each see only the records their role permits.</p>
-      </article>
-
-      <article class="feat">
-        <div class="feat__ico" style="background:#e9f7f1;border:1px solid #d2ede2;">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#0f766e" stroke-width="2" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z"/>
-          </svg>
-        </div>
-        <h3 class="feat__title">Digital Enrollment &amp; Grades</h3>
-        <p class="feat__text">Apply, enroll, pay and receive report cards online — no paper forms, no queues.</p>
-      </article>
-    </div>
-  </div>
-</section>
-
-{{-- ══════════ ADMISSION BAND ══════════ --}}
-<section class="band">
-  <div class="wrap band__in">
-    <div>
-      <span class="band__pill">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-        </svg>
-        Admissions Open
-      </span>
-      <h2 class="serif">Now enrolling for SY 2025&ndash;2026</h2>
-      <p>Admission is open for Junior &amp; Senior High School. Begin your application online — it only takes a few minutes.</p>
-    </div>
-    <a href="{{ route('apply') }}" class="btn btn--lg btn--gold">
-      Begin Application
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/>
       </svg>
     </a>
   </div>
