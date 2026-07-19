@@ -67,7 +67,7 @@
          image, then an on-brand gradient FALLBACK if the image isn't present. */
       background:
         linear-gradient(180deg, rgba(8,18,38,.45) 0%, rgba(8,18,38,0) 22%, rgba(8,18,38,0) 45%, rgba(8,18,38,.82) 100%),
-        url('{{ asset('images/landing-hero.jpg') }}') center center / cover no-repeat,
+        url('{{ asset('images/landing-hero.png') }}') center center / cover no-repeat,
         linear-gradient(135deg, #0a1a33 0%, #12305c 55%, #1d4ed8 100%);
     }
     .hero__inner { position: relative; z-index: 2; width: 100%; padding-bottom: 3.25rem; padding-top: 6rem; }
