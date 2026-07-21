@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Dashboard;
 use App\Http\Controllers\Controller;
 use App\Models\AcademicYear;
 use App\Models\AuditLog;
+use App\Models\ComponentScore;
 use App\Models\Enrollment;
 use App\Models\Grade;
 use App\Models\GradingQuarter;
@@ -605,5 +606,117 @@ class GradebookController extends Controller
 
         return redirect()->route('faculty.gradebook.show', $sectionSubject)
             ->with('success', 'Unlock request submitted. The registrar will review it shortly.');
+    }
+
+    // ── Score Calculator (worksheet) ───────────────────────────────────────
+    // A per-component averaging worksheet. Faculty enter individual raw scores
+    // (e.g. four homeworks); the page averages them. Faculty then manually type
+    // that average into the gradebook. This does NOT write to the grades table.
+
+    private const CALC_COMPONENTS = [
+        'op'  => 'Oral Participation',
+        'hw'  => 'Homework',
+        'ass' => 'Assignment / Seatwork',
+        'pr'  => 'Project',
+        'aq'  => 'Assessment Quiz',
+        'alt' => 'Alternative Assessment',
+        'qe'  => 'Quarterly Exam',
+    ];
+
+    public function calculator(SectionSubject $sectionSubject, Request $request): View
+    {
+        $ss = $sectionSubject->load(['section', 'subject']);
+        $this->assertFacultyOwns($ss);
+
+        $activeYear  = AcademicYear::where('status', 'active')->first();
+        $allQuarters = $activeYear
+            ? GradingQuarter::where('academic_year_id', $activeYear->id)
+                ->orderBy('quarter_number')->get()
+            : collect();
+
+        $activeQuarter = $this->activeQuarter();
+        $requestedId   = $request->integer('quarter_id');
+        $quarter       = $requestedId && $allQuarters->contains('id', $requestedId)
+                         ? $allQuarters->firstWhere('id', $requestedId)
+                         : $activeQuarter;
+
+        $enrollments = Enrollment::forActiveAcademicYear()
+            ->where('section_id', $ss->section_id)
+            ->where('status', 'enrolled')
+            ->with('student')
+            ->orderBy('student_id')
+            ->get();
+
+        // Load saved scores for this class+quarter, grouped by enrollment+component.
+        $saved = collect();
+        if ($quarter) {
+            $saved = ComponentScore::where('section_subject_id', $ss->id)
+                ->where('grading_quarter_id', $quarter->id)
+                ->orderBy('id')
+                ->get()
+                ->groupBy(fn($r) => $r->enrollment_id . '|' . $r->component);
+        }
+
+        return view('dashboard.faculty-score-calculator', [
+            'ss'           => $ss,
+            'enrollments'  => $enrollments,
+            'quarter'      => $quarter,
+            'allQuarters'  => $allQuarters,
+            'components'   => self::CALC_COMPONENTS,
+            'saved'        => $saved,
+        ]);
+    }
+
+    public function saveCalculator(SectionSubject $sectionSubject, Request $request): RedirectResponse
+    {
+        $ss = $sectionSubject;
+        $this->assertFacultyOwns($ss);
+
+        $quarter = GradingQuarter::find($request->integer('quarter_id'));
+        if (!$quarter) {
+            return back()->with('error', 'No valid grading quarter selected.');
+        }
+
+        // rows[enrollment_id][component][] = ['label' => ..., 'score' => ...]
+        $rows = $request->input('rows', []);
+
+        $enrollmentIds = Enrollment::forActiveAcademicYear()
+            ->where('section_id', $ss->section_id)
+            ->pluck('id')->all();
+
+        \DB::transaction(function () use ($rows, $ss, $quarter, $enrollmentIds) {
+            // Replace this class+quarter's worksheet wholesale (simplest + consistent).
+            ComponentScore::where('section_subject_id', $ss->id)
+                ->where('grading_quarter_id', $quarter->id)
+                ->delete();
+
+            foreach ($rows as $enrollmentId => $components) {
+                if (!in_array((int) $enrollmentId, $enrollmentIds, true)) continue;
+                if (!is_array($components)) continue;
+
+                foreach ($components as $component => $items) {
+                    if (!array_key_exists($component, self::CALC_COMPONENTS)) continue;
+                    if (!is_array($items)) continue;
+
+                    foreach ($items as $item) {
+                        $score = $item['score'] ?? null;
+                        $label = $item['label'] ?? null;
+                        // Skip fully-empty rows.
+                        if (($score === null || $score === '') && ($label === null || $label === '')) continue;
+
+                        ComponentScore::create([
+                            'section_subject_id' => $ss->id,
+                            'enrollment_id'      => (int) $enrollmentId,
+                            'grading_quarter_id' => $quarter->id,
+                            'component'          => $component,
+                            'item_label'         => $label !== '' ? $label : null,
+                            'score'              => ($score === '' || $score === null) ? null : (float) $score,
+                        ]);
+                    }
+                }
+            }
+        });
+
+        return back()->with('success', 'Component scores saved.');
     }
 }

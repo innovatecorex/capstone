@@ -412,6 +412,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get( '/faculty/classes/{sectionSubject}/classlist',   [App\Http\Controllers\Dashboard\GradebookController::class, 'classlist'])       ->name('faculty.gradebook.classlist');
         Route::post('/faculty/classes/{sectionSubject}/drop',      [App\Http\Controllers\Dashboard\GradebookController::class, 'dropStudent'])      ->name('faculty.gradebook.drop');
         Route::post('/faculty/classes/{sectionSubject}/reinstate',  [App\Http\Controllers\Dashboard\GradebookController::class, 'reinstateStudent']) ->name('faculty.gradebook.reinstate');
+        Route::get( '/faculty/classes/{sectionSubject}/calculator', [App\Http\Controllers\Dashboard\GradebookController::class, 'calculator'])      ->name('faculty.gradebook.calculator');
+        Route::post('/faculty/classes/{sectionSubject}/calculator', [App\Http\Controllers\Dashboard\GradebookController::class, 'saveCalculator'])  ->name('faculty.gradebook.calculator.save');
 
         // Faculty Inbox / Messaging
         Route::get( '/faculty/inbox',                  [App\Http\Controllers\Dashboard\MessageController::class, 'facultyInbox']) ->name('faculty.inbox');
