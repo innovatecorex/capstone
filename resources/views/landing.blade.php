@@ -50,58 +50,26 @@
     .btn--ghost:hover { border-color: #c7cfdc; background: #f5f7fb; }
     .btn--sm { min-height: 40px; padding: 0 1.05rem; font-size: .82rem; }
 
-    /* ── top nav (over hero) ─────────────────── */
-    .nav {
-      position: absolute; top: 0; left: 0; right: 0; z-index: 10;
-      display: flex; align-items: center; justify-content: flex-end; gap: .6rem;
-      padding: 1.1rem 1.75rem;
-    }
+    /* ── TOP BAR (school identity first) ─────── */
+    .topbar { background: var(--navy); position: relative; z-index: 10; }
+    .topbar__in { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .7rem 0; }
+    .brand { display: flex; align-items: center; gap: .7rem; }
+    .brand img { width: 46px; height: 46px; border-radius: 50%; border: 1px solid rgba(255,255,255,.18); padding: 2px; flex: none; }
+    .brand__name { font-family: 'Merriweather', Georgia, serif; font-weight: 900; font-size: 1.02rem; color: #fff; line-height: 1.12; letter-spacing: -.01em; }
+    .brand__sub { display: block; font-size: .65rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--gold-2); margin-top: 3px; }
+    .topbar__nav { display: flex; gap: .55rem; flex: none; }
 
-    /* ── HERO ────────────────────────────────── */
-    .hero {
-      position: relative;
-      min-height: 82vh;
-      display: flex; align-items: flex-end;
-      color: #fff;
-      /* scrim (top) for nav legibility + (bottom) for content, the banner
-         image, then an on-brand gradient FALLBACK if the image isn't present. */
-      background:
-        linear-gradient(180deg, rgba(8,18,38,.45) 0%, rgba(8,18,38,0) 22%, rgba(8,18,38,0) 45%, rgba(8,18,38,.82) 100%),
-        url('{{ asset('images/landing-hero.png') }}') center center / cover no-repeat,
-        linear-gradient(135deg, #0a1a33 0%, #12305c 55%, #1d4ed8 100%);
-    }
-    .hero__inner { position: relative; z-index: 2; width: 100%; padding-bottom: 3.25rem; padding-top: 6rem; }
-    .hero__eyebrow {
-      display: inline-flex; align-items: center; gap: 7px;
-      font-size: .7rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
-      color: var(--gold-2);
-      background: rgba(212,161,42,.12); border: 1px solid rgba(212,161,42,.4);
-      padding: .32rem .8rem; border-radius: 999px; margin-bottom: 1.1rem;
-    }
-    .hero__eyebrow svg { width: 13px; height: 13px; }
-    .hero h1 {
-      font-family: 'Merriweather', Georgia, serif;
-      font-size: clamp(2.2rem, 5vw, 3.6rem); font-weight: 900;
-      letter-spacing: -.02em; line-height: 1.1; color: #fff;
-      max-width: 18ch; text-shadow: 0 2px 20px rgba(0,0,0,.45);
-    }
-    .hero__tag {
-      font-size: clamp(.9rem, 1.6vw, 1.1rem); font-weight: 700;
-      letter-spacing: .02em; color: var(--gold-2);
-      margin-top: .7rem; text-shadow: 0 1px 12px rgba(0,0,0,.4);
-    }
-    .hero p {
-      font-size: clamp(.98rem, 1.5vw, 1.12rem); line-height: 1.7;
-      color: rgba(255,255,255,.9); max-width: 54ch; margin: .8rem 0 1.8rem;
-      text-shadow: 0 1px 12px rgba(0,0,0,.4);
-    }
-    .hero__cta { display: flex; gap: .8rem; flex-wrap: wrap; }
+    /* ── HERO BANNER (entire image, never cropped) ── */
+    .banner { width: 100%; background: var(--navy); line-height: 0; border-bottom: 4px solid var(--gold); }
+    .banner img { width: 100%; height: auto; max-height: 88vh; object-fit: contain; margin: 0 auto; display: block; }
 
-    /* thin gold rule at the very bottom of the hero */
-    .hero::after {
-      content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 4px; z-index: 3;
-      background: linear-gradient(90deg, var(--gold) 0%, var(--gold-2) 50%, var(--gold) 100%);
-    }
+    /* ── INTRO / PRIMARY CTA STRIP ───────────── */
+    .intro { background: linear-gradient(135deg, var(--navy) 0%, var(--navy-2) 60%, var(--blue) 100%); color: #fff; position: relative; overflow: hidden; }
+    .intro::before { content: ''; position: absolute; inset: 0; background-image: radial-gradient(rgba(255,255,255,.05) 1px, transparent 1px); background-size: 22px 22px; }
+    .intro__in { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem 2.5rem; flex-wrap: wrap; padding: 1.8rem 0; }
+    .intro p { font-size: clamp(1rem, 1.5vw, 1.14rem); line-height: 1.6; color: rgba(255,255,255,.92); max-width: 56ch; }
+    .intro p strong { color: var(--gold-2); font-weight: 800; }
+    .intro__cta { display: flex; gap: .7rem; flex-wrap: wrap; flex: none; }
 
     /* ── FACTS / ACCREDITATION STRIP ─────────── */
     .facts { background: #f8fafc; border-bottom: 1px solid var(--line); }
@@ -153,10 +121,14 @@
       .steps { grid-template-columns: 1fr; }
     }
     @media (max-width: 640px) {
-      .nav { padding: .85rem 1rem; }
-      .hero { min-height: 88vh; }
-      .hero__inner { padding-bottom: 2.5rem; }
-      .hero__cta .btn { flex: 1 1 100%; }
+      .topbar__in { flex-direction: column; align-items: center; gap: .8rem; text-align: center; }
+      .brand { flex-direction: column; text-align: center; gap: .45rem; }
+      .topbar__nav { width: 100%; }
+      .topbar__nav .btn { flex: 1 1 0; }
+      .banner img { max-height: none; }
+      .intro__in { flex-direction: column; align-items: flex-start; }
+      .intro__cta { width: 100%; }
+      .intro__cta .btn { flex: 1 1 100%; }
       .band__in .btn { width: 100%; }
       .foot__in { flex-direction: column; align-items: flex-start; }
     }
@@ -164,35 +136,43 @@
 </head>
 <body>
 
-{{-- ══════ HERO (school banner) ══════ --}}
-<header class="hero">
-  {{-- floating top-right auth — the banner already carries the school identity --}}
-  <nav class="nav">
-    <a href="{{ route('apply') }}" class="btn btn--glass btn--sm">Apply for Admission</a>
-    <a href="{{ route('login') }}" class="btn btn--gold btn--sm">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"/>
-      </svg>
-      Sign In
+{{-- ══════ TOP BAR — school name seen first ══════ --}}
+<header class="topbar">
+  <div class="wrap topbar__in">
+    <a href="{{ route('landing') }}" class="brand">
+      <img src="{{ asset('images/logo.png') }}" alt="Philippine Academy of Sakya crest">
+      <span>
+        <span class="brand__name">Philippine Academy of Sakya</span>
+        <span class="brand__sub">Junior &amp; Senior High &middot; PAASCU Level III</span>
+      </span>
     </a>
-  </nav>
+    <nav class="topbar__nav">
+      <a href="{{ route('apply') }}" class="btn btn--glass btn--sm">Apply for Admission</a>
+      <a href="{{ route('login') }}" class="btn btn--gold btn--sm">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"/>
+        </svg>
+        Sign In
+      </a>
+    </nav>
+  </div>
+</header>
 
-  <div class="wrap hero__inner">
-    <span class="hero__eyebrow">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/>
-      </svg>
-      Official Secure Academic Portal
-    </span>
+{{-- ══════ HERO BANNER — full image, never cropped ══════ --}}
+<div class="banner">
+  <img src="{{ asset('images/landing-hero.png') }}"
+       alt="Philippine Academy of Sakya — campus, crest, and heritage banner"
+       width="1717" height="916">
+</div>
 
-    <h1>Philippine Academy of Sakya</h1>
-    <div class="hero__tag">Junior &amp; Senior High School &middot; PAASCU Accredited Level III</div>
+{{-- ══════ INTRO / PRIMARY CTA ══════ --}}
+<section class="intro">
+  <div class="wrap intro__in">
     <p>
-      The official academic management portal — apply for admission, enroll, and
-      access grades and report cards in one secure system.
+      The <strong>official secure academic portal</strong> of Philippine Academy of Sakya —
+      apply for admission, enroll, and access grades and report cards in one protected system.
     </p>
-
-    <div class="hero__cta">
+    <div class="intro__cta">
       <a href="{{ route('apply') }}" class="btn btn--gold">
         Apply Now
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -202,7 +182,7 @@
       <a href="{{ route('login') }}" class="btn btn--glass">Portal Login</a>
     </div>
   </div>
-</header>
+</section>
 
 {{-- ══════ ACCREDITATION / KEY FACTS ══════ --}}
 <section class="facts" aria-label="School at a glance">
