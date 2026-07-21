@@ -81,13 +81,18 @@
     .hero__eyebrow svg { width: 13px; height: 13px; }
     .hero h1 {
       font-family: 'Merriweather', Georgia, serif;
-      font-size: clamp(1.9rem, 4vw, 3rem); font-weight: 900;
-      letter-spacing: -.02em; line-height: 1.15; color: #fff;
-      max-width: 16ch; text-shadow: 0 2px 20px rgba(0,0,0,.35);
+      font-size: clamp(2.2rem, 5vw, 3.6rem); font-weight: 900;
+      letter-spacing: -.02em; line-height: 1.1; color: #fff;
+      max-width: 18ch; text-shadow: 0 2px 20px rgba(0,0,0,.45);
+    }
+    .hero__tag {
+      font-size: clamp(.9rem, 1.6vw, 1.1rem); font-weight: 700;
+      letter-spacing: .02em; color: var(--gold-2);
+      margin-top: .7rem; text-shadow: 0 1px 12px rgba(0,0,0,.4);
     }
     .hero p {
       font-size: clamp(.98rem, 1.5vw, 1.12rem); line-height: 1.7;
-      color: rgba(255,255,255,.9); max-width: 54ch; margin: .9rem 0 1.8rem;
+      color: rgba(255,255,255,.9); max-width: 54ch; margin: .8rem 0 1.8rem;
       text-shadow: 0 1px 12px rgba(0,0,0,.4);
     }
     .hero__cta { display: flex; gap: .8rem; flex-wrap: wrap; }
@@ -180,11 +185,11 @@
       Official Secure Academic Portal
     </span>
 
-    <h1>Secure learning, from admission to report card.</h1>
+    <h1>Philippine Academy of Sakya</h1>
+    <div class="hero__tag">Junior &amp; Senior High School &middot; PAASCU Accredited Level III</div>
     <p>
-      The official academic management portal of Philippine Academy of Sakya —
-      Junior &amp; Senior High School. Apply for admission, enroll, and access
-      grades in one protected system.
+      The official academic management portal — apply for admission, enroll, and
+      access grades and report cards in one secure system.
     </p>
 
     <div class="hero__cta">
@@ -286,10 +291,6 @@
         <a href="{{ route('login') }}">Portal Login</a>
         <a href="{{ route('apply') }}">Apply for Admission</a>
       </div>
-    </div>
-    <div class="foot__bar">
-      &copy; {{ date('Y') }} Philippine Academy of Sakya &nbsp;·&nbsp; Powered by <strong>EncryptEd</strong><br>
-      Personal data is processed in compliance with <strong>RA 10173</strong> (Data Privacy Act of 2012).
     </div>
   </div>
 </footer>
