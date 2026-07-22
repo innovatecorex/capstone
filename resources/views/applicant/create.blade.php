@@ -41,7 +41,7 @@ body {
   position: fixed;
   top: 0; right: 0;
   width: 500px; height: 360px;
-  background: radial-gradient(circle at top right, rgba(37,99,235,.05), transparent 65%);
+  background: radial-gradient(circle at top right, rgba(18,48,92,.05), transparent 65%);
   pointer-events: none;
   z-index: 0;
 }
@@ -64,7 +64,7 @@ body {
   text-decoration: none;
   transition: color .15s;
 }
-.ap-topbar-back:hover { color: #1d4ed8; }
+.ap-topbar-back:hover { color: #12305c; }
 .ap-topbar-back svg { width: 14px; height: 14px; }
 .ap-topbar-hint {
   font-size: .72rem;
@@ -102,7 +102,7 @@ body {
 /* 3-px gradient accent bar — same as login card */
 .ap-card-bar {
   height: 3px;
-  background: linear-gradient(90deg, #1a3a6b, #2563eb, #3ecfa0);
+  background: linear-gradient(90deg, #d4a12a, #f0c65a, #d4a12a);
 }
 
 .ap-card-head {
@@ -214,8 +214,8 @@ body {
 .field input:focus,
 .field select:focus,
 .field textarea:focus {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37,99,235,.12), 0 1px 2px rgba(0,0,0,.05);
+  border-color: #12305c;
+  box-shadow: 0 0 0 3px rgba(18,48,92,.12), 0 1px 2px rgba(0,0,0,.05);
 }
 .field input.is-err,
 .field select.is-err,
@@ -242,7 +242,7 @@ body {
 }
 .fi-wrap input { padding-left: 40px; }
 .fi-wrap select { padding-left: 40px; padding-right: 38px; }
-.fi-wrap:focus-within .fi-icon { color: #2563eb; }
+.fi-wrap:focus-within .fi-icon { color: #12305c; }
 .fi-wrap.fi-err .fi-icon { color: #ef4444; }
 
 /* ── Date-of-birth three-select row ───────────────── */
@@ -273,8 +273,8 @@ body {
 }
 .dob-sel:hover { border-color: #9ca3af; }
 .dob-sel:focus {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37,99,235,.12), 0 1px 2px rgba(0,0,0,.05);
+  border-color: #12305c;
+  box-shadow: 0 0 0 3px rgba(18,48,92,.12), 0 1px 2px rgba(0,0,0,.05);
 }
 .dob-sel.is-err {
   border-color: #ef4444;
@@ -320,8 +320,8 @@ body {
   gap: 4px;
   font-size: .62rem;
   font-weight: 700;
-  color: #2563eb;
-  background: #dbeafe;
+  color: #12305c;
+  background: #f6edcb;
   padding: 2px 8px;
   border-radius: 99px;
   letter-spacing: .04em;
@@ -362,9 +362,9 @@ body {
   overflow: hidden;
 }
 .upload-zone:hover, .upload-zone.uz-drag {
-  border-color: #2563eb;
-  background: #eff6ff;
-  box-shadow: 0 0 0 3px rgba(37,99,235,.08);
+  border-color: #12305c;
+  background: #fdf8ec;
+  box-shadow: 0 0 0 3px rgba(18,48,92,.08);
 }
 .upload-zone.uz-ok {
   border: 1.5px solid #86efac;
@@ -380,11 +380,11 @@ body {
   flex-shrink: 0;
   transition: color .15s;
 }
-.upload-zone:hover svg.uz-icon, .upload-zone.uz-drag svg.uz-icon { color: #2563eb; }
+.upload-zone:hover svg.uz-icon, .upload-zone.uz-drag svg.uz-icon { color: #12305c; }
 .upload-zone.uz-err svg.uz-icon { color: #fca5a5; }
 .uz-body { flex: 1; min-width: 0; display: flex; align-items: center; gap: 6px; }
 .uz-title { font-size: .78rem; font-weight: 500; color: #475569; white-space: nowrap; }
-.uz-title strong { color: #2563eb; font-weight: 600; }
+.uz-title strong { color: #12305c; font-weight: 600; }
 .uz-sub { font-size: .67rem; color: #94a3b8; }
 .uz-preview { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
 .uz-preview img { width: 28px; height: 28px; object-fit: cover; border-radius: 4px; border: 1px solid #bbf7d0; flex-shrink: 0; }
@@ -393,7 +393,7 @@ body {
 .uz-file-text { min-width: 0; flex: 1; }
 .uz-file-name { font-size: .75rem; font-weight: 600; color: #15803d; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.2; }
 .uz-file-size { font-size: .64rem; color: #6b928e; line-height: 1.2; }
-.uz-change { font-size: .67rem; color: #2563eb; font-weight: 600; cursor: pointer; white-space: nowrap; flex-shrink: 0; margin-left: 4px; }
+.uz-change { font-size: .67rem; color: #12305c; font-weight: 600; cursor: pointer; white-space: nowrap; flex-shrink: 0; margin-left: 4px; }
 .uz-change:hover { text-decoration: underline; }
 
 /* Submit card */
@@ -408,7 +408,7 @@ body {
   padding: 1.1rem 1.5rem;
   background: #f8fafc;
   border-bottom: 1px solid #f1f5f9;
-  border-left: 3px solid #2563eb;
+  border-left: 3px solid #d4a12a;
   font-size: .77rem;
   color: #475569;
   line-height: 1.65;
@@ -422,7 +422,7 @@ body {
   border-bottom: 1px solid #f1f5f9;
   cursor: pointer;
 }
-.ap-privacy-check input { width: 16px; height: 16px; accent-color: #2563eb; margin-top: 1px; flex-shrink: 0; cursor: pointer; }
+.ap-privacy-check input { width: 16px; height: 16px; accent-color: #12305c; margin-top: 1px; flex-shrink: 0; cursor: pointer; }
 .ap-privacy-check span { font-size: .78rem; color: #475569; line-height: 1.55; }
 .ap-privacy-check strong { color: #0f172a; }
 .ap-submit-btn-wrap { padding: 1.1rem 1.5rem; }
@@ -433,8 +433,8 @@ body {
   gap: 9px;
   width: 100%;
   padding: .85rem 1.5rem;
-  background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 60%, #2563eb 100%);
-  color: #fff;
+  background: linear-gradient(135deg, #d4a12a 0%, #e0b23e 55%, #f0c65a 100%);
+  color: #241a04;
   border: none;
   border-radius: 12px;
   font-size: .92rem;
@@ -442,10 +442,10 @@ body {
   font-family: inherit;
   cursor: pointer;
   letter-spacing: .01em;
-  box-shadow: 0 4px 20px rgba(29,78,216,.35);
+  box-shadow: 0 4px 20px rgba(212,161,42,.38);
   transition: box-shadow .2s, transform .15s;
 }
-.ap-submit-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 28px rgba(29,78,216,.45); }
+.ap-submit-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 28px rgba(212,161,42,.48); }
 .ap-submit-btn:active { transform: translateY(0); }
 .ap-submit-btn svg { width: 17px; height: 17px; }
 
@@ -507,10 +507,10 @@ body {
 .ap-brand-emblem {
   width: 44px; height: 44px;
   border-radius: 13px;
-  background: linear-gradient(135deg, #1e3a8a, #2563eb);
+  background: linear-gradient(135deg, #1e3a8a, #12305c);
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
-  box-shadow: 0 0 0 1px rgba(255,255,255,.1), 0 4px 14px rgba(37,99,235,.4);
+  box-shadow: 0 0 0 1px rgba(255,255,255,.1), 0 4px 14px rgba(18,48,92,.4);
 }
 .ap-brand-emblem img {
   width: 26px; height: 26px;
@@ -602,7 +602,7 @@ body {
   color: rgba(255,255,255,.75);
 }
 .ap-nav a.active {
-  background: rgba(37,99,235,.28);
+  background: rgba(18,48,92,.28);
   color: #93c5fd;
 }
 .ap-nav-num {
@@ -617,7 +617,7 @@ body {
   transition: all .15s;
 }
 .ap-nav a.active .ap-nav-num {
-  background: #2563eb;
+  background: #12305c;
   color: #fff;
 }
 .ap-nav a:hover .ap-nav-num {
@@ -684,11 +684,11 @@ body {
 .ap-progress-icon {
   width: 30px; height: 30px;
   border-radius: 8px;
-  background: linear-gradient(135deg, #dbeafe, #eff6ff);
+  background: linear-gradient(135deg, #f6edcb, #fdf8ec);
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
 }
-.ap-progress-icon svg { width: 14px; height: 14px; color: #2563eb; }
+.ap-progress-icon svg { width: 14px; height: 14px; color: #12305c; }
 .ap-progress-info { flex: 1; min-width: 0; }
 .ap-progress-label {
   font-size: .68rem; font-weight: 700; color: #475569;
@@ -700,11 +700,11 @@ body {
 }
 .ap-progress-fill {
   height: 100%; width: 0%;
-  background: linear-gradient(90deg, #1e3a8a, #2563eb, #3ecfa0);
+  background: linear-gradient(90deg, #d4a12a, #e0b23e, #f0c65a);
   border-radius: 99px; transition: width .45s ease;
 }
 .ap-progress-pct {
-  font-size: .82rem; font-weight: 800; color: #2563eb; white-space: nowrap;
+  font-size: .82rem; font-weight: 800; color: #12305c; white-space: nowrap;
 }
 
 /* ── Document card grid ──────────────────────────── */
@@ -796,7 +796,7 @@ body {
 }
 .ap-comp-fill {
   height: 100%; width: 0%;
-  background: linear-gradient(90deg, #2563eb, #34d399);
+  background: linear-gradient(90deg, #d4a12a, #34d399);
   border-radius: 99px; transition: width .45s ease;
 }
 
@@ -905,8 +905,8 @@ body {
       <div class="ap-card" id="sec-personal">
         <div class="ap-card-bar"></div>
         <div class="ap-card-head">
-          <div class="ap-card-icon" style="background:linear-gradient(135deg,#dbeafe,#eff6ff);">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#1d4ed8" stroke-width="1.8">
+          <div class="ap-card-icon" style="background:linear-gradient(135deg,#f6edcb,#fdf8ec);">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#12305c" stroke-width="1.8">
               <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/>
             </svg>
           </div>
@@ -1327,8 +1327,8 @@ body {
           {{-- Birth Certificate --}}
           <div class="doc-card">
             <div class="doc-card-head">
-              <div class="doc-card-icon" style="background:#dbeafe;">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#1d4ed8" stroke-width="1.8">
+              <div class="doc-card-icon" style="background:#f6edcb;">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#12305c" stroke-width="1.8">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
                 </svg>
               </div>
@@ -1521,7 +1521,7 @@ body {
         </div>
         <label class="ap-privacy-check{{ $errors->has('data_privacy_consent') ? ' ap-privacy-check--err' : '' }}">
           <input type="checkbox" id="data-privacy-consent" name="data_privacy_consent" value="yes"{{ old('data_privacy_consent') ? ' checked' : '' }}>
-          <span>I have read and agree to the school's <a href="#" onclick="document.getElementById('privacyPolicyModal').style.display='flex';return false;" style="color:#1d4ed8;font-weight:700;text-decoration:underline;">data privacy policy</a>. I consent to the collection and processing of the information above in accordance with <strong>RA 10173 (Data Privacy Act of 2012)</strong>.</span>
+          <span>I have read and agree to the school's <a href="#" onclick="document.getElementById('privacyPolicyModal').style.display='flex';return false;" style="color:#12305c;font-weight:700;text-decoration:underline;">data privacy policy</a>. I consent to the collection and processing of the information above in accordance with <strong>RA 10173 (Data Privacy Act of 2012)</strong>.</span>
         </label>
         @error('data_privacy_consent')
         <div class="field-err" style="margin-top:6px;">

@@ -19,7 +19,7 @@
        TOP BAR
     ══════════════════════════════════════ */
     .lp-topbar {
-      background: #0b1e3d;
+      background: #0a1a33;
       padding: .7rem 2rem;
       display: flex;
       align-items: center;
@@ -27,7 +27,8 @@
       position: sticky;
       top: 0;
       z-index: 200;
-      box-shadow: 0 2px 12px rgba(0,0,0,.3);
+      border-bottom: 1px solid rgba(212,161,42,.32);
+      box-shadow: 0 6px 20px rgba(3,9,22,.3);
     }
     .lp-topbar-brand {
       display: flex;
@@ -59,7 +60,7 @@
        HERO BANNER
     ══════════════════════════════════════ */
     .lp-hero {
-      background: linear-gradient(135deg, #0b1e3d 0%, #1535a0 55%, #1d4ed8 100%);
+      background: linear-gradient(135deg, #0a1a33 0%, #12305c 55%, #1d4ed8 100%);
       padding: 2rem 2rem 2.75rem;
       text-align: center;
       position: relative;
@@ -84,9 +85,9 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      background: rgba(245,158,11,.15);
-      border: 1px solid rgba(245,158,11,.3);
-      color: #fde68a;
+      background: rgba(212,161,42,.15);
+      border: 1px solid rgba(212,161,42,.42);
+      color: #f0c65a;
       font-size: .67rem;
       font-weight: 700;
       letter-spacing: .1em;
@@ -97,10 +98,11 @@
     }
     .lp-hero-badge svg { width: 12px; height: 12px; }
     .lp-hero h1 {
-      font-size: 1.75rem;
+      font-family: 'Merriweather', Georgia, serif;
+      font-size: 1.8rem;
       font-weight: 900;
       color: #fff;
-      letter-spacing: -.035em;
+      letter-spacing: -.02em;
       margin-bottom: 0;
     }
 
@@ -155,7 +157,8 @@
 
     /* admission CTA in sidebar */
     .lp-adm-card {
-      background: linear-gradient(135deg, #1e3a8a, #1d4ed8);
+      background: linear-gradient(135deg, #0a1a33 0%, #12305c 60%, #1d4ed8 100%);
+      border: 1px solid rgba(212,161,42,.22);
       border-radius: 14px;
       padding: 18px 16px;
       text-align: center;
@@ -182,19 +185,19 @@
       gap: 7px;
       width: 100%;
       padding: .7rem 1rem;
-      background: #fff;
-      color: #1d4ed8;
+      background: #d4a12a;
+      color: #241a04;
       border-radius: 10px;
       font-size: .84rem;
       font-weight: 800;
       text-decoration: none;
       transition: background .15s, transform .15s, box-shadow .15s;
-      box-shadow: 0 4px 14px rgba(0,0,0,.2);
+      box-shadow: 0 4px 14px rgba(212,161,42,.32);
     }
     .lp-adm-link:hover {
-      background: #f0f7ff;
+      background: #f0c65a;
       transform: translateY(-1px);
-      box-shadow: 0 6px 20px rgba(0,0,0,.25);
+      box-shadow: 0 6px 20px rgba(212,161,42,.42);
     }
     .lp-adm-link svg { width: 14px; height: 14px; }
 
@@ -210,7 +213,7 @@
     }
     .lp-card-bar {
       height: 3px;
-      background: linear-gradient(90deg, #1a3a6b, #2563eb, #3ecfa0);
+      background: linear-gradient(90deg, #d4a12a, #f0c65a, #d4a12a);
     }
     .lp-card-head {
       padding: 1rem 1.5rem;
@@ -223,7 +226,7 @@
     .lp-card-icon {
       width: 36px; height: 36px;
       border-radius: 10px;
-      background: #eff6ff;
+      background: rgba(212,161,42,.13);
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
     }
@@ -285,9 +288,9 @@
       transition: border-color .18s, box-shadow .18s, background .18s;
     }
     .lp-input:focus {
-      border-color: #2563eb;
+      border-color: #12305c;
       background: #fff;
-      box-shadow: 0 0 0 3px rgba(37,99,235,.1);
+      box-shadow: 0 0 0 3px rgba(18,48,92,.13);
     }
     .lp-input.is-error { border-color: #ef4444; box-shadow: 0 0 0 3px rgba(239,68,68,.09); }
     .lp-input::placeholder { color: #94a3b8; }
@@ -301,7 +304,7 @@
       display: flex; align-items: center; justify-content: center;
       transition: color .15s;
     }
-    .lp-pw-toggle:hover { color: #2563eb; }
+    .lp-pw-toggle:hover { color: #12305c; }
 
     .lp-field-err {
       display: flex; align-items: center; gap: 4px;
@@ -318,31 +321,31 @@
       font-size: .77rem; color: #64748b; cursor: pointer; font-weight: 500;
       user-select: none;
     }
-    .lp-remember input[type="checkbox"] { width: 14px; height: 14px; accent-color: #2563eb; cursor: pointer; }
+    .lp-remember input[type="checkbox"] { width: 14px; height: 14px; accent-color: #12305c; cursor: pointer; }
     .lp-forgot {
       font-size: .77rem; font-weight: 600;
-      color: #2563eb; text-decoration: none;
+      color: #12305c; text-decoration: none;
       transition: color .15s;
     }
-    .lp-forgot:hover { color: #1d4ed8; text-decoration: underline; }
+    .lp-forgot:hover { color: #0a1a33; text-decoration: underline; }
 
     .lp-submit {
       width: 100%;
       height: 46px;
-      background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 60%, #2563eb 100%);
-      color: #fff;
+      background: linear-gradient(135deg, #d4a12a 0%, #e0b23e 55%, #f0c65a 100%);
+      color: #241a04;
       border: none;
       border-radius: 10px;
       font-size: .9rem;
-      font-weight: 700;
+      font-weight: 800;
       font-family: inherit;
       cursor: pointer;
       display: flex; align-items: center; justify-content: center; gap: 8px;
       letter-spacing: .01em;
-      box-shadow: 0 3px 14px rgba(29,78,216,.3);
+      box-shadow: 0 3px 14px rgba(212,161,42,.34);
       transition: box-shadow .2s, transform .15s;
     }
-    .lp-submit:hover { transform: translateY(-1px); box-shadow: 0 6px 22px rgba(29,78,216,.4); }
+    .lp-submit:hover { transform: translateY(-1px); box-shadow: 0 6px 22px rgba(212,161,42,.46); }
     .lp-submit:active { transform: translateY(0); }
     .lp-submit svg { width: 15px; height: 15px; }
 
@@ -444,7 +447,7 @@
       <div class="lp-card-bar"></div>
       <div class="lp-card-head">
         <div class="lp-card-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#1d4ed8" stroke-width="2">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#12305c" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z"/>
           </svg>
         </div>
@@ -577,7 +580,7 @@
     const i = document.getElementById('pw-icon');
     const eyeOpen = '<path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.964-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>';
     const eyeOff  = '<path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.243 4.243L9.88 9.88"/>';
-    if (f.type === 'password') { f.type = 'text'; i.innerHTML = eyeOff; i.style.color = '#2563eb'; }
+    if (f.type === 'password') { f.type = 'text'; i.innerHTML = eyeOff; i.style.color = '#12305c'; }
     else { f.type = 'password'; i.innerHTML = eyeOpen; i.style.color = '#94a3b8'; }
   }
 
@@ -608,7 +611,7 @@
     </div>
     <div style="padding:20px 24px;font-size:.84rem;line-height:1.7;color:#334155;">
       <p style="margin:0 0 14px;"><strong>EncryptEd</strong> is the official academic management platform of the Philippine Academy of Sakya. All personal data is handled in strict compliance with Republic Act No. 10173 (Data Privacy Act of 2012).</p>
-      <h3 style="font-size:.72rem;font-weight:800;color:#0a1628;margin:16px 0 8px;text-transform:uppercase;letter-spacing:.1em;border-left:3px solid #2563eb;padding-left:8px;">Security Measures</h3>
+      <h3 style="font-size:.72rem;font-weight:800;color:#0a1628;margin:16px 0 8px;text-transform:uppercase;letter-spacing:.1em;border-left:3px solid #d4a12a;padding-left:8px;">Security Measures</h3>
       <ul style="margin:0 0 12px;padding-left:18px;display:flex;flex-direction:column;gap:6px;">
         <li><strong>bcrypt (cost 12)</strong> — Passwords are hashed and never stored in plain text.</li>
         <li><strong>AES-256 encryption</strong> — All personally identifiable information is encrypted at rest.</li>
@@ -616,7 +619,7 @@
         <li><strong>SHA-256 audit logs</strong> — Sensitive actions are tamper-evidently recorded.</li>
         <li><strong>Session security</strong> — HttpOnly, SameSite cookies with 30-minute idle expiry.</li>
       </ul>
-      <h3 style="font-size:.72rem;font-weight:800;color:#0a1628;margin:16px 0 8px;text-transform:uppercase;letter-spacing:.1em;border-left:3px solid #2563eb;padding-left:8px;">Data Privacy Act (RA 10173)</h3>
+      <h3 style="font-size:.72rem;font-weight:800;color:#0a1628;margin:16px 0 8px;text-transform:uppercase;letter-spacing:.1em;border-left:3px solid #d4a12a;padding-left:8px;">Data Privacy Act (RA 10173)</h3>
       <ul style="margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px;">
         <li><strong>Data Minimization</strong> — Only operationally necessary data is collected.</li>
         <li><strong>Informed Consent</strong> — Explicit consent is obtained during the admission process.</li>
@@ -627,8 +630,8 @@
     </div>
     <div style="padding:14px 24px;border-top:1px solid #e8ecf2;display:flex;justify-content:flex-end;position:sticky;bottom:0;background:#fff;border-radius:0 0 16px 16px;">
       <button type="button" onclick="document.getElementById('aboutModal').style.display='none'"
-              style="background:#1a3a6b;color:#fff;border:none;padding:.5rem 1.4rem;border-radius:8px;font-size:.84rem;font-weight:700;cursor:pointer;font-family:inherit;"
-              onmouseover="this.style.background='#122a52'" onmouseout="this.style.background='#1a3a6b'">
+              style="background:#12305c;color:#fff;border:none;padding:.5rem 1.4rem;border-radius:8px;font-size:.84rem;font-weight:700;cursor:pointer;font-family:inherit;"
+              onmouseover="this.style.background='#0a1a33'" onmouseout="this.style.background='#12305c'">
         Close
       </button>
     </div>
