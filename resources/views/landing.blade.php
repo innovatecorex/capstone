@@ -61,7 +61,9 @@
       border-bottom: 1px solid rgba(212,161,42,.32);
       box-shadow: 0 8px 24px rgba(3,9,22,.28);
     }
-    .topbar__in { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .7rem 0; }
+    /* Full-bleed: brand hugs the left edge, nav hugs the right edge — not
+       penned inside the centered content column. */
+    .topbar__in { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .7rem clamp(1rem, 3.5vw, 2.75rem); }
     .brand { display: flex; align-items: center; gap: .75rem; transition: opacity .15s; }
     .brand:hover { opacity: .9; }
     .brand img {
@@ -188,7 +190,7 @@
 
 {{-- ══════ TOP BAR — school name seen first ══════ --}}
 <header class="topbar">
-  <div class="wrap topbar__in">
+  <div class="topbar__in">
     <a href="{{ route('landing') }}" class="brand">
       <img src="{{ asset('images/logo.png') }}" alt="Philippine Academy of Sakya crest">
       <span>
