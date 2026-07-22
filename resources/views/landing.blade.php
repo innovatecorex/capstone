@@ -34,6 +34,18 @@
     :focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 4px; }
     .wrap { max-width: 1140px; margin: 0 auto; padding: 0 1.5rem; }
 
+    /* ── premium global polish ─────────────────── */
+    ::selection { background: rgba(212,161,42,.28); color: var(--ink); }
+    html { scrollbar-color: var(--gold) #e9edf3; scrollbar-width: thin; }
+    ::-webkit-scrollbar { width: 11px; height: 11px; }
+    ::-webkit-scrollbar-track { background: #eef2f7; }
+    ::-webkit-scrollbar-thumb { background: linear-gradient(var(--gold), #b8891f); border-radius: 999px; border: 2px solid #eef2f7; }
+    ::-webkit-scrollbar-thumb:hover { background: linear-gradient(var(--gold-2), var(--gold)); }
+    /* scroll-progress meter — a thin gold line that fills as the page is read */
+    .progress { position: fixed; top: 0; left: 0; height: 3px; width: 0; z-index: 60;
+      background: linear-gradient(90deg, var(--gold), var(--gold-2));
+      box-shadow: 0 0 10px rgba(212,161,42,.6); transition: width .1s linear; }
+
     /* ── buttons ─────────────────────────────── */
     .btn {
       display: inline-flex; align-items: center; justify-content: center; gap: 8px;
@@ -143,24 +155,52 @@
       text-shadow: 0 1px 14px rgba(0,0,0,.55);
     }
     .hero__cta { display: flex; gap: .8rem; flex-wrap: wrap; }
+    /* animated scroll cue at the foot of the hero */
+    .hero__scroll {
+      position: absolute; left: 50%; bottom: 20px; transform: translateX(-50%); z-index: 3;
+      width: 28px; height: 46px; border: 2px solid rgba(255,255,255,.6); border-radius: 15px;
+      display: flex; justify-content: center; padding-top: 7px;
+      box-shadow: 0 2px 14px rgba(0,0,0,.35); transition: border-color .2s;
+    }
+    .hero__scroll:hover { border-color: var(--gold-2); }
+    .hero__scroll span { width: 4px; height: 8px; border-radius: 2px; background: var(--gold-2);
+      animation: scrollDot 1.7s ease-in-out infinite; }
+    @keyframes scrollDot {
+      0% { opacity: 0; transform: translateY(-3px); }
+      30% { opacity: 1; }
+      70% { opacity: 1; transform: translateY(11px); }
+      100% { opacity: 0; transform: translateY(15px); }
+    }
 
     /* ── FACTS / ACCREDITATION STRIP ─────────── */
-    .facts { background: #f8fafc; border-bottom: 1px solid var(--line); }
-    .facts__grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; padding: 2.5rem 0; }
+    .facts { background: linear-gradient(180deg, #f8fafc, #f2f5fa); border-bottom: 1px solid var(--line); }
+    .facts__grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; padding: 2.75rem 0; }
     .fact { text-align: center; padding: .35rem 1rem; }
     .fact + .fact { border-left: 1px solid var(--line); }
-    .fact__n { font-family: 'Merriweather', Georgia, serif; font-size: clamp(1.5rem, 2.4vw, 1.95rem); font-weight: 900; color: var(--navy); letter-spacing: -.02em; line-height: 1.05; }
-    .fact__l { font-size: .72rem; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); margin-top: .55rem; }
+    .fact__n { position: relative; font-family: 'Merriweather', Georgia, serif; font-size: clamp(1.55rem, 2.4vw, 2rem); font-weight: 900; color: var(--navy); letter-spacing: -.02em; line-height: 1.05; padding-bottom: .6rem; }
+    .fact__n::after { content: ''; position: absolute; left: 50%; bottom: 0; transform: translateX(-50%);
+      width: 28px; height: 2px; border-radius: 2px; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
+    .fact__l { font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-top: .5rem; }
 
     /* ── ROLES (kept short) ──────────────────── */
-    .section { padding: 4rem 0; }
-    .section__head { text-align: center; max-width: 620px; margin: 0 auto 2.25rem; }
-    .eyebrow { font-size: .68rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
-    .section__title { font-family: 'Merriweather', Georgia, serif; font-size: clamp(1.4rem, 2.4vw, 1.85rem); font-weight: 900; color: var(--ink); letter-spacing: -.02em; margin: .5rem 0 .5rem; }
-    .section__sub { font-size: .95rem; color: var(--body); }
+    .section { padding: 4.5rem 0; }
+    .section__head { text-align: center; max-width: 640px; margin: 0 auto 2.5rem; }
+    .eyebrow { font-size: .68rem; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: var(--gold); }
+    /* gold flanking ticks on centered eyebrows — an institutional signature */
+    .section__head .eyebrow { display: inline-flex; align-items: center; gap: 11px; }
+    .section__head .eyebrow::before, .section__head .eyebrow::after { content: ''; width: 22px; height: 1.5px; background: var(--gold); opacity: .55; }
+    .section__title { font-family: 'Merriweather', Georgia, serif; font-size: clamp(1.5rem, 2.6vw, 2rem); font-weight: 900; color: var(--ink); letter-spacing: -.02em; margin: .55rem 0 .5rem; }
+    .section__sub { font-size: .96rem; color: var(--body); }
+    /* centered gold flourish closing the header */
+    .section__head::after { content: ''; display: block; width: 64px; height: 3px; margin: 1.15rem auto 0;
+      border-radius: 2px; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
     .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.1rem; }
-    .step { border: 1px solid var(--line); border-radius: 14px; padding: 1.75rem 1.4rem; background: #fff; transition: border-color .2s, box-shadow .2s, transform .2s; }
-    .step:hover { border-color: #cdd7e6; box-shadow: 0 12px 30px rgba(15,23,42,.07); transform: translateY(-2px); }
+    .step { position: relative; overflow: hidden; border: 1px solid var(--line); border-radius: 14px; padding: 1.85rem 1.5rem; background: #fff; transition: border-color .2s, box-shadow .2s, transform .2s; }
+    .step::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--gold), var(--gold-2)); transform: scaleX(0); transform-origin: left;
+      transition: transform .38s cubic-bezier(.22,.61,.36,1); }
+    .step:hover::before { transform: scaleX(1); }
+    .step:hover { border-color: #cdd7e6; box-shadow: 0 16px 36px rgba(15,23,42,.09); transform: translateY(-3px); }
     .step__n { width: 40px; height: 40px; border-radius: 10px; background: var(--navy); color: var(--gold-2); font-family: 'Merriweather', Georgia, serif; font-weight: 900; font-size: 1.05rem; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; }
     .step__t { font-size: 1rem; font-weight: 800; color: var(--ink); margin-bottom: .35rem; }
     .step__d { font-size: .86rem; color: var(--body); line-height: 1.65; }
@@ -212,6 +252,9 @@
     /* ── ADMISSION BAND ──────────────────────── */
     .band { position: relative; overflow: hidden; background: linear-gradient(135deg, var(--navy) 0%, var(--navy-2) 60%, var(--blue) 100%); color: #fff; border-top: 3px solid var(--gold); }
     .band::before { content: ''; position: absolute; inset: 0; background-image: radial-gradient(rgba(255,255,255,.05) 1px, transparent 1px); background-size: 24px 24px; }
+    /* soft gold glow for depth */
+    .band::after { content: ''; position: absolute; right: -6%; top: -55%; width: 460px; height: 460px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(212,161,42,.20), transparent 62%); pointer-events: none; z-index: 0; }
     .band__in { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: 2rem; flex-wrap: wrap; padding: 3rem 0; }
     .band__pill { display: inline-flex; align-items: center; gap: 7px; background: rgba(212,161,42,.16); border: 1px solid rgba(212,161,42,.4); color: var(--gold-2); font-size: .66rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; padding: .32rem .8rem; border-radius: 999px; margin-bottom: .8rem; }
     .band__pill svg { width: 12px; height: 12px; }
@@ -219,7 +262,9 @@
     .band p { font-size: .95rem; color: rgba(255,255,255,.75); max-width: 44ch; }
 
     /* ── FOOTER ──────────────────────────────── */
-    .foot { background: var(--navy); color: rgba(255,255,255,.62); }
+    .foot { position: relative; background: var(--navy); color: rgba(255,255,255,.62); }
+    .foot::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--gold), var(--gold-2), var(--gold)); }
     .foot__in { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap; padding: 2rem 0; }
     .foot__brand { display: flex; align-items: center; gap: .8rem; }
     .foot__brand img { width: 42px; height: 42px; border-radius: 50%; border: 1px solid rgba(255,255,255,.18); padding: 2px; }
@@ -305,6 +350,7 @@
         aspect-ratio: 1717 / 916; background-size: cover; background-position: center;
       }
       .hero__inner { position: relative; z-index: 2; max-width: 100%; padding: 1.75rem 0 2.25rem; }
+      .hero__scroll { display: none; }
       .gal-grid { grid-template-columns: repeat(2, 1fr); }
     }
     @media (max-width: 640px) {
@@ -321,6 +367,8 @@
   </style>
 </head>
 <body>
+
+<div class="progress" id="progress" aria-hidden="true"></div>
 
 {{-- ══════ TOP BAR — school name seen first ══════ --}}
 <header class="topbar">
@@ -372,10 +420,11 @@
       <a href="{{ route('login') }}" class="btn btn--glass">Portal Login</a>
     </div>
   </div>
+  <a href="#facts" class="hero__scroll" aria-label="Scroll down to explore"><span></span></a>
 </section>
 
 {{-- ══════ ACCREDITATION / KEY FACTS ══════ --}}
-<section class="facts" aria-label="School at a glance">
+<section class="facts" id="facts" aria-label="School at a glance">
   <div class="wrap facts__grid">
     <div class="fact reveal">
       <div class="fact__n" data-count="1960" data-count-from="1900">1960</div>
@@ -530,11 +579,19 @@
     reveals.forEach(function (el) { el.classList.add('is-in'); });
   }
 
-  // 2 · Nav gains weight after the hero
+  // 2 · Nav gains weight after the hero + scroll-progress meter
   var topbar = document.querySelector('.topbar');
-  function onScroll() { if (topbar) topbar.classList.toggle('topbar--scrolled', window.scrollY > 40); }
+  var progress = document.getElementById('progress');
+  function onScroll() {
+    if (topbar) topbar.classList.toggle('topbar--scrolled', window.scrollY > 40);
+    if (progress) {
+      var max = document.documentElement.scrollHeight - window.innerHeight;
+      progress.style.width = (max > 0 ? (window.scrollY / max) * 100 : 0) + '%';
+    }
+  }
   onScroll();
   window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll, { passive: true });
 
   // 3 · Count-up (founding year odometer)
   function countUp(el) {
