@@ -4,6 +4,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  {{-- Mark JS available before paint so motion styles apply without a flash of
+       hidden content — and so no-JS visitors always see everything. --}}
+  <script>document.documentElement.className += ' js';</script>
   <title>Philippine Academy of Sakya — Official Academic Portal</title>
   <meta name="description" content="The official secure academic portal of Philippine Academy of Sakya — Junior &amp; Senior High School. Apply for admission or sign in to EncryptEd.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -80,24 +83,34 @@
       min-height: 80vh;
       display: flex; align-items: center;
       color: #fff;
+      overflow: hidden;
       border-bottom: 4px solid var(--gold);
+      background-color: #0a1a33;
+    }
+    /* Ken Burns layer — a slow, cinematic drift on the campus banner. Kept on
+       its own layer so ONLY the image moves; the text never does. */
+    .hero__bg {
+      position: absolute; inset: 0; z-index: 0;
       background-color: #0a1a33;
       background-position: center top;
       background-size: cover;
       background-repeat: no-repeat;
-      /* Fallback for browsers without image-set: the JPG (~249KB). */
       background-image:
         url('{{ asset('images/landing-hero.jpg') }}'),
         linear-gradient(135deg, #0a1a33 0%, #12305c 55%, #1d4ed8 100%);
-      /* Modern browsers: prefer WebP (~155KB), fall back to JPG. Replaces the
-         old 2.3MB PNG — the single biggest page-weight win. Anchored to the TOP
-         so the crest + medallions are never cropped. */
       background-image:
         image-set(
           url('{{ asset('images/landing-hero.webp') }}') type('image/webp'),
           url('{{ asset('images/landing-hero.jpg') }}') type('image/jpeg')
         ),
         linear-gradient(135deg, #0a1a33 0%, #12305c 55%, #1d4ed8 100%);
+      transform: scale(1.06);
+      animation: heroPan 30s ease-in-out infinite alternate;
+      will-change: transform;
+    }
+    @keyframes heroPan {
+      from { transform: scale(1.06) translate3d(0, 0, 0); }
+      to   { transform: scale(1.16) translate3d(0, -1.6%, 0); }
     }
     /* navy scrim on the left so white hero text stays crisp, fading to reveal
        the artwork (building, medallions) on the right */
@@ -177,6 +190,66 @@
     .foot__bar { border-top: 1px solid rgba(255,255,255,.09); padding: 1.1rem 0 1.75rem; text-align: center; font-size: .74rem; color: rgba(255,255,255,.42); line-height: 1.7; }
     .foot__bar strong { color: rgba(255,255,255,.6); font-weight: 700; }
 
+    /* ══════ MOTION — orchestrated, professional, GPU-cheap ══════ */
+
+    /* 1 · Hero entrance — a staggered, blur-to-focus rise on page load. Scoped
+          to .js so no-JS visitors just see the content, no flash. */
+    .js .hero__inner > * { opacity: 0; animation: heroRise .9s cubic-bezier(.22,.61,.36,1) both; }
+    .js .hero__inner > *:nth-child(1) { animation-delay: .20s; }
+    .js .hero__inner > *:nth-child(2) { animation-delay: .34s; }
+    .js .hero__inner > *:nth-child(3) { animation-delay: .46s; }
+    .js .hero__inner > *:nth-child(4) { animation-delay: .56s; }
+    .js .hero__inner > *:nth-child(5) { animation-delay: .66s; }
+    @keyframes heroRise {
+      from { opacity: 0; transform: translateY(30px); filter: blur(7px); }
+      to   { opacity: 1; transform: none;             filter: blur(0); }
+    }
+
+    /* 2 · Scroll reveals — sections rise into place as they enter the viewport. */
+    .js .reveal { opacity: 0; transform: translateY(26px);
+      transition: opacity .75s cubic-bezier(.22,.61,.36,1), transform .75s cubic-bezier(.22,.61,.36,1); }
+    .js .reveal.is-in { opacity: 1; transform: none; }
+    /* staggered children within a row */
+    .js .facts__grid .fact:nth-child(2) { transition-delay: .09s; }
+    .js .facts__grid .fact:nth-child(3) { transition-delay: .18s; }
+    .js .facts__grid .fact:nth-child(4) { transition-delay: .27s; }
+    .js .steps .step:nth-child(2) { transition-delay: .12s; }
+    .js .steps .step:nth-child(3) { transition-delay: .24s; }
+
+    /* 3 · Nav gains weight once you leave the hero. */
+    .topbar { transition: background .3s ease, box-shadow .3s ease, border-color .3s ease; }
+    .topbar--scrolled {
+      background: rgba(7,14,29,.97);
+      box-shadow: 0 12px 34px rgba(3,9,22,.45);
+      border-bottom-color: rgba(212,161,42,.5);
+    }
+
+    /* 4 · Gold buttons get a single sweep of light on hover. */
+    .btn--gold { position: relative; overflow: hidden; }
+    .btn--gold::before {
+      content: ''; position: absolute; top: 0; left: -140%;
+      width: 55%; height: 100%; pointer-events: none;
+      background: linear-gradient(100deg, transparent, rgba(255,255,255,.55), transparent);
+      transform: skewX(-20deg);
+      transition: left .65s cubic-bezier(.22,.61,.36,1);
+    }
+    .btn--gold:hover::before { left: 150%; }
+
+    /* 5 · Step number badge flips to gold on card hover (springy). */
+    .step__n { transition: transform .28s cubic-bezier(.34,1.56,.64,1), background .25s, color .25s; }
+    .step:hover .step__n { transform: rotate(-8deg) scale(1.08); background: var(--gold); color: var(--navy); }
+
+    /* 6 · The founding-year odometer sits in a fixed box so the roll doesn't reflow. */
+    .fact__n[data-count] { font-variant-numeric: tabular-nums; }
+
+    /* Respect the user's motion preference — everything resolves to a calm,
+       static page; content is always visible. */
+    @media (prefers-reduced-motion: reduce) {
+      .js .reveal, .js .hero__inner > * { opacity: 1 !important; transform: none !important; filter: none !important; animation: none !important; }
+      .hero__bg { animation: none !important; transform: scale(1.03) !important; }
+      *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    }
+
     /* ── responsive ──────────────────────────── */
     @media (max-width: 860px) {
       .facts__grid { grid-template-columns: repeat(2, 1fr); gap: 1.5rem 0; }
@@ -222,7 +295,8 @@
 </header>
 
 {{-- ══════ HERO — uploaded image as background ══════ --}}
-<section class="hero" role="img" aria-label="Philippine Academy of Sakya campus and crest">
+<section class="hero" aria-label="Welcome">
+  <div class="hero__bg" aria-hidden="true"></div>
   <div class="wrap hero__inner">
     <span class="hero__eyebrow">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -253,19 +327,19 @@
 {{-- ══════ ACCREDITATION / KEY FACTS ══════ --}}
 <section class="facts" aria-label="School at a glance">
   <div class="wrap facts__grid">
-    <div class="fact">
-      <div class="fact__n">1960</div>
+    <div class="fact reveal">
+      <div class="fact__n" data-count="1960" data-count-from="1900">1960</div>
       <div class="fact__l">Established</div>
     </div>
-    <div class="fact">
+    <div class="fact reveal">
       <div class="fact__n">Level III</div>
       <div class="fact__l">PAASCU Accredited</div>
     </div>
-    <div class="fact">
+    <div class="fact reveal">
       <div class="fact__n">Grades 7&ndash;12</div>
       <div class="fact__l">Junior &amp; Senior High</div>
     </div>
-    <div class="fact">
+    <div class="fact reveal">
       <div class="fact__n">K to 12</div>
       <div class="fact__l">DepEd Curriculum</div>
     </div>
@@ -275,23 +349,23 @@
 {{-- ══════ HOW TO APPLY ══════ --}}
 <section class="section">
   <div class="wrap">
-    <div class="section__head">
+    <div class="section__head reveal">
       <span class="eyebrow">Admissions</span>
       <h2 class="section__title">How to apply</h2>
       <p class="section__sub">Three simple steps, all online — start your application without visiting the campus.</p>
     </div>
     <div class="steps">
-      <article class="step">
+      <article class="step reveal">
         <div class="step__n">1</div>
         <div class="step__t">Apply Online</div>
         <div class="step__d">Complete the online admission form. You&rsquo;ll receive a reference number by email as your proof of submission.</div>
       </article>
-      <article class="step">
+      <article class="step reveal">
         <div class="step__n">2</div>
         <div class="step__t">Submit Requirements</div>
         <div class="step__d">Upload the required documents — report card, birth certificate, and the rest — for the registrar to review.</div>
       </article>
-      <article class="step">
+      <article class="step reveal">
         <div class="step__n">3</div>
         <div class="step__t">Get Notified</div>
         <div class="step__d">The registrar reviews your application and emails you the decision, along with the next steps for enrollment.</div>
@@ -302,7 +376,7 @@
 
 {{-- ══════ ADMISSION BAND ══════ --}}
 <section class="band">
-  <div class="wrap band__in">
+  <div class="wrap band__in reveal">
     <div>
       <span class="band__pill">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -340,6 +414,62 @@
     </div>
   </div>
 </footer>
+
+{{-- ══════ MOTION ENGINE — dependency-free, ~40 lines ══════ --}}
+<script>
+(function () {
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // 1 · Scroll reveals
+  var reveals = document.querySelectorAll('.reveal');
+  if ('IntersectionObserver' in window && !reduce) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.16, rootMargin: '0px 0px -8% 0px' });
+    reveals.forEach(function (el) { io.observe(el); });
+  } else {
+    reveals.forEach(function (el) { el.classList.add('is-in'); });
+  }
+
+  // 2 · Nav gains weight after the hero
+  var topbar = document.querySelector('.topbar');
+  function onScroll() { if (topbar) topbar.classList.toggle('topbar--scrolled', window.scrollY > 40); }
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
+
+  // 3 · Count-up (founding year odometer)
+  function countUp(el) {
+    var to = parseInt(el.getAttribute('data-count'), 10);
+    var from = parseInt(el.getAttribute('data-count-from') || '0', 10);
+    if (reduce || isNaN(to)) { el.textContent = to; return; }
+    var dur = 1500, start = null;
+    function tick(now) {
+      if (start === null) start = now;
+      var p = Math.min((now - start) / dur, 1);
+      var eased = 1 - Math.pow(1 - p, 3); // easeOutCubic
+      el.textContent = Math.round(from + (to - from) * eased);
+      if (p < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+  var counters = document.querySelectorAll('[data-count]');
+  if ('IntersectionObserver' in window && !reduce) {
+    // Pre-set to the start value so the roll never flashes the final number.
+    counters.forEach(function (el) {
+      var from = parseInt(el.getAttribute('data-count-from') || '0', 10);
+      if (!isNaN(from)) el.textContent = from;
+    });
+    var cio = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) { countUp(e.target); cio.unobserve(e.target); } });
+    }, { threshold: 0.55 });
+    counters.forEach(function (el) { cio.observe(el); });
+  } else {
+    counters.forEach(function (el) { el.textContent = el.getAttribute('data-count'); });
+  }
+})();
+</script>
 
 </body>
 </html>
