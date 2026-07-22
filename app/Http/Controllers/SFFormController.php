@@ -59,23 +59,30 @@ class SFFormController extends Controller
 
         if ($sectionId) {
             $section  = Section::with('adviser')->findOrFail($sectionId);
-            $students = Enrollment::where('section_id', $sectionId)
+
+            $enrollments = Enrollment::where('section_id', $sectionId)
                 ->where('status', 'enrolled')
                 ->with('student')
-                ->get()
-                ->map->student
+                ->get();
+
+            $students = $enrollments->map->student
                 ->filter()
                 ->sortBy(fn($s) => mb_strtolower(trim((string) $s->last_name . ' ' . (string) $s->first_name)), SORT_NATURAL)
                 ->values();
 
             $daysInMonth = \Carbon\Carbon::create($year, $month, 1)->daysInMonth;
 
+            // Attendance is linked to students through enrollment_id — the table has
+            // no student_id column. Map enrollment_id → student_id so the register
+            // below can stay keyed by the student's id.
+            $enrollmentToStudent = $enrollments->pluck('student_id', 'id');
+
             $attendance = Attendance::whereHas('sectionSubject', fn($q) => $q->where('section_id', $sectionId))
                 ->whereYear('date', $year)
                 ->whereMonth('date', $month)
-                ->whereIn('student_id', $students->pluck('id'))
+                ->whereIn('enrollment_id', $enrollments->pluck('id'))
                 ->get()
-                ->groupBy('student_id');
+                ->groupBy(fn($a) => $enrollmentToStudent[$a->enrollment_id] ?? 0);
         }
 
         if ($request->input('download') === '1' && $section) {
@@ -98,6 +105,7 @@ class SFFormController extends Controller
         $gradeData  = [];
         $quarters   = collect();
         $students   = collect();
+        $pendingGrades = 0;   // grades that exist but are not yet finalized
 
         if ($sectionId) {
             $section  = Section::findOrFail($sectionId);
@@ -135,6 +143,18 @@ class SFFormController extends Controller
                     $qNum = $grade->gradingQuarter?->quarter_number ?? 0;
                     $gradeData[$subj][$qNum] = $grade->final_grade;
                 }
+
+                // If nothing finalized shows up, find out whether the student has
+                // grades still in progress (draft / submitted) so the empty state
+                // can explain the real reason instead of just "no data".
+                if (empty($gradeData)) {
+                    $pendingGrades = Grade::whereHas('sectionSubject', fn($q) =>
+                            $q->where('academic_year_id', $academicYearId)
+                        )
+                        ->where('enrollment_id', $enrollment->id)
+                        ->whereNotIn('status', ['finalized', 'locked'])
+                        ->count();
+                }
             }
         }
 
@@ -144,7 +164,7 @@ class SFFormController extends Controller
             return $pdf->download("SF9-{$student->last_name}-{$student->first_name}.pdf");
         }
 
-        return view('sf-forms.sf9', compact('sections', 'sectionId', 'studentId', 'section', 'students', 'student', 'gradeData', 'quarters'));
+        return view('sf-forms.sf9', compact('sections', 'sectionId', 'studentId', 'section', 'students', 'student', 'gradeData', 'quarters', 'pendingGrades'));
     }
 
     // ── SF10: Permanent Record ────────────────────────────────────────────

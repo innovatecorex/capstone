@@ -10,15 +10,27 @@
     <p style="font-size:.875rem;color:#94a3b8;margin:0;">Upload a CSV file to enroll multiple students at once.</p>
   </div>
 
-  {{-- ── Results panel ──────────────────────────────────────────────────── --}}
+  {{-- ── Results panel ──────────────────────────────────────────────────────
+       Colour follows the OUTCOME, not just "we finished":
+         · all rows imported        → green  (success)
+         · some imported, some not  → amber  (partial)
+         · nothing imported         → red    (rejected / not accepted)
+       Per panel feedback: a rejected import must not read as green. --}}
   @if(isset($imported))
-  <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:14px;padding:20px 24px;margin-bottom:24px;">
-    <div style="font-size:.95rem;font-weight:700;color:#166534;margin-bottom:6px;">
-      Import complete — {{ $imported }} student(s) created@if($skipped > 0), {{ $skipped }} skipped@endif.
+  @php
+    $allOk   = $skipped === 0 && $imported > 0;
+    $allFail = $imported === 0;
+    if ($allOk)        { $rBg = '#f0fdf4'; $rBorder = '#bbf7d0'; $rInk = '#166534'; $rTitle = "Import complete — {$imported} student(s) created."; }
+    elseif ($allFail)  { $rBg = '#fef2f2'; $rBorder = '#fecaca'; $rInk = '#991b1b'; $rTitle = "Import failed — no students created" . ($skipped > 0 ? ", {$skipped} row(s) rejected." : "."); }
+    else               { $rBg = '#fffbeb'; $rBorder = '#fcd34d'; $rInk = '#92400e'; $rTitle = "Import finished with warnings — {$imported} created, {$skipped} rejected."; }
+  @endphp
+  <div style="background:{{ $rBg }};border:1px solid {{ $rBorder }};border-radius:14px;padding:20px 24px;margin-bottom:24px;">
+    <div style="font-size:.95rem;font-weight:700;color:{{ $rInk }};margin-bottom:6px;">
+      {{ $rTitle }}
     </div>
     @if(!empty($rowErrors))
     <div style="margin-top:12px;">
-      <div style="font-size:.8rem;font-weight:700;color:#374151;margin-bottom:8px;">Skipped rows:</div>
+      <div style="font-size:.8rem;font-weight:700;color:{{ $rInk }};margin-bottom:8px;">Rejected rows:</div>
       <ul style="margin:0;padding-left:18px;font-size:.8rem;color:#64748b;line-height:1.8;">
         @foreach($rowErrors as $err)
         <li>{{ $err }}</li>

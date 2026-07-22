@@ -10,6 +10,7 @@
 --}}
 @php
   $b       = $grade->componentBreakdown();
+  $items   = $grade->componentItems();   // individual activities per component (may be empty)
   $compact = $compact ?? false;
 @endphp
 
@@ -43,6 +44,34 @@
           {{ $r['contribution'] === null ? '—' : number_format($r['contribution'], 2) }}
         </td>
       </tr>
+
+      {{-- Activities that make up THIS component: several individual scores that
+           average to the component score above. Shown only when the faculty
+           recorded them in the Score Calculator worksheet — so a component can
+           demonstrate multiple activities rather than a single number. --}}
+      @php $compItems = $items[$r['key']] ?? []; @endphp
+      @if(!empty($compItems))
+      <tr style="background:#fbfdff;">
+        <td colspan="4" style="padding:2px 10px 9px 24px;">
+          <div style="display:flex;flex-wrap:wrap;align-items:center;gap:5px;font-size:.68rem;color:#64748b;">
+            <span style="font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.04em;font-size:.62rem;">
+              {{ count($compItems) }} {{ \Illuminate\Support\Str::plural('activity', count($compItems)) }}:
+            </span>
+            @foreach($compItems as $it)
+              <span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;background:#eef2f7;border:1px solid #e2e8f0;border-radius:6px;">
+                {{ $it['label'] ?: 'Item '.$loop->iteration }}
+                <strong style="font-family:monospace;color:#0f172a;">{{ $it['score'] === null ? '—' : rtrim(rtrim(number_format($it['score'],2),'0'),'.') }}</strong>
+              </span>
+            @endforeach
+            @if($r['score'] !== null)
+              <span style="color:#94a3b8;">&rarr; average =
+                <strong style="font-family:monospace;color:#0f172a;">{{ rtrim(rtrim(number_format($r['score'],2),'0'),'.') }}</strong>
+              </span>
+            @endif
+          </div>
+        </td>
+      </tr>
+      @endif
       @endforeach
     </tbody>
     <tfoot>

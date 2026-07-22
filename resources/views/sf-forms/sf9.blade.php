@@ -77,8 +77,22 @@
 </div>
 
 @if(empty($gradeData))
-  <div style="text-align:center;padding:40px;background:#fff;border:1px solid #e2e8f0;border-radius:16px;color:#94a3b8;">
-    <p style="font-weight:600;">No finalized grades found for this student.</p>
+  <div style="background:#fffbeb;border:1px solid #fcd34d;border-left:4px solid #f59e0b;border-radius:12px;padding:20px 24px;display:flex;gap:14px;align-items:flex-start;">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:22px;height:22px;color:#d97706;flex-shrink:0;margin-top:1px;">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
+    </svg>
+    <div style="font-size:.9rem;color:#92400e;line-height:1.65;">
+      @if($pendingGrades > 0)
+        <strong style="display:block;margin-bottom:3px;">No <em>finalized</em> grades yet for this student.</strong>
+        This learner has <strong>{{ $pendingGrades }}</strong> subject grade{{ $pendingGrades > 1 ? 's' : '' }}
+        still in progress (draft or submitted for verification). The SF9 shows only officially
+        <strong>finalized</strong> grades — once the faculty finalize them, they will appear here automatically.
+      @else
+        <strong style="display:block;margin-bottom:3px;">No grades recorded for this student yet.</strong>
+        No grades have been encoded for this learner in the selected section. Once faculty enter and
+        finalize grades, the official report card will populate here.
+      @endif
+    </div>
   </div>
 @else
 <div style="background:#fff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden;">

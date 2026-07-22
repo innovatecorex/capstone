@@ -329,6 +329,41 @@ class Grade extends Model
     }
 
     /**
+     * The individual activity scores that make up each component — the separate
+     * items a faculty recorded in the Score Calculator worksheet (e.g. three
+     * distinct Homework scores that average into the single HW component score).
+     *
+     * This is what lets a breakdown demonstrate MULTIPLE activities inside one
+     * component instead of a lone number. Keyed by component code (op/hw/ass/…);
+     * empty when no worksheet items exist, so the breakdown simply falls back to
+     * showing the component average on its own.
+     *
+     * Kept separate from componentBreakdown() on purpose: the bulk CSV export
+     * calls the breakdown once per grade and must not pay for this extra query.
+     *
+     * @return array<string, array<int, array{label:?string, score:?float}>>
+     */
+    public function componentItems(): array
+    {
+        if (!$this->enrollment_id || !$this->section_subject_id || !$this->grading_quarter_id) {
+            return [];
+        }
+
+        return ComponentScore::query()
+            ->where('enrollment_id', $this->enrollment_id)
+            ->where('section_subject_id', $this->section_subject_id)
+            ->where('grading_quarter_id', $this->grading_quarter_id)
+            ->orderBy('id')
+            ->get(['component', 'item_label', 'score'])
+            ->groupBy('component')
+            ->map(fn ($items) => $items->map(fn ($it) => [
+                'label' => $it->item_label,
+                'score' => $it->score === null ? null : (float) $it->score,
+            ])->values()->all())
+            ->all();
+    }
+
+    /**
      * The component set that ACTUALLY produced this grade.
      *
      * The gradebook was migrated from the legacy 3-component model
