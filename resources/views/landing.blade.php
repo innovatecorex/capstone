@@ -66,10 +66,11 @@
       display: flex; align-items: center;
       color: #fff;
       border-bottom: 4px solid var(--gold);
-      /* the school banner as a true background image, anchored right so the
-         campus + medallions stay in view; on-brand gradient FALLBACK below. */
+      /* the school banner as a true background image, anchored to the TOP so
+         the crest + medallions are never cut (crop falls on the bottom wave);
+         on-brand gradient FALLBACK below. */
       background:
-        url('{{ asset('images/landing-hero.png') }}') right center / cover no-repeat,
+        url('{{ asset('images/landing-hero.png') }}') center top / cover no-repeat,
         linear-gradient(135deg, #0a1a33 0%, #12305c 55%, #1d4ed8 100%);
     }
     /* navy scrim on the left so white hero text stays crisp, fading to reveal
