@@ -77,23 +77,25 @@
     .brand__sub { display: block; font-size: .63rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: rgba(240,198,90,.82); margin-top: 4px; }
     .topbar__nav { display: flex; gap: .6rem; flex: none; }
 
-    /* ── HERO (uploaded image as background) ── */
+    /* ── HERO — the FULL banner, never cropped ── */
+    /* The hero is locked to the banner's own aspect ratio (1717×916), so the
+       ENTIRE image shows edge-to-edge — no cropping, no letterbox. */
     .hero {
       position: relative;
-      min-height: 80vh;
+      width: 100%;
+      aspect-ratio: 1717 / 916;
+      min-height: 460px;
       display: flex; align-items: center;
       color: #fff;
       overflow: hidden;
       border-bottom: 4px solid var(--gold);
       background-color: #0a1a33;
     }
-    /* Ken Burns layer — a slow, cinematic drift on the campus banner. Kept on
-       its own layer so ONLY the image moves; the text never does. */
     .hero__bg {
       position: absolute; inset: 0; z-index: 0;
       background-color: #0a1a33;
-      background-position: center top;
-      background-size: cover;
+      background-position: center;
+      background-size: contain;            /* contain = the whole image is always shown */
       background-repeat: no-repeat;
       background-image:
         url('{{ asset('images/landing-hero.jpg') }}'),
@@ -104,14 +106,9 @@
           url('{{ asset('images/landing-hero.jpg') }}') type('image/jpeg')
         ),
         linear-gradient(135deg, #0a1a33 0%, #12305c 55%, #1d4ed8 100%);
-      transform: scale(1.06);
-      animation: heroPan 30s ease-in-out infinite alternate;
-      will-change: transform;
+      animation: heroFade 1.2s ease both;  /* gentle reveal — no zoom, so nothing is ever cropped */
     }
-    @keyframes heroPan {
-      from { transform: scale(1.06) translate3d(0, 0, 0); }
-      to   { transform: scale(1.16) translate3d(0, -1.6%, 0); }
-    }
+    @keyframes heroFade { from { opacity: 0; } to { opacity: 1; } }
     /* navy scrim on the left so white hero text stays crisp, fading to reveal
        the artwork (building, medallions) on the right */
     .hero::before {
@@ -246,7 +243,7 @@
        static page; content is always visible. */
     @media (prefers-reduced-motion: reduce) {
       .js .reveal, .js .hero__inner > * { opacity: 1 !important; transform: none !important; filter: none !important; animation: none !important; }
-      .hero__bg { animation: none !important; transform: scale(1.03) !important; }
+      .hero__bg { animation: none !important; opacity: 1 !important; }
       *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
     }
 
@@ -255,15 +252,21 @@
       .facts__grid { grid-template-columns: repeat(2, 1fr); gap: 1.5rem 0; }
       .fact + .fact { border-left: none; }
       .steps { grid-template-columns: 1fr; }
+      /* On narrow screens, stack: the FULL banner on top, hero text below it on
+         navy — still shown whole, never cropped, and text stays readable. */
+      .hero { aspect-ratio: auto; min-height: 0; display: block; background: var(--navy); }
+      .hero::before { display: none; }
+      .hero__bg {
+        position: relative; inset: auto; width: 100%;
+        aspect-ratio: 1717 / 916; background-size: cover; background-position: center;
+      }
+      .hero__inner { position: relative; z-index: 2; max-width: 100%; padding: 1.75rem 0 2.25rem; }
     }
     @media (max-width: 640px) {
       .topbar__in { flex-direction: column; align-items: center; gap: .8rem; text-align: center; }
       .brand { flex-direction: column; text-align: center; gap: .45rem; }
       .topbar__nav { width: 100%; }
       .topbar__nav .btn { flex: 1 1 0; }
-      .hero { min-height: 82vh; }
-      .hero__inner { padding: 3.5rem 0; }
-      .hero::before { background: linear-gradient(180deg, rgba(6,16,38,.62) 0%, rgba(6,16,38,.80) 100%); }
       .hero__cta .btn { flex: 1 1 100%; }
       .band__in .btn { width: 100%; }
       .foot__in { flex-direction: column; align-items: flex-start; }
