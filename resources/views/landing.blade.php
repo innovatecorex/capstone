@@ -165,6 +165,50 @@
     .step__t { font-size: 1rem; font-weight: 800; color: var(--ink); margin-bottom: .35rem; }
     .step__d { font-size: .86rem; color: var(--body); line-height: 1.65; }
 
+    /* ── SHOWCASE GALLERY ────────────────────── */
+    .gallery { background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%); }
+    .gal-pano { position: relative; border-radius: 18px; overflow: hidden; margin: 0 0 1.15rem;
+      box-shadow: 0 16px 44px rgba(15,23,42,.14); cursor: zoom-in; border: 1px solid var(--line); }
+    .gal-pano img { width: 100%; height: auto; display: block; transition: transform .6s cubic-bezier(.22,.61,.36,1); }
+    .gal-pano:hover img { transform: scale(1.03); }
+    .gal-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.1rem; }
+    .gal-item { position: relative; border-radius: 14px; overflow: hidden; cursor: zoom-in;
+      box-shadow: 0 10px 26px rgba(15,23,42,.10); background: var(--navy); }
+    .gal-item img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; display: block;
+      transition: transform .55s cubic-bezier(.22,.61,.36,1); }
+    .gal-item:hover img { transform: scale(1.07); }
+    .gal-item::after { content: ''; position: absolute; inset: 0; pointer-events: none;
+      background: linear-gradient(180deg, transparent 55%, rgba(6,16,38,.5)); opacity: 0; transition: opacity .3s; }
+    .gal-item:hover::after { opacity: 1; }
+    .gal-zoom { position: absolute; right: 11px; bottom: 11px; z-index: 2; width: 34px; height: 34px;
+      border-radius: 9px; background: rgba(212,161,42,.96); color: #241a04;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; transform: translateY(6px); transition: opacity .3s, transform .3s; }
+    .gal-item:hover .gal-zoom { opacity: 1; transform: none; }
+    .gal-zoom svg { width: 17px; height: 17px; }
+    /* row-based reveal stagger */
+    .js .gal-grid .gal-item:nth-child(2) { transition-delay: .08s; }
+    .js .gal-grid .gal-item:nth-child(3) { transition-delay: .16s; }
+    .js .gal-grid .gal-item:nth-child(5) { transition-delay: .08s; }
+    .js .gal-grid .gal-item:nth-child(6) { transition-delay: .16s; }
+
+    /* Lightbox */
+    .lb { position: fixed; inset: 0; z-index: 999; display: flex; align-items: center; justify-content: center;
+      padding: clamp(1rem, 4vw, 3rem); background: rgba(4,9,20,.93);
+      -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+      opacity: 0; visibility: hidden; transition: opacity .3s ease, visibility .3s ease; }
+    .lb.is-open { opacity: 1; visibility: visible; }
+    .lb__img { max-width: 100%; max-height: 90vh; border-radius: 10px; box-shadow: 0 30px 80px rgba(0,0,0,.6); }
+    .lb__btn { position: absolute; background: rgba(255,255,255,.10); border: 1px solid rgba(255,255,255,.28);
+      color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .15s; }
+    .lb__btn:hover { background: rgba(255,255,255,.22); }
+    .lb__close { top: 18px; right: 20px; width: 44px; height: 44px; border-radius: 10px; }
+    .lb__nav { top: 50%; transform: translateY(-50%); width: 48px; height: 48px; border-radius: 50%; }
+    .lb__prev { left: 18px; } .lb__next { right: 18px; }
+    .lb__btn svg { width: 21px; height: 21px; }
+    .lb__count { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+      color: rgba(255,255,255,.82); font-size: .8rem; font-weight: 600; letter-spacing: .06em; }
+
     /* ── ADMISSION BAND ──────────────────────── */
     .band { position: relative; overflow: hidden; background: linear-gradient(135deg, var(--navy) 0%, var(--navy-2) 60%, var(--blue) 100%); color: #fff; border-top: 3px solid var(--gold); }
     .band::before { content: ''; position: absolute; inset: 0; background-image: radial-gradient(rgba(255,255,255,.05) 1px, transparent 1px); background-size: 24px 24px; }
@@ -261,8 +305,11 @@
         aspect-ratio: 1717 / 916; background-size: cover; background-position: center;
       }
       .hero__inner { position: relative; z-index: 2; max-width: 100%; padding: 1.75rem 0 2.25rem; }
+      .gal-grid { grid-template-columns: repeat(2, 1fr); }
     }
     @media (max-width: 640px) {
+      .gal-grid { grid-template-columns: 1fr; }
+      .lb__nav { width: 40px; height: 40px; }
       .topbar__in { flex-direction: column; align-items: center; gap: .8rem; text-align: center; }
       .brand { flex-direction: column; text-align: center; gap: .45rem; }
       .topbar__nav { width: 100%; }
@@ -377,6 +424,53 @@
   </div>
 </section>
 
+{{-- ══════ SHOWCASE — LIFE AT SAKYA ══════ --}}
+@php
+  $gallery = [
+    ['g1', 'Sakya students at a school competition'],
+    ['g2', 'Sakya awarding ceremony'],
+    ['g3', 'Sakya community and cultural event'],
+    ['g4', "Sakya pupils on Kids' Athletics Day"],
+    ['g5', 'Sakya student athletes with their medals'],
+    ['g6', 'Philippine Academy of Sakya alumni giving back'],
+  ];
+@endphp
+<section class="section gallery" aria-label="Life at Sakya">
+  <div class="wrap">
+    <div class="section__head reveal">
+      <span class="eyebrow">Campus Life</span>
+      <h2 class="section__title">Life at Sakya</h2>
+      <p class="section__sub">A glimpse of student life beyond the classroom — competitions, ceremonies, athletics, and community.</p>
+    </div>
+
+    <figure class="gal-pano reveal gal-open" tabindex="0" role="button"
+            data-full="{{ asset('images/gallery/pano.webp') }}" data-alt="A school assembly at Philippine Academy of Sakya">
+      <picture>
+        <source srcset="{{ asset('images/gallery/pano.webp') }}" type="image/webp">
+        <img src="{{ asset('images/gallery/pano.jpg') }}" loading="lazy" width="1920" height="680"
+             alt="A school assembly at Philippine Academy of Sakya">
+      </picture>
+    </figure>
+
+    <div class="gal-grid">
+      @foreach($gallery as [$img, $alt])
+      <figure class="gal-item reveal gal-open" tabindex="0" role="button"
+              data-full="{{ asset('images/gallery/'.$img.'.webp') }}" data-alt="{{ $alt }}">
+        <picture>
+          <source srcset="{{ asset('images/gallery/'.$img.'.webp') }}" type="image/webp">
+          <img src="{{ asset('images/gallery/'.$img.'.jpg') }}" loading="lazy" width="1200" height="900" alt="{{ $alt }}">
+        </picture>
+        <span class="gal-zoom" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m1.35-5.4a6.75 6.75 0 11-13.5 0 6.75 6.75 0 0113.5 0zM10.5 7.5v6m3-3h-6"/>
+          </svg>
+        </span>
+      </figure>
+      @endforeach
+    </div>
+  </div>
+</section>
+
 {{-- ══════ ADMISSION BAND ══════ --}}
 <section class="band">
   <div class="wrap band__in reveal">
@@ -471,6 +565,56 @@
   } else {
     counters.forEach(function (el) { el.textContent = el.getAttribute('data-count'); });
   }
+})();
+</script>
+
+{{-- ══════ LIGHTBOX (click any photo to enlarge) ══════ --}}
+<div class="lb" id="lightbox" aria-hidden="true" aria-modal="true" role="dialog" aria-label="Photo viewer">
+  <button class="lb__btn lb__close" type="button" aria-label="Close">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+  </button>
+  <button class="lb__btn lb__nav lb__prev" type="button" aria-label="Previous photo">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
+  </button>
+  <img class="lb__img" id="lbImg" src="" alt="">
+  <button class="lb__btn lb__nav lb__next" type="button" aria-label="Next photo">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
+  </button>
+  <div class="lb__count" id="lbCount"></div>
+</div>
+<script>
+(function () {
+  var items = Array.prototype.slice.call(document.querySelectorAll('.gal-open'));
+  if (!items.length) return;
+  var lb = document.getElementById('lightbox'),
+      lbImg = document.getElementById('lbImg'),
+      lbCount = document.getElementById('lbCount'),
+      slides = items.map(function (el) { return { src: el.getAttribute('data-full'), alt: el.getAttribute('data-alt') || '' }; }),
+      idx = 0;
+
+  function show(i) {
+    idx = (i + slides.length) % slides.length;
+    lbImg.src = slides[idx].src;
+    lbImg.alt = slides[idx].alt;
+    lbCount.textContent = (idx + 1) + ' / ' + slides.length;
+  }
+  function open(i) { show(i); lb.classList.add('is-open'); lb.setAttribute('aria-hidden', 'false'); document.body.style.overflow = 'hidden'; }
+  function close() { lb.classList.remove('is-open'); lb.setAttribute('aria-hidden', 'true'); document.body.style.overflow = ''; }
+
+  items.forEach(function (el, i) {
+    el.addEventListener('click', function () { open(i); });
+    el.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(i); } });
+  });
+  lb.querySelector('.lb__close').addEventListener('click', close);
+  lb.querySelector('.lb__prev').addEventListener('click', function (e) { e.stopPropagation(); show(idx - 1); });
+  lb.querySelector('.lb__next').addEventListener('click', function (e) { e.stopPropagation(); show(idx + 1); });
+  lb.addEventListener('click', function (e) { if (e.target === lb) close(); });
+  document.addEventListener('keydown', function (e) {
+    if (!lb.classList.contains('is-open')) return;
+    if (e.key === 'Escape') close();
+    else if (e.key === 'ArrowLeft') show(idx - 1);
+    else if (e.key === 'ArrowRight') show(idx + 1);
+  });
 })();
 </script>
 
