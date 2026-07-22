@@ -62,8 +62,14 @@ class RegistrarApplicantController extends Controller
             }
         }
 
-        // Rejection is a valid exit from any non-terminal state.
-        $allowed[] = 'rejected';
+        // Rejection is a valid exit, but ONLY before an acceptance decision is
+        // made (pending / under_review / waitlisted). Once an applicant is
+        // accepted or further along, rejecting them would un-do the acceptance —
+        // exactly the backward move a forward-only flow must forbid. Reversing an
+        // acceptance is a deliberate separate process, not a dropdown choice.
+        if ($currentRank < self::STATUS_ORDER['accepted']) {
+            $allowed[] = 'rejected';
+        }
 
         return $allowed;
     }
@@ -164,13 +170,23 @@ class RegistrarApplicantController extends Controller
             }
 
             // Backward moves along the lifecycle are rejected. ('rejected' is not
-            // in STATUS_ORDER, so rejecting from any non-terminal state falls
-            // through here and is allowed — it is a valid exit, not a step back.)
+            // in STATUS_ORDER, so it is handled by the dedicated guard below.)
             if (isset(self::STATUS_ORDER[$old], self::STATUS_ORDER[$new])
                 && self::STATUS_ORDER[$new] < self::STATUS_ORDER[$old]) {
                 return back()->with('error',
                     "Cannot change status from '" . self::label($old) . "' back to '"
                     . self::label($new) . "'. Application status can only move forward.");
+            }
+
+            // Rejection is only permitted BEFORE an acceptance decision. Once an
+            // applicant is accepted (or eligible/enrolled), they can no longer be
+            // rejected from here — un-accepting is not a valid forward move.
+            if ($new === 'rejected'
+                && isset(self::STATUS_ORDER[$old])
+                && self::STATUS_ORDER[$old] >= self::STATUS_ORDER['accepted']) {
+                return back()->with('error',
+                    "Cannot reject an application that is already '" . self::label($old)
+                    . "'. An accepted applicant can no longer be rejected here.");
             }
         }
         // Same status re-submitted → idempotent, allowed to fall through.
