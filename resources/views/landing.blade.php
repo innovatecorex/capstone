@@ -59,17 +59,53 @@
     .brand__sub { display: block; font-size: .65rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--gold-2); margin-top: 3px; }
     .topbar__nav { display: flex; gap: .55rem; flex: none; }
 
-    /* ── HERO BANNER (entire image, never cropped) ── */
-    .banner { width: 100%; background: var(--navy); line-height: 0; border-bottom: 4px solid var(--gold); }
-    .banner img { width: 100%; height: auto; max-height: 88vh; object-fit: contain; margin: 0 auto; display: block; }
-
-    /* ── INTRO / PRIMARY CTA STRIP ───────────── */
-    .intro { background: linear-gradient(135deg, var(--navy) 0%, var(--navy-2) 60%, var(--blue) 100%); color: #fff; position: relative; overflow: hidden; }
-    .intro::before { content: ''; position: absolute; inset: 0; background-image: radial-gradient(rgba(255,255,255,.05) 1px, transparent 1px); background-size: 22px 22px; }
-    .intro__in { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem 2.5rem; flex-wrap: wrap; padding: 1.8rem 0; }
-    .intro p { font-size: clamp(1rem, 1.5vw, 1.14rem); line-height: 1.6; color: rgba(255,255,255,.92); max-width: 56ch; }
-    .intro p strong { color: var(--gold-2); font-weight: 800; }
-    .intro__cta { display: flex; gap: .7rem; flex-wrap: wrap; flex: none; }
+    /* ── HERO (uploaded image as background) ── */
+    .hero {
+      position: relative;
+      min-height: 80vh;
+      display: flex; align-items: center;
+      color: #fff;
+      border-bottom: 4px solid var(--gold);
+      /* the school banner as a true background image, anchored right so the
+         campus + medallions stay in view; on-brand gradient FALLBACK below. */
+      background:
+        url('{{ asset('images/landing-hero.png') }}') right center / cover no-repeat,
+        linear-gradient(135deg, #0a1a33 0%, #12305c 55%, #1d4ed8 100%);
+    }
+    /* navy scrim on the left so white hero text stays crisp, fading to reveal
+       the artwork (building, medallions) on the right */
+    .hero::before {
+      content: ''; position: absolute; inset: 0; z-index: 1;
+      background: linear-gradient(90deg,
+        rgba(6,16,38,.90) 0%, rgba(6,16,38,.74) 30%,
+        rgba(6,16,38,.34) 56%, rgba(6,16,38,0) 82%);
+    }
+    .hero__inner { position: relative; z-index: 2; width: 100%; max-width: 660px; padding: 4.5rem 0; }
+    .hero__eyebrow {
+      display: inline-flex; align-items: center; gap: 7px;
+      font-size: .7rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+      color: var(--gold-2);
+      background: rgba(212,161,42,.14); border: 1px solid rgba(212,161,42,.45);
+      padding: .34rem .85rem; border-radius: 999px; margin-bottom: 1.15rem;
+    }
+    .hero__eyebrow svg { width: 13px; height: 13px; }
+    .hero h1 {
+      font-family: 'Merriweather', Georgia, serif;
+      font-size: clamp(2.2rem, 5vw, 3.55rem); font-weight: 900;
+      letter-spacing: -.02em; line-height: 1.1; color: #fff;
+      max-width: 16ch; text-shadow: 0 2px 24px rgba(0,0,0,.5);
+    }
+    .hero__tag {
+      font-size: clamp(.92rem, 1.6vw, 1.12rem); font-weight: 700;
+      letter-spacing: .01em; color: var(--gold-2);
+      margin-top: .75rem; text-shadow: 0 1px 12px rgba(0,0,0,.5);
+    }
+    .hero p {
+      font-size: clamp(.98rem, 1.5vw, 1.12rem); line-height: 1.7;
+      color: rgba(255,255,255,.9); max-width: 50ch; margin: .9rem 0 1.9rem;
+      text-shadow: 0 1px 14px rgba(0,0,0,.55);
+    }
+    .hero__cta { display: flex; gap: .8rem; flex-wrap: wrap; }
 
     /* ── FACTS / ACCREDITATION STRIP ─────────── */
     .facts { background: #f8fafc; border-bottom: 1px solid var(--line); }
@@ -125,10 +161,10 @@
       .brand { flex-direction: column; text-align: center; gap: .45rem; }
       .topbar__nav { width: 100%; }
       .topbar__nav .btn { flex: 1 1 0; }
-      .banner img { max-height: none; }
-      .intro__in { flex-direction: column; align-items: flex-start; }
-      .intro__cta { width: 100%; }
-      .intro__cta .btn { flex: 1 1 100%; }
+      .hero { min-height: 82vh; }
+      .hero__inner { padding: 3.5rem 0; }
+      .hero::before { background: linear-gradient(180deg, rgba(6,16,38,.62) 0%, rgba(6,16,38,.80) 100%); }
+      .hero__cta .btn { flex: 1 1 100%; }
       .band__in .btn { width: 100%; }
       .foot__in { flex-direction: column; align-items: flex-start; }
     }
@@ -158,21 +194,24 @@
   </div>
 </header>
 
-{{-- ══════ HERO BANNER — full image, never cropped ══════ --}}
-<div class="banner">
-  <img src="{{ asset('images/landing-hero.png') }}"
-       alt="Philippine Academy of Sakya — campus, crest, and heritage banner"
-       width="1717" height="916">
-</div>
+{{-- ══════ HERO — uploaded image as background ══════ --}}
+<section class="hero" role="img" aria-label="Philippine Academy of Sakya campus and crest">
+  <div class="wrap hero__inner">
+    <span class="hero__eyebrow">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/>
+      </svg>
+      Official Secure Academic Portal
+    </span>
 
-{{-- ══════ INTRO / PRIMARY CTA ══════ --}}
-<section class="intro">
-  <div class="wrap intro__in">
+    <h1>Philippine Academy of Sakya</h1>
+    <div class="hero__tag">Junior &amp; Senior High School &middot; PAASCU Accredited Level III</div>
     <p>
-      The <strong>official secure academic portal</strong> of Philippine Academy of Sakya —
-      apply for admission, enroll, and access grades and report cards in one protected system.
+      Apply for admission, enroll, and access grades and report cards —
+      all in one secure academic portal.
     </p>
-    <div class="intro__cta">
+
+    <div class="hero__cta">
       <a href="{{ route('apply') }}" class="btn btn--gold">
         Apply Now
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
