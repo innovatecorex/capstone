@@ -81,11 +81,22 @@
       display: flex; align-items: center;
       color: #fff;
       border-bottom: 4px solid var(--gold);
-      /* the school banner as a true background image, anchored to the TOP so
-         the crest + medallions are never cut (crop falls on the bottom wave);
-         on-brand gradient FALLBACK below. */
-      background:
-        url('{{ asset('images/landing-hero.png') }}') center top / cover no-repeat,
+      background-color: #0a1a33;
+      background-position: center top;
+      background-size: cover;
+      background-repeat: no-repeat;
+      /* Fallback for browsers without image-set: the JPG (~249KB). */
+      background-image:
+        url('{{ asset('images/landing-hero.jpg') }}'),
+        linear-gradient(135deg, #0a1a33 0%, #12305c 55%, #1d4ed8 100%);
+      /* Modern browsers: prefer WebP (~155KB), fall back to JPG. Replaces the
+         old 2.3MB PNG — the single biggest page-weight win. Anchored to the TOP
+         so the crest + medallions are never cropped. */
+      background-image:
+        image-set(
+          url('{{ asset('images/landing-hero.webp') }}') type('image/webp'),
+          url('{{ asset('images/landing-hero.jpg') }}') type('image/jpeg')
+        ),
         linear-gradient(135deg, #0a1a33 0%, #12305c 55%, #1d4ed8 100%);
     }
     /* navy scrim on the left so white hero text stays crisp, fading to reveal

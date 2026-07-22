@@ -21,6 +21,29 @@ class StudentImportController extends Controller
         return view('admin.students.import');
     }
 
+    /**
+     * Downloadable CSV template. Kept as a controller action (not a route
+     * closure) so the route table stays cacheable in production.
+     *
+     * The LRN samples are wrapped as ="123456789012" so Excel keeps the column
+     * as TEXT — a plain 12-digit number becomes scientific notation
+     * (1.2348E+11) and the digits are lost. normalizeLrn() strips the wrapper
+     * on import, so the file works as-is.
+     */
+    public function template(): \Symfony\Component\HttpFoundation\Response
+    {
+        $csv = implode("\n", [
+            'first_name,last_name,email,lrn,grade_level,section_name,gender,phone,address',
+            'Juan,Dela Cruz,juan@example.com,="123456789012",7,Section A,male,09171234567,Manila',
+            'Maria,Santos,maria@example.com,="123456789013",8,Section B,female,,',
+        ]);
+
+        return response($csv, 200, [
+            'Content-Type'        => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="student_import_template.csv"',
+        ]);
+    }
+
     public function import(Request $request): View|RedirectResponse
     {
         try {
