@@ -51,13 +51,26 @@
     .btn--sm { min-height: 40px; padding: 0 1.05rem; font-size: .82rem; }
 
     /* ── TOP BAR (school identity first) ─────── */
-    .topbar { background: var(--navy); position: relative; z-index: 10; }
+    /* A defined, sticky bar with a gold hairline — so it reads as a deliberate
+       nav grounded to the top, not a slab of navy bleeding into the hero. */
+    .topbar {
+      position: sticky; top: 0; z-index: 50;
+      background: rgba(10,26,51,.92);
+      backdrop-filter: saturate(140%) blur(8px);
+      -webkit-backdrop-filter: saturate(140%) blur(8px);
+      border-bottom: 1px solid rgba(212,161,42,.32);
+      box-shadow: 0 8px 24px rgba(3,9,22,.28);
+    }
     .topbar__in { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .7rem 0; }
-    .brand { display: flex; align-items: center; gap: .7rem; }
-    .brand img { width: 46px; height: 46px; border-radius: 50%; border: 1px solid rgba(255,255,255,.18); padding: 2px; flex: none; }
-    .brand__name { font-family: 'Merriweather', Georgia, serif; font-weight: 900; font-size: 1.02rem; color: #fff; line-height: 1.12; letter-spacing: -.01em; }
-    .brand__sub { display: block; font-size: .65rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--gold-2); margin-top: 3px; }
-    .topbar__nav { display: flex; gap: .55rem; flex: none; }
+    .brand { display: flex; align-items: center; gap: .75rem; transition: opacity .15s; }
+    .brand:hover { opacity: .9; }
+    .brand img {
+      width: 48px; height: 48px; border-radius: 50%; flex: none;
+      box-shadow: 0 0 0 1px rgba(255,255,255,.14), 0 2px 8px rgba(0,0,0,.3);
+    }
+    .brand__name { font-family: 'Merriweather', Georgia, serif; font-weight: 800; font-size: 1.06rem; color: #fff; line-height: 1.1; letter-spacing: -.01em; }
+    .brand__sub { display: block; font-size: .63rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: rgba(240,198,90,.82); margin-top: 4px; }
+    .topbar__nav { display: flex; gap: .6rem; flex: none; }
 
     /* ── HERO (uploaded image as background) ── */
     .hero {
