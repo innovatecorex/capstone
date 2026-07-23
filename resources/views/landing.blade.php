@@ -73,7 +73,7 @@
       background: rgba(10,26,51,.92);
       backdrop-filter: saturate(140%) blur(8px);
       -webkit-backdrop-filter: saturate(140%) blur(8px);
-      border-bottom: 1px solid rgba(212,161,42,.32);
+      border-bottom: 1px solid rgba(212,161,42,.20);
       box-shadow: 0 8px 24px rgba(3,9,22,.28);
     }
     /* Full-bleed: brand hugs the left edge, nav hugs the right edge — not
@@ -95,23 +95,27 @@
        there is never a hard seam. The photo becomes atmosphere, not backdrop. */
     .hero {
       position: relative; overflow: hidden;
-      min-height: clamp(560px, 80vh, 840px);
+      min-height: clamp(580px, 82vh, 860px);
       display: flex; align-items: center;
       color: #fff;
-      border-bottom: 4px solid var(--gold);
-      background:
-        radial-gradient(900px 520px at 6% 16%, rgba(29,78,216,.30) 0%, transparent 62%),
-        linear-gradient(135deg, #071429 0%, #0a1a33 48%, #0e2547 100%);
+      background: #0a1a33;   /* base tone beneath the imagery */
+    }
+    /* a whisper of gold at the edge — a hairline that fades out, not a frame */
+    .hero::after {
+      content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; z-index: 3;
+      background: linear-gradient(90deg, transparent, rgba(212,161,42,.5), transparent);
     }
     /* fine dot texture for depth */
     .hero::before {
       content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
-      background-image: radial-gradient(rgba(255,255,255,.055) 1px, transparent 1px);
+      background-image: radial-gradient(rgba(255,255,255,.05) 1px, transparent 1px);
       background-size: 26px 26px;
     }
-    .hero__media { position: absolute; top: 0; right: 0; bottom: 0; width: 54%; z-index: 0; overflow: hidden; }
+    /* Imagery spans the FULL hero — there is no panel edge, so no seam can ever
+       appear, and the entrance can fade rather than drag a hard edge across. */
+    .hero__media { position: absolute; inset: 0; z-index: 0; overflow: hidden; }
     .hero__media-img {
-      position: absolute; inset: -2%;
+      position: absolute; inset: -3%;
       background-image:
         url('{{ asset('images/landing-hero.jpg') }}'),
         linear-gradient(135deg, #0a1a33, #12305c);
@@ -121,21 +125,28 @@
           url('{{ asset('images/landing-hero.jpg') }}') type('image/jpeg')
         ),
         linear-gradient(135deg, #0a1a33, #12305c);
-      background-size: cover; background-position: 72% center; background-repeat: no-repeat;
-      transform: scale(1.03);
-      animation: heroKen 30s ease-in-out infinite alternate;
+      background-size: cover; background-position: 68% center; background-repeat: no-repeat;
+      animation: heroKen 34s ease-in-out infinite alternate;
       will-change: transform;
     }
     @keyframes heroKen {
-      from { transform: scale(1.03) translate3d(0, 0, 0); }
-      to   { transform: scale(1.12) translate3d(-1.2%, -1%, 0); }
+      from { transform: scale(1.04) translate3d(0, 0, 0); }
+      to   { transform: scale(1.12) translate3d(-1.4%, -1%, 0); }
     }
-    /* feathered seam — the photo dissolves into the navy panel */
+    /* ONE continuous scrim: navy dissolves across the image on a slight
+       diagonal, so the type sits on deep navy and the campus emerges at right. */
     .hero__media::after {
       content: ''; position: absolute; inset: 0;
       background:
-        linear-gradient(90deg, #0a1a33 0%, rgba(10,26,51,.92) 14%, rgba(10,26,51,.55) 34%, rgba(10,26,51,.12) 62%, rgba(10,26,51,0) 84%),
-        linear-gradient(180deg, rgba(7,20,41,.40) 0%, transparent 28%, transparent 72%, rgba(7,20,41,.50) 100%);
+        linear-gradient(96deg,
+          rgba(7,17,36,.97) 0%,
+          rgba(7,17,36,.94) 24%,
+          rgba(8,20,42,.82) 40%,
+          rgba(9,22,46,.48) 56%,
+          rgba(10,26,51,.14) 74%,
+          rgba(10,26,51,0) 88%),
+        radial-gradient(760px 520px at 20% 45%, rgba(15,40,82,.55) 0%, transparent 70%),
+        linear-gradient(180deg, rgba(6,15,32,.45) 0%, transparent 26%, transparent 68%, rgba(6,15,32,.58) 100%);
     }
     .hero__inner { position: relative; z-index: 2; width: 100%; }
     .hero__content { max-width: 600px; padding: 4rem 0; }
@@ -162,8 +173,9 @@
       color: rgba(255,255,255,.82); max-width: 46ch; margin: .85rem 0 1.9rem; }
     .hero__cta { display: flex; gap: .8rem; flex-wrap: wrap; }
     /* animated scroll cue at the foot of the hero */
+    /* aligned to the text column, not the viewport centre — reads deliberate */
     .hero__scroll {
-      position: absolute; left: 50%; bottom: 20px; transform: translateX(-50%); z-index: 3;
+      position: absolute; left: max(1.5rem, calc(50% - 570px + 1.5rem)); bottom: 24px; z-index: 4;
       width: 28px; height: 46px; border: 2px solid rgba(255,255,255,.6); border-radius: 15px;
       display: flex; justify-content: center; padding-top: 7px;
       box-shadow: 0 2px 14px rgba(0,0,0,.35); transition: border-color .2s;
@@ -270,8 +282,8 @@
       color: rgba(255,255,255,.82); font-size: .8rem; font-weight: 600; letter-spacing: .06em; }
 
     /* ── ADMISSION BAND ──────────────────────── */
-    /* Closing section — gold edges top and bottom so the page ends deliberately. */
-    .band { position: relative; overflow: hidden; background: linear-gradient(135deg, var(--navy) 0%, var(--navy-2) 60%, var(--blue) 100%); color: #fff; border-top: 3px solid var(--gold); border-bottom: 3px solid var(--gold); }
+    /* Closing section — a single restrained hairline, no gold frame. */
+    .band { position: relative; overflow: hidden; background: linear-gradient(135deg, var(--navy) 0%, var(--navy-2) 60%, var(--blue) 100%); color: #fff; border-top: 1px solid rgba(212,161,42,.26); }
     .band::before { content: ''; position: absolute; inset: 0; background-image: radial-gradient(rgba(255,255,255,.05) 1px, transparent 1px); background-size: 24px 24px; }
     /* soft gold glow for depth */
     .band::after { content: ''; position: absolute; right: -6%; top: -55%; width: 460px; height: 460px; border-radius: 50%;
@@ -287,8 +299,9 @@
     /* 1 · Hero entrance — a directed sequence: the imagery wipes in, the
           headline rises line-by-line from behind a mask, then the gold rule
           draws itself and the supporting copy follows. */
-    .js .hero__media { clip-path: inset(0 0 0 100%); animation: mediaWipe 1.15s cubic-bezier(.65,0,.35,1) .1s forwards; }
-    @keyframes mediaWipe { to { clip-path: inset(0 0 0 0); } }
+    /* A soft fade, never a wipe — a moving hard edge would cut the image. */
+    .js .hero__media { opacity: 0; animation: mediaIn 1.5s ease .05s forwards; }
+    @keyframes mediaIn { to { opacity: 1; } }
 
     .js .hero__title .ln > span { transform: translateY(115%); animation: lineUp 1s cubic-bezier(.22,.61,.36,1) both; }
     .js .hero__title .ln:nth-child(1) > span { animation-delay: .52s; }
@@ -327,7 +340,7 @@
     .topbar--scrolled {
       background: rgba(7,14,29,.97);
       box-shadow: 0 12px 34px rgba(3,9,22,.45);
-      border-bottom-color: rgba(212,161,42,.5);
+      border-bottom-color: rgba(212,161,42,.34);
     }
 
     /* 4 · Gold buttons get a single sweep of light on hover. */
@@ -356,7 +369,7 @@
         opacity: 1 !important; transform: none !important; filter: none !important; animation: none !important; }
       .js .hero__title .ln > span { transform: none !important; animation: none !important; }
       .js .hero__rule { width: 96px !important; animation: none !important; }
-      .js .hero__media { clip-path: none !important; animation: none !important; }
+      .js .hero__media { opacity: 1 !important; animation: none !important; }
       .hero__media-img { animation: none !important; transform: none !important; }
       *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
     }
