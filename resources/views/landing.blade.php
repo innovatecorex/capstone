@@ -217,7 +217,7 @@
        CLOSING CTA
     ══════════════════════════════════════════════════════════ */
     .close { position: relative; overflow: hidden; background: var(--navy-3); color: #fff;
-      padding: clamp(2.5rem, 5vw, 3.75rem) 0 clamp(1.4rem, 2.5vw, 2rem); }
+      padding: clamp(1.9rem, 3.4vw, 2.6rem) 0 clamp(1rem, 1.8vw, 1.35rem); }
     .close::before { content: ''; position: absolute; inset: 0;
       background:
         radial-gradient(700px 420px at 78% 30%, rgba(212,161,42,.17) 0%, transparent 68%),
@@ -225,14 +225,14 @@
     .close__in { position: relative; z-index: 2; display: flex; align-items: flex-end; justify-content: space-between; gap: 2.5rem; flex-wrap: wrap; }
     .close__pill { display: inline-flex; align-items: center; gap: 8px; font-size: .62rem; font-weight: 700;
       letter-spacing: .22em; text-transform: uppercase; color: var(--gold-2);
-      border: 1px solid rgba(212,161,42,.38); border-radius: 99px; padding: .35rem .9rem; margin-bottom: 1.1rem; }
-    .close__pill svg { width: 12px; height: 12px; }
+      border: 1px solid rgba(212,161,42,.38); border-radius: 99px; padding: .3rem .8rem; margin-bottom: .7rem; }
+    .close__pill svg { width: 11px; height: 11px; }
     .close h2 { font-family: 'Merriweather', Georgia, serif; font-weight: 900; color: #fff;
-      font-size: clamp(1.6rem, 3.1vw, 2.35rem); letter-spacing: -.03em; line-height: 1.1; }
-    .close p { font-size: .94rem; color: rgba(255,255,255,.7); max-width: 46ch; margin-top: .7rem; }
-    .close__mark { position: relative; z-index: 2; margin-top: clamp(1.5rem, 3vw, 2.25rem);
-      padding-top: 1.05rem; border-top: 1px solid rgba(255,255,255,.1);
-      font-size: .68rem; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,.36); }
+      font-size: clamp(1.3rem, 2.3vw, 1.8rem); letter-spacing: -.025em; line-height: 1.12; }
+    .close p { font-size: .88rem; color: rgba(255,255,255,.66); max-width: 48ch; margin-top: .45rem; }
+    .close__mark { position: relative; z-index: 2; margin-top: clamp(1rem, 1.8vw, 1.4rem);
+      padding-top: .8rem; border-top: 1px solid rgba(255,255,255,.09);
+      font-size: .62rem; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,.32); }
 
     /* ══════════════════════════════════════════════════════════
        SECTION RAIL
@@ -499,7 +499,7 @@
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
           Admissions Open
         </span>
-        <h2>Now enrolling for<br>SY 2025&ndash;2026</h2>
+        <h2>Now enrolling for SY 2025&ndash;2026</h2>
         <p>Admission is open for Junior &amp; Senior High School. Begin your application online in minutes.</p>
       </div>
       <a href="{{ route('apply') }}" class="btn btn--gold">
