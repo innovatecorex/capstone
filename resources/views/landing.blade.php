@@ -96,20 +96,32 @@
     /* ══════════════════════════════════════════════════════════
        HERO
     ══════════════════════════════════════════════════════════ */
+    /* The banner was designed as a full-width image, so it is used as one. It
+       spans the entire hero under ONE continuous scrim — with no panel edge,
+       no seam can ever appear, and nothing is boxed into an awkward crop. */
     .hero { position: relative; overflow: hidden; background: var(--navy-3); color: #fff;
-      padding: clamp(3rem, 7vw, 6rem) 0 clamp(3.5rem, 8vw, 6.5rem); }
-    /* atmosphere: warm glow + faint dharma-wheel rings echoing the crest */
-    .hero::before { content: ''; position: absolute; inset: 0;
+      min-height: clamp(560px, 46vw, 840px);
+      display: flex; align-items: center;
+      padding: clamp(3rem, 6vw, 5rem) 0; }
+    .hero__media { position: absolute; inset: 0; z-index: 0; overflow: hidden; }
+    .hero__media-img { position: absolute; inset: -2%;
+      background-image: url('{{ asset('images/landing-hero.jpg') }}');
+      background-image: image-set(url('{{ asset('images/landing-hero.webp') }}') type('image/webp'), url('{{ asset('images/landing-hero.jpg') }}') type('image/jpeg'));
+      background-size: cover; background-position: center 42%; background-repeat: no-repeat;
+      animation: ken 36s ease-in-out infinite alternate; will-change: transform; }
+    @keyframes ken { from { transform: scale(1.03); } to { transform: scale(1.10); } }
+    .hero__media::after { content: ''; position: absolute; inset: 0;
       background:
-        radial-gradient(760px 520px at 14% 22%, rgba(24,60,120,.55) 0%, transparent 68%),
-        radial-gradient(620px 460px at 88% 78%, rgba(212,161,42,.13) 0%, transparent 70%); }
-    .hero__rings { position: absolute; right: -170px; top: 50%; transform: translateY(-50%); width: 720px; height: 720px;
-      border-radius: 50%; border: 1px solid rgba(212,161,42,.12); pointer-events: none; }
-    .hero__rings::before, .hero__rings::after { content: ''; position: absolute; border-radius: 50%; border: 1px solid rgba(212,161,42,.10); }
-    .hero__rings::before { inset: 78px; }
-    .hero__rings::after { inset: 160px; border-color: rgba(212,161,42,.14); }
-    .hero__in { position: relative; z-index: 2; display: grid; grid-template-columns: 1.02fr .98fr;
-      gap: clamp(2rem, 5vw, 4.5rem); align-items: center; }
+        linear-gradient(97deg,
+          rgba(6,15,30,.97) 0%, rgba(6,15,30,.93) 26%, rgba(7,18,38,.78) 42%,
+          rgba(8,20,42,.42) 58%, rgba(10,26,51,.12) 76%, rgba(10,26,51,0) 90%),
+        linear-gradient(180deg, rgba(5,13,28,.5) 0%, transparent 24%, transparent 68%, rgba(5,13,28,.6) 100%); }
+    /* faint editorial texture over the darkened side */
+    .hero::before { content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+      background-image: radial-gradient(rgba(255,255,255,.05) 1px, transparent 1px);
+      background-size: 26px 26px; }
+    .hero__in { position: relative; z-index: 2; width: 100%; }
+    .hero__content { max-width: 600px; }
 
     .hero__eyebrow { display: flex; align-items: center; gap: .85rem; margin-bottom: 1.5rem; }
     .hero__est { font-family: 'Merriweather', Georgia, serif; font-size: .92rem; font-weight: 700; color: var(--gold-2); letter-spacing: .02em; }
@@ -125,23 +137,6 @@
     .hero__lead { font-size: clamp(.98rem, 1.35vw, 1.06rem); line-height: 1.8; color: rgba(255,255,255,.74); max-width: 44ch; margin: .9rem 0 2.1rem; }
     .hero__cta { display: flex; gap: .7rem; flex-wrap: wrap; }
 
-    /* photographic plate with an offset gold mat */
-    .plate-wrap { position: relative; }
-    .plate-wrap::before { content: ''; position: absolute; inset: 22px -22px -22px 22px; border: 1px solid rgba(212,161,42,.4); border-radius: 3px; z-index: 0; }
-    /* The banner is a composite with artwork pinned to its far edges (crest at
-       left, medallions at right), so any narrow crop bisects them. The plate is
-       framed on the campus architecture instead — the crest is excluded cleanly
-       rather than sliced, and the drift is kept tiny so framing never shifts. */
-    .plate { position: relative; z-index: 1; overflow: hidden; border-radius: 3px; aspect-ratio: 5 / 4;
-      box-shadow: 0 34px 80px rgba(0,0,0,.5); }
-    .plate__img { position: absolute; inset: -3%;
-      background-image: url('{{ asset('images/landing-hero.jpg') }}');
-      background-image: image-set(url('{{ asset('images/landing-hero.webp') }}') type('image/webp'), url('{{ asset('images/landing-hero.jpg') }}') type('image/jpeg'));
-      background-size: cover; background-position: right center;
-      transform-origin: 82% center;
-      animation: ken 32s ease-in-out infinite alternate; will-change: transform; }
-    @keyframes ken { from { transform: scale(1.02); } to { transform: scale(1.07); } }
-    .plate::after { content: ''; position: absolute; inset: 0; background: linear-gradient(190deg, rgba(6,16,32,.12) 0%, transparent 42%, rgba(6,16,32,.42) 100%); }
     /* ══════════════════════════════════════════════════════════
        TICKER
     ══════════════════════════════════════════════════════════ */
@@ -281,8 +276,9 @@
     .js [data-d="5"] { transition-delay: .45s; } .js [data-d="6"] { transition-delay: .54s; }
 
     /* hero entrance choreography */
-    .js .plate-wrap { clip-path: inset(100% 0 0 0); animation: plateUp 1.2s cubic-bezier(.65,0,.35,1) .3s forwards; }
-    @keyframes plateUp { to { clip-path: inset(0 0 0 0); } }
+    /* a soft fade — never a wipe, so no hard edge is ever dragged across */
+    .js .hero__media { opacity: 0; animation: mediaIn 1.5s ease .05s forwards; }
+    @keyframes mediaIn { to { opacity: 1; } }
     .js .hero h1 .ln > span { transform: translateY(112%); animation: lnUp 1.05s var(--ease) both; }
     .js .hero h1 .ln:nth-child(1) > span { animation-delay: .46s; }
     .js .hero h1 .ln:nth-child(2) > span { animation-delay: .58s; }
@@ -302,8 +298,8 @@
         opacity: 1 !important; transform: none !important; animation: none !important; }
       .js .hero h1 .ln > span { transform: none !important; animation: none !important; }
       .js .hero__rule { width: 84px !important; animation: none !important; }
-      .js .plate-wrap { clip-path: none !important; animation: none !important; }
-      .plate__img, .ticker__track { animation: none !important; }
+      .js .hero__media { opacity: 1 !important; animation: none !important; }
+      .hero__media-img, .ticker__track { animation: none !important; transform: none !important; }
       *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
     }
 
@@ -315,10 +311,10 @@
       .nav__links { gap: 1.1rem; }
     }
     @media (max-width: 940px) {
-      .hero__in { grid-template-columns: 1fr; gap: 2.75rem; }
-      .hero__rings { display: none; }
-      .plate { aspect-ratio: 16 / 10; }
-      .plate-wrap::before { inset: 16px -16px -16px 16px; }
+      .hero { min-height: clamp(500px, 78vw, 620px); }
+      .hero__content { max-width: 100%; }
+      .hero__media::after { background:
+        linear-gradient(180deg, rgba(5,13,28,.72) 0%, rgba(6,15,30,.86) 55%, rgba(6,15,30,.94) 100%); }
       .adm { grid-template-columns: 1fr; gap: 2.25rem; }
       .figures__grid { grid-template-columns: repeat(2, 1fr); gap: 1.75rem 1rem; }
       .plates { grid-auto-rows: clamp(90px, 15vw, 130px); }
@@ -366,9 +362,9 @@
 
 {{-- ══════════════ HERO ══════════════ --}}
 <section class="hero" id="top">
-  <div class="hero__rings" aria-hidden="true"></div>
+  <div class="hero__media" aria-hidden="true"><div class="hero__media-img"></div></div>
   <div class="shell hero__in">
-    <div>
+    <div class="hero__content">
       <div class="hero__eyebrow">
         <span class="hero__est">Est. 1960</span>
         <i aria-hidden="true"></i>
@@ -394,12 +390,6 @@
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
         </a>
         <a href="{{ route('login') }}" class="btn btn--line">Portal Login</a>
-      </div>
-    </div>
-
-    <div class="plate-wrap">
-      <div class="plate">
-        <div class="plate__img" aria-hidden="true"></div>
       </div>
     </div>
   </div>
