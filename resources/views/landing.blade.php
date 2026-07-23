@@ -270,7 +270,8 @@
       color: rgba(255,255,255,.82); font-size: .8rem; font-weight: 600; letter-spacing: .06em; }
 
     /* ── ADMISSION BAND ──────────────────────── */
-    .band { position: relative; overflow: hidden; background: linear-gradient(135deg, var(--navy) 0%, var(--navy-2) 60%, var(--blue) 100%); color: #fff; border-top: 3px solid var(--gold); }
+    /* Closing section — gold edges top and bottom so the page ends deliberately. */
+    .band { position: relative; overflow: hidden; background: linear-gradient(135deg, var(--navy) 0%, var(--navy-2) 60%, var(--blue) 100%); color: #fff; border-top: 3px solid var(--gold); border-bottom: 3px solid var(--gold); }
     .band::before { content: ''; position: absolute; inset: 0; background-image: radial-gradient(rgba(255,255,255,.05) 1px, transparent 1px); background-size: 24px 24px; }
     /* soft gold glow for depth */
     .band::after { content: ''; position: absolute; right: -6%; top: -55%; width: 460px; height: 460px; border-radius: 50%;
@@ -280,23 +281,6 @@
     .band__pill svg { width: 12px; height: 12px; }
     .band h2 { font-family: 'Merriweather', Georgia, serif; font-size: clamp(1.35rem, 2.2vw, 1.75rem); font-weight: 900; letter-spacing: -.02em; margin-bottom: .4rem; color: #fff; }
     .band p { font-size: .95rem; color: rgba(255,255,255,.75); max-width: 44ch; }
-
-    /* ── FOOTER ──────────────────────────────── */
-    .foot { position: relative; background: var(--navy); color: rgba(255,255,255,.62); }
-    .foot::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-      background: linear-gradient(90deg, var(--gold), var(--gold-2), var(--gold)); }
-    /* Full-bleed like the top bar: brand hugs the left edge, links the right. */
-    .foot__in { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap;
-      padding: 2.25rem clamp(1rem, 3.5vw, 2.75rem); }
-    .foot__brand { display: flex; align-items: center; gap: .8rem; }
-    .foot__brand img { width: 42px; height: 42px; border-radius: 50%; border: 1px solid rgba(255,255,255,.18); padding: 2px; }
-    .foot__name { font-size: .92rem; font-weight: 800; color: #fff; letter-spacing: -.01em; }
-    .foot__sub { font-size: .68rem; color: rgba(255,255,255,.45); margin-top: 2px; }
-    .foot__links { display: flex; gap: 1.4rem; }
-    .foot__links a { font-size: .85rem; font-weight: 600; color: rgba(255,255,255,.72); transition: color .15s; }
-    .foot__links a:hover { color: #fff; }
-    .foot__bar { border-top: 1px solid rgba(255,255,255,.09); padding: 1.1rem 0 1.75rem; text-align: center; font-size: .74rem; color: rgba(255,255,255,.42); line-height: 1.7; }
-    .foot__bar strong { color: rgba(255,255,255,.6); font-weight: 700; }
 
     /* ══════ MOTION — orchestrated, professional, GPU-cheap ══════ */
 
@@ -403,7 +387,6 @@
       .topbar__nav .btn { flex: 1 1 0; }
       .hero__cta .btn { flex: 1 1 100%; }
       .band__in .btn { width: 100%; }
-      .foot__in { flex-direction: column; align-items: flex-start; }
     }
   </style>
 </head>
@@ -589,22 +572,8 @@
   </div>
 </section>
 
-{{-- ══════ FOOTER ══════ --}}
-<footer class="foot">
-  <div class="foot__in">
-    <a href="{{ route('landing') }}" class="foot__brand">
-      <img src="{{ asset('images/logo.png') }}" alt="Philippine Academy of Sakya crest">
-      <span>
-        <span class="foot__name">Philippine Academy of Sakya</span>
-        <span class="foot__sub" style="display:block;">Junior &amp; Senior High School · PAASCU Level III</span>
-      </span>
-    </a>
-    <div class="foot__links">
-      <a href="{{ route('login') }}">Portal Login</a>
-      <a href="{{ route('apply') }}">Apply for Admission</a>
-    </div>
-  </div>
-</footer>
+{{-- No footer: the school identity and both links already live in the sticky
+     top bar, so the admissions band closes the page on its call to action. --}}
 
 {{-- ══════ MOTION ENGINE — dependency-free, ~40 lines ══════ --}}
 <script>
