@@ -128,24 +128,20 @@
     /* photographic plate with an offset gold mat */
     .plate-wrap { position: relative; }
     .plate-wrap::before { content: ''; position: absolute; inset: 22px -22px -22px 22px; border: 1px solid rgba(212,161,42,.4); border-radius: 3px; z-index: 0; }
-    /* The banner is a wide 1.87:1 image — the plate matches that shape so the
-       composition is framed, not butchered by a portrait crop. */
-    .plate { position: relative; z-index: 1; overflow: hidden; border-radius: 3px; aspect-ratio: 4 / 3;
+    /* The banner is a composite with artwork pinned to its far edges (crest at
+       left, medallions at right), so any narrow crop bisects them. The plate is
+       framed on the campus architecture instead — the crest is excluded cleanly
+       rather than sliced, and the drift is kept tiny so framing never shifts. */
+    .plate { position: relative; z-index: 1; overflow: hidden; border-radius: 3px; aspect-ratio: 5 / 4;
       box-shadow: 0 34px 80px rgba(0,0,0,.5); }
-    .plate__img { position: absolute; inset: -4%;
+    .plate__img { position: absolute; inset: -3%;
       background-image: url('{{ asset('images/landing-hero.jpg') }}');
       background-image: image-set(url('{{ asset('images/landing-hero.webp') }}') type('image/webp'), url('{{ asset('images/landing-hero.jpg') }}') type('image/jpeg'));
-      background-size: cover; background-position: center;
-      animation: ken 34s ease-in-out infinite alternate; will-change: transform; }
-    @keyframes ken { from { transform: scale(1.03); } to { transform: scale(1.13) translate3d(-1.5%, -1%, 0); } }
+      background-size: cover; background-position: right center;
+      transform-origin: 82% center;
+      animation: ken 32s ease-in-out infinite alternate; will-change: transform; }
+    @keyframes ken { from { transform: scale(1.02); } to { transform: scale(1.07); } }
     .plate::after { content: ''; position: absolute; inset: 0; background: linear-gradient(190deg, rgba(6,16,32,.12) 0%, transparent 42%, rgba(6,16,32,.42) 100%); }
-    /* badge straddles the plate's bottom edge — vertical overlap only, so it
-       can never be clipped horizontally by the column */
-    .plate-badge { position: absolute; left: 24px; bottom: -20px; z-index: 3; background: var(--navy);
-      border-left: 2px solid var(--gold); padding: .8rem 1.2rem; box-shadow: 0 20px 46px rgba(0,0,0,.5); }
-    .plate-badge b { display: block; font-family: 'Merriweather', Georgia, serif; font-size: 1.35rem; font-weight: 900; color: #fff; line-height: 1; }
-    .plate-badge span { display: block; font-size: .58rem; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: var(--gold-2); margin-top: .4rem; }
-
     /* ══════════════════════════════════════════════════════════
        TICKER
     ══════════════════════════════════════════════════════════ */
@@ -299,11 +295,10 @@
     .js .hero__tag  { animation-delay: 1.02s; }
     .js .hero__lead { animation-delay: 1.12s; }
     .js .hero__cta  { animation-delay: 1.22s; }
-    .js .plate-badge { opacity: 0; animation: rise .8s var(--ease) 1.3s both; }
     @keyframes rise { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
 
     @media (prefers-reduced-motion: reduce) {
-      .js .reveal, .js .hero__eyebrow, .js .hero__tag, .js .hero__lead, .js .hero__cta, .js .plate-badge {
+      .js .reveal, .js .hero__eyebrow, .js .hero__tag, .js .hero__lead, .js .hero__cta {
         opacity: 1 !important; transform: none !important; animation: none !important; }
       .js .hero h1 .ln > span { transform: none !important; animation: none !important; }
       .js .hero__rule { width: 84px !important; animation: none !important; }
@@ -324,7 +319,6 @@
       .hero__rings { display: none; }
       .plate { aspect-ratio: 16 / 10; }
       .plate-wrap::before { inset: 16px -16px -16px 16px; }
-      .plate-badge { left: 18px; bottom: -18px; }
       .adm { grid-template-columns: 1fr; gap: 2.25rem; }
       .figures__grid { grid-template-columns: repeat(2, 1fr); gap: 1.75rem 1rem; }
       .plates { grid-auto-rows: clamp(90px, 15vw, 130px); }
@@ -406,10 +400,6 @@
     <div class="plate-wrap">
       <div class="plate">
         <div class="plate__img" aria-hidden="true"></div>
-      </div>
-      <div class="plate-badge">
-        <b>Level III</b>
-        <span>PAASCU Accredited</span>
       </div>
     </div>
   </div>
