@@ -128,19 +128,22 @@
     /* photographic plate with an offset gold mat */
     .plate-wrap { position: relative; }
     .plate-wrap::before { content: ''; position: absolute; inset: 22px -22px -22px 22px; border: 1px solid rgba(212,161,42,.4); border-radius: 3px; z-index: 0; }
-    .plate { position: relative; z-index: 1; overflow: hidden; border-radius: 3px; aspect-ratio: 4 / 5;
+    /* The banner is a wide 1.87:1 image — the plate matches that shape so the
+       composition is framed, not butchered by a portrait crop. */
+    .plate { position: relative; z-index: 1; overflow: hidden; border-radius: 3px; aspect-ratio: 4 / 3;
       box-shadow: 0 34px 80px rgba(0,0,0,.5); }
     .plate__img { position: absolute; inset: -4%;
       background-image: url('{{ asset('images/landing-hero.jpg') }}');
       background-image: image-set(url('{{ asset('images/landing-hero.webp') }}') type('image/webp'), url('{{ asset('images/landing-hero.jpg') }}') type('image/jpeg'));
-      background-size: cover; background-position: 62% center;
+      background-size: cover; background-position: center;
       animation: ken 34s ease-in-out infinite alternate; will-change: transform; }
     @keyframes ken { from { transform: scale(1.03); } to { transform: scale(1.13) translate3d(-1.5%, -1%, 0); } }
     .plate::after { content: ''; position: absolute; inset: 0; background: linear-gradient(190deg, rgba(6,16,32,.12) 0%, transparent 42%, rgba(6,16,32,.42) 100%); }
-    /* overlapping badge */
-    .plate-badge { position: absolute; left: -26px; bottom: 42px; z-index: 3; background: var(--navy);
-      border-left: 2px solid var(--gold); padding: .9rem 1.3rem; box-shadow: 0 20px 46px rgba(0,0,0,.5); }
-    .plate-badge b { display: block; font-family: 'Merriweather', Georgia, serif; font-size: 1.5rem; font-weight: 900; color: #fff; line-height: 1; }
+    /* badge straddles the plate's bottom edge — vertical overlap only, so it
+       can never be clipped horizontally by the column */
+    .plate-badge { position: absolute; left: 24px; bottom: -20px; z-index: 3; background: var(--navy);
+      border-left: 2px solid var(--gold); padding: .8rem 1.2rem; box-shadow: 0 20px 46px rgba(0,0,0,.5); }
+    .plate-badge b { display: block; font-family: 'Merriweather', Georgia, serif; font-size: 1.35rem; font-weight: 900; color: #fff; line-height: 1; }
     .plate-badge span { display: block; font-size: .58rem; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: var(--gold-2); margin-top: .4rem; }
 
     /* ══════════════════════════════════════════════════════════
@@ -223,7 +226,7 @@
        CLOSING CTA
     ══════════════════════════════════════════════════════════ */
     .close { position: relative; overflow: hidden; background: var(--navy-3); color: #fff;
-      padding: clamp(4rem, 9vw, 7rem) 0 clamp(3rem, 6vw, 4.5rem); }
+      padding: clamp(2.5rem, 5vw, 3.75rem) 0 clamp(1.4rem, 2.5vw, 2rem); }
     .close::before { content: ''; position: absolute; inset: 0;
       background:
         radial-gradient(700px 420px at 78% 30%, rgba(212,161,42,.17) 0%, transparent 68%),
@@ -234,10 +237,10 @@
       border: 1px solid rgba(212,161,42,.38); border-radius: 99px; padding: .35rem .9rem; margin-bottom: 1.1rem; }
     .close__pill svg { width: 12px; height: 12px; }
     .close h2 { font-family: 'Merriweather', Georgia, serif; font-weight: 900; color: #fff;
-      font-size: clamp(1.9rem, 4.2vw, 3.1rem); letter-spacing: -.03em; line-height: 1.08; }
-    .close p { font-size: 1rem; color: rgba(255,255,255,.7); max-width: 46ch; margin-top: .85rem; }
-    .close__mark { position: relative; z-index: 2; margin-top: clamp(2.5rem, 6vw, 4rem);
-      padding-top: 1.4rem; border-top: 1px solid rgba(255,255,255,.1);
+      font-size: clamp(1.6rem, 3.1vw, 2.35rem); letter-spacing: -.03em; line-height: 1.1; }
+    .close p { font-size: .94rem; color: rgba(255,255,255,.7); max-width: 46ch; margin-top: .7rem; }
+    .close__mark { position: relative; z-index: 2; margin-top: clamp(1.5rem, 3vw, 2.25rem);
+      padding-top: 1.05rem; border-top: 1px solid rgba(255,255,255,.1);
       font-size: .68rem; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,.36); }
 
     /* ══════════════════════════════════════════════════════════
@@ -286,7 +289,8 @@
     @keyframes plateUp { to { clip-path: inset(0 0 0 0); } }
     .js .hero h1 .ln > span { transform: translateY(112%); animation: lnUp 1.05s var(--ease) both; }
     .js .hero h1 .ln:nth-child(1) > span { animation-delay: .46s; }
-    .js .hero h1 .ln:nth-child(2) > span { animation-delay: .59s; }
+    .js .hero h1 .ln:nth-child(2) > span { animation-delay: .58s; }
+    .js .hero h1 .ln:nth-child(3) > span { animation-delay: .70s; }
     @keyframes lnUp { to { transform: translateY(0); } }
     .js .hero__rule { width: 0; animation: ruleDraw .85s var(--ease) .95s forwards; }
     @keyframes ruleDraw { to { width: 84px; } }
@@ -320,7 +324,7 @@
       .hero__rings { display: none; }
       .plate { aspect-ratio: 16 / 10; }
       .plate-wrap::before { inset: 16px -16px -16px 16px; }
-      .plate-badge { left: auto; right: -14px; bottom: -18px; }
+      .plate-badge { left: 18px; bottom: -18px; }
       .adm { grid-template-columns: 1fr; gap: 2.25rem; }
       .figures__grid { grid-template-columns: repeat(2, 1fr); gap: 1.75rem 1rem; }
       .plates { grid-auto-rows: clamp(90px, 15vw, 130px); }
@@ -378,7 +382,8 @@
       </div>
 
       <h1>
-        <span class="ln"><span>Philippine Academy</span></span>
+        <span class="ln"><span>Philippine</span></span>
+        <span class="ln"><span>Academy</span></span>
         <span class="ln"><span>of Sakya</span></span>
       </h1>
 
