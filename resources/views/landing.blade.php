@@ -89,71 +89,77 @@
     .brand__sub { display: block; font-size: .63rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: rgba(240,198,90,.82); margin-top: 4px; }
     .topbar__nav { display: flex; gap: .6rem; flex: none; }
 
-    /* ── HERO — the FULL banner, never cropped ── */
-    /* The hero is locked to the banner's own aspect ratio (1717×916), so the
-       ENTIRE image shows edge-to-edge — no cropping, no letterbox. */
+    /* ── HERO — split editorial composition ──────
+       A deep navy panel carries the typography (perfect contrast), while the
+       campus imagery bleeds off the right edge and feathers into the navy so
+       there is never a hard seam. The photo becomes atmosphere, not backdrop. */
     .hero {
-      position: relative;
-      width: 100%;
-      aspect-ratio: 1717 / 916;
-      min-height: 460px;
+      position: relative; overflow: hidden;
+      min-height: clamp(560px, 80vh, 840px);
       display: flex; align-items: center;
       color: #fff;
-      overflow: hidden;
       border-bottom: 4px solid var(--gold);
-      background-color: #0a1a33;
+      background:
+        radial-gradient(900px 520px at 6% 16%, rgba(29,78,216,.30) 0%, transparent 62%),
+        linear-gradient(135deg, #071429 0%, #0a1a33 48%, #0e2547 100%);
     }
-    .hero__bg {
-      position: absolute; inset: 0; z-index: 0;
-      background-color: #0a1a33;
-      background-position: center;
-      background-size: contain;            /* contain = the whole image is always shown */
-      background-repeat: no-repeat;
+    /* fine dot texture for depth */
+    .hero::before {
+      content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+      background-image: radial-gradient(rgba(255,255,255,.055) 1px, transparent 1px);
+      background-size: 26px 26px;
+    }
+    .hero__media { position: absolute; top: 0; right: 0; bottom: 0; width: 54%; z-index: 0; overflow: hidden; }
+    .hero__media-img {
+      position: absolute; inset: -2%;
       background-image:
         url('{{ asset('images/landing-hero.jpg') }}'),
-        linear-gradient(135deg, #0a1a33 0%, #12305c 55%, #1d4ed8 100%);
+        linear-gradient(135deg, #0a1a33, #12305c);
       background-image:
         image-set(
           url('{{ asset('images/landing-hero.webp') }}') type('image/webp'),
           url('{{ asset('images/landing-hero.jpg') }}') type('image/jpeg')
         ),
-        linear-gradient(135deg, #0a1a33 0%, #12305c 55%, #1d4ed8 100%);
-      animation: heroFade 1.2s ease both;  /* gentle reveal — no zoom, so nothing is ever cropped */
+        linear-gradient(135deg, #0a1a33, #12305c);
+      background-size: cover; background-position: 72% center; background-repeat: no-repeat;
+      transform: scale(1.03);
+      animation: heroKen 30s ease-in-out infinite alternate;
+      will-change: transform;
     }
-    @keyframes heroFade { from { opacity: 0; } to { opacity: 1; } }
-    /* navy scrim on the left so white hero text stays crisp, fading to reveal
-       the artwork (building, medallions) on the right */
-    .hero::before {
-      content: ''; position: absolute; inset: 0; z-index: 1;
-      background: linear-gradient(90deg,
-        rgba(6,16,38,.90) 0%, rgba(6,16,38,.74) 30%,
-        rgba(6,16,38,.34) 56%, rgba(6,16,38,0) 82%);
+    @keyframes heroKen {
+      from { transform: scale(1.03) translate3d(0, 0, 0); }
+      to   { transform: scale(1.12) translate3d(-1.2%, -1%, 0); }
     }
-    .hero__inner { position: relative; z-index: 2; width: 100%; max-width: 660px; padding: 4.5rem 0; }
+    /* feathered seam — the photo dissolves into the navy panel */
+    .hero__media::after {
+      content: ''; position: absolute; inset: 0;
+      background:
+        linear-gradient(90deg, #0a1a33 0%, rgba(10,26,51,.92) 14%, rgba(10,26,51,.55) 34%, rgba(10,26,51,.12) 62%, rgba(10,26,51,0) 84%),
+        linear-gradient(180deg, rgba(7,20,41,.40) 0%, transparent 28%, transparent 72%, rgba(7,20,41,.50) 100%);
+    }
+    .hero__inner { position: relative; z-index: 2; width: 100%; }
+    .hero__content { max-width: 600px; padding: 4rem 0; }
     .hero__eyebrow {
       display: inline-flex; align-items: center; gap: 7px;
       font-size: .7rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
       color: var(--gold-2);
       background: rgba(212,161,42,.14); border: 1px solid rgba(212,161,42,.45);
-      padding: .34rem .85rem; border-radius: 999px; margin-bottom: 1.15rem;
+      padding: .34rem .85rem; border-radius: 999px; margin-bottom: 1.3rem;
     }
     .hero__eyebrow svg { width: 13px; height: 13px; }
-    .hero h1 {
+    .hero__title {
       font-family: 'Merriweather', Georgia, serif;
-      font-size: clamp(2.2rem, 5vw, 3.55rem); font-weight: 900;
-      letter-spacing: -.02em; line-height: 1.1; color: #fff;
-      max-width: 16ch; text-shadow: 0 2px 24px rgba(0,0,0,.5);
+      font-size: clamp(2.1rem, 4.6vw, 3.5rem); font-weight: 900;
+      letter-spacing: -.025em; line-height: 1.08; color: #fff;
     }
-    .hero__tag {
-      font-size: clamp(.92rem, 1.6vw, 1.12rem); font-weight: 700;
-      letter-spacing: .01em; color: var(--gold-2);
-      margin-top: .75rem; text-shadow: 0 1px 12px rgba(0,0,0,.5);
-    }
-    .hero p {
-      font-size: clamp(.98rem, 1.5vw, 1.12rem); line-height: 1.7;
-      color: rgba(255,255,255,.9); max-width: 50ch; margin: .9rem 0 1.9rem;
-      text-shadow: 0 1px 14px rgba(0,0,0,.55);
-    }
+    .hero__title .ln { display: block; overflow: hidden; }
+    .hero__title .ln > span { display: block; }
+    .hero__rule { width: 96px; height: 3px; border-radius: 2px;
+      background: linear-gradient(90deg, var(--gold), var(--gold-2)); margin: 1.2rem 0 1rem; }
+    .hero__tag { font-size: clamp(.92rem, 1.5vw, 1.08rem); font-weight: 700;
+      letter-spacing: .01em; color: var(--gold-2); }
+    .hero__desc { font-size: clamp(.98rem, 1.4vw, 1.08rem); line-height: 1.75;
+      color: rgba(255,255,255,.82); max-width: 46ch; margin: .85rem 0 1.9rem; }
     .hero__cta { display: flex; gap: .8rem; flex-wrap: wrap; }
     /* animated scroll cue at the foot of the hero */
     .hero__scroll {
@@ -205,20 +211,34 @@
     .step__t { font-size: 1rem; font-weight: 800; color: var(--ink); margin-bottom: .35rem; }
     .step__d { font-size: .86rem; color: var(--body); line-height: 1.65; }
 
-    /* ── SHOWCASE GALLERY ────────────────────── */
-    .gallery { background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%); }
-    .gal-pano { position: relative; border-radius: 18px; overflow: hidden; margin: 0 0 1.15rem;
-      box-shadow: 0 16px 44px rgba(15,23,42,.14); cursor: zoom-in; border: 1px solid var(--line); }
-    .gal-pano img { width: 100%; height: auto; display: block; transition: transform .6s cubic-bezier(.22,.61,.36,1); }
-    .gal-pano:hover img { transform: scale(1.03); }
-    .gal-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.1rem; }
+    /* ── SHOWCASE GALLERY — editorial mosaic ─── */
+    .gallery { background: linear-gradient(180deg, #ffffff 0%, #f4f7fb 55%, #edf1f8 100%); }
+    /* Feature banner — a controlled height so it never floats in dead space. */
+    .gal-pano { position: relative; border-radius: 18px; overflow: hidden; margin: 0 0 1.1rem;
+      box-shadow: 0 18px 46px rgba(10,26,51,.18); cursor: zoom-in; border: 1px solid rgba(10,26,51,.09);
+      transition: box-shadow .3s, transform .3s, border-color .3s; }
+    .gal-pano img { width: 100%; height: clamp(220px, 30vw, 400px); object-fit: cover; object-position: center 46%;
+      display: block; transition: transform .7s cubic-bezier(.22,.61,.36,1); }
+    .gal-pano:hover { transform: translateY(-3px); box-shadow: 0 26px 58px rgba(10,26,51,.26); border-color: rgba(212,161,42,.5); }
+    .gal-pano:hover img { transform: scale(1.04); }
+
+    /* Asymmetric mosaic: one large feature tile anchors the composition. */
+    .gal-grid { display: grid; grid-template-columns: repeat(4, 1fr);
+      grid-auto-rows: clamp(150px, 17vw, 215px); gap: 1.1rem; }
+    .gal-item:nth-child(1) { grid-column: span 2; grid-row: span 2; }
+    .gal-item:nth-child(2) { grid-column: span 2; }
+    .gal-item:nth-child(5) { grid-column: span 2; }
+    .gal-item:nth-child(6) { grid-column: span 2; }
     .gal-item { position: relative; border-radius: 14px; overflow: hidden; cursor: zoom-in;
-      box-shadow: 0 10px 26px rgba(15,23,42,.10); background: var(--navy); }
-    .gal-item img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; display: block;
-      transition: transform .55s cubic-bezier(.22,.61,.36,1); }
-    .gal-item:hover img { transform: scale(1.07); }
+      box-shadow: 0 10px 28px rgba(10,26,51,.13); border: 1px solid rgba(10,26,51,.08);
+      background: var(--navy); transition: box-shadow .3s, transform .3s, border-color .3s; }
+    /* crop biased upward so faces stay in frame, never cut off */
+    .gal-item img { width: 100%; height: 100%; object-fit: cover; object-position: center 38%;
+      display: block; transition: transform .6s cubic-bezier(.22,.61,.36,1); }
+    .gal-item:hover { transform: translateY(-3px); box-shadow: 0 22px 46px rgba(10,26,51,.24); border-color: rgba(212,161,42,.55); }
+    .gal-item:hover img { transform: scale(1.06); }
     .gal-item::after { content: ''; position: absolute; inset: 0; pointer-events: none;
-      background: linear-gradient(180deg, transparent 55%, rgba(6,16,38,.5)); opacity: 0; transition: opacity .3s; }
+      background: linear-gradient(180deg, transparent 52%, rgba(6,16,38,.55)); opacity: 0; transition: opacity .3s; }
     .gal-item:hover::after { opacity: 1; }
     .gal-zoom { position: absolute; right: 11px; bottom: 11px; z-index: 2; width: 34px; height: 34px;
       border-radius: 9px; background: rgba(212,161,42,.96); color: #241a04;
@@ -265,7 +285,9 @@
     .foot { position: relative; background: var(--navy); color: rgba(255,255,255,.62); }
     .foot::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
       background: linear-gradient(90deg, var(--gold), var(--gold-2), var(--gold)); }
-    .foot__in { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap; padding: 2rem 0; }
+    /* Full-bleed like the top bar: brand hugs the left edge, links the right. */
+    .foot__in { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap;
+      padding: 2.25rem clamp(1rem, 3.5vw, 2.75rem); }
     .foot__brand { display: flex; align-items: center; gap: .8rem; }
     .foot__brand img { width: 42px; height: 42px; border-radius: 50%; border: 1px solid rgba(255,255,255,.18); padding: 2px; }
     .foot__name { font-size: .92rem; font-weight: 800; color: #fff; letter-spacing: -.01em; }
@@ -278,17 +300,31 @@
 
     /* ══════ MOTION — orchestrated, professional, GPU-cheap ══════ */
 
-    /* 1 · Hero entrance — a staggered, blur-to-focus rise on page load. Scoped
-          to .js so no-JS visitors just see the content, no flash. */
-    .js .hero__inner > * { opacity: 0; animation: heroRise .9s cubic-bezier(.22,.61,.36,1) both; }
-    .js .hero__inner > *:nth-child(1) { animation-delay: .20s; }
-    .js .hero__inner > *:nth-child(2) { animation-delay: .34s; }
-    .js .hero__inner > *:nth-child(3) { animation-delay: .46s; }
-    .js .hero__inner > *:nth-child(4) { animation-delay: .56s; }
-    .js .hero__inner > *:nth-child(5) { animation-delay: .66s; }
+    /* 1 · Hero entrance — a directed sequence: the imagery wipes in, the
+          headline rises line-by-line from behind a mask, then the gold rule
+          draws itself and the supporting copy follows. */
+    .js .hero__media { clip-path: inset(0 0 0 100%); animation: mediaWipe 1.15s cubic-bezier(.65,0,.35,1) .1s forwards; }
+    @keyframes mediaWipe { to { clip-path: inset(0 0 0 0); } }
+
+    .js .hero__title .ln > span { transform: translateY(115%); animation: lineUp 1s cubic-bezier(.22,.61,.36,1) both; }
+    .js .hero__title .ln:nth-child(1) > span { animation-delay: .52s; }
+    .js .hero__title .ln:nth-child(2) > span { animation-delay: .65s; }
+    @keyframes lineUp { to { transform: translateY(0); } }
+
+    .js .hero__rule { width: 0; animation: ruleDraw .8s cubic-bezier(.22,.61,.36,1) .98s forwards; }
+    @keyframes ruleDraw { to { width: 96px; } }
+
+    .js .hero__eyebrow,
+    .js .hero__tag,
+    .js .hero__desc,
+    .js .hero__cta { opacity: 0; animation: heroRise .8s cubic-bezier(.22,.61,.36,1) both; }
+    .js .hero__eyebrow { animation-delay: .42s; }
+    .js .hero__tag  { animation-delay: 1.04s; }
+    .js .hero__desc { animation-delay: 1.14s; }
+    .js .hero__cta  { animation-delay: 1.24s; }
     @keyframes heroRise {
-      from { opacity: 0; transform: translateY(30px); filter: blur(7px); }
-      to   { opacity: 1; transform: none;             filter: blur(0); }
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: none; }
     }
 
     /* 2 · Scroll reveals — sections rise into place as they enter the viewport. */
@@ -331,8 +367,13 @@
     /* Respect the user's motion preference — everything resolves to a calm,
        static page; content is always visible. */
     @media (prefers-reduced-motion: reduce) {
-      .js .reveal, .js .hero__inner > * { opacity: 1 !important; transform: none !important; filter: none !important; animation: none !important; }
-      .hero__bg { animation: none !important; opacity: 1 !important; }
+      .js .reveal,
+      .js .hero__eyebrow, .js .hero__tag, .js .hero__desc, .js .hero__cta {
+        opacity: 1 !important; transform: none !important; filter: none !important; animation: none !important; }
+      .js .hero__title .ln > span { transform: none !important; animation: none !important; }
+      .js .hero__rule { width: 96px !important; animation: none !important; }
+      .js .hero__media { clip-path: none !important; animation: none !important; }
+      .hero__media-img { animation: none !important; transform: none !important; }
       *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
     }
 
@@ -341,20 +382,20 @@
       .facts__grid { grid-template-columns: repeat(2, 1fr); gap: 1.5rem 0; }
       .fact + .fact { border-left: none; }
       .steps { grid-template-columns: 1fr; }
-      /* On narrow screens, stack: the FULL banner on top, hero text below it on
-         navy — still shown whole, never cropped, and text stays readable. */
-      .hero { aspect-ratio: auto; min-height: 0; display: block; background: var(--navy); }
-      .hero::before { display: none; }
-      .hero__bg {
-        position: relative; inset: auto; width: 100%;
-        aspect-ratio: 1717 / 916; background-size: cover; background-position: center;
-      }
-      .hero__inner { position: relative; z-index: 2; max-width: 100%; padding: 1.75rem 0 2.25rem; }
+      /* Stack on narrow screens: imagery band on top, editorial panel below. */
+      .hero { display: block; min-height: 0; }
+      .hero__media { position: relative; inset: auto; width: 100%; height: clamp(210px, 46vw, 320px); }
+      .hero__media::after { background: linear-gradient(180deg, rgba(7,20,41,.25) 0%, rgba(10,26,51,.55) 60%, rgba(10,26,51,.95) 100%); }
+      .hero__content { max-width: 100%; padding: 2rem 0 2.75rem; }
+      .hero__desc { max-width: 100%; }
       .hero__scroll { display: none; }
-      .gal-grid { grid-template-columns: repeat(2, 1fr); }
+      .gal-grid { grid-template-columns: repeat(2, 1fr); grid-auto-rows: clamp(140px, 29vw, 195px); }
+      .gal-item:nth-child(1) { grid-column: span 2; grid-row: span 1; }
+      .gal-item:nth-child(2), .gal-item:nth-child(5), .gal-item:nth-child(6) { grid-column: span 1; }
     }
     @media (max-width: 640px) {
-      .gal-grid { grid-template-columns: 1fr; }
+      .gal-grid { grid-template-columns: 1fr; grid-auto-rows: clamp(190px, 54vw, 240px); }
+      .gal-item:nth-child(n) { grid-column: span 1; grid-row: span 1; }
       .lb__nav { width: 40px; height: 40px; }
       .topbar__in { flex-direction: column; align-items: center; gap: .8rem; text-align: center; }
       .brand { flex-direction: column; text-align: center; gap: .45rem; }
@@ -394,30 +435,36 @@
 
 {{-- ══════ HERO — uploaded image as background ══════ --}}
 <section class="hero" aria-label="Welcome">
-  <div class="hero__bg" aria-hidden="true"></div>
+  <div class="hero__media" aria-hidden="true"><div class="hero__media-img"></div></div>
   <div class="wrap hero__inner">
-    <span class="hero__eyebrow">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/>
-      </svg>
-      Official Secure Academic Portal
-    </span>
-
-    <h1>Philippine Academy of Sakya</h1>
-    <div class="hero__tag">Junior &amp; Senior High School &middot; PAASCU Accredited Level III</div>
-    <p>
-      Apply for admission, enroll, and access grades and report cards —
-      all in one secure academic portal.
-    </p>
-
-    <div class="hero__cta">
-      <a href="{{ route('apply') }}" class="btn btn--gold">
-        Apply Now
+    <div class="hero__content">
+      <span class="hero__eyebrow">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/>
+          <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/>
         </svg>
-      </a>
-      <a href="{{ route('login') }}" class="btn btn--glass">Portal Login</a>
+        Official Secure Academic Portal
+      </span>
+
+      <h1 class="hero__title">
+        <span class="ln"><span>Philippine Academy</span></span>
+        <span class="ln"><span>of Sakya</span></span>
+      </h1>
+      <div class="hero__rule" aria-hidden="true"></div>
+      <div class="hero__tag">Junior &amp; Senior High School &middot; PAASCU Accredited Level III</div>
+      <p class="hero__desc">
+        Apply for admission, enroll, and access grades and report cards —
+        all in one secure academic portal.
+      </p>
+
+      <div class="hero__cta">
+        <a href="{{ route('apply') }}" class="btn btn--gold">
+          Apply Now
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/>
+          </svg>
+        </a>
+        <a href="{{ route('login') }}" class="btn btn--glass">Portal Login</a>
+      </div>
     </div>
   </div>
   <a href="#facts" class="hero__scroll" aria-label="Scroll down to explore"><span></span></a>
@@ -544,19 +591,17 @@
 
 {{-- ══════ FOOTER ══════ --}}
 <footer class="foot">
-  <div class="wrap">
-    <div class="foot__in">
-      <a href="{{ route('landing') }}" class="foot__brand">
-        <img src="{{ asset('images/logo.png') }}" alt="Philippine Academy of Sakya crest">
-        <span>
-          <span class="foot__name">Philippine Academy of Sakya</span>
-          <span class="foot__sub" style="display:block;">Junior &amp; Senior High School · PAASCU Level III</span>
-        </span>
-      </a>
-      <div class="foot__links">
-        <a href="{{ route('login') }}">Portal Login</a>
-        <a href="{{ route('apply') }}">Apply for Admission</a>
-      </div>
+  <div class="foot__in">
+    <a href="{{ route('landing') }}" class="foot__brand">
+      <img src="{{ asset('images/logo.png') }}" alt="Philippine Academy of Sakya crest">
+      <span>
+        <span class="foot__name">Philippine Academy of Sakya</span>
+        <span class="foot__sub" style="display:block;">Junior &amp; Senior High School · PAASCU Level III</span>
+      </span>
+    </a>
+    <div class="foot__links">
+      <a href="{{ route('login') }}">Portal Login</a>
+      <a href="{{ route('apply') }}">Apply for Admission</a>
     </div>
   </div>
 </footer>
